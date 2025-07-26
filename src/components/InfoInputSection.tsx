@@ -57,7 +57,7 @@ export default function InfoInputSection() {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      handleSubmit(e as React.FormEvent<HTMLInputElement>)
+      handleSubmit(e as unknown as React.FormEvent<HTMLInputElement>)
     }
   }
 

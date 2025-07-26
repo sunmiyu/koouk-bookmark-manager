@@ -1,48 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-
-interface Note {
-  id: string
-  title: string
-  content: string
-  createdAt: string
-  updatedAt: string
-}
+import { useContent } from '@/contexts/ContentContext'
 
 export default function NotesSection() {
   const FREE_PLAN_LIMIT = 50
-  
-  const [notes] = useState<Note[]>([
-    {
-      id: '1',
-      title: 'Project Ideas',
-      content: 'Build a bookmark manager app\nAdd PWA functionality\nImplement dark mode',
-      createdAt: '2025-01-25',
-      updatedAt: '2025-01-25'
-    },
-    {
-      id: '2',
-      title: 'Learning Resources',
-      content: 'Next.js documentation\nTailwind CSS guide\nTypeScript handbook',
-      createdAt: '2025-01-24',
-      updatedAt: '2025-01-24'
-    },
-    {
-      id: '3',
-      title: 'Code Snippets',
-      content: 'Useful React hooks\nCSS animations\nJavaScript utilities',
-      createdAt: '2025-01-23',
-      updatedAt: '2025-01-23'
-    },
-    {
-      id: '4',
-      title: 'Meeting Notes',
-      content: 'Team standup discussion points\nAction items for next sprint',
-      createdAt: '2025-01-22',
-      updatedAt: '2025-01-22'
-    }
-  ])
+  const { notes } = useContent()
 
   const isAtLimit = notes.length >= FREE_PLAN_LIMIT
 
@@ -83,7 +45,7 @@ export default function NotesSection() {
                 <p className="text-xs text-gray-400 mt-1 line-clamp-2">
                   {note.content.split('\n')[0]}
                 </p>
-                <p className="text-xs text-purple-400 mt-2">{formatDate(note.updatedAt)}</p>
+                <p className="text-xs text-purple-400 mt-2">{formatDate(note.createdAt)}</p>
               </div>
             </div>
           </div>

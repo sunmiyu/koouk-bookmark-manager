@@ -1,10 +1,4 @@
-interface Video {
-  id: number
-  title: string
-  url: string
-  thumbnail?: string
-  videoId?: string
-}
+import { useContent } from '@/contexts/ContentContext'
 
 const getYouTubeVideoId = (url: string): string | null => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
@@ -19,18 +13,7 @@ const getYouTubeThumbnail = (url: string): string => {
 
 export default function VideoSection() {
   const FREE_PLAN_LIMIT = 50
-  
-  const videos: Video[] = [
-    { id: 1, title: "React 18 Complete Tutorial", url: "https://www.youtube.com/watch?v=bMknfKXIFA8" },
-    { id: 2, title: "Next.js App Router Guide", url: "https://www.youtube.com/watch?v=ZVnjOPwW4ZA" },
-    { id: 3, title: "TypeScript Best Practices", url: "https://www.youtube.com/watch?v=RmGHnYUqQ4k" },
-    { id: 4, title: "Tailwind CSS Masterclass", url: "https://www.youtube.com/watch?v=ft30zcMlFao" },
-    { id: 5, title: "JavaScript ES2024 Features", url: "https://www.youtube.com/watch?v=ti2Q4P_LZFE" },
-    { id: 6, title: "Web Performance Optimization", url: "https://www.youtube.com/watch?v=uhRWMGBjlO8" },
-    { id: 7, title: "Modern CSS Techniques", url: "https://www.youtube.com/watch?v=qm0IfZGk-2E" },
-    { id: 8, title: "Node.js Backend Development", url: "https://www.youtube.com/watch?v=ENrzD9HAZK4" },
-    { id: 9, title: "React State Management", url: "https://www.youtube.com/watch?v=35lXWvCuM8o" }
-  ]
+  const { videos } = useContent()
 
   const isAtLimit = videos.length >= FREE_PLAN_LIMIT
   
@@ -45,7 +28,7 @@ export default function VideoSection() {
       </div>
       <div className="space-y-3 max-h-[800px] overflow-y-auto">
         {videos.map((video) => {
-          const thumbnailUrl = getYouTubeThumbnail(video.url)
+          const thumbnailUrl = video.url ? getYouTubeThumbnail(video.url) : ''
           return (
             <div key={video.id} className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700">
               <div className="flex items-start responsive-gap-sm">

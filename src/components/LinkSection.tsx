@@ -1,22 +1,8 @@
-interface Link {
-  id: number
-  title: string
-  url: string
-  description?: string
-}
+import { useContent } from '@/contexts/ContentContext'
 
 export default function LinkSection() {
   const FREE_PLAN_LIMIT = 50
-  
-  const links: Link[] = [
-    { id: 1, title: "GitHub", url: "https://github.com", description: "Development platform" },
-    { id: 2, title: "Stack Overflow", url: "https://stackoverflow.com", description: "Programming Q&A" },
-    { id: 3, title: "MDN Web Docs", url: "https://developer.mozilla.org", description: "Web development resources" },
-    { id: 4, title: "Next.js Documentation", url: "https://nextjs.org/docs", description: "React framework docs" },
-    { id: 5, title: "Tailwind CSS", url: "https://tailwindcss.com", description: "Utility-first CSS framework" },
-    { id: 6, title: "Vercel", url: "https://vercel.com", description: "Deployment platform" },
-    { id: 7, title: "TypeScript", url: "https://www.typescriptlang.org", description: "Typed JavaScript" }
-  ]
+  const { links } = useContent()
 
   const isAtLimit = links.length >= FREE_PLAN_LIMIT
   

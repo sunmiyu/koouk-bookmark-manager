@@ -10,10 +10,12 @@ import NotesSection from '@/components/NotesSection'
 import LinkSection from '@/components/LinkSection'
 import AuthButton from '@/components/AuthButton'
 import KooukLogo from '@/components/KooukLogo'
+import { ContentProvider } from '@/contexts/ContentContext'
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <ContentProvider>
+      <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto responsive-p-md py-4 sm:py-6">
         <header className="mb-6">
           {/* First row: Logo, Weather, Time */}
@@ -45,7 +47,7 @@ export default function Home() {
             <div className="flex items-center gap-3 ml-4">
               <a 
                 href="/pricing"
-                className="px-6 py-2 bg-green-600 text-white text-sm font-medium rounded-full hover:bg-green-700 transition-all duration-200 h-[40px] flex items-center justify-center"
+                className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-full hover:bg-green-700 transition-all duration-200 h-[36px] flex items-center justify-center"
               >
                 Pro
               </a>
@@ -121,5 +123,6 @@ export default function Home() {
         </footer>
       </div>
     </div>
+    </ContentProvider>
   )
 }

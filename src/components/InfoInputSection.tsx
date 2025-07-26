@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useContent } from '@/contexts/ContentContext'
 
 interface InfoItem {
   id: string
@@ -12,13 +13,14 @@ interface InfoItem {
 
 export default function InfoInputSection() {
   const FREE_PLAN_LIMIT = 50
+  const { videos, links, images, notes, addItem } = useContent()
   
-  // Mock current counts - in real app, these would come from state management
+  // Get current counts from context
   const currentCounts = {
-    video: 9,
-    link: 7,
-    image: 11,
-    note: 4
+    video: videos.length,
+    link: links.length,
+    image: images.length,
+    note: notes.length
   }
   
   const [inputValue, setInputValue] = useState('')
@@ -56,15 +58,17 @@ export default function InfoInputSection() {
     }
 
     const isUrl = inputValue.includes('http')
-    const newItem: InfoItem = {
-      id: Date.now().toString(),
+    
+    // Create the new item and add it to context
+    const newItem = {
       type: inputType,
       title: isUrl ? `${inputType.charAt(0).toUpperCase() + inputType.slice(1)} from URL` : inputValue.trim(),
       url: isUrl ? inputValue.trim() : undefined,
-      content: !isUrl ? inputValue.trim() : undefined
+      content: !isUrl ? inputValue.trim() : undefined,
+      thumbnail: inputType === 'image' && isUrl ? inputValue.trim() : undefined
     }
 
-    console.log('새 아이템 추가:', newItem)
+    addItem(newItem)
     
     setInputValue('')
     setIsExpanded(false)

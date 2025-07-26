@@ -1,26 +1,8 @@
-interface Image {
-  id: number
-  title: string
-  url: string
-  thumbnail: string
-}
+import { useContent } from '@/contexts/ContentContext'
 
 export default function ImageSection() {
   const FREE_PLAN_LIMIT = 50
-  
-  const images: Image[] = [
-    { id: 1, title: "Modern UI Design Trends", url: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=300&h=200&fit=crop", thumbnail: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=300&h=200&fit=crop" },
-    { id: 2, title: "Color Palette Inspiration", url: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=300&h=200&fit=crop", thumbnail: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=300&h=200&fit=crop" },
-    { id: 3, title: "Typography Examples", url: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=300&h=200&fit=crop", thumbnail: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=300&h=200&fit=crop" },
-    { id: 4, title: "Mobile App Designs", url: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=300&h=200&fit=crop", thumbnail: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=300&h=200&fit=crop" },
-    { id: 5, title: "Website Layout Ideas", url: "https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=300&h=200&fit=crop", thumbnail: "https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=300&h=200&fit=crop" },
-    { id: 6, title: "Icon Design Collection", url: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=300&h=200&fit=crop", thumbnail: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=300&h=200&fit=crop" },
-    { id: 7, title: "Branding Examples", url: "https://images.unsplash.com/photo-1634942537034-2531766767d1?w=300&h=200&fit=crop", thumbnail: "https://images.unsplash.com/photo-1634942537034-2531766767d1?w=300&h=200&fit=crop" },
-    { id: 8, title: "UI Component Library", url: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=300&h=200&fit=crop", thumbnail: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=300&h=200&fit=crop" },
-    { id: 9, title: "Dashboard Designs", url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=200&fit=crop", thumbnail: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=200&fit=crop" },
-    { id: 10, title: "Landing Page Examples", url: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=300&h=200&fit=crop", thumbnail: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=300&h=200&fit=crop" },
-    { id: 11, title: "Illustration Styles", url: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=300&h=200&fit=crop", thumbnail: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=300&h=200&fit=crop" }
-  ]
+  const { images } = useContent()
 
   const isAtLimit = images.length >= FREE_PLAN_LIMIT
   
@@ -40,7 +22,7 @@ export default function ImageSection() {
               <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
-                  src={image.thumbnail}
+                  src={image.thumbnail || image.url}
                   alt={image.title}
                   className="w-full h-full object-cover"
                   onError={(e) => {

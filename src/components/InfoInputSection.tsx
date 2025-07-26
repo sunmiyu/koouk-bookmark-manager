@@ -3,13 +3,6 @@
 import { useState } from 'react'
 import { useContent } from '@/contexts/ContentContext'
 
-interface InfoItem {
-  id: string
-  type: 'video' | 'link' | 'image' | 'note'
-  title: string
-  url?: string
-  content?: string
-}
 
 export default function InfoInputSection() {
   const FREE_PLAN_LIMIT = 50

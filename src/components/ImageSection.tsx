@@ -25,7 +25,7 @@ export default function ImageSection() {
           <div 
             key={image.id} 
             className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700"
-            onClick={() => setSelectedImage({ url: image.thumbnail || image.url, title: image.title || 'Untitled Image' })}
+            onClick={() => setSelectedImage({ url: image.thumbnail || image.url || '', title: image.title || 'Untitled Image' })}
           >
             <div className="flex items-start responsive-gap-sm">
               <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden">

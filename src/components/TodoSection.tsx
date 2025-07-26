@@ -7,6 +7,12 @@ interface Todo {
   text: string
   completed: boolean
   completedAt?: string
+  repeat?: {
+    type: 'none' | 'weekly' | 'monthly' | 'yearly'
+    dayOfWeek?: number // 0=일요일, 1=월요일, ..., 6=토요일
+    dayOfMonth?: number // 1-31
+    dayOfYear?: { month: number, day: number } // 월/일
+  }
 }
 
 interface DateCard {
@@ -60,6 +66,8 @@ export default function TodoSection() {
   )
   
   const [newTodoText, setNewTodoText] = useState<{[key: string]: string}>({})
+  const [showRepeatOptions, setShowRepeatOptions] = useState<{[key: string]: boolean}>({})
+  const [repeatSettings, setRepeatSettings] = useState<{[key: string]: Todo['repeat']}>({})
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
@@ -73,10 +81,23 @@ export default function TodoSection() {
     const text = newTodoText[dateStr]?.trim()
     if (!text) return
 
+    const repeat = repeatSettings[dateStr] || { type: 'none' }
+    const targetDate = new Date(dateStr)
+    
+    // 반복 설정에 따라 dayOfWeek, dayOfMonth, dayOfYear 자동 설정
+    if (repeat.type === 'weekly') {
+      repeat.dayOfWeek = targetDate.getDay()
+    } else if (repeat.type === 'monthly') {
+      repeat.dayOfMonth = targetDate.getDate()
+    } else if (repeat.type === 'yearly') {
+      repeat.dayOfYear = { month: targetDate.getMonth() + 1, day: targetDate.getDate() }
+    }
+
     const newTodo: Todo = {
       id: Date.now().toString(),
       text,
-      completed: false
+      completed: false,
+      repeat
     }
 
     setDateCards(prev => prev.map(card => 
@@ -86,6 +107,8 @@ export default function TodoSection() {
     ))
 
     setNewTodoText(prev => ({ ...prev, [dateStr]: '' }))
+    setRepeatSettings(prev => ({ ...prev, [dateStr]: { type: 'none' } }))
+    setShowRepeatOptions(prev => ({ ...prev, [dateStr]: false }))
   }
 
   const toggleTodo = (dateStr: string, todoId: string) => {
@@ -158,6 +181,13 @@ export default function TodoSection() {
                 />
                 <span className={`flex-1 text-sm ${todo.completed ? 'line-through text-gray-500' : 'text-white'} break-words`}>
                   {todo.text}
+                  {todo.repeat && todo.repeat.type !== 'none' && (
+                    <span className="ml-2 text-xs text-purple-400">
+                      {todo.repeat.type === 'weekly' && '📅'}
+                      {todo.repeat.type === 'monthly' && '🗓️'}
+                      {todo.repeat.type === 'yearly' && '📆'}
+                    </span>
+                  )}
                 </span>
                 {!isHistoryCard && (
                   <button
@@ -178,22 +208,63 @@ export default function TodoSection() {
         </div>
 
         {!isHistoryCard && (
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={newTodoText[card.date] || ''}
-              onChange={(e) => setNewTodoText(prev => ({ ...prev, [card.date]: e.target.value }))}
-              onKeyPress={(e) => handleKeyPress(e, card.date)}
-              placeholder="Add new todo..."
-              className="flex-1 px-2 py-1 text-sm bg-gray-800 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-white placeholder-gray-400"
-            />
-            <button 
-              onClick={() => addTodo(card.date)}
-              className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors flex-shrink-0 text-sm"
-              title="Add todo"
-            >
-              +
-            </button>
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newTodoText[card.date] || ''}
+                onChange={(e) => setNewTodoText(prev => ({ ...prev, [card.date]: e.target.value }))}
+                onKeyPress={(e) => handleKeyPress(e, card.date)}
+                placeholder="Add new todo..."
+                className="flex-1 px-2 py-1 text-sm bg-gray-800 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-white placeholder-gray-400"
+              />
+              <button
+                onClick={() => setShowRepeatOptions(prev => ({ ...prev, [card.date]: !prev[card.date] }))}
+                className={`w-7 h-7 flex items-center justify-center border border-gray-600 rounded transition-colors flex-shrink-0 text-sm ${
+                  showRepeatOptions[card.date] 
+                    ? 'bg-purple-600 text-white border-purple-500' 
+                    : 'text-gray-400 hover:text-white hover:border-gray-400'
+                }`}
+                title="Repeat options"
+              >
+                ↻
+              </button>
+              <button 
+                onClick={() => addTodo(card.date)}
+                className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors flex-shrink-0 text-sm"
+                title="Add todo"
+              >
+                +
+              </button>
+            </div>
+            
+            {showRepeatOptions[card.date] && (
+              <div className="bg-gray-800 p-3 rounded border border-gray-600">
+                <div className="text-xs text-gray-400 mb-2">반복 설정</div>
+                <div className="space-y-2">
+                  {(['none', 'weekly', 'monthly', 'yearly'] as const).map((type) => (
+                    <label key={type} className="flex items-center gap-2 text-sm">
+                      <input
+                        type="radio"
+                        name={`repeat-${card.date}`}
+                        checked={(repeatSettings[card.date]?.type || 'none') === type}
+                        onChange={() => setRepeatSettings(prev => ({
+                          ...prev,
+                          [card.date]: { type }
+                        }))}
+                        className="text-purple-600 bg-gray-700 border-gray-600 focus:ring-purple-500"
+                      />
+                      <span className="text-gray-300">
+                        {type === 'none' && '반복 안함'}
+                        {type === 'weekly' && '매주 반복'}
+                        {type === 'monthly' && '매월 동일 날짜'}
+                        {type === 'yearly' && '매년 동일 날짜'}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

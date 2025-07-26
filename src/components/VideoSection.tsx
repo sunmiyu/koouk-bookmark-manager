@@ -30,7 +30,11 @@ export default function VideoSection() {
         {videos.map((video) => {
           const thumbnailUrl = video.url ? getYouTubeThumbnail(video.url) : ''
           return (
-            <div key={video.id} className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700">
+            <div 
+              key={video.id} 
+              className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700"
+              onClick={() => window.open(video.url, '_blank')}
+            >
               <div className="flex items-start responsive-gap-sm">
                 <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden relative">
                   {thumbnailUrl ? (

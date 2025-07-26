@@ -32,12 +32,9 @@ export default function AuthButton() {
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="px-4 py-1 bg-blue-600 text-white text-sm font-medium rounded-full hover:bg-blue-700 transition-all duration-200 h-[24px] flex items-center justify-center gap-2"
+          className="w-16 py-1 bg-blue-600 text-white text-sm font-medium rounded-full hover:bg-blue-700 transition-all duration-200 h-[24px] flex items-center justify-center"
         >
           <span>{session.user?.name?.split(' ')[0] || 'User'}</span>
-          <svg className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
         </button>
         
         {isDropdownOpen && (
@@ -65,12 +62,9 @@ export default function AuthButton() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="px-4 py-1 bg-gray-700 text-white text-sm font-medium rounded-full hover:bg-gray-600 transition-all duration-200 h-[24px] flex items-center justify-center gap-2"
+        className="w-16 py-1 bg-gray-700 text-white text-sm font-medium rounded-full hover:bg-gray-600 transition-all duration-200 h-[24px] flex items-center justify-center"
       >
         <span>Login</span>
-        <svg className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
       </button>
       
       {isDropdownOpen && (

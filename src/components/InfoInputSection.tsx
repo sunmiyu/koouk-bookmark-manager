@@ -141,7 +141,7 @@ export default function InfoInputSection() {
             onKeyPress={handleKeyPress}
             onPaste={handlePaste}
             placeholder="Add link, video, image, or note..."
-            className="w-full responsive-p-md bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-white placeholder-gray-400 responsive-text-base pr-16 sm:pr-20"
+            className="w-full responsive-p-md bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-white placeholder-gray-400 responsive-text-base pr-16 sm:pr-20 text-center"
           />
           
           {isExpanded && (

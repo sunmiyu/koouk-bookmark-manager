@@ -1,8 +1,13 @@
+'use client'
+
+import { useState } from 'react'
 import { useContent } from '@/contexts/ContentContext'
+import ImageModal from './ImageModal'
 
 export default function ImageSection() {
   const FREE_PLAN_LIMIT = 50
   const { images } = useContent()
+  const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
 
   const isAtLimit = images.length >= FREE_PLAN_LIMIT
   
@@ -17,7 +22,11 @@ export default function ImageSection() {
       </div>
       <div className="space-y-3 max-h-[800px] overflow-y-auto">
         {images.map((image) => (
-          <div key={image.id} className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700">
+          <div 
+            key={image.id} 
+            className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700"
+            onClick={() => setSelectedImage({ url: image.thumbnail || image.url, title: image.title || 'Untitled Image' })}
+          >
             <div className="flex items-start responsive-gap-sm">
               <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -67,6 +76,14 @@ export default function ImageSection() {
           </p>
         </div>
       )}
+      
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={!!selectedImage}
+        onClose={() => setSelectedImage(null)}
+        imageUrl={selectedImage?.url || ''}
+        imageTitle={selectedImage?.title || ''}
+      />
     </div>
   )
 }

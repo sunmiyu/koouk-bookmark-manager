@@ -1,10 +1,13 @@
 'use client'
 
+import { useState } from 'react'
 import { useContent } from '@/contexts/ContentContext'
+import NoteModal from './NoteModal'
 
 export default function NotesSection() {
   const FREE_PLAN_LIMIT = 50
   const { notes } = useContent()
+  const [selectedNote, setSelectedNote] = useState<{ title: string; content: string } | null>(null)
 
   const isAtLimit = notes.length >= FREE_PLAN_LIMIT
 
@@ -33,7 +36,11 @@ export default function NotesSection() {
       
       <div className="space-y-3 max-h-[800px] overflow-y-auto">
         {notes.map((note) => (
-          <div key={note.id} className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700">
+          <div 
+            key={note.id} 
+            className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700"
+            onClick={() => setSelectedNote({ title: note.title, content: note.content || '' })}
+          >
             <div className="flex items-start responsive-gap-sm">
               <div className="w-6 h-6 bg-purple-500 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5">
                 <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,6 +81,14 @@ export default function NotesSection() {
           </p>
         </div>
       )}
+      
+      {/* Note Modal */}
+      <NoteModal
+        isOpen={!!selectedNote}
+        onClose={() => setSelectedNote(null)}
+        noteTitle={selectedNote?.title || ''}
+        noteContent={selectedNote?.content || ''}
+      />
     </div>
   )
 }

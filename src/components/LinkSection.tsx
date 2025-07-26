@@ -17,7 +17,11 @@ export default function LinkSection() {
       </div>
       <div className="space-y-3 max-h-[800px] overflow-y-auto">
         {links.map((link) => (
-          <div key={link.id} className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700">
+          <div 
+            key={link.id} 
+            className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700"
+            onClick={() => window.open(link.url, '_blank')}
+          >
             <div className="flex items-start responsive-gap-sm">
               <div className="w-6 h-6 bg-blue-500 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5">
                 <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -267,9 +267,9 @@ export default function Weather() {
         </div>
       </div>
 
-      {/* 모바일/태블릿: 한 줄로 간단하게 표시 */}
+      {/* 모바일/태블릿: 3개 온도로 표시 */}
       <div className="md:hidden">
-        <div className="flex items-center justify-center gap-4 responsive-text-sm text-gray-300">
+        <div className="flex items-center justify-center gap-3 responsive-text-sm text-gray-300">
           {/* 시간 */}
           <div className="flex items-center gap-1">
             <svg className="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -281,7 +281,7 @@ export default function Weather() {
           
           <span className="text-gray-500">|</span>
           
-          {/* 날씨 */}
+          {/* 날씨 - 3개 온도 */}
           <div className="flex items-center gap-1">
             <svg className="w-3 h-3 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
@@ -292,21 +292,16 @@ export default function Weather() {
             ) : error ? (
               <span className="text-red-400 text-xs">오류</span>
             ) : (
-              <span className="text-xs">{weatherData?.weather.current}°</span>
+              <div className="flex items-center gap-1 text-xs">
+                <span>{weatherData?.weather.morning}°</span>
+                <span className="text-gray-500">|</span>
+                <span>{weatherData?.weather.afternoon}°</span>
+                <span className="text-gray-500">|</span>
+                <span>{weatherData?.weather.evening}°</span>
+              </div>
             )}
           </div>
-          
-          <span className="text-gray-500">|</span>
-          
-          {/* 날짜 (간단히) */}
-          <div className="text-xs text-gray-400">
-            {new Date().toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
-          </div>
         </div>
-      </div>
-      
-      <div className="responsive-text-sm text-gray-400 text-center md:text-left">
-        {currentDate}
       </div>
     </div>
   )

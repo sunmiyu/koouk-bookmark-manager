@@ -48,8 +48,8 @@ export default function PricingPage() {
         "팀 공유 기능",
         "API 접근 권한",
         "전용 고객 지원",
-        "고급 분석 도구",
-        "커스텀 통합"
+        "사용량 통계 및 리포트",
+        "외부 툴 연동 (Slack, Notion 등)"
       ],
       buttonText: "문의하기",
       buttonStyle: "bg-purple-600 hover:bg-purple-700",

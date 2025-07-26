@@ -48,7 +48,7 @@ export default function AuthButton() {
   return (
     <button
       onClick={() => signIn('google')}
-      className="text-gray-400 hover:text-white transition-colors"
+      className="text-gray-400 hover:text-white transition-colors cursor-pointer"
       title="Gmail로 로그인"
     >
       {/* 사람 아이콘만 */}

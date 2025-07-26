@@ -10,6 +10,7 @@ import NotesSection from '@/components/NotesSection'
 import LinkSection from '@/components/LinkSection'
 import AuthButton from '@/components/AuthButton'
 import KooukLogo from '@/components/KooukLogo'
+import SearchBar from '@/components/SearchBar'
 import { ContentProvider } from '@/contexts/ContentContext'
 
 export default function Home() {
@@ -30,27 +31,20 @@ export default function Home() {
           </div>
           
           {/* Second row: Search, Pro, Account */}
-          <div className="flex items-center justify-between">
-            {/* Search bar */}
-            <div className="relative" style={{width: '70%', maxWidth: '320px'}}>
-              <input
-                type="text"
-                placeholder="Search contents here"
-                className="w-full px-4 py-2 text-sm bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-white placeholder-gray-400 pr-8 text-center"
-              />
-              <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
+          <div className="flex items-center justify-between gap-3">
+            {/* Search bar - responsive width */}
+            <SearchBar className="flex-1" />
             
-            {/* Pro and Account buttons */}
-            <div className="flex items-center gap-3 ml-4">
-              <a 
-                href="/pricing"
-                className="w-16 py-1 bg-green-600 text-white text-sm font-medium rounded-full hover:bg-green-700 transition-all duration-200 h-[24px] flex items-center justify-center"
-              >
-                Pro
-              </a>
+            {/* Pro button */}
+            <a 
+              href="/pricing"
+              className="w-16 py-1 bg-green-600 text-white text-sm font-medium rounded-full hover:bg-green-700 transition-all duration-200 h-[24px] flex items-center justify-center flex-shrink-0"
+            >
+              Pro
+            </a>
+            
+            {/* Account button */}
+            <div className="flex-shrink-0">
               <AuthButton />
             </div>
           </div>
@@ -62,8 +56,10 @@ export default function Home() {
           {/* Horizontal divider */}
           <div className="border-t border-gray-800 my-6 sm:my-8"></div>
 
-          {/* Info input section */}
-          <InfoInputSection />
+          {/* Info input section with extra top margin */}
+          <div className="mt-8 sm:mt-12">
+            <InfoInputSection />
+          </div>
 
           {/* Horizontal divider */}
           <div className="border-t border-gray-800 my-6 sm:my-8"></div>

@@ -12,11 +12,11 @@ export default function ImageModal({ isOpen, onClose, imageUrl, imageTitle }: Im
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
-      <div className="relative max-w-4xl max-h-[90vh] w-full">
+      <div className="relative max-w-2xl max-h-[80vh] w-full mx-auto">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-10 h-10 bg-gray-900 bg-opacity-80 text-white rounded-full flex items-center justify-center hover:bg-opacity-100 transition-all"
+          className="absolute -top-2 -right-2 z-10 w-8 h-8 bg-gray-900 bg-opacity-90 text-white rounded-full flex items-center justify-center hover:bg-opacity-100 transition-all shadow-lg"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -24,12 +24,12 @@ export default function ImageModal({ isOpen, onClose, imageUrl, imageTitle }: Im
         </button>
         
         {/* Image */}
-        <div className="bg-gray-900 rounded-lg overflow-hidden">
+        <div className="bg-gray-900 rounded-lg overflow-hidden shadow-2xl">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={imageUrl}
             alt={imageTitle}
-            className="w-full h-auto max-h-[80vh] object-contain"
+            className="w-full h-auto max-h-[70vh] object-contain"
             onError={(e) => {
               e.currentTarget.parentElement!.innerHTML = `
                 <div class="flex items-center justify-center h-64 text-gray-400">

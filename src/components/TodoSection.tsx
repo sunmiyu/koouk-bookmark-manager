@@ -273,7 +273,7 @@ export default function TodoSection() {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center responsive-gap-md mb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center responsive-gap-md mb-1">
         <h2 className="section-title">Todos</h2>
         <button
           onClick={() => setShowHistory(!showHistory)}

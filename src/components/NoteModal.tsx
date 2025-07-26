@@ -16,7 +16,7 @@ export default function NoteModal({ isOpen, onClose, noteTitle, noteContent }: N
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
-      <div className="relative max-w-4xl max-h-[90vh] w-full bg-gray-900 rounded-lg overflow-hidden">
+      <div className="relative max-w-3xl max-h-[85vh] w-full bg-gray-900 rounded-lg overflow-hidden shadow-2xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
           <h3 className="text-xl font-semibold text-white">{noteTitle}</h3>
@@ -31,7 +31,7 @@ export default function NoteModal({ isOpen, onClose, noteTitle, noteContent }: N
         </div>
         
         {/* Content */}
-        <div className="p-6 h-[70vh] overflow-y-auto">
+        <div className="p-6 h-[60vh] overflow-y-auto">
           <div className="prose prose-invert max-w-none">
             <textarea
               value={content}

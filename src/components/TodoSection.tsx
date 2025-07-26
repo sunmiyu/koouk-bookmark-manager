@@ -141,34 +141,34 @@ export default function TodoSection() {
           <div className="responsive-text-sm text-gray-400">{weekday}요일</div>
         </div>
         
-        <div className="space-y-2 mb-3">
+        <div className="space-y-1 mb-2">
           {card.todos.length === 0 ? (
-            <div className="text-gray-500 responsive-text-sm py-4 text-center">
+            <div className="text-gray-500 responsive-text-sm py-2 text-center">
               No todos
             </div>
           ) : (
             card.todos.map((todo) => (
-              <div key={todo.id} className="flex items-center responsive-gap-sm group">
+              <div key={todo.id} className="flex items-center gap-2 group">
                 <input
                   type="checkbox"
                   checked={todo.completed}
                   onChange={isHistoryCard ? undefined : () => toggleTodo(card.date, todo.id)}
                   disabled={isHistoryCard}
-                  className="rounded w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 flex-shrink-0"
+                  className="rounded w-3.5 h-3.5 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 flex-shrink-0"
                 />
-                <span className={`flex-1 responsive-text-sm ${todo.completed ? 'line-through text-gray-500' : 'text-white'} break-words`}>
+                <span className={`flex-1 text-sm ${todo.completed ? 'line-through text-gray-500' : 'text-white'} break-words`}>
                   {todo.text}
                 </span>
                 {!isHistoryCard && (
                   <button
                     onClick={() => deleteTodo(card.date, todo.id)}
-                    className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 text-xs p-1 transition-opacity flex-shrink-0"
+                    className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 text-xs px-1 transition-opacity flex-shrink-0"
                   >
                     ×
                   </button>
                 )}
                 {isHistoryCard && todo.completed && (
-                  <svg className="w-4 h-4 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-3.5 h-3.5 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                 )}
@@ -178,18 +178,18 @@ export default function TodoSection() {
         </div>
 
         {!isHistoryCard && (
-          <div className="flex responsive-gap-sm">
+          <div className="flex gap-2">
             <input
               type="text"
               value={newTodoText[card.date] || ''}
               onChange={(e) => setNewTodoText(prev => ({ ...prev, [card.date]: e.target.value }))}
               onKeyPress={(e) => handleKeyPress(e, card.date)}
               placeholder="Add new todo..."
-              className="flex-1 responsive-p-sm responsive-text-sm bg-gray-800 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-white placeholder-gray-400"
+              className="flex-1 px-2 py-1 text-sm bg-gray-800 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-white placeholder-gray-400"
             />
             <button 
               onClick={() => addTodo(card.date)}
-              className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors flex-shrink-0"
+              className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors flex-shrink-0 text-sm"
               title="Add todo"
             >
               +

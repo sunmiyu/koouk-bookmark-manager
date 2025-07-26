@@ -23,7 +23,7 @@ export default function ImageSection() {
   return (
     <div className="h-full">
       <h3 className="responsive-text-lg font-semibold mb-4 text-green-400">Images ({images.length})</h3>
-      <div className="space-y-3 max-h-[400px] overflow-y-auto">
+      <div className="space-y-3 max-h-[800px] overflow-y-auto">
         {images.map((image) => (
           <div key={image.id} className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700">
             <div className="flex items-start responsive-gap-sm">

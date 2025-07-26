@@ -33,7 +33,7 @@ export default function VideoSection() {
   return (
     <div className="h-full">
       <h3 className="responsive-text-lg font-semibold mb-4 text-red-400">Videos ({videos.length})</h3>
-      <div className="space-y-3 max-h-[400px] overflow-y-auto">
+      <div className="space-y-3 max-h-[800px] overflow-y-auto">
         {videos.map((video) => {
           const thumbnailUrl = getYouTubeThumbnail(video.url)
           return (

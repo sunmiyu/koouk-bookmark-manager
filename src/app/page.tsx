@@ -23,7 +23,35 @@ export default function Home() {
               </div>
               <span className="text-gray-400 responsive-text-base sm:hidden">All your bookmarks in one place</span>
             </div>
-            <AuthButton />
+            
+            {/* 검색바, Pro 플랜, 로그인 버튼 */}
+            <div className="flex items-center gap-3">
+              {/* 검색바 */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search contents..."
+                  className="w-48 sm:w-64 px-3 py-2 text-sm bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-white placeholder-gray-400 pr-8"
+                />
+                <svg className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              
+              {/* Pro 플랜 링크 */}
+              <a 
+                href="/pricing"
+                className="px-3 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 flex items-center gap-1"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                </svg>
+                Pro
+              </a>
+              
+              {/* 로그인 버튼 */}
+              <AuthButton />
+            </div>
           </div>
           <Weather />
         </header>
@@ -40,7 +68,20 @@ export default function Home() {
           <div className="border-t border-gray-800 my-6 sm:my-8"></div>
           
           <div className="space-y-6 sm:space-y-8">
-            <h2 className="responsive-text-xl font-semibold">Content Sections</h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h2 className="responsive-text-xl font-semibold">Content Sections</h2>
+              
+              {/* 무료 플랜 제한 안내 */}
+              <div className="flex items-center gap-2 text-sm text-gray-400 bg-gray-800 px-3 py-2 rounded-lg border border-gray-700">
+                <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Free: 각 타입별 50개 제한</span>
+                <button className="text-blue-400 hover:text-blue-300 font-medium ml-2">
+                  업그레이드 →
+                </button>
+              </div>
+            </div>
             
             {/* 모바일에서는 세로 스택, 태블릿 이상에서는 가로 스크롤 */}
             <div className="block sm:hidden space-y-6">

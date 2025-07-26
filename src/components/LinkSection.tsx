@@ -19,7 +19,7 @@ export default function LinkSection() {
   return (
     <div className="h-full">
       <h3 className="responsive-text-lg font-semibold mb-4 text-blue-400">Links ({links.length})</h3>
-      <div className="space-y-3 max-h-[400px] overflow-y-auto">
+      <div className="space-y-3 max-h-[800px] overflow-y-auto">
         {links.map((link) => (
           <div key={link.id} className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700">
             <div className="flex items-start responsive-gap-sm">

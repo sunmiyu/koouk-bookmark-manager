@@ -59,7 +59,7 @@ export default function NotesSection() {
         </button>
       </div>
       
-      <div className="space-y-3 max-h-[400px] overflow-y-auto">
+      <div className="space-y-3 max-h-[800px] overflow-y-auto">
         {notes.map((note) => (
           <div key={note.id} className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700">
             <div className="flex items-start responsive-gap-sm">

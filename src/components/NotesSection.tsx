@@ -43,7 +43,7 @@ export default function NotesSection() {
               <div className="flex-1 min-w-0">
                 <h4 className="font-medium text-white responsive-text-sm truncate">{note.title}</h4>
                 <p className="text-xs text-gray-400 mt-1 line-clamp-2">
-                  {note.content.split('\n')[0]}
+                  {note.content?.split('\n')[0] || 'No content'}
                 </p>
                 <p className="text-xs text-purple-400 mt-2">{formatDate(note.createdAt)}</p>
               </div>

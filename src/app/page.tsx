@@ -8,13 +8,14 @@ import VideoSection from '@/components/VideoSection'
 import ImageSection from '@/components/ImageSection'
 import NotesSection from '@/components/NotesSection'
 import LinkSection from '@/components/LinkSection'
+import AuthButton from '@/components/AuthButton'
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto responsive-p-md py-4 sm:py-6">
         <header className="mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between responsive-gap-md mb-4 sm:mb-6">
+          <div className="flex items-start justify-between mb-4 sm:mb-6">
             <div className="flex-1">
               <div className="flex flex-col sm:flex-row sm:items-center responsive-gap-sm mb-2">
                 <h1 className="responsive-text-3xl font-bold">Koouk</h1>
@@ -22,17 +23,21 @@ export default function Home() {
               </div>
               <span className="text-gray-400 responsive-text-base sm:hidden">All your bookmarks in one place</span>
             </div>
-            <div className="text-left sm:text-right">
-              <div className="responsive-text-sm text-gray-400">Guest</div>
-            </div>
+            <AuthButton />
           </div>
           <Weather />
         </header>
 
         <InfoInputSection />
 
+        {/* 구분선 1: 입력란과 Todos 사이 */}
+        <div className="border-t border-gray-800 my-6 sm:my-8"></div>
+
         <main className="space-y-6 sm:space-y-8">
           <TodoSection />
+
+          {/* 구분선 2: Todos와 Content sections 사이 */}
+          <div className="border-t border-gray-800 my-6 sm:my-8"></div>
           
           <div className="space-y-6 sm:space-y-8">
             <h2 className="responsive-text-xl font-semibold">Content Sections</h2>

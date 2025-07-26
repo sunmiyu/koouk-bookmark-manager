@@ -2,9 +2,187 @@
 
 import { useState, useEffect } from 'react'
 
+interface WeatherData {
+  location: {
+    city: string
+    country: string
+    lat: number
+    lon: number
+  }
+  weather: {
+    current: number
+    min: number
+    max: number
+    description: string
+    icon: string
+  }
+  lastUpdated: number
+}
+
+interface CachedWeatherData extends WeatherData {
+  cacheTime: number
+}
+
+const CACHE_DURATION = 10 * 60 * 1000 // 10분
+const LOCATION_CACHE_DURATION = 60 * 60 * 1000 // 1시간
+
 export default function Weather() {
   const [currentTime, setCurrentTime] = useState('')
   const [currentDate, setCurrentDate] = useState('')
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // 로컬스토리지에서 캐시된 데이터 가져오기
+  const getCachedWeatherData = (lat: number, lon: number): CachedWeatherData | null => {
+    try {
+      const cached = localStorage.getItem(`weather_${lat.toFixed(2)}_${lon.toFixed(2)}`)
+      if (cached) {
+        const data: CachedWeatherData = JSON.parse(cached)
+        if (Date.now() - data.cacheTime < CACHE_DURATION) {
+          return data
+        }
+      }
+    } catch (error) {
+      console.error('캐시 데이터 읽기 실패:', error)
+    }
+    return null
+  }
+
+  // 날씨 데이터를 로컬스토리지에 캐시
+  const setCachedWeatherData = (data: WeatherData) => {
+    try {
+      const cachedData: CachedWeatherData = {
+        ...data,
+        cacheTime: Date.now()
+      }
+      localStorage.setItem(
+        `weather_${data.location.lat.toFixed(2)}_${data.location.lon.toFixed(2)}`,
+        JSON.stringify(cachedData)
+      )
+    } catch (error) {
+      console.error('캐시 데이터 저장 실패:', error)
+    }
+  }
+
+  // OpenWeatherMap API 호출
+  const fetchWeatherData = async (lat: number, lon: number): Promise<WeatherData> => {
+    const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY
+    if (!apiKey) {
+      throw new Error('Weather API key가 설정되지 않았습니다')
+    }
+
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=kr`
+    )
+
+    if (!response.ok) {
+      throw new Error(`날씨 데이터를 가져올 수 없습니다: ${response.status}`)
+    }
+
+    const data = await response.json()
+    
+    return {
+      location: {
+        city: data.name,
+        country: data.sys.country,
+        lat,
+        lon
+      },
+      weather: {
+        current: Math.round(data.main.temp),
+        min: Math.round(data.main.temp_min),
+        max: Math.round(data.main.temp_max),
+        description: data.weather[0].description,
+        icon: data.weather[0].icon
+      },
+      lastUpdated: Date.now()
+    }
+  }
+
+  // 위치 정보 가져오기
+  const getUserLocation = (): Promise<{lat: number, lon: number}> => {
+    return new Promise((resolve, reject) => {
+      // 캐시된 위치 확인
+      const cachedLocation = localStorage.getItem('user_location')
+      if (cachedLocation) {
+        try {
+          const { lat, lon, cacheTime } = JSON.parse(cachedLocation)
+          if (Date.now() - cacheTime < LOCATION_CACHE_DURATION) {
+            resolve({ lat, lon })
+            return
+          }
+        } catch (error) {
+          console.error('캐시된 위치 데이터 파싱 실패:', error)
+        }
+      }
+
+      if (!navigator.geolocation) {
+        reject(new Error('브라우저가 위치 정보를 지원하지 않습니다'))
+        return
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude: lat, longitude: lon } = position.coords
+          
+          // 위치 정보 캐시
+          try {
+            localStorage.setItem('user_location', JSON.stringify({
+              lat, lon, cacheTime: Date.now()
+            }))
+          } catch (error) {
+            console.error('위치 정보 캐시 실패:', error)
+          }
+          
+          resolve({ lat, lon })
+        },
+        (error) => {
+          reject(new Error('위치 정보를 가져올 수 없습니다: ' + error.message))
+        },
+        {
+          timeout: 10000,
+          maximumAge: LOCATION_CACHE_DURATION
+        }
+      )
+    })
+  }
+
+  // 날씨 데이터 로드
+  const loadWeatherData = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      const location = await getUserLocation()
+      
+      // 캐시된 데이터 확인
+      const cachedData = getCachedWeatherData(location.lat, location.lon)
+      if (cachedData) {
+        setWeatherData(cachedData)
+        setLoading(false)
+        return
+      }
+      
+      // API 호출
+      const weatherData = await fetchWeatherData(location.lat, location.lon)
+      setWeatherData(weatherData)
+      setCachedWeatherData(weatherData)
+      
+    } catch (error) {
+      console.error('날씨 데이터 로드 실패:', error)
+      setError(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다')
+      
+      // 기본값 설정
+      setWeatherData({
+        location: { city: 'Seoul', country: 'KR', lat: 37.5665, lon: 126.9780 },
+        weather: { current: 8, min: 5, max: 12, description: '맑음', icon: '01d' },
+        lastUpdated: Date.now()
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
     const updateDateTime = () => {
@@ -31,9 +209,18 @@ export default function Weather() {
     }
 
     updateDateTime()
-    const interval = setInterval(updateDateTime, 1000)
+    const timeInterval = setInterval(updateDateTime, 1000)
+    
+    // 날씨 데이터 로드
+    loadWeatherData()
+    
+    // 30분마다 날씨 데이터 새로고침 (API 호출 최소화)
+    const weatherInterval = setInterval(loadWeatherData, 30 * 60 * 1000)
 
-    return () => clearInterval(interval)
+    return () => {
+      clearInterval(timeInterval)
+      clearInterval(weatherInterval)
+    }
   }, [])
 
   return (
@@ -45,7 +232,13 @@ export default function Weather() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
-          <span>Seoul, South Korea</span>
+          {loading ? (
+            <span className="text-gray-500">위치 확인 중...</span>
+          ) : error ? (
+            <span className="text-red-400">위치 오류</span>
+          ) : (
+            <span>{weatherData?.location.city}, {weatherData?.location.country}</span>
+          )}
         </div>
         
         <span className="text-gray-500">|</span>
@@ -55,11 +248,19 @@ export default function Weather() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
             <circle cx="12" cy="12" r="5"/>
           </svg>
-          <span>8°</span>
-          <span className="text-gray-500">|</span>
-          <span>15°</span>
-          <span className="text-gray-500">|</span>
-          <span>12°</span>
+          {loading ? (
+            <span className="text-gray-500">로딩...</span>
+          ) : error ? (
+            <span className="text-red-400">날씨 오류</span>
+          ) : (
+            <>
+              <span>{weatherData?.weather.current}°</span>
+              <span className="text-gray-500">|</span>
+              <span>{weatherData?.weather.max}°</span>
+              <span className="text-gray-500">|</span>
+              <span>{weatherData?.weather.min}°</span>
+            </>
+          )}
         </div>
         
         <span className="text-gray-500">|</span>
@@ -81,7 +282,13 @@ export default function Weather() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <span className="text-xs sm:text-sm">Seoul, KR</span>
+            {loading ? (
+              <span className="text-xs sm:text-sm text-gray-500">위치 확인 중...</span>
+            ) : error ? (
+              <span className="text-xs sm:text-sm text-red-400">위치 오류</span>
+            ) : (
+              <span className="text-xs sm:text-sm">{weatherData?.location.city}, {weatherData?.location.country}</span>
+            )}
           </div>
           
           <div className="flex items-center gap-2">
@@ -98,11 +305,19 @@ export default function Weather() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
             <circle cx="12" cy="12" r="5"/>
           </svg>
-          <span>8°</span>
-          <span className="text-gray-500">|</span>
-          <span>15°</span>
-          <span className="text-gray-500">|</span>
-          <span>12°</span>
+          {loading ? (
+            <span className="text-gray-500 responsive-text-sm">로딩...</span>
+          ) : error ? (
+            <span className="text-red-400 responsive-text-sm">날씨 오류</span>
+          ) : (
+            <>
+              <span>{weatherData?.weather.current}°</span>
+              <span className="text-gray-500">|</span>
+              <span>{weatherData?.weather.max}°</span>
+              <span className="text-gray-500">|</span>
+              <span>{weatherData?.weather.min}°</span>
+            </>
+          )}
         </div>
       </div>
       

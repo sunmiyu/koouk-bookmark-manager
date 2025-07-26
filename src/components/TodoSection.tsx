@@ -178,20 +178,21 @@ export default function TodoSection() {
         </div>
 
         {!isHistoryCard && (
-          <div className="space-y-2">
+          <div className="flex responsive-gap-sm">
             <input
               type="text"
               value={newTodoText[card.date] || ''}
               onChange={(e) => setNewTodoText(prev => ({ ...prev, [card.date]: e.target.value }))}
               onKeyPress={(e) => handleKeyPress(e, card.date)}
               placeholder="Add new todo..."
-              className="w-full responsive-p-sm responsive-text-sm bg-gray-800 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-white placeholder-gray-400"
+              className="flex-1 responsive-p-sm responsive-text-sm bg-gray-800 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-white placeholder-gray-400"
             />
             <button 
               onClick={() => addTodo(card.date)}
-              className="w-full py-2 responsive-text-sm text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors"
+              className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors flex-shrink-0"
+              title="Add todo"
             >
-              + Add todo
+              +
             </button>
           </div>
         )}

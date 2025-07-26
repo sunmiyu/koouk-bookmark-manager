@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+// import { useState } from 'react'
 import Weather from '@/components/Weather'
 import InfoInputSection from '@/components/InfoInputSection'
 import TodoSection from '@/components/TodoSection'

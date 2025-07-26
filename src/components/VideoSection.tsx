@@ -42,6 +42,7 @@ export default function VideoSection() {
                 <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden relative">
                   {thumbnailUrl ? (
                     <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img 
                         src={thumbnailUrl}
                         alt={video.title}

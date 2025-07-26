@@ -28,6 +28,7 @@ export default function ImageSection() {
           <div key={image.id} className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700">
             <div className="flex items-start responsive-gap-sm">
               <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
                   src={image.thumbnail}
                   alt={image.title}

@@ -17,13 +17,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Koouk",
-  description: "All your bookmarks in one place",
+  title: "Koouk - Personal Life Hub",
+  description: "Your personal life hub - manage bookmarks, daily info, and lifestyle in one place",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Koouk"
+    title: "Koouk - Personal Life Hub"
   }
 };
 

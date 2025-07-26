@@ -1,7 +1,7 @@
 {
-  "name": "Koouk",
+  "name": "Koouk - Personal Life Hub",
   "short_name": "Koouk",
-  "description": "All your bookmarks in one place",
+  "description": "Your personal life hub - manage bookmarks, daily info, and lifestyle in one place",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",

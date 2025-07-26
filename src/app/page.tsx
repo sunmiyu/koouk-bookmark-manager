@@ -50,18 +50,12 @@ function HomeContent() {
           
           {/* Second row: Search, Pro, Account */}
           <div className="flex items-center gap-4">
-            {/* 모바일: 전체 너비 서치바 */}
-            <div className="sm:hidden flex-1">
-              <SearchBar />
-            </div>
-            
-            {/* 데스크톱: 오른쪽 정렬된 요소들 */}
-            <div className="hidden sm:flex items-center gap-4 ml-auto">
-              {/* Search bar - Pro+Login 버튼 간격만큼 왼쪽에 배치 */}
-              <div className="w-48">
+            {/* 데스크톱: 오른쪽 정렬 */}
+            <div className="hidden sm:flex items-center justify-end gap-4 flex-1">
+              {/* Search bar - 고정 너비 */}
+              <div className="w-64">
                 <SearchBar />
               </div>
-              
               {/* Pro button */}
               <button
                 onClick={handleProClick}
@@ -75,15 +69,19 @@ function HomeContent() {
               >
                 {currentPlan === 'free' ? 'Pro' : currentPlan === 'pro' ? 'Pro✓' : 'Pro+'}
               </button>
-              
-              {/* Account button */}
+              {/* Login button */}
               <div className="flex-shrink-0">
                 <AuthButton />
               </div>
             </div>
             
-            {/* 모바일: Pro + Login 버튼만 */}
-            <div className="sm:hidden flex items-center gap-3 ml-auto">
+            {/* 모바일: 적당한 크기 서치바 */}
+            <div className="sm:hidden flex items-center gap-3">
+              {/* Search bar - 적당한 크기 */}
+              <div className="flex-1 max-w-xs">
+                <SearchBar />
+              </div>
+              {/* Pro + Login 버튼 */}
               <button
                 onClick={handleProClick}
                 className={`w-16 py-1 text-white text-sm font-medium rounded-full transition-all duration-200 h-[24px] flex items-center justify-center flex-shrink-0 ${

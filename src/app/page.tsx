@@ -47,7 +47,7 @@ export default function Home() {
             <div className="flex items-center gap-3 ml-4">
               <a 
                 href="/pricing"
-                className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-full hover:bg-green-700 transition-all duration-200 h-[36px] flex items-center justify-center"
+                className="px-4 py-1 bg-green-600 text-white text-sm font-medium rounded-full hover:bg-green-700 transition-all duration-200 h-[24px] flex items-center justify-center"
               >
                 Pro
               </a>

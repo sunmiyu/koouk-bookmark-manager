@@ -34,6 +34,19 @@ export default function InfoInputSection() {
     return 'note'
   }
 
+  const fetchYouTubeTitle = async (url: string): Promise<string> => {
+    try {
+      const response = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`)
+      if (response.ok) {
+        const data = await response.json()
+        return data.title || 'YouTube Video'
+      }
+    } catch (error) {
+      console.error('YouTube title fetch failed:', error)
+    }
+    return 'YouTube Video'
+  }
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setInputValue(value)
@@ -47,7 +60,7 @@ export default function InfoInputSection() {
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!inputValue.trim()) return
 
@@ -58,11 +71,21 @@ export default function InfoInputSection() {
     }
 
     const isUrl = inputValue.includes('http')
+    let title = ''
+    
+    // Get title based on type
+    if (inputType === 'image') {
+      title = ''
+    } else if (inputType === 'video' && isUrl) {
+      title = await fetchYouTubeTitle(inputValue.trim())
+    } else {
+      title = isUrl ? `${inputType.charAt(0).toUpperCase() + inputType.slice(1)} from URL` : inputValue.trim()
+    }
     
     // Create the new item and add it to context
     const newItem = {
       type: inputType,
-      title: isUrl ? `${inputType.charAt(0).toUpperCase() + inputType.slice(1)} from URL` : inputValue.trim(),
+      title,
       url: isUrl ? inputValue.trim() : undefined,
       content: !isUrl ? inputValue.trim() : undefined,
       thumbnail: inputType === 'image' && isUrl ? inputValue.trim() : undefined

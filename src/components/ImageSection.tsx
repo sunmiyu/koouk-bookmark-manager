@@ -35,7 +35,9 @@ export default function ImageSection() {
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-white responsive-text-sm line-clamp-2">{image.title}</h4>
+                <h4 className="font-medium text-white responsive-text-sm line-clamp-2">
+                  {image.title || 'Untitled Image'}
+                </h4>
                 <p className="text-xs text-gray-400 mt-1">Image • Design</p>
               </div>
             </div>

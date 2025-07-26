@@ -49,27 +49,56 @@ function HomeContent() {
           </div>
           
           {/* Second row: Search, Pro, Account */}
-          <div className="flex items-center justify-between gap-4">
-            {/* Search bar - smaller on desktop, full width on mobile */}
-            <SearchBar className="flex-1 sm:flex-none sm:w-48" />
+          <div className="flex items-center gap-4">
+            {/* 모바일: 전체 너비 서치바 */}
+            <div className="sm:hidden flex-1">
+              <SearchBar />
+            </div>
             
-            {/* Pro button */}
-            <button
-              onClick={handleProClick}
-              className={`w-16 py-1 text-white text-sm font-medium rounded-full transition-all duration-200 h-[24px] flex items-center justify-center flex-shrink-0 ${
-                currentPlan === 'free' 
-                  ? 'bg-green-600 hover:bg-green-700' 
-                  : currentPlan === 'pro'
-                    ? 'bg-blue-600 hover:bg-blue-700'
-                    : 'bg-purple-600 hover:bg-purple-700'
-              }`}
-            >
-              {currentPlan === 'free' ? 'Pro' : currentPlan === 'pro' ? 'Pro✓' : 'Pro+'}
-            </button>
+            {/* 데스크톱: 오른쪽 정렬된 요소들 */}
+            <div className="hidden sm:flex items-center gap-4 ml-auto">
+              {/* Search bar - Pro+Login 버튼 간격만큼 왼쪽에 배치 */}
+              <div className="w-48">
+                <SearchBar />
+              </div>
+              
+              {/* Pro button */}
+              <button
+                onClick={handleProClick}
+                className={`w-16 py-1 text-white text-sm font-medium rounded-full transition-all duration-200 h-[24px] flex items-center justify-center flex-shrink-0 ${
+                  currentPlan === 'free' 
+                    ? 'bg-green-600 hover:bg-green-700' 
+                    : currentPlan === 'pro'
+                      ? 'bg-blue-600 hover:bg-blue-700'
+                      : 'bg-purple-600 hover:bg-purple-700'
+                }`}
+              >
+                {currentPlan === 'free' ? 'Pro' : currentPlan === 'pro' ? 'Pro✓' : 'Pro+'}
+              </button>
+              
+              {/* Account button */}
+              <div className="flex-shrink-0">
+                <AuthButton />
+              </div>
+            </div>
             
-            {/* Account button */}
-            <div className="flex-shrink-0">
-              <AuthButton />
+            {/* 모바일: Pro + Login 버튼만 */}
+            <div className="sm:hidden flex items-center gap-3 ml-auto">
+              <button
+                onClick={handleProClick}
+                className={`w-16 py-1 text-white text-sm font-medium rounded-full transition-all duration-200 h-[24px] flex items-center justify-center flex-shrink-0 ${
+                  currentPlan === 'free' 
+                    ? 'bg-green-600 hover:bg-green-700' 
+                    : currentPlan === 'pro'
+                      ? 'bg-blue-600 hover:bg-blue-700'
+                      : 'bg-purple-600 hover:bg-purple-700'
+                }`}
+              >
+                {currentPlan === 'free' ? 'Pro' : currentPlan === 'pro' ? 'Pro✓' : 'Pro+'}
+              </button>
+              <div className="flex-shrink-0">
+                <AuthButton />
+              </div>
             </div>
           </div>
         </header>

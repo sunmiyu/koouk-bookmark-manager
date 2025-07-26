@@ -6,6 +6,13 @@ const handler = NextAuth({
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     })
   ],
   callbacks: {
@@ -21,7 +28,8 @@ const handler = NextAuth({
   },
   pages: {
     signIn: '/',
-  }
+  },
+  debug: process.env.NODE_ENV === 'development',
 })
 
 export { handler as GET, handler as POST }

@@ -18,6 +18,8 @@ const getYouTubeThumbnail = (url: string): string => {
 }
 
 export default function VideoSection() {
+  const FREE_PLAN_LIMIT = 50
+  
   const videos: Video[] = [
     { id: 1, title: "React 18 Complete Tutorial", url: "https://www.youtube.com/watch?v=bMknfKXIFA8" },
     { id: 2, title: "Next.js App Router Guide", url: "https://www.youtube.com/watch?v=ZVnjOPwW4ZA" },
@@ -30,9 +32,17 @@ export default function VideoSection() {
     { id: 9, title: "React State Management", url: "https://www.youtube.com/watch?v=35lXWvCuM8o" }
   ]
 
+  const isAtLimit = videos.length >= FREE_PLAN_LIMIT
+  
   return (
     <div className="h-full">
-      <h3 className="responsive-text-lg font-semibold mb-4 text-red-400">Videos ({videos.length})</h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="responsive-text-lg font-semibold text-red-400">Videos</h3>
+        <div className="text-xs text-gray-400">
+          <span className={videos.length >= FREE_PLAN_LIMIT ? 'text-yellow-400' : ''}>{videos.length}</span>
+          <span className="text-gray-500">/{FREE_PLAN_LIMIT}</span>
+        </div>
+      </div>
       <div className="space-y-3 max-h-[800px] overflow-y-auto">
         {videos.map((video) => {
           const thumbnailUrl = getYouTubeThumbnail(video.url)
@@ -81,6 +91,20 @@ export default function VideoSection() {
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
           </svg>
           <p>No videos yet</p>
+        </div>
+      )}
+      
+      {isAtLimit && (
+        <div className="mt-4 p-3 bg-yellow-900/30 border border-yellow-600/50 rounded-lg">
+          <div className="flex items-center gap-2 text-yellow-400 text-sm">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <span>Free plan limit reached ({FREE_PLAN_LIMIT} videos)</span>
+          </div>
+          <p className="text-xs text-yellow-300 mt-1">
+            Delete existing videos to add new ones, or <a href="/pricing" className="underline hover:text-yellow-200">upgrade to Pro</a>
+          </p>
         </div>
       )}
     </div>

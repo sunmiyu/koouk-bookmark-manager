@@ -6,6 +6,8 @@ interface Image {
 }
 
 export default function ImageSection() {
+  const FREE_PLAN_LIMIT = 50
+  
   const images: Image[] = [
     { id: 1, title: "Modern UI Design Trends", url: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=300&h=200&fit=crop", thumbnail: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=300&h=200&fit=crop" },
     { id: 2, title: "Color Palette Inspiration", url: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=300&h=200&fit=crop", thumbnail: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=300&h=200&fit=crop" },
@@ -20,9 +22,17 @@ export default function ImageSection() {
     { id: 11, title: "Illustration Styles", url: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=300&h=200&fit=crop", thumbnail: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=300&h=200&fit=crop" }
   ]
 
+  const isAtLimit = images.length >= FREE_PLAN_LIMIT
+  
   return (
     <div className="h-full">
-      <h3 className="responsive-text-lg font-semibold mb-4 text-green-400">Images ({images.length})</h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="responsive-text-lg font-semibold text-green-400">Images</h3>
+        <div className="text-xs text-gray-400">
+          <span className={images.length >= FREE_PLAN_LIMIT ? 'text-yellow-400' : ''}>{images.length}</span>
+          <span className="text-gray-500">/{FREE_PLAN_LIMIT}</span>
+        </div>
+      </div>
       <div className="space-y-3 max-h-[800px] overflow-y-auto">
         {images.map((image) => (
           <div key={image.id} className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700">
@@ -57,6 +67,20 @@ export default function ImageSection() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
           <p>No images yet</p>
+        </div>
+      )}
+      
+      {isAtLimit && (
+        <div className="mt-4 p-3 bg-yellow-900/30 border border-yellow-600/50 rounded-lg">
+          <div className="flex items-center gap-2 text-yellow-400 text-sm">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <span>Free plan limit reached ({FREE_PLAN_LIMIT} images)</span>
+          </div>
+          <p className="text-xs text-yellow-300 mt-1">
+            Delete existing images to add new ones, or <a href="/pricing" className="underline hover:text-yellow-200">upgrade to Pro</a>
+          </p>
         </div>
       )}
     </div>

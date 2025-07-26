@@ -61,11 +61,11 @@ export default function PricingPage() {
     <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto px-4 py-16">
         {/* 헤더 */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+        <div className="text-center mb-12">
+          <h1 className="text-2xl md:text-4xl font-bold mb-3">
             요금제 선택
           </h1>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+          <p className="text-base md:text-xl text-gray-400 max-w-2xl mx-auto">
             당신의 북마크 관리 스타일에 맞는 플랜을 선택하세요
           </p>
         </div>
@@ -91,32 +91,32 @@ export default function PricingPage() {
               )}
 
               {/* 플랜 이름 */}
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+              <div className="text-center mb-4">
+                <h3 className="text-lg md:text-2xl font-bold mb-1">{plan.name}</h3>
                 <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-4xl font-bold">{plan.price}</span>
+                  <span className="text-2xl md:text-4xl font-bold">{plan.price}</span>
                   {plan.priceUnit && (
-                    <span className="text-gray-400">{plan.priceUnit}</span>
+                    <span className="text-gray-400 text-sm md:text-base">{plan.priceUnit}</span>
                   )}
                 </div>
-                <p className="text-gray-400 mt-2">{plan.description}</p>
+                <p className="text-gray-400 mt-1 text-sm md:text-base">{plan.description}</p>
               </div>
 
               {/* 기능 목록 */}
-              <ul className="space-y-4 mb-8">
+              <ul className="space-y-2 md:space-y-3 mb-6">
                 {plan.features.map((feature, featureIndex) => (
-                  <li key={featureIndex} className="flex items-start gap-3">
-                    <svg className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <li key={featureIndex} className="flex items-start gap-2">
+                    <svg className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
-                    <span className="text-gray-300">{feature}</span>
+                    <span className="text-gray-300 text-sm md:text-base">{feature}</span>
                   </li>
                 ))}
               </ul>
 
               {/* 버튼 */}
               <button 
-                className={`w-full py-3 px-6 rounded-xl font-semibold transition-colors ${plan.buttonStyle}`}
+                className={`w-full py-2 md:py-3 px-4 md:px-6 rounded-xl font-semibold transition-colors text-sm md:text-base ${plan.buttonStyle}`}
                 disabled={plan.name === "Free"}
               >
                 {plan.buttonText}
@@ -126,52 +126,59 @@ export default function PricingPage() {
         </div>
 
         {/* FAQ 섹션 */}
-        <div className="mt-20 max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">자주 묻는 질문</h2>
+        <div className="mt-16 max-w-4xl mx-auto">
+          <h2 className="text-xl md:text-3xl font-bold text-center mb-8">자주 묻는 질문</h2>
           
-          <div className="space-y-6">
-            <div className="bg-gray-900 rounded-lg p-6">
-              <h3 className="text-xl font-semibold mb-3">💳 결제는 언제 이루어지나요?</h3>
-              <p className="text-gray-400">
+          <div className="space-y-4">
+            <div className="bg-gray-900 rounded-lg p-4 md:p-6">
+              <h3 className="text-base md:text-xl font-semibold mb-2">💾 무료 플랜에서 50개 제한은 어떻게 작동하나요?</h3>
+              <p className="text-gray-400 text-sm md:text-base">
+                각 콘텐츠 타입별로 50개까지 저장할 수 있습니다. 50개에 도달하면 새로운 항목을 추가하기 전에 기존 항목을 직접 삭제해야 합니다. 시스템이 임의로 삭제하지 않으므로 안심하세요.
+              </p>
+            </div>
+
+            <div className="bg-gray-900 rounded-lg p-4 md:p-6">
+              <h3 className="text-base md:text-xl font-semibold mb-2">💳 결제는 언제 이루어지나요?</h3>
+              <p className="text-gray-400 text-sm md:text-base">
                 Pro 플랜은 월 단위로 자동 결제됩니다. 언제든지 취소할 수 있으며, 취소 시 현재 결제 주기가 끝날 때까지 서비스를 이용할 수 있습니다.
               </p>
             </div>
 
-            <div className="bg-gray-900 rounded-lg p-6">
-              <h3 className="text-xl font-semibold mb-3">📱 카카오톡 알림은 어떻게 설정하나요?</h3>
-              <p className="text-gray-400">
+            <div className="bg-gray-900 rounded-lg p-4 md:p-6">
+              <h3 className="text-base md:text-xl font-semibold mb-2">📱 카카오톡 알림은 어떻게 설정하나요?</h3>
+              <p className="text-gray-400 text-sm md:text-base">
                 Pro 플랜 업그레이드 후 설정 페이지에서 카카오 계정을 연동하고 알림 시간을 설정할 수 있습니다. 매일 지정된 시간에 할 일을 카카오톡으로 받아보세요.
               </p>
             </div>
 
-            <div className="bg-gray-900 rounded-lg p-6">
-              <h3 className="text-xl font-semibold mb-3">🔄 데이터는 안전하게 백업되나요?</h3>
-              <p className="text-gray-400">
+            <div className="bg-gray-900 rounded-lg p-4 md:p-6">
+              <h3 className="text-base md:text-xl font-semibold mb-2">🔄 데이터는 안전하게 백업되나요?</h3>
+              <p className="text-gray-400 text-sm md:text-base">
                 모든 데이터는 Google Firebase의 안전한 클라우드 서버에 실시간으로 백업됩니다. 기기를 바꿔도 Gmail 계정으로 로그인하면 모든 데이터를 그대로 사용할 수 있습니다.
               </p>
             </div>
 
-            <div className="bg-gray-900 rounded-lg p-6">
-              <h3 className="text-xl font-semibold mb-3">↩️ 무료 플랜으로 다운그레이드할 수 있나요?</h3>
-              <p className="text-gray-400">
-                언제든 무료 플랜으로 변경할 수 있습니다. 단, 저장된 항목이 50개를 초과하는 경우 가장 오래된 항목부터 자동으로 숨겨집니다. (삭제되지는 않음)
+            <div className="bg-gray-900 rounded-lg p-4 md:p-6">
+              <h3 className="text-base md:text-xl font-semibold mb-2">↩️ 무료 플랜으로 다운그레이드할 수 있나요?</h3>
+              <p className="text-gray-400 text-sm md:text-base">
+                언제든 무료 플랜으로 변경할 수 있습니다. 50개 제한을 초과한 경우, 새로운 항목을 추가하려면 기존 항목을 직접 삭제해야 합니다. 모든 데이터는 안전하게 보관됩니다.
               </p>
             </div>
           </div>
         </div>
 
         {/* 하단 CTA */}
-        <div className="mt-20 text-center">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold mb-4">지금 시작해보세요!</h2>
-            <p className="text-xl mb-6 opacity-90">
+        <div className="mt-16 text-center">
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 md:p-8 max-w-4xl mx-auto">
+            <h2 className="text-xl md:text-3xl font-bold mb-3">지금 시작해보세요!</h2>
+            <p className="text-base md:text-xl mb-4 md:mb-6 opacity-90">
               모든 북마크를 한 곳에서 스마트하게 관리하세요
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-white text-blue-600 px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button className="bg-white text-blue-600 px-6 md:px-8 py-2 md:py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors text-sm md:text-base">
                 무료로 시작하기
               </button>
-              <button className="bg-blue-800 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-900 transition-colors border border-blue-400">
+              <button className="bg-blue-800 text-white px-6 md:px-8 py-2 md:py-3 rounded-xl font-semibold hover:bg-blue-900 transition-colors border border-blue-400 text-sm md:text-base">
                 Pro 플랜 체험하기
               </button>
             </div>

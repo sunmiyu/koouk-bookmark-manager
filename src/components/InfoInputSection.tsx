@@ -11,6 +11,16 @@ interface InfoItem {
 }
 
 export default function InfoInputSection() {
+  const FREE_PLAN_LIMIT = 50
+  
+  // Mock current counts - in real app, these would come from state management
+  const currentCounts = {
+    video: 9,
+    link: 7,
+    image: 11,
+    note: 4
+  }
+  
   const [inputValue, setInputValue] = useState('')
   const [isExpanded, setIsExpanded] = useState(false)
   const [inputType, setInputType] = useState<'video' | 'link' | 'image' | 'note'>('link')
@@ -38,6 +48,12 @@ export default function InfoInputSection() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!inputValue.trim()) return
+
+    // Check if at limit for this content type
+    if (currentCounts[inputType] >= FREE_PLAN_LIMIT) {
+      alert(`Free plan limit reached for ${inputType}s (${FREE_PLAN_LIMIT}). Delete existing items or upgrade to Pro.`)
+      return
+    }
 
     const isUrl = inputValue.includes('http')
     const newItem: InfoItem = {
@@ -98,30 +114,65 @@ export default function InfoInputSection() {
             <div className="flex flex-col sm:flex-row sm:items-center responsive-gap-sm mb-2">
               <span className="responsive-text-sm text-gray-400">Detected as:</span>
               <div className="flex flex-wrap gap-1">
-                {(['link', 'video', 'image', 'note'] as const).map((type) => (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => setInputType(type)}
-                    className={`px-2 py-1 rounded text-xs capitalize transition-colors ${
-                      inputType === type 
-                        ? type === 'video' ? 'bg-red-600 text-white' :
-                          type === 'image' ? 'bg-green-600 text-white' :
-                          type === 'link' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white'
-                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                    }`}
-                  >
-                    {type}
-                  </button>
-                ))}
+                {(['link', 'video', 'image', 'note'] as const).map((type) => {
+                  const isAtLimit = currentCounts[type] >= FREE_PLAN_LIMIT
+                  return (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => setInputType(type)}
+                      disabled={isAtLimit}
+                      className={`px-2 py-1 rounded text-xs capitalize transition-colors relative ${
+                        inputType === type 
+                          ? type === 'video' ? 'bg-red-600 text-white' :
+                            type === 'image' ? 'bg-green-600 text-white' :
+                            type === 'link' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white'
+                          : isAtLimit 
+                            ? 'bg-gray-600 text-gray-500 cursor-not-allowed'
+                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      }`}
+                      title={isAtLimit ? `${type} limit reached (${FREE_PLAN_LIMIT})` : ''}
+                    >
+                      {type}
+                      {isAtLimit && (
+                        <span className="ml-1 text-yellow-400">!</span>
+                      )}
+                    </button>
+                  )
+                })}
               </div>
             </div>
-            <p className="text-xs text-gray-500">
-              {inputType === 'video' && 'YouTube videos will show thumbnails'}
-              {inputType === 'image' && 'Images will be displayed as previews'}
-              {inputType === 'link' && 'Links will be saved as bookmarks'}
-              {inputType === 'note' && 'Text will be saved as a note'}
-            </p>
+            
+            {/* Show current count and limit warning */}
+            <div className="flex justify-between items-center mb-2">
+              <p className="text-xs text-gray-500">
+                {inputType === 'video' && 'YouTube videos will show thumbnails'}
+                {inputType === 'image' && 'Images will be displayed as previews'}
+                {inputType === 'link' && 'Links will be saved as bookmarks'}
+                {inputType === 'note' && 'Text will be saved as a note'}
+              </p>
+              <div className="text-xs text-gray-400">
+                <span className={currentCounts[inputType] >= FREE_PLAN_LIMIT ? 'text-yellow-400' : ''}>
+                  {currentCounts[inputType]}
+                </span>
+                <span className="text-gray-500">/{FREE_PLAN_LIMIT}</span>
+              </div>
+            </div>
+            
+            {/* Show limit warning */}
+            {currentCounts[inputType] >= FREE_PLAN_LIMIT && (
+              <div className="p-2 bg-yellow-900/30 border border-yellow-600/50 rounded text-xs">
+                <div className="flex items-center gap-1 text-yellow-400">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span>Free plan limit reached for {inputType}s</span>
+                </div>
+                <p className="text-yellow-300 mt-1">
+                  Delete existing {inputType}s to add new ones, or <a href="/pricing" className="underline hover:text-yellow-200">upgrade to Pro</a>
+                </p>
+              </div>
+            )}
           </div>
         )}
       </form>

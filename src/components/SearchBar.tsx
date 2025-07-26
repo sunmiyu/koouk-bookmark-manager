@@ -3,13 +3,24 @@
 import { useState } from 'react'
 import { useContent } from '@/contexts/ContentContext'
 
+interface ContentItem {
+  id: string
+  type: 'video' | 'link' | 'image' | 'note'
+  title: string
+  url?: string
+  content?: string
+  thumbnail?: string
+  description?: string
+  createdAt: string
+}
+
 interface SearchBarProps {
   className?: string
 }
 
 export default function SearchBar({ className }: SearchBarProps) {
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [searchResults, setSearchResults] = useState<ContentItem[]>([])
   const [showResults, setShowResults] = useState(false)
   const { videos, links, images, notes } = useContent()
 
@@ -34,7 +45,7 @@ export default function SearchBar({ className }: SearchBarProps) {
     setShowResults(true)
   }
 
-  const handleItemClick = (item: any) => {
+  const handleItemClick = (item: ContentItem) => {
     if (item.type === 'link' || item.type === 'video') {
       window.open(item.url, '_blank')
     }
@@ -87,7 +98,7 @@ export default function SearchBar({ className }: SearchBarProps) {
       {/* No Results */}
       {showResults && searchQuery && searchResults.length === 0 && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg z-10 p-4 text-center">
-          <p className="text-gray-400 text-sm">No results found for "{searchQuery}"</p>
+          <p className="text-gray-400 text-sm">No results found for &quot;{searchQuery}&quot;</p>
         </div>
       )}
     </div>

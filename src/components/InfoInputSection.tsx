@@ -77,6 +77,32 @@ export default function InfoInputSection() {
     }
   }
 
+  const handlePaste = async (e: React.ClipboardEvent) => {
+    const items = e.clipboardData.items
+    
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i]
+      
+      // Check if pasted item is an image
+      if (item.type.indexOf('image') !== -1) {
+        e.preventDefault()
+        const file = item.getAsFile()
+        if (file) {
+          // Convert to base64 data URL
+          const reader = new FileReader()
+          reader.onload = (event) => {
+            const dataUrl = event.target?.result as string
+            setInputValue(dataUrl)
+            setInputType('image')
+            setIsExpanded(true)
+          }
+          reader.readAsDataURL(file)
+        }
+        return
+      }
+    }
+  }
+
   return (
     <div className="mb-6 sm:mb-8">
       <form onSubmit={handleSubmit} className="relative">
@@ -86,6 +112,7 @@ export default function InfoInputSection() {
             value={inputValue}
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
+            onPaste={handlePaste}
             placeholder="Add link, video, image, or note..."
             className="w-full responsive-p-md bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-white placeholder-gray-400 responsive-text-base pr-16 sm:pr-20"
           />

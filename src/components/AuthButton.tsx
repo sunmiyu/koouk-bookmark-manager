@@ -17,12 +17,12 @@ export default function AuthButton() {
     return (
       <div className="flex items-center gap-2">
         {/* 사용자 프로필 아바타 */}
-        <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
           {session.user?.image ? (
             <img 
               src={session.user.image} 
               alt="Profile" 
-              className="w-8 h-8 rounded-full"
+              className="w-10 h-10 rounded-full"
             />
           ) : (
             <svg className="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
@@ -52,7 +52,7 @@ export default function AuthButton() {
       title="Gmail로 로그인"
     >
       {/* 사람 아이콘만 */}
-      <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+      <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
         <svg className="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
           <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
         </svg>

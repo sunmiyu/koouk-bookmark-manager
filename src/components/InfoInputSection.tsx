@@ -2,11 +2,13 @@
 
 import { useState } from 'react'
 import { useContent } from '@/contexts/ContentContext'
+import { useUserPlan } from '@/contexts/UserPlanContext'
+import { trackEvents } from '@/lib/analytics'
 
 
 export default function InfoInputSection() {
-  const FREE_PLAN_LIMIT = 50
   const { videos, links, images, notes, addItem } = useContent()
+  const { getStorageLimit, canAddItem, currentPlan } = useUserPlan()
   
   // Get current counts from context
   const currentCounts = {
@@ -58,8 +60,10 @@ export default function InfoInputSection() {
     if (!inputValue.trim()) return
 
     // Check if at limit for this content type
-    if (currentCounts[inputType] >= FREE_PLAN_LIMIT) {
-      alert(`Free plan limit reached for ${inputType}s (${FREE_PLAN_LIMIT}). Delete existing items or upgrade to Pro.`)
+    const limit = getStorageLimit(inputType)
+    if (!canAddItem(inputType, currentCounts[inputType])) {
+      const planName = currentPlan === 'free' ? 'Free' : currentPlan === 'pro' ? 'Pro' : 'Unlimited'
+      alert(`${planName} plan limit reached for ${inputType}s (${limit === Infinity ? 'unlimited' : limit}). Delete existing items${currentPlan === 'free' ? ' or upgrade to Pro' : ''}.`)
       return
     }
 
@@ -85,6 +89,9 @@ export default function InfoInputSection() {
     }
 
     addItem(newItem)
+    
+    // Track analytics event
+    trackEvents.addContent(inputType)
     
     setInputValue('')
     setIsExpanded(false)
@@ -115,6 +122,12 @@ export default function InfoInputSection() {
             setInputValue(dataUrl)
             setInputType('image')
             setIsExpanded(true)
+            // Auto submit after a short delay to ensure UI updates
+            setTimeout(() => {
+              if (currentCounts.image < FREE_PLAN_LIMIT) {
+                handleSubmit(e as unknown as React.FormEvent)
+              }
+            }, 100)
           }
           reader.readAsDataURL(file)
         }
@@ -162,7 +175,8 @@ export default function InfoInputSection() {
               <span className="responsive-text-sm text-gray-400">Detected as:</span>
               <div className="flex flex-wrap gap-1">
                 {(['link', 'video', 'image', 'note'] as const).map((type) => {
-                  const isAtLimit = currentCounts[type] >= FREE_PLAN_LIMIT
+                  const limit = getStorageLimit(type)
+                  const isAtLimit = currentCounts[type] >= limit
                   return (
                     <button
                       key={type}
@@ -178,7 +192,7 @@ export default function InfoInputSection() {
                             ? 'bg-gray-600 text-gray-500 cursor-not-allowed'
                             : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                       }`}
-                      title={isAtLimit ? `${type} limit reached (${FREE_PLAN_LIMIT})` : ''}
+                      title={isAtLimit ? `${type} limit reached (${limit === Infinity ? 'unlimited' : limit})` : ''}
                     >
                       {type}
                       {isAtLimit && (
@@ -199,27 +213,38 @@ export default function InfoInputSection() {
                 {inputType === 'note' && 'Text will be saved as a note'}
               </p>
               <div className="text-xs text-gray-400">
-                <span className={currentCounts[inputType] >= FREE_PLAN_LIMIT ? 'text-yellow-400' : ''}>
+                <span className={(() => {
+                  const limit = getStorageLimit(inputType)
+                  return currentCounts[inputType] >= limit ? 'text-yellow-400' : ''
+                })()}>
                   {currentCounts[inputType]}
                 </span>
-                <span className="text-gray-500">/{FREE_PLAN_LIMIT}</span>
+                <span className="text-gray-500">/{(() => {
+                  const limit = getStorageLimit(inputType)
+                  return limit === Infinity ? '∞' : limit
+                })()}</span>
               </div>
             </div>
             
             {/* Show limit warning */}
-            {currentCounts[inputType] >= FREE_PLAN_LIMIT && (
-              <div className="p-2 bg-yellow-900/30 border border-yellow-600/50 rounded text-xs">
-                <div className="flex items-center gap-1 text-yellow-400">
-                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                  <span>Free plan limit reached for {inputType}s</span>
+            {(() => {
+              const limit = getStorageLimit(inputType)
+              const isAtLimit = currentCounts[inputType] >= limit
+              return isAtLimit && (
+                <div className="p-2 bg-yellow-900/30 border border-yellow-600/50 rounded text-xs">
+                  <div className="flex items-center gap-1 text-yellow-400">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <span>{currentPlan === 'free' ? 'Free' : currentPlan === 'pro' ? 'Pro' : 'Unlimited'} plan limit reached for {inputType}s</span>
+                  </div>
+                  <p className="text-yellow-300 mt-1">
+                    Delete existing {inputType}s to add new ones{currentPlan === 'free' ? ', or ' : ''}
+                    {currentPlan === 'free' && <a href="/pricing" className="underline hover:text-yellow-200">upgrade to Pro</a>}
+                  </p>
                 </div>
-                <p className="text-yellow-300 mt-1">
-                  Delete existing {inputType}s to add new ones, or <a href="/pricing" className="underline hover:text-yellow-200">upgrade to Pro</a>
-                </p>
-              </div>
-            )}
+              )
+            })()}
           </div>
         )}
       </form>

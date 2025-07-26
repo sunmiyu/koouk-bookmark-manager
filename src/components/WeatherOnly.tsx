@@ -199,23 +199,27 @@ export default function WeatherOnly() {
 
   return (
     <div className="flex items-center gap-1">
-      <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
-        <circle cx="12" cy="12" r="5"/>
-      </svg>
       {loading ? (
         <span className="text-gray-500 text-sm">로딩</span>
       ) : error ? (
         <span className="text-red-400 text-sm">오류</span>
       ) : (
         <div className="flex items-center gap-1 text-sm">
-          <span className="text-xs text-gray-400">아침</span>
+          <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
+            <circle cx="12" cy="12" r="5"/>
+          </svg>
           <span>{weatherData?.weather.morning}°</span>
           <span className="text-gray-500">|</span>
-          <span className="text-xs text-gray-400">점심</span>
+          <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
+            <circle cx="12" cy="12" r="5"/>
+          </svg>
           <span>{weatherData?.weather.afternoon}°</span>
           <span className="text-gray-500">|</span>
-          <span className="text-xs text-gray-400">저녁</span>
+          <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
           <span>{weatherData?.weather.evening}°</span>
         </div>
       )}

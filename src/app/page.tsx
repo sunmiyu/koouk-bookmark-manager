@@ -12,8 +12,26 @@ import AuthButton from '@/components/AuthButton'
 import KooukLogo from '@/components/KooukLogo'
 import SearchBar from '@/components/SearchBar'
 import { ContentProvider } from '@/contexts/ContentContext'
+import { UserPlanProvider, useUserPlan } from '@/contexts/UserPlanContext'
+import { trackEvents } from '@/lib/analytics'
 
-export default function Home() {
+function HomeContent() {
+  const { currentPlan, upgradeToProPlan } = useUserPlan()
+
+  const handleProClick = () => {
+    if (currentPlan === 'free') {
+      const confirmed = confirm('Upgrade to Pro plan? (Demo: This will simulate upgrading to Pro with 500 items per type)')
+      if (confirmed) {
+        upgradeToProPlan()
+        trackEvents.upgradePlan('free', 'pro')
+        alert('🎉 Successfully upgraded to Pro plan! You can now store 500 items per type.')
+      }
+    } else {
+      // Already Pro or Unlimited, go to pricing page
+      window.location.href = '/pricing'
+    }
+  }
+
   return (
     <ContentProvider>
       <div className="min-h-screen bg-black text-white">
@@ -31,17 +49,23 @@ export default function Home() {
           </div>
           
           {/* Second row: Search, Pro, Account */}
-          <div className="flex items-center justify-between gap-3">
-            {/* Search bar - responsive width */}
-            <SearchBar className="flex-1" />
+          <div className="flex items-center justify-between gap-4">
+            {/* Search bar - smaller on desktop, full width on mobile */}
+            <SearchBar className="flex-1 sm:flex-none sm:w-48" />
             
             {/* Pro button */}
-            <a 
-              href="/pricing"
-              className="w-16 py-1 bg-green-600 text-white text-sm font-medium rounded-full hover:bg-green-700 transition-all duration-200 h-[24px] flex items-center justify-center flex-shrink-0"
+            <button
+              onClick={handleProClick}
+              className={`w-16 py-1 text-white text-sm font-medium rounded-full transition-all duration-200 h-[24px] flex items-center justify-center flex-shrink-0 ${
+                currentPlan === 'free' 
+                  ? 'bg-green-600 hover:bg-green-700' 
+                  : currentPlan === 'pro'
+                    ? 'bg-blue-600 hover:bg-blue-700'
+                    : 'bg-purple-600 hover:bg-purple-700'
+              }`}
             >
-              Pro
-            </a>
+              {currentPlan === 'free' ? 'Pro' : currentPlan === 'pro' ? 'Pro✓' : 'Pro+'}
+            </button>
             
             {/* Account button */}
             <div className="flex-shrink-0">
@@ -120,5 +144,13 @@ export default function Home() {
       </div>
     </div>
     </ContentProvider>
+  )
+}
+
+export default function Home() {
+  return (
+    <UserPlanProvider>
+      <HomeContent />
+    </UserPlanProvider>
   )
 }

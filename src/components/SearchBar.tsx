@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useContent } from '@/contexts/ContentContext'
+import { trackEvents } from '@/lib/analytics'
 
 interface ContentItem {
   id: string
@@ -31,6 +32,11 @@ export default function SearchBar({ className }: SearchBarProps) {
       setSearchResults([])
       setShowResults(false)
       return
+    }
+    
+    // Track search event
+    if (query.trim().length >= 2) {
+      trackEvents.search(query.trim())
     }
 
     // Search across all content types

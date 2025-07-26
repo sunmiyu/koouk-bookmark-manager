@@ -2,14 +2,17 @@
 
 import { useState } from 'react'
 import { useContent } from '@/contexts/ContentContext'
+import { useUserPlan } from '@/contexts/UserPlanContext'
+import { trackEvents } from '@/lib/analytics'
 import NoteModal from './NoteModal'
 
 export default function NotesSection() {
-  const FREE_PLAN_LIMIT = 50
   const { notes } = useContent()
+  const { getStorageLimit } = useUserPlan()
   const [selectedNote, setSelectedNote] = useState<{ title: string; content: string } | null>(null)
 
-  const isAtLimit = notes.length >= FREE_PLAN_LIMIT
+  const limit = getStorageLimit('note')
+  const isAtLimit = notes.length >= limit
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
@@ -25,8 +28,8 @@ export default function NotesSection() {
         <h3 className="responsive-text-lg font-semibold text-purple-400">Notes</h3>
         <div className="flex items-center gap-3">
           <div className="text-xs text-gray-400">
-            <span className={notes.length >= FREE_PLAN_LIMIT ? 'text-yellow-400' : ''}>{notes.length}</span>
-            <span className="text-gray-500">/{FREE_PLAN_LIMIT}</span>
+            <span className={notes.length >= limit ? 'text-yellow-400' : ''}>{notes.length}</span>
+            <span className="text-gray-500">/{limit === Infinity ? '∞' : limit}</span>
           </div>
           <button className="px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded text-xs transition-colors">
             + New
@@ -39,7 +42,10 @@ export default function NotesSection() {
           <div 
             key={note.id} 
             className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700"
-            onClick={() => setSelectedNote({ title: note.title, content: note.content || '' })}
+            onClick={() => {
+              trackEvents.openModal('note')
+              setSelectedNote({ title: note.title, content: note.content || '' })
+            }}
           >
             <div className="flex items-start responsive-gap-sm">
               <div className="w-6 h-6 bg-purple-500 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -74,7 +80,7 @@ export default function NotesSection() {
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
-            <span>Free plan limit reached ({FREE_PLAN_LIMIT} notes)</span>
+            <span>Storage limit reached ({limit === Infinity ? 'unlimited' : limit} notes)</span>
           </div>
           <p className="text-xs text-yellow-300 mt-1">
             Delete existing notes to add new ones, or <a href="/pricing" className="underline hover:text-yellow-200">upgrade to Pro</a>

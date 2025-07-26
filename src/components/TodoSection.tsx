@@ -273,11 +273,11 @@ export default function TodoSection() {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center responsive-gap-md mb-1">
+      <div className="flex items-center gap-3 mb-1">
         <h2 className="section-title">Todos</h2>
         <button
           onClick={() => setShowHistory(!showHistory)}
-          className={`px-3 py-1 rounded responsive-text-sm transition-colors flex items-center responsive-gap-sm self-start sm:self-auto ${
+          className={`px-3 py-1 rounded responsive-text-sm transition-colors flex items-center responsive-gap-sm ${
             showHistory 
               ? 'bg-purple-600 text-white' 
               : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
@@ -292,8 +292,7 @@ export default function TodoSection() {
       </div>
 
       {showHistory && (
-        <div className="mb-6">
-          <h3 className="responsive-text-lg font-semibold mb-3 text-purple-400">History</h3>
+        <div className="mb-3">
           <div className="flex overflow-x-auto responsive-gap-md pb-4">
             {historyData.map((card) => renderDateCard(card, true))}
           </div>

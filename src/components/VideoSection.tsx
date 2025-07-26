@@ -1,4 +1,6 @@
 import { useContent } from '@/contexts/ContentContext'
+import { useUserPlan } from '@/contexts/UserPlanContext'
+import { trackEvents } from '@/lib/analytics'
 
 const getYouTubeVideoId = (url: string): string | null => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
@@ -12,18 +14,19 @@ const getYouTubeThumbnail = (url: string): string => {
 }
 
 export default function VideoSection() {
-  const FREE_PLAN_LIMIT = 50
   const { videos } = useContent()
+  const { getStorageLimit } = useUserPlan()
 
-  const isAtLimit = videos.length >= FREE_PLAN_LIMIT
+  const limit = getStorageLimit('video')
+  const isAtLimit = videos.length >= limit
   
   return (
     <div className="h-full">
       <div className="flex items-center justify-between mb-4">
         <h3 className="responsive-text-lg font-semibold text-red-400">Videos</h3>
         <div className="text-xs text-gray-400">
-          <span className={videos.length >= FREE_PLAN_LIMIT ? 'text-yellow-400' : ''}>{videos.length}</span>
-          <span className="text-gray-500">/{FREE_PLAN_LIMIT}</span>
+          <span className={videos.length >= limit ? 'text-yellow-400' : ''}>{videos.length}</span>
+          <span className="text-gray-500">/{limit === Infinity ? '∞' : limit}</span>
         </div>
       </div>
       <div className="space-y-3 max-h-[800px] overflow-y-auto">
@@ -33,7 +36,10 @@ export default function VideoSection() {
             <div 
               key={video.id} 
               className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700"
-              onClick={() => window.open(video.url, '_blank')}
+              onClick={() => {
+                trackEvents.clickExternalLink(video.url || '')
+                window.open(video.url, '_blank')
+              }}
             >
               <div className="flex items-start responsive-gap-sm">
                 <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden relative">
@@ -87,7 +93,7 @@ export default function VideoSection() {
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
-            <span>Free plan limit reached ({FREE_PLAN_LIMIT} videos)</span>
+            <span>Storage limit reached ({limit === Infinity ? 'unlimited' : limit} videos)</span>
           </div>
           <p className="text-xs text-yellow-300 mt-1">
             Delete existing videos to add new ones, or <a href="/pricing" className="underline hover:text-yellow-200">upgrade to Pro</a>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 interface WeatherData {
   location: {
@@ -153,7 +153,7 @@ export default function WeatherOnly() {
   }
 
   // 날씨 데이터 로드
-  const loadWeatherData = async () => {
+  const loadWeatherData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -186,7 +186,7 @@ export default function WeatherOnly() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     loadWeatherData()
@@ -195,7 +195,7 @@ export default function WeatherOnly() {
     const weatherInterval = setInterval(loadWeatherData, 30 * 60 * 1000)
 
     return () => clearInterval(weatherInterval)
-  }, [])
+  }, [loadWeatherData])
 
   return (
     <div className="flex items-center gap-1">

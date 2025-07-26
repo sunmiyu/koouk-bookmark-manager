@@ -13,6 +13,46 @@ export function middleware(request: NextRequest) {
   ]
   
   const origin = request.headers.get('origin')
+  const userAgent = request.headers.get('user-agent') || 'unknown'
+  const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+  
+  // 의심스러운 활동 감지
+  const suspiciousPatterns = [
+    'bot', 'crawler', 'spider', 'scraper', 'scanner'
+  ]
+  const isSuspicious = suspiciousPatterns.some(pattern => 
+    userAgent.toLowerCase().includes(pattern)
+  )
+  
+  // CORS 검증
+  if (origin && !allowedOrigins.includes(origin)) {
+    // 보안 이벤트 로깅 (서버 사이드에서는 직접 GA 호출 불가, 로그만)
+    console.warn('🚨 CORS Blocked:', {
+      origin,
+      endpoint: request.nextUrl.pathname,
+      userAgent,
+      ip,
+      timestamp: new Date().toISOString()
+    })
+    
+    return new Response('CORS policy violation', { 
+      status: 403,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+  }
+  
+  // 의심스러운 활동 로깅
+  if (isSuspicious) {
+    console.warn('⚠️ Suspicious Activity:', {
+      userAgent,
+      endpoint: request.nextUrl.pathname,
+      ip,
+      origin,
+      timestamp: new Date().toISOString()
+    })
+  }
   
   if (origin && allowedOrigins.includes(origin)) {
     response.headers.set('Access-Control-Allow-Origin', origin)

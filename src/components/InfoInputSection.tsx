@@ -124,7 +124,8 @@ export default function InfoInputSection() {
             setIsExpanded(true)
             // Auto submit after a short delay to ensure UI updates
             setTimeout(() => {
-              if (currentCounts.image < FREE_PLAN_LIMIT) {
+              const limit = getStorageLimit('image')
+              if (currentCounts.image < limit) {
                 handleSubmit(e as unknown as React.FormEvent)
               }
             }, 100)

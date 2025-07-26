@@ -24,8 +24,10 @@ export default function LinkSection() {
             key={link.id} 
             className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700"
             onClick={() => {
-              trackEvents.clickExternalLink(link.url)
-              window.open(link.url, '_blank')
+              if (link.url) {
+                trackEvents.clickExternalLink(link.url)
+                window.open(link.url, '_blank')
+              }
             }}
           >
             <div className="flex items-start responsive-gap-sm">

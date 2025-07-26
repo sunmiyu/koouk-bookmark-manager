@@ -71,12 +71,31 @@ export const trackEvents = {
       category: 'External',
       label: url,
     })
+  },
+  
+  // 보안 이벤트 추적
+  securityEvent: (type: 'cors_blocked' | 'rate_limit_hit' | 'suspicious_activity', details?: string) => {
+    event({
+      action: type,
+      category: 'Security',
+      label: details,
+    })
+  },
+  
+  // API 오류 추적
+  apiError: (endpoint: string, statusCode: number, errorType?: string) => {
+    event({
+      action: 'api_error',
+      category: 'API',
+      label: `${endpoint}_${statusCode}`,
+      value: statusCode,
+    })
   }
 }
 
 // Window 타입 확장
 declare global {
   interface Window {
-    gtag: (...args: any[]) => void
+    gtag: (...args: unknown[]) => void
   }
 }

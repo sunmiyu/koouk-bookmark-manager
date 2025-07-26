@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 interface WeatherData {
   location: {
@@ -31,7 +31,6 @@ const LOCATION_CACHE_DURATION = 60 * 60 * 1000 // 1시간
 
 export default function Weather() {
   const [currentTime, setCurrentTime] = useState('')
-  const [currentDate, setCurrentDate] = useState('')
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -155,7 +154,7 @@ export default function Weather() {
   }
 
   // 날씨 데이터 로드
-  const loadWeatherData = async () => {
+  const loadWeatherData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -188,7 +187,7 @@ export default function Weather() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     const updateDateTime = () => {
@@ -211,7 +210,6 @@ export default function Weather() {
       })
       
       setCurrentTime(timeString)
-      setCurrentDate(dateString)
     }
 
     updateDateTime()
@@ -227,7 +225,7 @@ export default function Weather() {
       clearInterval(timeInterval)
       clearInterval(weatherInterval)
     }
-  }, [])
+  }, [loadWeatherData])
 
   return (
     <div className="space-y-2">

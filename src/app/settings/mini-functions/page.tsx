@@ -109,6 +109,27 @@ export default function MiniFunctionsSettings() {
             </p>
           </div>
 
+          {/* Beta Testing Notice */}
+          <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-500/30 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <div className="text-blue-400 text-lg">🧪</div>
+              <div>
+                <h3 className="font-semibold text-blue-300 mb-1">Beta Testing Phase</h3>
+                <p className="text-sm text-blue-200 mb-2">
+                  Mini Functions are currently in testing mode with simulated data.
+                </p>
+                <ul className="text-xs text-blue-300/80 space-y-1">
+                  <li>• <strong>Stock Market:</strong> Real Yahoo Finance data</li>
+                  <li>• <strong>Commute Time:</strong> Simulated traffic data (Real API integration planned)</li>
+                  <li>• <strong>Other Functions:</strong> Sample data for UI/UX testing</li>
+                </ul>
+                <div className="mt-2 text-xs text-blue-400">
+                  📈 Real-time data services will be available in the official release
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Current Plan Info */}
           <div className="bg-gray-900 rounded-lg p-6 mb-8">
             <div className="flex items-center justify-between">

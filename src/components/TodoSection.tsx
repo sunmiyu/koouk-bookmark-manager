@@ -9,7 +9,7 @@ interface Todo {
   completedAt?: string
   repeat?: {
     type: 'none' | 'weekly' | 'monthly' | 'yearly'
-    dayOfWeek?: number // 0=일요일, 1=월요일, ..., 6=토요일
+    dayOfWeek?: number // 0=Sunday, 1=Monday, ..., 6=Saturday
     dayOfMonth?: number // 1-31
     dayOfYear?: { month: number, day: number } // 월/일
   }
@@ -73,7 +73,7 @@ export default function TodoSection() {
     const date = new Date(dateStr)
     const month = date.getMonth() + 1
     const day = date.getDate()
-    const weekday = ['일', '월', '화', '수', '목', '금', '토'][date.getDay()]
+    const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()]
     return { month, day, weekday }
   }
 
@@ -161,7 +161,7 @@ export default function TodoSection() {
             {todayCard && <span className="px-2 py-1 bg-blue-600 text-white text-xs rounded">Today</span>}
             {pastCard && !isHistoryCard && <span className="px-2 py-1 bg-gray-600 text-white text-xs rounded">Past</span>}
           </div>
-          <div className="responsive-text-sm text-gray-400">{weekday}요일</div>
+          <div className="responsive-text-sm text-gray-400">{weekday}</div>
         </div>
         
         <div className="space-y-1 mb-2">

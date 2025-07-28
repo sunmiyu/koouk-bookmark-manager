@@ -81,10 +81,10 @@ function HomeContent() {
               </div>
             </div>
             
-            {/* 모바일: 적당한 크기 서치바 */}
-            <div className="sm:hidden flex items-center gap-3">
+            {/* 모바일: 오른쪽 정렬 */}
+            <div className="sm:hidden flex items-center justify-end gap-3">
               {/* Search bar - 적당한 크기 */}
-              <div className="flex-1 max-w-xs">
+              <div className="max-w-xs">
                 <SearchBar />
               </div>
               {/* Pro + Login 버튼 */}

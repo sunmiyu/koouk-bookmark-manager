@@ -61,6 +61,30 @@ export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
       type: 'diary',
       isEnabled: false,
       lastUpdated: new Date().toISOString()
+    },
+    {
+      id: 'stocks',
+      title: 'Stock Market',
+      icon: '📈',
+      type: 'stocks',
+      isEnabled: false,
+      lastUpdated: new Date().toISOString()
+    },
+    {
+      id: 'commute',
+      title: 'Commute Time',
+      icon: '🚗',
+      type: 'commute',
+      isEnabled: false,
+      lastUpdated: new Date().toISOString()
+    },
+    {
+      id: 'food',
+      title: 'Nearby Restaurants',
+      icon: '🍽️',
+      type: 'food',
+      isEnabled: false,
+      lastUpdated: new Date().toISOString()
     }
   ])
 

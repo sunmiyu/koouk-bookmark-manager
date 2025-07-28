@@ -2,10 +2,10 @@ export interface MiniFunctionData {
   id: string
   title: string
   icon: string
-  type: 'news' | 'music' | 'alarm' | 'expense' | 'commute' | 'stocks' | 'food' | 'diary'
+  type: 'news' | 'music' | 'alarm' | 'expense' | 'stocks' | 'commute' | 'food' | 'diary'
   isEnabled: boolean
   lastUpdated: string
-  data?: NewsItem[] | MusicRecommendation[] | AlarmData | ExpenseData | DiaryData
+  data?: NewsItem[] | MusicRecommendation[] | AlarmData | ExpenseData | DiaryData | StockData | CommuteData | RestaurantData
 }
 
 export interface NewsItem {
@@ -56,6 +56,58 @@ export interface DiaryEntry {
 export interface DiaryData {
   todayEntry?: DiaryEntry
   recentEntries: DiaryEntry[]
+}
+
+export interface StockItem {
+  symbol: string
+  name: string
+  price: number
+  change: number
+  changePercent: number
+  currency: string
+  lastUpdated: string
+}
+
+export interface StockData {
+  watchlist: StockItem[]
+  lastUpdated: string
+}
+
+export interface CommuteRoute {
+  id: string
+  name: string
+  origin: string
+  destination: string
+  duration: number // 분 단위
+  distance: number // 미터 단위
+  trafficDuration: number // 실시간 교통상황 반영 시간
+  lastUpdated: string
+}
+
+export interface CommuteData {
+  routes: CommuteRoute[]
+  currentRoute?: CommuteRoute
+  lastUpdated: string
+}
+
+export interface RestaurantItem {
+  id: string
+  name: string
+  category: string
+  rating: number
+  reviewCount: number
+  distance: string
+  priceRange: string
+  location: string
+  specialties: string[]
+  isOpen: boolean
+  openHours?: string
+}
+
+export interface RestaurantData {
+  nearbyRestaurants: RestaurantItem[]
+  userLocation?: string
+  lastUpdated: string
 }
 
 export type MiniFunctionType = MiniFunctionData['type']

@@ -193,14 +193,14 @@ export default function MiniFunctionsArea() {
             isPreviewOnly={isPreviewOnly}
             firstLine={
               <>
-                <span className="truncate">주변 맛집 12곳 발견</span>
-                <span className="text-xs"></span>
+                <span className="truncate">맛나감자탕 (한식, 150m)</span>
+                <span className="text-xs">4.3 (2847) 열림</span>
               </>
             }
             secondLine={
               <>
-                <span className="truncate">카테고리별 추천 가능</span>
-                <span className="text-xs"></span>
+                <span className="truncate">스타벅스 강남점 (카페, 230m)</span>
+                <span className="text-xs">4.1 (1523) 열림</span>
               </>
             }
             expandedContent={<NearbyRestaurants isPreviewOnly={isPreviewOnly} />}

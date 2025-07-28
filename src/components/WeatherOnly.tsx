@@ -20,13 +20,19 @@ interface WeatherData {
     icon: string
   }
   lastUpdated: number
+  debug?: {
+    today: string
+    morningTime: string
+    afternoonTime: string
+    eveningTime: string
+  }
 }
 
 interface CachedWeatherData extends WeatherData {
   cacheTime: number
 }
 
-const CACHE_DURATION = 10 * 60 * 1000 // 10분
+const CACHE_DURATION = 6 * 60 * 60 * 1000 // 6시간
 
 export default function WeatherOnly() {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null)
@@ -84,15 +90,16 @@ export default function WeatherOnly() {
       },
       weather: {
         current: data.temperature,
-        min: data.temperature - 3,
-        max: data.temperature + 3,
-        morning: data.temperature - 2,
-        afternoon: data.temperature + 3,
-        evening: data.temperature - 1,
+        min: Math.min(data.morning, data.afternoon, data.evening),
+        max: Math.max(data.morning, data.afternoon, data.evening),
+        morning: data.morning,        // 실제 아침 8시 예보
+        afternoon: data.afternoon,    // 실제 오후 1시 예보
+        evening: data.evening,        // 실제 오후 7시 예보
         description: data.description,
         icon: data.icon
       },
-      lastUpdated: Date.now()
+      lastUpdated: Date.now(),
+      debug: data.debug // 디버깅 정보 포함
     }
   }
 
@@ -113,6 +120,7 @@ export default function WeatherOnly() {
       
       // API 호출
       const weatherData = await fetchWeatherData()
+      console.log('Weather Debug:', weatherData.debug) // 디버깅 정보 출력
       setWeatherData(weatherData)
       setCachedWeatherData(weatherData)
       
@@ -120,11 +128,17 @@ export default function WeatherOnly() {
       console.error('날씨 데이터 로드 실패:', error)
       setError(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다')
       
-      // 기본값 설정
+      // 기본값 설정 (실제 예보 형식)
       setWeatherData({
         location: { city: 'Seoul', country: 'KR', lat: 37.5665, lon: 126.9780 },
-        weather: { current: 8, min: 5, max: 12, morning: 6, afternoon: 12, evening: 7, description: '맑음', icon: '01d' },
-        lastUpdated: Date.now()
+        weather: { current: 8, min: 6, max: 12, morning: 6, afternoon: 12, evening: 7, description: '맑음', icon: '01d' },
+        lastUpdated: Date.now(),
+        debug: {
+          today: new Date().toISOString().split('T')[0],
+          morningTime: 'fallback 08:00:00',
+          afternoonTime: 'fallback 13:00:00',
+          eveningTime: 'fallback 19:00:00'
+        }
       })
     } finally {
       setLoading(false)
@@ -134,8 +148,8 @@ export default function WeatherOnly() {
   useEffect(() => {
     loadWeatherData()
     
-    // 30분마다 날씨 데이터 새로고침
-    const weatherInterval = setInterval(loadWeatherData, 30 * 60 * 1000)
+    // 6시간마다 날씨 데이터 새로고침
+    const weatherInterval = setInterval(loadWeatherData, 6 * 60 * 60 * 1000)
 
     return () => clearInterval(weatherInterval)
   }, [loadWeatherData])

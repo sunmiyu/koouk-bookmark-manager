@@ -2,7 +2,28 @@ import { NextRequest, NextResponse } from 'next/server'
 import { checkRateLimit, getIP } from '@/lib/rateLimit'
 
 // 서버사이드 메모리 캐시 (6시간)
-const serverCache = new Map<string, { data: any, timestamp: number }>()
+interface CacheData {
+  data: WeatherResponse
+  timestamp: number
+}
+
+interface WeatherResponse {
+  location: string
+  temperature: number
+  morning: number
+  afternoon: number
+  evening: number
+  description: string
+  icon: string
+  debug: {
+    today: string
+    morningTime: string
+    afternoonTime: string
+    eveningTime: string
+  }
+}
+
+const serverCache = new Map<string, CacheData>()
 const SERVER_CACHE_DURATION = 6 * 60 * 60 * 1000 // 6시간
 
 export async function GET(request: NextRequest) {
@@ -75,7 +96,7 @@ export async function GET(request: NextRequest) {
       const targetTimeStr = `${today} ${targetHour.toString().padStart(2, '0')}:00:00`
       
       // 정확한 시간 매칭 시도
-      let exactMatch = forecastData.list.find((item: any) => 
+      const exactMatch = forecastData.list.find((item: { dt_txt: string }) => 
         item.dt_txt === targetTimeStr
       )
       

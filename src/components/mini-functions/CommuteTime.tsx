@@ -23,27 +23,6 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
     destination: ''
   })
 
-  // 지역 감지
-  const checkLocation = async () => {
-    try {
-      // 캐시된 위치 정보 확인
-      const cached = getCachedLocation()
-      if (cached) {
-        setIsKorea(cached.isKorea)
-        return cached.isKorea
-      }
-
-      // 새로 위치 감지
-      const location = await detectUserLocation()
-      setIsKorea(location.isKorea)
-      setCachedLocation(location)
-      return location.isKorea
-    } catch (error) {
-      console.error('Location check failed:', error)
-      setIsKorea(false)
-      return false
-    }
-  }
 
   // Kakao Mobility API 사용 (무료 30만건/일)
   const fetchCommuteTime = async () => {

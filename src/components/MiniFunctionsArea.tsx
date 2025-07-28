@@ -18,7 +18,7 @@ import NearbyRestaurants from './mini-functions/NearbyRestaurants'
 import DDayCounter from './mini-functions/DDayCounter'
 
 export default function MiniFunctionsArea() {
-  const { enabledFunctions, maxEnabled, disableFunction } = useMiniFunctions()
+  const { enabledFunctions, maxEnabled } = useMiniFunctions()
   const { t } = useLanguage()
   const router = useRouter()
   const [isKorea, setIsKorea] = useState<boolean | null>(null)
@@ -273,26 +273,17 @@ export default function MiniFunctionsArea() {
     <div className="mb-6">
       <div className="flex items-center gap-3 mb-4">
         <h2 className="section-title">{t('mini_functions')}</h2>
-        <div className="text-sm text-gray-400">
-          {enabledFunctions.length}/{maxEnabled} {t('active')}
-        </div>
-        <div className="flex items-center gap-2">
-          {enabledFunctions.length < maxEnabled && (
-            <button 
-              className="text-sm text-blue-400 hover:text-blue-300 underline"
-              onClick={() => router.push('/settings/mini-functions')}
-            >
-              + Add Function
-            </button>
-          )}
-          {enabledFunctions.length > 0 && (
-            <button 
-              className="text-sm text-gray-400 hover:text-gray-300 underline"
-              onClick={() => router.push('/settings/mini-functions')}
-            >
-              ⚙️ Manage
-            </button>
-          )}
+        <div className="flex items-center gap-1">
+          <div className="text-sm text-gray-400">
+            {enabledFunctions.length}/{maxEnabled} {t('active')}
+          </div>
+          <button 
+            className="text-sm text-gray-400 hover:text-gray-300"
+            onClick={() => router.push('/settings/mini-functions')}
+            title="Mini Functions 관리"
+          >
+            ⚙️
+          </button>
         </div>
       </div>
       

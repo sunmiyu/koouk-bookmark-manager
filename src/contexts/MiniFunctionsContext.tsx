@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { MiniFunctionData, MiniFunctionType } from '@/types/miniFunctions'
-import { useUserPlan } from './UserPlanContext'
 
 interface MiniFunctionsContextType {
   availableFunctions: MiniFunctionData[]

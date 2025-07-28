@@ -13,18 +13,23 @@ import KooukLogo from '@/components/KooukLogo'
 import SearchBar from '@/components/SearchBar'
 import { ContentProvider } from '@/contexts/ContentContext'
 import { UserPlanProvider, useUserPlan } from '@/contexts/UserPlanContext'
+import { MiniFunctionsProvider } from '@/contexts/MiniFunctionsContext'
+import { useLanguage } from '@/contexts/LanguageContext'
+import LanguageToggle from '@/components/LanguageToggle'
+import MiniFunctionsArea from '@/components/MiniFunctionsArea'
 import { trackEvents } from '@/lib/analytics'
 
 function HomeContent() {
   const { currentPlan, upgradeToProPlan } = useUserPlan()
+  const { t } = useLanguage()
 
   const handleProClick = () => {
     if (currentPlan === 'free') {
-      const confirmed = confirm('Upgrade to Pro plan? (Demo: This will simulate upgrading to Pro with 500 items per type)')
+      const confirmed = confirm(t('upgrade_to_pro'))
       if (confirmed) {
         upgradeToProPlan()
         trackEvents.upgradePlan('free', 'pro')
-        alert('🎉 Successfully upgraded to Pro plan! You can now store 500 items per type.')
+        alert(t('upgraded_successfully'))
       }
     } else {
       // Already Pro or Unlimited, go to pricing page
@@ -45,6 +50,8 @@ function HomeContent() {
               <WeatherOnly />
               <span className="text-gray-500">|</span>
               <TimeDisplay />
+              <span className="text-gray-500">|</span>
+              <LanguageToggle />
             </div>
           </div>
           
@@ -102,6 +109,8 @@ function HomeContent() {
         </header>
 
         <main className="space-y-6 sm:space-y-8">
+          <MiniFunctionsArea />
+          
           <TodoSection />
 
           {/* Horizontal divider */}
@@ -175,9 +184,5 @@ function HomeContent() {
 }
 
 export default function Home() {
-  return (
-    <UserPlanProvider>
-      <HomeContent />
-    </UserPlanProvider>
-  )
+  return <HomeContent />
 }

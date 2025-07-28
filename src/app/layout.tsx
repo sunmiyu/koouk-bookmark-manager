@@ -3,6 +3,10 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SessionProvider from "@/components/SessionProvider";
 import SecurityMonitor from "@/components/SecurityMonitor";
+import CookieBanner from "@/components/CookieBanner";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import { UserPlanProvider } from "@/contexts/UserPlanContext";
+import { MiniFunctionsProvider } from "@/contexts/MiniFunctionsContext";
 import { Analytics } from '@vercel/analytics/react';
 import { GoogleAnalytics } from '@next/third-parties/google'
 
@@ -18,12 +22,19 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Koouk - Personal Life Hub",
-  description: "Your personal life hub - manage bookmarks, daily info, and lifestyle in one place",
+  description: "Your personal life hub - manage bookmarks, daily info, and lifestyle in one place | 개인 라이프 허브 - 북마크, 일상 정보, 라이프스타일을 한 곳에서 관리",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "Koouk - Personal Life Hub"
+  },
+  openGraph: {
+    title: "Koouk - Personal Life Hub",
+    description: "All your bookmarks in one place | 모든 북마크를 한 곳에서",
+    type: "website",
+    locale: "en_US",
+    alternateLocale: "ko_KR"
   }
 };
 
@@ -45,10 +56,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SessionProvider>
-          <SecurityMonitor />
-          {children}
-        </SessionProvider>
+        <LanguageProvider>
+          <SessionProvider>
+            <UserPlanProvider>
+              <MiniFunctionsProvider>
+                <SecurityMonitor />
+                {children}
+                <CookieBanner />
+              </MiniFunctionsProvider>
+            </UserPlanProvider>
+          </SessionProvider>
+        </LanguageProvider>
         <Analytics />
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />

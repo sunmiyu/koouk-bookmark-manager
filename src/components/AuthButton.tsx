@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useSession, signIn, signOut } from 'next-auth/react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function AuthButton() {
   const { data: session, status } = useSession()
+  const { t } = useLanguage()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -22,7 +24,7 @@ export default function AuthButton() {
   if (status === 'loading') {
     return (
       <div className="text-sm text-gray-400">
-        로딩...
+        {t('loading')}
       </div>
     )
   }
@@ -43,15 +45,31 @@ export default function AuthButton() {
               <div className="text-sm text-white font-medium">{session.user?.name}</div>
               <div className="text-xs text-gray-400">{session.user?.email}</div>
             </div>
-            <button
-              onClick={() => {
-                signOut()
-                setIsDropdownOpen(false)
-              }}
-              className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors"
-            >
-              로그아웃
-            </button>
+            <div className="py-1">
+              <a
+                href="/settings/mini-functions"
+                className="block w-full text-left px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-gray-700 transition-colors"
+                onClick={() => setIsDropdownOpen(false)}
+              >
+                Mini Functions
+              </a>
+              <a
+                href="/account/delete"
+                className="block w-full text-left px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-gray-700 transition-colors"
+                onClick={() => setIsDropdownOpen(false)}
+              >
+{t('account_delete')}
+              </a>
+              <button
+                onClick={() => {
+                  signOut()
+                  setIsDropdownOpen(false)
+                }}
+                className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors"
+              >
+{t('logout')}
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -64,7 +82,7 @@ export default function AuthButton() {
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         className="w-16 py-1 bg-gray-700 text-white text-sm font-medium rounded-full hover:bg-gray-600 transition-all duration-200 h-[24px] flex items-center justify-center"
       >
-        <span>Login</span>
+        <span>{t('login')}</span>
       </button>
       
       {isDropdownOpen && (
@@ -82,7 +100,7 @@ export default function AuthButton() {
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
             </svg>
-            Gmail로 로그인
+{t('gmail_login')}
           </button>
         </div>
       )}

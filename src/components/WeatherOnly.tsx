@@ -66,16 +66,9 @@ export default function WeatherOnly() {
     }
   }
 
-  // OpenWeatherMap API 호출
-  const fetchWeatherData = async (lat: number, lon: number): Promise<WeatherData> => {
-    const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY
-    if (!apiKey) {
-      throw new Error('Weather API key가 설정되지 않았습니다')
-    }
-
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=kr`
-    )
+  // 내부 API 호출 (보안 강화)
+  const fetchWeatherData = async (): Promise<WeatherData> => {
+    const response = await fetch('/api/weather?city=Seoul')
 
     if (!response.ok) {
       throw new Error(`날씨 데이터를 가져올 수 없습니다: ${response.status}`)
@@ -85,20 +78,20 @@ export default function WeatherOnly() {
     
     return {
       location: {
-        city: data.name,
-        country: data.sys.country,
-        lat,
-        lon
+        city: data.location,
+        country: 'KR',
+        lat: 37.5665,
+        lon: 126.9780
       },
       weather: {
-        current: Math.round(data.main.temp),
-        min: Math.round(data.main.temp_min),
-        max: Math.round(data.main.temp_max),
-        morning: Math.round(data.main.temp - 2),
-        afternoon: Math.round(data.main.temp_max),
-        evening: Math.round(data.main.temp_min + 1),
-        description: data.weather[0].description,
-        icon: data.weather[0].icon
+        current: data.temperature,
+        min: data.temperature - 3,
+        max: data.temperature + 3,
+        morning: data.temperature - 2,
+        afternoon: data.temperature + 3,
+        evening: data.temperature - 1,
+        description: data.description,
+        icon: data.icon
       },
       lastUpdated: Date.now()
     }
@@ -152,16 +145,14 @@ export default function WeatherOnly() {
     })
   }
 
-  // 날씨 데이터 로드
+  // 날씨 데이터 로드 (단순화 - 서울 고정)
   const loadWeatherData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
       
-      const location = await getUserLocation()
-      
-      // 캐시된 데이터 확인
-      const cachedData = getCachedWeatherData(location.lat, location.lon)
+      // 서울 기준 캐시된 데이터 확인
+      const cachedData = getCachedWeatherData(37.5665, 126.9780)
       if (cachedData) {
         setWeatherData(cachedData)
         setLoading(false)
@@ -169,7 +160,7 @@ export default function WeatherOnly() {
       }
       
       // API 호출
-      const weatherData = await fetchWeatherData(location.lat, location.lon)
+      const weatherData = await fetchWeatherData()
       setWeatherData(weatherData)
       setCachedWeatherData(weatherData)
       

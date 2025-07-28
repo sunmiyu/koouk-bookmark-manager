@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useMiniFunctions } from '@/contexts/MiniFunctionsContext'
-import { useUserPlan } from '@/contexts/UserPlanContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { MiniFunctionData } from '@/types/miniFunctions'
 import { useRouter } from 'next/navigation'
@@ -18,8 +17,7 @@ import CommuteTime from './mini-functions/CommuteTime'
 import NearbyRestaurants from './mini-functions/NearbyRestaurants'
 
 export default function MiniFunctionsArea() {
-  const { enabledFunctions, maxEnabled } = useMiniFunctions()
-  const { currentPlan } = useUserPlan()
+  const { enabledFunctions, maxEnabled, disableFunction } = useMiniFunctions()
   const { t } = useLanguage()
   const router = useRouter()
   const [isKorea, setIsKorea] = useState<boolean | null>(null)
@@ -45,7 +43,7 @@ export default function MiniFunctionsArea() {
     checkLocation()
   }, [])
 
-  const renderMiniFunction = (functionData: MiniFunctionData, isPreviewOnly = false) => {
+  const renderMiniFunction = (functionData: MiniFunctionData, isPreviewOnly = false, onRemove?: () => void) => {
     switch (functionData.type) {
       case 'news':
         return (
@@ -53,6 +51,7 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
+            onRemove={onRemove}
           >
             <NewsHeadlines isPreviewOnly={isPreviewOnly} />
           </MiniFunctionCard>
@@ -63,6 +62,7 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
+            onRemove={onRemove}
           >
             <MusicRecommendations isPreviewOnly={isPreviewOnly} />
           </MiniFunctionCard>
@@ -73,6 +73,7 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
+            onRemove={onRemove}
           >
             <AlarmFunction isPreviewOnly={isPreviewOnly} />
           </MiniFunctionCard>
@@ -83,6 +84,7 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
+            onRemove={onRemove}
           >
             <ExpenseTracker isPreviewOnly={isPreviewOnly} />
           </MiniFunctionCard>
@@ -93,6 +95,7 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
+            onRemove={onRemove}
           >
             <MiniDiary isPreviewOnly={isPreviewOnly} />
           </MiniFunctionCard>
@@ -103,6 +106,7 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
+            onRemove={onRemove}
           >
             <StockMarket isPreviewOnly={isPreviewOnly} />
           </MiniFunctionCard>
@@ -113,6 +117,7 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
+            onRemove={onRemove}
           >
             <CommuteTime isPreviewOnly={isPreviewOnly} />
           </MiniFunctionCard>
@@ -123,6 +128,7 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
+            onRemove={onRemove}
           >
             <NearbyRestaurants isPreviewOnly={isPreviewOnly} />
           </MiniFunctionCard>
@@ -183,14 +189,24 @@ export default function MiniFunctionsArea() {
         <div className="text-xs text-gray-400">
           {enabledFunctions.length}/{maxEnabled} {t('active')}
         </div>
-        {enabledFunctions.length < maxEnabled && (
-          <button 
-            className="text-xs text-blue-400 hover:text-blue-300 underline"
-            onClick={() => router.push('/settings/mini-functions')}
-          >
-            + Add Function
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {enabledFunctions.length < maxEnabled && (
+            <button 
+              className="text-xs text-blue-400 hover:text-blue-300 underline"
+              onClick={() => router.push('/settings/mini-functions')}
+            >
+              + Add Function
+            </button>
+          )}
+          {enabledFunctions.length > 0 && (
+            <button 
+              className="text-xs text-gray-400 hover:text-gray-300 underline"
+              onClick={() => router.push('/settings/mini-functions')}
+            >
+              ⚙️ Manage
+            </button>
+          )}
+        </div>
       </div>
       
       {enabledFunctions.length === 0 ? (
@@ -205,7 +221,7 @@ export default function MiniFunctionsArea() {
         </div>
       ) : (
         <div className="flex overflow-x-auto responsive-gap-md pb-4">
-          {enabledFunctions.map(func => renderMiniFunction(func, false))}
+          {enabledFunctions.map(func => renderMiniFunction(func, false, () => disableFunction(func.type)))}
         </div>
       )}
     </div>

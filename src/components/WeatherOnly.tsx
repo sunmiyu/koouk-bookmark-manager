@@ -27,7 +27,6 @@ interface CachedWeatherData extends WeatherData {
 }
 
 const CACHE_DURATION = 10 * 60 * 1000 // 10분
-const LOCATION_CACHE_DURATION = 60 * 60 * 1000 // 1시간
 
 export default function WeatherOnly() {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null)
@@ -97,53 +96,6 @@ export default function WeatherOnly() {
     }
   }
 
-  // 위치 정보 가져오기
-  const getUserLocation = (): Promise<{lat: number, lon: number}> => {
-    return new Promise((resolve, reject) => {
-      // 캐시된 위치 확인
-      const cachedLocation = localStorage.getItem('user_location')
-      if (cachedLocation) {
-        try {
-          const { lat, lon, cacheTime } = JSON.parse(cachedLocation)
-          if (Date.now() - cacheTime < LOCATION_CACHE_DURATION) {
-            resolve({ lat, lon })
-            return
-          }
-        } catch (error) {
-          console.error('캐시된 위치 데이터 파싱 실패:', error)
-        }
-      }
-
-      if (!navigator.geolocation) {
-        reject(new Error('브라우저가 위치 정보를 지원하지 않습니다'))
-        return
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude: lat, longitude: lon } = position.coords
-          
-          // 위치 정보 캐시
-          try {
-            localStorage.setItem('user_location', JSON.stringify({
-              lat, lon, cacheTime: Date.now()
-            }))
-          } catch (error) {
-            console.error('위치 정보 캐시 실패:', error)
-          }
-          
-          resolve({ lat, lon })
-        },
-        (error) => {
-          reject(new Error('위치 정보를 가져올 수 없습니다: ' + error.message))
-        },
-        {
-          timeout: 10000,
-          maximumAge: LOCATION_CACHE_DURATION
-        }
-      )
-    })
-  }
 
   // 날씨 데이터 로드 (단순화 - 서울 고정)
   const loadWeatherData = useCallback(async () => {

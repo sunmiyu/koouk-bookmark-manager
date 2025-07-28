@@ -95,6 +95,19 @@ export default function MiniFunctionsSettings() {
     }
   }
 
+  const enableAllFunctions = () => {
+    const availableSlots = maxEnabled - enabledFunctions.length
+    const functionsToEnable = availableFunctions
+      .filter(func => !func.isEnabled)
+      .slice(0, availableSlots)
+    
+    functionsToEnable.forEach(func => enableFunction(func.type))
+  }
+
+  const disableAllFunctions = () => {
+    enabledFunctions.forEach(func => disableFunction(func.type))
+  }
+
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto responsive-p-md py-8">
@@ -161,11 +174,29 @@ export default function MiniFunctionsSettings() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold">Available Functions</h2>
-              {!canEnableMore && (
-                <span className="text-yellow-400 text-sm">
-                  Maximum functions reached
-                </span>
-              )}
+              <div className="flex items-center gap-3">
+                {enabledFunctions.length > 0 && (
+                  <button
+                    onClick={disableAllFunctions}
+                    className="px-3 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                  >
+                    Disable All
+                  </button>
+                )}
+                {canEnableMore && (
+                  <button
+                    onClick={enableAllFunctions}
+                    className="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                  >
+                    Add All Available ({Math.min(maxEnabled - enabledFunctions.length, availableFunctions.filter(f => !f.isEnabled).length)})
+                  </button>
+                )}
+                {!canEnableMore && (
+                  <span className="text-yellow-400 text-sm">
+                    Maximum functions reached
+                  </span>
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -275,6 +306,12 @@ function getFunctionDescription(type: string): string {
       return 'Track your daily expenses with quick input and running totals'
     case 'diary':
       return 'Write daily journal entries with mood tracking and quick notes'
+    case 'stocks':
+      return 'Monitor real-time stock prices and your watchlist with live market data'
+    case 'commute':
+      return 'Check real-time commute times and traffic conditions for your routes'
+    case 'food':
+      return 'Discover nearby restaurants with ratings, reviews, and opening hours'
     default:
       return 'A useful mini function for your dashboard'
   }

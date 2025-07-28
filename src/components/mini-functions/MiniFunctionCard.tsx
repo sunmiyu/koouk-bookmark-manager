@@ -8,13 +8,15 @@ interface MiniFunctionCardProps {
   children: React.ReactNode
   expandedContent?: React.ReactNode
   isPreviewOnly?: boolean
+  onRemove?: () => void
 }
 
 export default function MiniFunctionCard({ 
   functionData, 
   children, 
   expandedContent,
-  isPreviewOnly = false 
+  isPreviewOnly = false,
+  onRemove
 }: MiniFunctionCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -33,11 +35,22 @@ export default function MiniFunctionCard({
         } ${isPreviewOnly ? 'opacity-70' : ''}`}
         onClick={handleToggle}
       >
-        {/* Preview Only Badge */}
-        {isPreviewOnly && (
+        {/* Preview Only Badge or Remove Button */}
+        {isPreviewOnly ? (
           <div className="absolute top-2 right-2 px-2 py-1 bg-yellow-600 text-yellow-100 text-xs rounded">
             Preview
           </div>
+        ) : onRemove && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onRemove()
+            }}
+            className="absolute top-2 right-2 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center text-xs transition-colors"
+            title="Remove function"
+          >
+            ✕
+          </button>
         )}
 
         {/* Content */}

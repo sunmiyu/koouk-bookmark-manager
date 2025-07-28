@@ -82,7 +82,7 @@ function HomeContent() {
             </div>
             
             {/* 모바일: 오른쪽 정렬 */}
-            <div className="sm:hidden flex items-center justify-end gap-3">
+            <div className="sm:hidden flex items-center justify-end gap-3 flex-1">
               {/* Search bar - 적당한 크기 */}
               <div className="max-w-xs">
                 <SearchBar />

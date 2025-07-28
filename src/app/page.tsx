@@ -42,7 +42,7 @@ function HomeContent() {
       <div className="container mx-auto responsive-p-md py-4 sm:py-6">
         <header className="mb-6">
           {/* First row: Logo, Weather, Time */}
-          <div className="flex items-end justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 h-12">
             <KooukLogo />
             
             <div className="flex items-center gap-4 text-gray-300">

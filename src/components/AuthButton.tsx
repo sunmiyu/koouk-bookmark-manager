@@ -91,13 +91,13 @@ export default function AuthButton() {
       </button>
       
       {isDropdownOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 z-10">
+        <div className="absolute right-0 mt-3 w-52 bg-gray-800 rounded-lg shadow-lg border border-gray-700 z-10">
           <button
             onClick={() => {
               signIn('google')
               setIsDropdownOpen(false)
             }}
-            className="w-full text-center px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors flex items-center justify-center gap-2"
+            className="w-full text-center px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 rounded-lg"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>

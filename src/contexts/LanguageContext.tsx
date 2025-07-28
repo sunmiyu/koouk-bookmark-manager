@@ -14,25 +14,29 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>('ko')
 
-  // Load language preference from localStorage
+  // Load language preference from localStorage (client-side only)
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('koouk_language') as Language
-    if (savedLanguage && ['ko', 'en'].includes(savedLanguage)) {
-      setLanguage(savedLanguage)
-    } else {
-      // Auto-detect browser language
-      const browserLang = navigator.language.toLowerCase()
-      if (browserLang.startsWith('en')) {
-        setLanguage('en')
+    if (typeof window !== 'undefined') {
+      const savedLanguage = localStorage.getItem('koouk_language') as Language
+      if (savedLanguage && ['ko', 'en'].includes(savedLanguage)) {
+        setLanguage(savedLanguage)
+      } else {
+        // Auto-detect browser language
+        const browserLang = navigator.language.toLowerCase()
+        if (browserLang.startsWith('en')) {
+          setLanguage('en')
+        }
       }
     }
   }, [])
 
-  // Save language preference
+  // Save language preference (client-side only)
   useEffect(() => {
-    localStorage.setItem('koouk_language', language)
-    // Update document language
-    document.documentElement.lang = language
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('koouk_language', language)
+      // Update document language
+      document.documentElement.lang = language
+    }
   }, [language])
 
   const t = (key: keyof typeof import('@/lib/translations').translations.ko) => {

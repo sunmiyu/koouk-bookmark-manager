@@ -17,7 +17,8 @@ interface UserPlanContextType {
 const UserPlanContext = createContext<UserPlanContextType | undefined>(undefined)
 
 export function UserPlanProvider({ children }: { children: ReactNode }) {
-  const [currentPlan, setCurrentPlan] = useState<UserPlan>('free')
+  // TEMPORARY: Set to 'pro' for testing Mini Functions without login
+  const [currentPlan, setCurrentPlan] = useState<UserPlan>('pro')
 
   // Load plan from localStorage on mount
   useEffect(() => {

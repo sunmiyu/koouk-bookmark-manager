@@ -132,10 +132,14 @@ export default function MiniFunctionsArea() {
     }
   }
 
+  // TEMPORARY: Allow free users to see Mini Functions for testing
+  // TODO: Re-enable this restriction after OAuth is working
+  /*
   // Hide Mini Functions for free users completely
   if (currentPlan === 'free') {
     return null
   }
+  */
 
   // 해외 접속자를 위한 서비스 준비중 메시지
   if (isKorea === false) {

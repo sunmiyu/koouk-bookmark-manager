@@ -166,9 +166,7 @@ export default function TodoSection() {
         
         <div className="space-y-1 mb-2">
           {card.todos.length === 0 ? (
-            <div className="text-gray-500 responsive-text-sm py-2 text-center">
-              No todos
-            </div>
+            <div></div>
           ) : (
             card.todos.map((todo) => (
               <div key={todo.id} className="flex items-center gap-2 group">

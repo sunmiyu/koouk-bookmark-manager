@@ -7,7 +7,7 @@ import { trackEvents } from '@/lib/analytics'
 import ImageModal from './ImageModal'
 
 export default function ImageSection() {
-  const { images } = useContent()
+  const { images, deleteItem } = useContent()
   const { getStorageLimit } = useUserPlan()
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
 
@@ -27,12 +27,25 @@ export default function ImageSection() {
         {images.map((image) => (
           <div 
             key={image.id} 
-            className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700"
+            className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
             onClick={() => {
               trackEvents.openModal('image')
               setSelectedImage({ url: image.thumbnail || image.url || '', title: image.title || 'Untitled Image' })
             }}
           >
+            {/* Delete button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                if (confirm('이 이미지를 삭제하시겠습니까?')) {
+                  deleteItem(image.id, 'image')
+                }
+              }}
+              className="absolute top-2 right-2 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs z-10"
+              title="Delete image"
+            >
+              ✕
+            </button>
             <div className="flex items-start responsive-gap-sm">
               <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}

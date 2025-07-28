@@ -3,7 +3,7 @@ import { useUserPlan } from '@/contexts/UserPlanContext'
 import { trackEvents } from '@/lib/analytics'
 
 export default function LinkSection() {
-  const { links } = useContent()
+  const { links, deleteItem } = useContent()
   const { getStorageLimit } = useUserPlan()
 
   const limit = getStorageLimit()
@@ -22,7 +22,7 @@ export default function LinkSection() {
         {links.map((link) => (
           <div 
             key={link.id} 
-            className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700"
+            className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
             onClick={() => {
               if (link.url) {
                 trackEvents.clickExternalLink(link.url)
@@ -30,6 +30,19 @@ export default function LinkSection() {
               }
             }}
           >
+            {/* Delete button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                if (confirm('이 링크를 삭제하시겠습니까?')) {
+                  deleteItem(link.id, 'link')
+                }
+              }}
+              className="absolute top-2 right-2 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs z-10"
+              title="Delete link"
+            >
+              ✕
+            </button>
             <div className="flex items-start responsive-gap-sm">
               <div className="w-6 h-6 bg-blue-500 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5">
                 <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

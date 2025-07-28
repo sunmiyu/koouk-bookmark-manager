@@ -14,7 +14,6 @@ import SearchBar from '@/components/SearchBar'
 import { ContentProvider } from '@/contexts/ContentContext'
 import { useUserPlan } from '@/contexts/UserPlanContext'
 import { useLanguage } from '@/contexts/LanguageContext'
-import LanguageToggle from '@/components/LanguageToggle'
 import MiniFunctionsArea from '@/components/MiniFunctionsArea'
 import { trackEvents } from '@/lib/analytics'
 
@@ -49,8 +48,6 @@ function HomeContent() {
               <WeatherOnly />
               <span className="text-gray-500">|</span>
               <TimeDisplay />
-              <span className="text-gray-500">|</span>
-              <LanguageToggle />
             </div>
           </div>
           
@@ -116,7 +113,7 @@ function HomeContent() {
           <TodoSection />
           
           {/* Horizontal divider between Todos and Contents */}
-          <div className="border-t border-gray-800"></div>
+          <div className="border-t border-gray-800 my-6 sm:my-8"></div>
 
           {/* Info input section */}
           <InfoInputSection />
@@ -182,7 +179,7 @@ function HomeContent() {
             <p className="mt-1 text-xs text-gray-600">
               필요한 기능 제안, 수정 보완할 점을 보내주시면 적극 반영하겠습니다!
             </p>
-            <p className="mt-2 text-xs">모든 북마크를 한 곳에서</p>
+            <p className="mt-2 text-xs">Your everyday moments dashboard</p>
           </div>
         </footer>
       </div>

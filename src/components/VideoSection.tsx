@@ -14,7 +14,7 @@ const getYouTubeThumbnail = (url: string): string => {
 }
 
 export default function VideoSection() {
-  const { videos } = useContent()
+  const { videos, deleteItem } = useContent()
   const { getStorageLimit } = useUserPlan()
 
   const limit = getStorageLimit()
@@ -35,12 +35,25 @@ export default function VideoSection() {
           return (
             <div 
               key={video.id} 
-              className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700"
+              className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
               onClick={() => {
                 trackEvents.clickExternalLink(video.url || '')
                 window.open(video.url, '_blank')
               }}
             >
+              {/* Delete button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (confirm('이 비디오를 삭제하시겠습니까?')) {
+                    deleteItem(video.id, 'video')
+                  }
+                }}
+                className="absolute top-2 right-2 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs z-10"
+                title="Delete video"
+              >
+                ✕
+              </button>
               <div className="flex items-start responsive-gap-sm">
                 <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden relative">
                   {thumbnailUrl ? (

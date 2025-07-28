@@ -19,6 +19,7 @@ interface ContentContextType {
   images: ContentItem[]
   notes: ContentItem[]
   addItem: (item: Omit<ContentItem, 'id' | 'createdAt'>) => void
+  deleteItem: (id: string, type: ContentItem['type']) => void
 }
 
 const ContentContext = createContext<ContentContextType | undefined>(undefined)
@@ -82,8 +83,25 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const deleteItem = (id: string, type: ContentItem['type']) => {
+    switch (type) {
+      case 'video':
+        setVideos(prev => prev.filter(item => item.id !== id))
+        break
+      case 'link':
+        setLinks(prev => prev.filter(item => item.id !== id))
+        break
+      case 'image':
+        setImages(prev => prev.filter(item => item.id !== id))
+        break
+      case 'note':
+        setNotes(prev => prev.filter(item => item.id !== id))
+        break
+    }
+  }
+
   return (
-    <ContentContext.Provider value={{ videos, links, images, notes, addItem }}>
+    <ContentContext.Provider value={{ videos, links, images, notes, addItem, deleteItem }}>
       {children}
     </ContentContext.Provider>
   )

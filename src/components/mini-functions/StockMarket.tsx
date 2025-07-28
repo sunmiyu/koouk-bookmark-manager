@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { StockItem, StockData } from '@/types/miniFunctions'
 
 interface StockMarketProps {
@@ -99,7 +99,7 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
   }
 
   // 주식 데이터 로드
-  const loadStockData = async () => {
+  const loadStockData = useCallback(async () => {
     if (isPreviewOnly) {
       // 프리뷰용 샘플 데이터
       setStockData({
@@ -155,7 +155,7 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
     } finally {
       setLoading(false)
     }
-  }
+  }, [isPreviewOnly])
 
   // 새 종목 추가
   const addStock = async () => {
@@ -202,7 +202,7 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
       }, 5 * 60 * 1000)
       return () => clearInterval(interval)
     }
-  }, [isPreviewOnly])
+  }, [isPreviewOnly, loadStockData])
 
   const formatPrice = (price: number, currency: string) => {
     if (currency === 'KRW') {

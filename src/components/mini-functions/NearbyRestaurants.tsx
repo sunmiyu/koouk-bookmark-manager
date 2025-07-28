@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { RestaurantItem, RestaurantData } from '@/types/miniFunctions'
 
 interface NearbyRestaurantsProps {
@@ -107,7 +107,8 @@ export default function NearbyRestaurants({ isPreviewOnly = false }: NearbyResta
   }
 
   // 맛집 데이터 로드
-  const loadRestaurantData = async () => {
+  const loadRestaurantData = useCallback(async () => {
+    console.log('NearbyRestaurants: loadRestaurantData 시작', { isPreviewOnly })
     if (isPreviewOnly) {
       // 프리뷰용 샘플 데이터
       setRestaurantData({
@@ -136,9 +137,10 @@ export default function NearbyRestaurants({ isPreviewOnly = false }: NearbyResta
       setError('Failed to load restaurant data')
       console.error('Restaurant data error:', err)
     } finally {
+      console.log('NearbyRestaurants: 로딩 완료')
       setLoading(false)
     }
-  }
+  }, [isPreviewOnly])
 
   useEffect(() => {
     loadRestaurantData()
@@ -177,7 +179,7 @@ export default function NearbyRestaurants({ isPreviewOnly = false }: NearbyResta
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {/* 카테고리 필터 (프리뷰가 아닐 때만) */}
       {!isPreviewOnly && (
         <div className="flex gap-1 overflow-x-auto pb-2">
@@ -200,7 +202,7 @@ export default function NearbyRestaurants({ isPreviewOnly = false }: NearbyResta
       {/* 맛집 리스트 */}
       <div className="space-y-1">
         {displayedRestaurants.map((restaurant) => (
-          <div key={restaurant.id} className="space-y-1 p-2 bg-gray-800 rounded">
+          <div key={restaurant.id} className="space-y-1 p-1.5 bg-gray-800 rounded">
             <div className="flex items-center justify-between">
               <span className="text-white text-xs font-medium truncate flex-1">
                 {restaurant.name}

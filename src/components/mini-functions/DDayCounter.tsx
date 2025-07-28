@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { DDayData, DDayEvent } from '@/types/miniFunctions'
 
 interface DDayCounterProps {
@@ -54,7 +54,7 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
     }
   }
 
-  const loadDDayData = async () => {
+  const loadDDayData = useCallback(async () => {
     try {
       setLoading(true)
       
@@ -70,7 +70,7 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     loadDDayData()
@@ -91,7 +91,7 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
 
       return () => clearTimeout(midnightTimer)
     }
-  }, [isPreviewOnly])
+  }, [isPreviewOnly, loadDDayData])
 
   if (loading) {
     return (

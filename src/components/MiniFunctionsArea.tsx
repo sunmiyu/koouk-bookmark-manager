@@ -52,8 +52,10 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
+            secondLine="최신 뉴스 헤드라인"
+            expandedContent={<NewsHeadlines isPreviewOnly={isPreviewOnly} />}
           >
-            <NewsHeadlines isPreviewOnly={isPreviewOnly} />
+            실시간 뉴스
           </MiniFunctionCard>
         )
       case 'music':
@@ -62,8 +64,10 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
+            secondLine="맞춤 음악 추천"
+            expandedContent={<MusicRecommendations isPreviewOnly={isPreviewOnly} />}
           >
-            <MusicRecommendations isPreviewOnly={isPreviewOnly} />
+            음악 추천
           </MiniFunctionCard>
         )
       case 'alarm':
@@ -72,8 +76,10 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
+            secondLine="다음 알람 시간"
+            expandedContent={<AlarmFunction isPreviewOnly={isPreviewOnly} />}
           >
-            <AlarmFunction isPreviewOnly={isPreviewOnly} />
+            알람 관리
           </MiniFunctionCard>
         )
       case 'expense':
@@ -82,8 +88,10 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
+            secondLine="오늘의 지출 현황"
+            expandedContent={<ExpenseTracker isPreviewOnly={isPreviewOnly} />}
           >
-            <ExpenseTracker isPreviewOnly={isPreviewOnly} />
+            가계부
           </MiniFunctionCard>
         )
       case 'diary':
@@ -92,8 +100,10 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
+            secondLine="오늘의 기록 작성"
+            expandedContent={<MiniDiary isPreviewOnly={isPreviewOnly} />}
           >
-            <MiniDiary isPreviewOnly={isPreviewOnly} />
+            미니 다이어리
           </MiniFunctionCard>
         )
       case 'stocks':
@@ -102,8 +112,10 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
+            secondLine="관심 종목 시세"
+            expandedContent={<StockMarket isPreviewOnly={isPreviewOnly} />}
           >
-            <StockMarket isPreviewOnly={isPreviewOnly} />
+            주식 정보
           </MiniFunctionCard>
         )
       case 'commute':
@@ -112,8 +124,10 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
+            secondLine="실시간 교통 정보"
+            expandedContent={<CommuteTime isPreviewOnly={isPreviewOnly} />}
           >
-            <CommuteTime isPreviewOnly={isPreviewOnly} />
+            출퇴근 시간
           </MiniFunctionCard>
         )
       case 'food':
@@ -122,8 +136,10 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
+            secondLine="근처 맛집 정보"
+            expandedContent={<NearbyRestaurants isPreviewOnly={isPreviewOnly} />}
           >
-            <NearbyRestaurants isPreviewOnly={isPreviewOnly} />
+            주변 맛집
           </MiniFunctionCard>
         )
       case 'dday':
@@ -132,8 +148,10 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
+            secondLine="다가오는 일정"
+            expandedContent={<DDayCounter isPreviewOnly={isPreviewOnly} />}
           >
-            <DDayCounter isPreviewOnly={isPreviewOnly} />
+            D-day 카운터
           </MiniFunctionCard>
         )
       default:

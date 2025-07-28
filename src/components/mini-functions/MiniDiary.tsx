@@ -171,7 +171,7 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {/* Today's Entry */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">

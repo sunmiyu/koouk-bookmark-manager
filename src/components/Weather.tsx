@@ -220,7 +220,7 @@ export default function Weather() {
       clearInterval(timeInterval)
       clearInterval(weatherInterval)
     }
-  }, [])
+  }, [loadWeatherData])
 
   return (
     <div className="space-y-2">

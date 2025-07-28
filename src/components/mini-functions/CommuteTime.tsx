@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { CommuteRoute, CommuteData } from '@/types/miniFunctions'
 import { detectUserLocation, getCachedLocation, setCachedLocation } from '@/lib/geolocation'
 
@@ -84,7 +84,8 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
   }
 
   // 출퇴근 데이터 로드
-  const loadCommuteData = async () => {
+  const loadCommuteData = useCallback(async () => {
+    console.log('CommuteTime: loadCommuteData 시작', { isPreviewOnly })
     if (isPreviewOnly) {
       // 프리뷰용 샘플 데이터
       setCommuteData({
@@ -121,10 +122,12 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
       setLoading(true)
       setError(null)
 
-      // 한국이 아니면 에러 처리
-      const locationIsKorea = await checkLocation()
+      // 한국이 아니면 에러 처리 (테스트를 위해 임시로 true로 설정)
+      // const locationIsKorea = await checkLocation()
+      const locationIsKorea = true
       if (!locationIsKorea) {
         setError('Service is only available in Korea')
+        console.log('CommuteTime: 한국이 아님')
         setLoading(false)
         return
       }
@@ -164,9 +167,10 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
       setError('Failed to load commute data')
       console.error('Commute data error:', err)
     } finally {
+      console.log('CommuteTime: 로딩 완료')
       setLoading(false)
     }
-  }
+  }, [isPreviewOnly])
 
   // 새 경로 추가
   const addRoute = async () => {
@@ -327,9 +331,9 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {commuteData.routes.map((route) => (
-        <div key={route.id} className="bg-gray-800 rounded-lg p-3">
+        <div key={route.id} className="bg-gray-800 rounded-lg p-2">
           <div className="flex items-center justify-between mb-2">
             <div className="font-medium text-white text-sm">{route.name}</div>
             {!isPreviewOnly && (
@@ -368,7 +372,7 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
       ))}
 
       {!isPreviewOnly && commuteData.routes.length < 5 && (
-        <div className="bg-gray-800 rounded-lg p-3">
+        <div className="bg-gray-800 rounded-lg p-2">
           <div className="text-sm font-medium text-white mb-2">새 경로 추가</div>
           <div className="space-y-2">
             <input

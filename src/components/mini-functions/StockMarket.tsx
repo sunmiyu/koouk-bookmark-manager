@@ -66,7 +66,12 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
         } as StockItem
       })
 
-      const results = await Promise.all(promises)
+      const results = await Promise.race([
+        Promise.all(promises),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout')), 10000)
+        )
+      ]) as StockItem[]
       return results.filter(stock => stock.price > 0) // 유효한 데이터만 필터링
     } catch (error) {
       console.error('Error fetching stock data:', error)
@@ -192,10 +197,12 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
     
     // 5분마다 업데이트 (프리뷰가 아닐 때만)
     if (!isPreviewOnly) {
-      const interval = setInterval(loadStockData, 5 * 60 * 1000)
+      const interval = setInterval(() => {
+        loadStockData()
+      }, 5 * 60 * 1000)
       return () => clearInterval(interval)
     }
-  }, [isPreviewOnly, loadStockData])
+  }, [isPreviewOnly])
 
   const formatPrice = (price: number, currency: string) => {
     if (currency === 'KRW') {

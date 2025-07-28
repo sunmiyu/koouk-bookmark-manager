@@ -18,7 +18,6 @@ interface MiniFunctionsContextType {
 const MiniFunctionsContext = createContext<MiniFunctionsContextType | undefined>(undefined)
 
 export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
-  const { currentPlan } = useUserPlan()
   
   // Available Mini Functions
   const [availableFunctions] = useState<MiniFunctionData[]>([

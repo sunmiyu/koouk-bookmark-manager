@@ -212,13 +212,15 @@ export default function Weather() {
     loadWeatherData()
     
     // 30분마다 날씨 데이터 새로고침 (API 호출 최소화)
-    const weatherInterval = setInterval(loadWeatherData, 30 * 60 * 1000)
+    const weatherInterval = setInterval(() => {
+      loadWeatherData()
+    }, 30 * 60 * 1000)
 
     return () => {
       clearInterval(timeInterval)
       clearInterval(weatherInterval)
     }
-  }, [loadWeatherData])
+  }, [])
 
   return (
     <div className="space-y-2">

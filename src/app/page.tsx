@@ -163,23 +163,8 @@ function HomeContent() {
         </main>
 
         <footer className="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-gray-800">
-          <div className="text-center responsive-text-sm text-gray-500">
-            <p>Koouk © 2025 All rights reserved</p>
-            <p className="mt-2">
-              Contact: <a href="mailto:support@koouk.im" className="text-blue-400 hover:underline">support@koouk.im</a>
-            </p>
-            <p className="mt-2">
-              <a 
-                href="mailto:support@koouk.im?bcc=tjsalg1@gmail.com&subject=Koouk 피드백&body=필요한 기능 제안이나 수정 보완할 점을 알려주세요:" 
-                className="text-green-400 hover:text-green-300 hover:underline text-sm"
-              >
-                📧 피드백 보내기
-              </a>
-            </p>
-            <p className="mt-1 text-xs text-gray-600">
-              필요한 기능 제안, 수정 보완할 점을 보내주시면 적극 반영하겠습니다!
-            </p>
-            <p className="mt-2 text-xs">Your everyday moments dashboard</p>
+          <div className="text-center text-xs text-gray-500">
+            Koouk 2025 All rights reserved · 피드백 보내기: <a href="mailto:support@koouk.im" className="text-green-400 hover:text-green-300">support@koouk.im</a> · Your everyday moments dashboard
           </div>
         </footer>
       </div>

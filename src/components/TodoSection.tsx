@@ -157,11 +157,10 @@ export default function TodoSection() {
       <div key={card.date} className={`card min-w-[280px] sm:min-w-[250px] flex-shrink-0 ${todayCard ? 'ring-2 ring-blue-500' : ''}`}>
         <div className="mb-3">
           <div className="flex items-center responsive-gap-sm">
-            <div className="responsive-text-lg font-semibold">{month}/{day}</div>
+            <div className="responsive-text-lg font-semibold">{month}/{day} {weekday}</div>
             {todayCard && <span className="px-2 py-1 bg-blue-600 text-white text-xs rounded">Today</span>}
             {pastCard && !isHistoryCard && <span className="px-2 py-1 bg-gray-600 text-white text-xs rounded">Past</span>}
           </div>
-          <div className="responsive-text-sm text-gray-400">{weekday}</div>
         </div>
         
         <div className="space-y-1 mb-2">

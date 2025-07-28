@@ -73,6 +73,23 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
     }
   }, [news.length, isPreviewOnly])
 
+  const displayNews = useMemo(() => {
+    if (isPreviewOnly) {
+      return news.slice(0, 2)
+    }
+    
+    if (news.length <= 3) {
+      return news.slice(0, 3)
+    }
+    
+    const endIndex = currentIndex + 3
+    if (endIndex <= news.length) {
+      return news.slice(currentIndex, endIndex)
+    }
+    
+    return news.slice(currentIndex).concat(news.slice(0, endIndex - news.length))
+  }, [news, currentIndex, isPreviewOnly])
+
   if (loading) {
     return (
       <div className="text-gray-400">
@@ -88,14 +105,6 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
       </div>
     )
   }
-
-  const displayNews = isPreviewOnly 
-    ? news.slice(0, 2) 
-    : news.length > 3 
-      ? news.slice(currentIndex, currentIndex + 3).concat(
-          news.slice(0, Math.max(0, currentIndex + 3 - news.length))
-        )
-      : news.slice(0, 3)
 
   return (
     <div className="space-y-1">

@@ -44,7 +44,7 @@ export default function MiniFunctionsArea() {
     checkLocation()
   }, [])
 
-  const renderMiniFunction = (functionData: MiniFunctionData, isPreviewOnly = false, onRemove?: () => void) => {
+  const renderMiniFunction = (functionData: MiniFunctionData, isPreviewOnly = false) => {
     switch (functionData.type) {
       case 'news':
         return (
@@ -52,7 +52,6 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            onRemove={onRemove}
           >
             <NewsHeadlines isPreviewOnly={isPreviewOnly} />
           </MiniFunctionCard>
@@ -63,7 +62,6 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            onRemove={onRemove}
           >
             <MusicRecommendations isPreviewOnly={isPreviewOnly} />
           </MiniFunctionCard>
@@ -74,7 +72,6 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            onRemove={onRemove}
           >
             <AlarmFunction isPreviewOnly={isPreviewOnly} />
           </MiniFunctionCard>
@@ -85,7 +82,6 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            onRemove={onRemove}
           >
             <ExpenseTracker isPreviewOnly={isPreviewOnly} />
           </MiniFunctionCard>
@@ -96,7 +92,6 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            onRemove={onRemove}
           >
             <MiniDiary isPreviewOnly={isPreviewOnly} />
           </MiniFunctionCard>
@@ -107,7 +102,6 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            onRemove={onRemove}
           >
             <StockMarket isPreviewOnly={isPreviewOnly} />
           </MiniFunctionCard>
@@ -118,7 +112,6 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            onRemove={onRemove}
           >
             <CommuteTime isPreviewOnly={isPreviewOnly} />
           </MiniFunctionCard>
@@ -129,7 +122,6 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            onRemove={onRemove}
           >
             <NearbyRestaurants isPreviewOnly={isPreviewOnly} />
           </MiniFunctionCard>
@@ -140,7 +132,6 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            onRemove={onRemove}
           >
             <DDayCounter isPreviewOnly={isPreviewOnly} />
           </MiniFunctionCard>
@@ -235,12 +226,12 @@ export default function MiniFunctionsArea() {
         <>
           {/* Mobile: 세로 스택 */}
           <div className="block sm:hidden space-y-4">
-            {enabledFunctions.map(func => renderMiniFunction(func, false, () => disableFunction(func.type)))}
+            {enabledFunctions.map(func => renderMiniFunction(func, false))}
           </div>
           
           {/* Desktop: 가로 스크롤 */}
           <div className="hidden sm:flex overflow-x-auto responsive-gap-md pb-4">
-            {enabledFunctions.map(func => renderMiniFunction(func, false, () => disableFunction(func.type)))}
+            {enabledFunctions.map(func => renderMiniFunction(func, false))}
           </div>
         </>
       )}

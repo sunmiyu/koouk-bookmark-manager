@@ -64,7 +64,9 @@ export const rateLimiters = {
   search: new SimpleRateLimit(30, 60 * 1000),
 }
 
-// 5분마다 메모리 정리
-setInterval(() => {
-  Object.values(rateLimiters).forEach(limiter => limiter.cleanup())
-}, 5 * 60 * 1000)
+// 5분마다 메모리 정리 (브라우저 환경에서만)
+if (typeof window !== 'undefined') {
+  setInterval(() => {
+    Object.values(rateLimiters).forEach(limiter => limiter.cleanup())
+  }, 5 * 60 * 1000)
+}

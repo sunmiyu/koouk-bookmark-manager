@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { CommuteRoute, CommuteData } from '@/types/miniFunctions'
-import { detectUserLocation, getCachedLocation, setCachedLocation } from '@/lib/geolocation'
 
 interface CommuteTimeProps {
   isPreviewOnly?: boolean
@@ -15,7 +14,6 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [isKorea, setIsKorea] = useState<boolean | null>(null)
   const [isAddingRoute, setIsAddingRoute] = useState(false)
   const [newRoute, setNewRoute] = useState({
     name: '',
@@ -243,16 +241,6 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
     )
   }
 
-  // 한국이 아닌 경우
-  if (isKorea === false) {
-    return (
-      <div className="text-center py-4">
-        <div className="text-gray-400 mb-2">🚧</div>
-        <div className="text-sm text-gray-400 mb-1">서비스 준비중</div>
-        <div className="text-sm text-gray-500">한국 지역에서만 이용 가능합니다</div>
-      </div>
-    )
-  }
 
   if (error && error !== 'Service is only available in Korea') {
     return (

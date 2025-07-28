@@ -11,25 +11,61 @@ export const detectUserLocation = async (): Promise<{
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
     const isKoreaTimezone = timezone === 'Asia/Seoul'
 
-    // 2. IP 기반 지역 감지 (무료 서비스 사용)
+    // 2. 브라우저 언어 설정 확인
+    const language = navigator.language || navigator.languages?.[0] || ''
+    const isKoreanLanguage = language.startsWith('ko')
+
+    // 3. IP 기반 지역 감지 (여러 무료 서비스 시도)
     let country = 'Unknown'
+    
+    // 첫 번째 시도: ipapi.co
     try {
       const response = await fetch('https://ipapi.co/json/', {
         method: 'GET',
         headers: {
           'Accept': 'application/json'
-        }
+        },
+        signal: AbortSignal.timeout(3000) // 3초 타임아웃
       })
       
       if (response.ok) {
         const data = await response.json()
-        country = data.country_code || 'Unknown'
+        if (data.country_code && data.country_code !== 'undefined') {
+          country = data.country_code
+        }
       }
     } catch (error) {
-      console.warn('IP location detection failed:', error)
+      console.warn('ipapi.co failed:', error)
+      
+      // 두 번째 시도: ip-api.com
+      try {
+        const backupResponse = await fetch('https://ip-api.com/json/', {
+          method: 'GET',
+          signal: AbortSignal.timeout(3000)
+        })
+        
+        if (backupResponse.ok) {
+          const backupData = await backupResponse.json()
+          if (backupData.countryCode && backupData.countryCode !== 'undefined') {
+            country = backupData.countryCode
+          }
+        }
+      } catch (backupError) {
+        console.warn('ip-api.com also failed:', backupError)
+      }
     }
 
-    const isKorea = country === 'KR' || isKoreaTimezone
+    // 판별 로직 강화: 타임존, 언어, IP 종합 고려
+    const isKorea = country === 'KR' || (isKoreaTimezone && isKoreanLanguage) || (country === 'Unknown' && isKoreaTimezone)
+
+    console.log('Location detection result:', { 
+      country, 
+      timezone, 
+      language, 
+      isKoreaTimezone, 
+      isKoreanLanguage, 
+      finalIsKorea: isKorea 
+    })
 
     return {
       country,
@@ -39,11 +75,15 @@ export const detectUserLocation = async (): Promise<{
   } catch (error) {
     console.error('Location detection error:', error)
     
-    // 폴백: 타임존만으로 판별
+    // 폴백: 타임존과 언어로 판별
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    const language = navigator.language || ''
+    const isKoreanLanguage = language.startsWith('ko')
+    const isKoreaTimezone = timezone === 'Asia/Seoul'
+    
     return {
       country: 'Unknown',
-      isKorea: timezone === 'Asia/Seoul',
+      isKorea: isKoreaTimezone && isKoreanLanguage,
       timezone
     }
   }
@@ -55,8 +95,8 @@ export const getCachedLocation = () => {
     const cached = localStorage.getItem('koouk_user_location')
     if (cached) {
       const data = JSON.parse(cached)
-      // 1시간 캐시
-      if (Date.now() - data.timestamp < 60 * 60 * 1000) {
+      // 24시간 캐시 (하루에 한 번만 체크)
+      if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
         return data.location
       }
     }

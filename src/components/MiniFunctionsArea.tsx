@@ -5,7 +5,7 @@ import { useMiniFunctions } from '@/contexts/MiniFunctionsContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { MiniFunctionData } from '@/types/miniFunctions'
 import { useRouter } from 'next/navigation'
-import { detectUserLocation, getCachedLocation } from '@/lib/geolocation'
+import { detectUserLocation, getCachedLocation, setCachedLocation } from '@/lib/geolocation'
 import MiniFunctionCard from './mini-functions/MiniFunctionCard'
 import NewsHeadlines from './mini-functions/NewsHeadlines'
 import MusicRecommendations from './mini-functions/MusicRecommendations'
@@ -28,17 +28,26 @@ export default function MiniFunctionsArea() {
     const checkLocation = async () => {
       try {
         const cached = getCachedLocation()
-        if (cached && cached.country) {
-          setIsKorea(cached.country === 'KR')
+        if (cached) {
+          console.log('Using cached location:', cached)
+          setIsKorea(cached.isKorea)
           return
         }
 
+        console.log('Detecting user location...')
         const location = await detectUserLocation()
-        setIsKorea(location.country === 'KR')
+        console.log('Location detected:', location)
+        
+        // 위치 정보 캐시 저장
+        setCachedLocation(location)
+        setIsKorea(location.isKorea)
       } catch (error) {
         console.error('Location detection failed:', error)
-        // 기본적으로 한국이 아닌 것으로 처리
-        setIsKorea(false)
+        // 개발 환경에서는 한국으로 기본 설정, 배포 환경에서는 타임존으로 판별
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+        const fallbackIsKorea = timezone === 'Asia/Seoul' || process.env.NODE_ENV === 'development'
+        console.log('Using fallback location detection:', { timezone, fallbackIsKorea })
+        setIsKorea(fallbackIsKorea)
       }
     }
 

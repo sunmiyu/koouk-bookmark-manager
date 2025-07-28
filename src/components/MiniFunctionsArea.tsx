@@ -28,15 +28,16 @@ export default function MiniFunctionsArea() {
     const checkLocation = async () => {
       try {
         const cached = getCachedLocation()
-        if (cached) {
-          setIsKorea(cached.isKorea)
+        if (cached && cached.country) {
+          setIsKorea(cached.country === 'KR')
           return
         }
 
         const location = await detectUserLocation()
-        setIsKorea(location.isKorea)
+        setIsKorea(location.country === 'KR')
       } catch (error) {
-        console.error('Location check failed:', error)
+        console.error('Location detection failed:', error)
+        // 기본적으로 한국이 아닌 것으로 처리
         setIsKorea(false)
       }
     }
@@ -52,11 +53,20 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            secondLine="최신 뉴스 헤드라인"
+            firstLine={
+              <>
+                <span className="truncate">한국 경제 성장률 전망 발표</span>
+                <span className="text-xs">한국경제 7월 29일</span>
+              </>
+            }
+            secondLine={
+              <>
+                <span className="truncate">정부 새로운 정책 발표 예정</span>
+                <span className="text-xs">중앙일보 7월 29일</span>
+              </>
+            }
             expandedContent={<NewsHeadlines isPreviewOnly={isPreviewOnly} />}
-          >
-            오늘 주요 뉴스 5건
-          </MiniFunctionCard>
+          />
         )
       case 'music':
         return (
@@ -64,11 +74,20 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            secondLine="맞춤 음악 추천"
+            firstLine={
+              <>
+                <span className="truncate">아침에 일어나면 듣는 Jazz</span>
+                <span className="text-xs">Youtube</span>
+              </>
+            }
+            secondLine={
+              <>
+                <span className="truncate">신나는 아침에 듣는 Kpop</span>
+                <span className="text-xs">Youtube</span>
+              </>
+            }
             expandedContent={<MusicRecommendations isPreviewOnly={isPreviewOnly} />}
-          >
-            추천 음악 장르: K-pop, Jazz
-          </MiniFunctionCard>
+          />
         )
       case 'alarm':
         return (
@@ -76,11 +95,20 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            secondLine="다음 알람 시간"
+            firstLine={
+              <>
+                <span>내일 07:00</span>
+                <span className="text-xs">5시간 12분 남음</span>
+              </>
+            }
+            secondLine={
+              <>
+                <span>매일 19:00</span>
+                <span className="text-xs">-</span>
+              </>
+            }
             expandedContent={<AlarmFunction isPreviewOnly={isPreviewOnly} />}
-          >
-            다음 알람: 내일 07:00
-          </MiniFunctionCard>
+          />
         )
       case 'expense':
         return (
@@ -88,11 +116,20 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            secondLine="오늘의 지출 현황"
+            firstLine={
+              <>
+                <span>총 지출</span>
+                <span className="text-xs">25,000원</span>
+              </>
+            }
+            secondLine={
+              <>
+                <span>총 수입</span>
+                <span className="text-xs">2,000,000원</span>
+              </>
+            }
             expandedContent={<ExpenseTracker isPreviewOnly={isPreviewOnly} />}
-          >
-            오늘 지출: 35,000원
-          </MiniFunctionCard>
+          />
         )
       case 'diary':
         return (
@@ -100,11 +137,14 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            secondLine="오늘의 기록 작성"
+            firstLine={
+              <span className="truncate">오늘은 정말 좋은 하루였다. 새로운 프로젝트를 시작하게 되어서...</span>
+            }
+            secondLine={
+              <span className="truncate">기분이 좋고 앞으로 어떤 일들이 펼쳐질지 기대된다.</span>
+            }
             expandedContent={<MiniDiary isPreviewOnly={isPreviewOnly} />}
-          >
-            오늘의 기분: 행복 하루 시작!
-          </MiniFunctionCard>
+          />
         )
       case 'stocks':
         return (
@@ -112,11 +152,20 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            secondLine="관심 종목 시세"
+            firstLine={
+              <>
+                <span>삼성전자</span>
+                <span className="text-xs">72,500 (+1.2%) 7월 29일</span>
+              </>
+            }
+            secondLine={
+              <>
+                <span>SK하이닉스</span>
+                <span className="text-xs">128,000 (-0.8%) 7월 29일</span>
+              </>
+            }
             expandedContent={<StockMarket isPreviewOnly={isPreviewOnly} />}
-          >
-            삼성전자 72,500 (+1.2%)
-          </MiniFunctionCard>
+          />
         )
       case 'commute':
         return (
@@ -124,11 +173,17 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            secondLine="실시간 교통 정보"
+            firstLine={
+              <>
+                <span>집 → 회사</span>
+                <span className="text-xs">45분 예상, 도로 원활</span>
+              </>
+            }
+            secondLine={
+              <span></span>
+            }
             expandedContent={<CommuteTime isPreviewOnly={isPreviewOnly} />}
-          >
-            출근: 35분, 퇴근: 42분
-          </MiniFunctionCard>
+          />
         )
       case 'food':
         return (
@@ -136,39 +191,50 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            secondLine="근처 맛집 정보"
+            firstLine={
+              <>
+                <span className="truncate">주변 맛집 12곳 발견</span>
+                <span className="text-xs"></span>
+              </>
+            }
+            secondLine={
+              <>
+                <span className="truncate">카테고리별 추천 가능</span>
+                <span className="text-xs"></span>
+              </>
+            }
             expandedContent={<NearbyRestaurants isPreviewOnly={isPreviewOnly} />}
-          >
-            주변 맛집 12곳 발견
-          </MiniFunctionCard>
+          />
         )
       case 'dday':
+        // D-day 아이콘 변경
+        const ddayFunctionData = { ...functionData, icon: '📅' }
         return (
           <MiniFunctionCard 
             key={functionData.id} 
-            functionData={functionData} 
+            functionData={ddayFunctionData} 
             isPreviewOnly={isPreviewOnly}
-            secondLine="다가오는 일정"
+            firstLine={
+              <>
+                <span>연말 휴가까지</span>
+                <span className="text-xs">D-45 12/30</span>
+              </>
+            }
+            secondLine={
+              <>
+                <span>아들 생일</span>
+                <span className="text-xs">D-256 4/12</span>
+              </>
+            }
             expandedContent={<DDayCounter isPreviewOnly={isPreviewOnly} />}
-          >
-            연말 휴가까지 D-45
-          </MiniFunctionCard>
+          />
         )
       default:
         return null
     }
   }
 
-  // TEMPORARY: Allow free users to see Mini Functions for testing
-  // TODO: Re-enable this restriction after OAuth is working
-  /*
-  // Hide Mini Functions for free users completely
-  if (currentPlan === 'free') {
-    return null
-  }
-  */
-
-  // 해외 접속자를 위한 서비스 준비중 메시지
+  // 한국이 아닌 지역에서는 서비스 준비중 메시지 표시
   if (isKorea === false) {
     return (
       <div className="mb-6">
@@ -247,8 +313,8 @@ export default function MiniFunctionsArea() {
             {enabledFunctions.map(func => renderMiniFunction(func, false))}
           </div>
           
-          {/* Desktop: 그리드 레이아웃 (최대 4개씩 한 줄) */}
-          <div className="hidden sm:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 responsive-gap-md">
+          {/* Desktop: 가로 스크롤 */}
+          <div className="hidden sm:flex overflow-x-auto responsive-gap-md pb-4">
             {enabledFunctions.map(func => renderMiniFunction(func, false))}
           </div>
         </>

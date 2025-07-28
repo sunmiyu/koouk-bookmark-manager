@@ -176,11 +176,18 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-gray-400 text-sm">오늘의 기록</span>
-          {diaryData.todayEntry && !isPreviewOnly && (
-            <span className="text-sm text-gray-500">
-              {diaryData.todayEntry.mood}
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            {!isPreviewOnly && (
+              <button className="text-xs text-blue-400 hover:text-blue-300 underline">
+                📖 History
+              </button>
+            )}
+            {diaryData.todayEntry && !isPreviewOnly && (
+              <span className="text-sm text-gray-500">
+                {diaryData.todayEntry.mood}
+              </span>
+            )}
+          </div>
         </div>
 
         {isEditing && !isPreviewOnly ? (
@@ -206,7 +213,7 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
             <textarea
               value={currentText}
               onChange={(e) => setCurrentText(e.target.value)}
-              placeholder="오늘은 어떤 하루였나요?"
+              placeholder="오늘의 감정, 기억하고싶은일을 기록하세요"
               className="w-full px-2 py-2 text-sm bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-white placeholder-gray-400 resize-none"
               rows={3}
               maxLength={200}
@@ -259,7 +266,7 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
             ) : (
               <div className="flex items-center justify-center h-full">
                 <span className="text-gray-500 text-sm">
-                  {isPreviewOnly ? '📝 Write diary in Pro plan' : '오늘의 기록을 남겨보세요...'}
+                  {isPreviewOnly ? '📝 Write diary in Pro plan' : '오늘의 감정, 기억하고싶은일을 기록하세요'}
                 </span>
               </div>
             )}

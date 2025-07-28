@@ -5,15 +5,15 @@ import { MiniFunctionData } from '@/types/miniFunctions'
 
 interface MiniFunctionCardProps {
   functionData: MiniFunctionData
-  children: React.ReactNode
-  secondLine?: React.ReactNode
+  firstLine: React.ReactNode
+  secondLine: React.ReactNode
   expandedContent?: React.ReactNode
   isPreviewOnly?: boolean
 }
 
 export default function MiniFunctionCard({ 
   functionData, 
-  children, 
+  firstLine,
   secondLine,
   expandedContent,
   isPreviewOnly = false
@@ -30,7 +30,7 @@ export default function MiniFunctionCard({
   const shouldShowExpanded = (isExpanded || isHovered) && !isPreviewOnly && expandedContent
 
   return (
-    <div className="min-w-[300px] lg:min-w-[400px] flex-shrink-0">
+    <div className="flex-shrink-0 min-w-[300px] lg:min-w-[400px]">
       <div 
         className={`bg-gray-900 border border-gray-700 rounded-lg relative transition-all duration-200 ${
           !isPreviewOnly && expandedContent ? 'cursor-pointer hover:bg-gray-800' : ''
@@ -52,23 +52,23 @@ export default function MiniFunctionCard({
         <div className="p-3">
           {/* 기본 2줄 컨텐츠 */}
           <div className="space-y-1">
-            {/* 첫 번째 줄: 아이콘 + 첫 번째 내용 줄 + 확장버튼 */}
+            {/* 첫 번째 줄 */}
             <div className="flex items-center h-5 leading-5">
               <span className="text-sm mr-2 flex-shrink-0">{functionData.icon}</span>
-              <div className="text-sm text-white whitespace-nowrap text-ellipsis overflow-hidden flex-1">
-                {secondLine}
+              <div className="text-sm text-white flex-1 flex justify-between items-center">
+                {firstLine}
               </div>
               {!isPreviewOnly && expandedContent && (
-                <button className="ml-auto text-gray-400 hover:text-white flex-shrink-0 text-sm opacity-50 hover:opacity-100 transition-opacity">
+                <button className="ml-2 text-gray-400 hover:text-white flex-shrink-0 text-sm opacity-50 hover:opacity-100 transition-opacity">
                   {isExpanded ? '⌃' : '⌄'}
                 </button>
               )}
             </div>
 
-            {/* 두 번째 줄: 동적 컨텐츠 또는 실제 함수 내용 미리보기 */}
+            {/* 두 번째 줄 */}
             <div className="h-5 leading-5">
-              <div className="text-sm text-gray-400 whitespace-nowrap text-ellipsis overflow-hidden">
-                {children}
+              <div className="text-sm text-gray-400 flex justify-between items-center">
+                {secondLine}
               </div>
             </div>
           </div>

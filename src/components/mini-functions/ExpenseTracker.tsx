@@ -130,6 +130,21 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
 
   return (
     <div className="space-y-1">
+      {/* Header with History button */}
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-gray-400 text-sm">가계부 관리</span>
+        {!isPreviewOnly && (
+          <div className="flex gap-2">
+            <button className="text-xs text-blue-400 hover:text-blue-300 underline">
+              📊 History
+            </button>
+            <button className="text-xs text-green-400 hover:text-green-300 underline">
+              📈 월별 총계
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Today's total */}
       <div className="flex items-center justify-between">
         <span className="text-gray-400 text-sm">오늘 지출</span>

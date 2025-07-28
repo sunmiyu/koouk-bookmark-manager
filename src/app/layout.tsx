@@ -24,6 +24,15 @@ export const metadata: Metadata = {
   title: "Koouk - Personal Life Hub",
   description: "Your personal life hub - manage bookmarks, daily info, and lifestyle in one place | 개인 라이프 허브 - 북마크, 일상 정보, 라이프스타일을 한 곳에서 관리",
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' }
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }
+    ]
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

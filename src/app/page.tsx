@@ -171,6 +171,17 @@ function HomeContent() {
             <p className="mt-2">
               Contact: <a href="mailto:support@koouk.im" className="text-blue-400 hover:underline">support@koouk.im</a>
             </p>
+            <p className="mt-2">
+              <a 
+                href="mailto:tjsalg1@gmail.com?subject=Koouk 피드백&body=필요한 기능 제안이나 수정 보완할 점을 알려주세요:" 
+                className="text-green-400 hover:text-green-300 hover:underline text-sm"
+              >
+                📧 피드백 보내기
+              </a>
+            </p>
+            <p className="mt-1 text-xs text-gray-600">
+              필요한 기능 제안, 수정 보완할 점을 보내주시면 적극 반영하겠습니다!
+            </p>
             <p className="mt-2 text-xs">모든 북마크를 한 곳에서</p>
           </div>
         </footer>

@@ -129,11 +129,11 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
   const displayItems = isPreviewOnly ? expenseData.items.slice(0, 2) : expenseData.items.slice(0, 3)
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-1">
       {/* Today's total */}
       <div className="flex items-center justify-between">
         <span className="text-gray-400 text-xs">오늘 지출</span>
-        <span className="text-white font-medium text-sm">
+        <span className="text-white font-medium text-xs">
           {formatCurrency(expenseData.todayTotal)}
         </span>
       </div>
@@ -143,17 +143,17 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
         <div className="space-y-1">
           {displayItems.map((item) => (
             <div key={item.id} className="flex items-center justify-between group">
-              <div className="flex-1 min-w-0">
-                <span className="text-white text-xs">{item.description}</span>
-              </div>
-              <div className="flex items-center gap-2">
+              <span className="text-white text-xs truncate flex-1">
+                {item.description}
+              </span>
+              <div className="flex items-center gap-1">
                 <span className="text-gray-300 text-xs">
                   {formatCurrency(item.amount)}
                 </span>
                 {!isPreviewOnly && (
                   <button
                     onClick={() => removeExpense(item.id)}
-                    className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 text-xs"
+                    className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 text-xs w-4"
                   >
                     ×
                   </button>

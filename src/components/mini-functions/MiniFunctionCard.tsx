@@ -30,7 +30,7 @@ export default function MiniFunctionCard({
     <div className="min-w-[300px] lg:min-w-[400px] flex-shrink-0">
       {/* Main Card */}
       <div 
-        className={`card h-[120px] relative ${
+        className={`card h-[80px] relative ${
           !isPreviewOnly && expandedContent ? 'cursor-pointer hover:bg-gray-700' : ''
         } ${isPreviewOnly ? 'opacity-70' : ''}`}
         onClick={handleToggle}
@@ -54,9 +54,9 @@ export default function MiniFunctionCard({
         )}
 
         {/* Content */}
-        <div className="flex items-center gap-3 mb-3">
-          <span className="text-xl">{functionData.icon}</span>
-          <h3 className="font-medium text-sm text-white">{functionData.title}</h3>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-lg">{functionData.icon}</span>
+          <h3 className="font-medium text-xs text-white">{functionData.title}</h3>
           {!isPreviewOnly && expandedContent && (
             <button className="ml-auto text-gray-400 hover:text-white">
               {isExpanded ? '⌃' : '⌄'}
@@ -65,7 +65,7 @@ export default function MiniFunctionCard({
         </div>
 
         {/* Main content */}
-        <div className="text-xs space-y-1 overflow-hidden h-[60px]">
+        <div className="text-xs space-y-1 overflow-hidden h-[35px]">
           {children}
         </div>
       </div>

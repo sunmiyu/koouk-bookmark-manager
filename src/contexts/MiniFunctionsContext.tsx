@@ -120,7 +120,8 @@ export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
   }, [enabledFunctions])
 
   // Calculate max enabled functions based on plan
-  const maxEnabled = currentPlan === 'free' ? 0 : currentPlan === 'pro' ? 2 : 4
+  // TEMPORARY: Allow all functions for testing
+  const maxEnabled = availableFunctions.length
   const canEnableMore = enabledFunctions.length < maxEnabled
 
   const enableFunction = (type: MiniFunctionType) => {

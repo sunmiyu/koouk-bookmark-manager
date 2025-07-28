@@ -73,27 +73,26 @@ export default function MusicRecommendations({ isPreviewOnly = false }: MusicRec
   const displayRecommendations = isPreviewOnly ? recommendations.slice(0, 2) : recommendations.slice(0, 3)
 
   return (
-    <div className="space-y-2">
-      <div className="text-gray-400 text-xs mb-2">
+    <div className="space-y-1">
+      <div className="text-gray-400 text-xs">
         {getTimeSlotLabel(currentTimeSlot)} 추천
       </div>
       
-      <div className="flex flex-wrap gap-1">
+      <div className="space-y-1">
         {displayRecommendations.map((rec, index) => (
-          <button
+          <div
             key={index}
             onClick={() => handlePlayMusic(rec.url, rec.title)}
-            disabled={isPreviewOnly}
-            className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors ${
+            className={`flex items-center gap-2 text-xs ${
               isPreviewOnly 
-                ? 'bg-gray-700 text-gray-400 cursor-not-allowed' 
-                : 'bg-purple-600 hover:bg-purple-700 text-white cursor-pointer'
+                ? 'text-gray-400 cursor-not-allowed' 
+                : 'text-blue-400 hover:text-blue-300 cursor-pointer'
             }`}
-            title={isPreviewOnly ? 'Upgrade to Pro to play music' : `Play ${rec.title}`}
+            title={isPreviewOnly ? 'Preview mode' : `Play ${rec.title}`}
           >
             <span>{rec.emoji}</span>
-            <span>{rec.title}</span>
-          </button>
+            <span className="underline truncate">{rec.title}</span>
+          </div>
         ))}
       </div>
 

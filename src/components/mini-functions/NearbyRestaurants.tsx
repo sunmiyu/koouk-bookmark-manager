@@ -198,54 +198,25 @@ export default function NearbyRestaurants({ isPreviewOnly = false }: NearbyResta
       )}
 
       {/* 맛집 리스트 */}
-      <div className="space-y-2">
+      <div className="space-y-1">
         {displayedRestaurants.map((restaurant) => (
-          <div key={restaurant.id} className="bg-gray-800 rounded-lg p-3">
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-medium text-white text-sm truncate">{restaurant.name}</h4>
-                  <span className={`px-1.5 py-0.5 text-xs rounded-full ${
-                    restaurant.isOpen 
-                      ? 'bg-green-600 text-white' 
-                      : 'bg-gray-600 text-gray-300'
-                  }`}>
-                    {restaurant.isOpen ? '영업중' : '영업종료'}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-gray-400">
-                  <span>{restaurant.category}</span>
-                  <span>•</span>
-                  <span>{restaurant.distance}</span>
-                  <span>•</span>
-                  <span>{restaurant.priceRange}</span>
-                </div>
-              </div>
+          <div key={restaurant.id} className="space-y-1 p-2 bg-gray-800 rounded">
+            <div className="flex items-center justify-between">
+              <span className="text-white text-xs font-medium truncate flex-1">
+                {restaurant.name}
+              </span>
+              <span className={`text-xs px-1 rounded ${
+                restaurant.isOpen ? 'bg-green-600' : 'bg-gray-600'
+              }`}>
+                {restaurant.isOpen ? '열림' : '닫힘'}
+              </span>
             </div>
-
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1">
-                  <span className="text-yellow-400">★</span>
-                  <span className="text-white">{restaurant.rating}</span>
-                  <span className="text-gray-400">({restaurant.reviewCount})</span>
-                </div>
+            <div className="flex items-center justify-between text-xs text-gray-400">
+              <span>{restaurant.category} • {restaurant.distance}</span>
+              <div className="flex items-center gap-1">
+                <span className="text-white">{restaurant.rating}</span>
+                <span className="text-gray-400">({restaurant.reviewCount})</span>
               </div>
-              <div className="text-gray-400">
-                {restaurant.openHours}
-              </div>
-            </div>
-
-            {/* 대표 메뉴 */}
-            <div className="mt-2 flex gap-1">
-              {restaurant.specialties.slice(0, 2).map((specialty, index) => (
-                <span 
-                  key={index}
-                  className="px-2 py-1 bg-gray-700 text-gray-300 text-xs rounded"
-                >
-                  {specialty}
-                </span>
-              ))}
             </div>
           </div>
         ))}

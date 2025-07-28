@@ -11,6 +11,7 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
   const [news, setNews] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
 
   // Sample news data for preview/demo - memoized to prevent re-renders
   const sampleNews: NewsItem[] = useMemo(() => [
@@ -61,6 +62,17 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
     fetchNews()
   }, [isPreviewOnly, sampleNews])
 
+  // Auto-rolling news headlines
+  useEffect(() => {
+    if (!isPreviewOnly && news.length > 3) {
+      const interval = setInterval(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % news.length)
+      }, 3000) // Change every 3 seconds
+
+      return () => clearInterval(interval)
+    }
+  }, [news.length, isPreviewOnly])
+
   if (loading) {
     return (
       <div className="text-gray-400">
@@ -77,14 +89,20 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
     )
   }
 
-  const displayNews = isPreviewOnly ? news.slice(0, 2) : news.slice(0, 3)
+  const displayNews = isPreviewOnly 
+    ? news.slice(0, 2) 
+    : news.length > 3 
+      ? news.slice(currentIndex, currentIndex + 3).concat(
+          news.slice(0, Math.max(0, currentIndex + 3 - news.length))
+        )
+      : news.slice(0, 3)
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-1">
       {displayNews.map((item, index) => (
         <div 
           key={index}
-          className={`flex items-start gap-2 ${
+          className={`${
             !isPreviewOnly ? 'cursor-pointer hover:text-blue-400' : ''
           }`}
           onClick={() => {
@@ -93,20 +111,17 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
             }
           }}
         >
-          <span className="text-blue-400 text-xs mt-0.5">•</span>
-          <div className="flex-1 min-w-0">
-            <p className="text-white text-xs leading-relaxed line-clamp-2">
-              {item.title}
-            </p>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-gray-500 text-xs">{item.source}</span>
-              <span className="text-gray-600 text-xs">
-                {new Date(item.publishedAt).toLocaleDateString('ko-KR', {
-                  month: 'short',
-                  day: 'numeric'
-                })}
-              </span>
-            </div>
+          <p className="text-white text-xs leading-tight truncate">
+            • {item.title}
+          </p>
+          <div className="flex items-center gap-2 text-xs text-gray-500">
+            <span>{item.source}</span>
+            <span>
+              {new Date(item.publishedAt).toLocaleDateString('ko-KR', {
+                month: 'short',
+                day: 'numeric'
+              })}
+            </span>
           </div>
         </div>
       ))}

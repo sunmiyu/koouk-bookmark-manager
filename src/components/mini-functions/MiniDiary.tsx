@@ -14,6 +14,7 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [currentText, setCurrentText] = useState('')
   const [selectedMood, setSelectedMood] = useState<DiaryEntry['mood']>('😊')
+  const [expandedEntryId, setExpandedEntryId] = useState<string | null>(null)
 
   const moods: DiaryEntry['mood'][] = ['😊', '😐', '😔', '😴', '🔥', '💪', '🎉']
 
@@ -64,6 +65,9 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
         if (todayEntry) {
           setCurrentText(todayEntry.content)
           setSelectedMood(todayEntry.mood || '😊')
+        } else {
+          setCurrentText('')
+          setSelectedMood('😊')
         }
       } catch (error) {
         console.error('Failed to load diary:', error)
@@ -120,6 +124,9 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
       recentEntries
     })
 
+    // Reset form state
+    setCurrentText(newEntry.content)
+    setSelectedMood(newEntry.mood || '😊')
     setIsEditing(false)
   }
 
@@ -137,6 +144,11 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
       setSelectedMood('😊')
     }
     setIsEditing(false)
+  }
+
+  const toggleExpanded = (entryId: string) => {
+    if (isPreviewOnly) return
+    setExpandedEntryId(expandedEntryId === entryId ? null : entryId)
   }
 
   const formatDate = (dateStr: string) => {
@@ -261,18 +273,27 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
           <div className="text-gray-400 text-xs">최근 기록</div>
           <div className="space-y-1">
             {diaryData.recentEntries.slice(0, 2).map((entry) => (
-              <div
-                key={entry.id}
-                className="flex items-center gap-2 p-1 rounded hover:bg-gray-800 cursor-pointer"
-                title={entry.content}
-              >
-                <span className="text-xs">{entry.mood}</span>
-                <span className="text-gray-400 text-xs w-8">
-                  {formatDate(entry.date)}
-                </span>
-                <span className="text-gray-300 text-xs flex-1 truncate">
-                  {truncateText(entry.content)}
-                </span>
+              <div key={entry.id} className="space-y-1">
+                <div
+                  className="flex items-center gap-2 p-1 rounded hover:bg-gray-800 cursor-pointer"
+                  onClick={() => toggleExpanded(entry.id)}
+                >
+                  <span className="text-xs">{entry.mood}</span>
+                  <span className="text-gray-400 text-xs w-8">
+                    {formatDate(entry.date)}
+                  </span>
+                  <span className="text-gray-300 text-xs flex-1 truncate">
+                    {expandedEntryId === entry.id ? entry.content : truncateText(entry.content)}
+                  </span>
+                  <span className="text-gray-500 text-xs">
+                    {expandedEntryId === entry.id ? '⌃' : '⌄'}
+                  </span>
+                </div>
+                {expandedEntryId === entry.id && (
+                  <div className="p-2 bg-gray-800 rounded text-xs text-gray-300 leading-relaxed">
+                    {entry.content}
+                  </div>
+                )}
               </div>
             ))}
           </div>

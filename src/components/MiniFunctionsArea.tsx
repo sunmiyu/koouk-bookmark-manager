@@ -3,6 +3,7 @@
 import { useMiniFunctions } from '@/contexts/MiniFunctionsContext'
 import { useUserPlan } from '@/contexts/UserPlanContext'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { MiniFunctionData } from '@/types/miniFunctions'
 import MiniFunctionCard from './mini-functions/MiniFunctionCard'
 import NewsHeadlines from './mini-functions/NewsHeadlines'
 import MusicRecommendations from './mini-functions/MusicRecommendations'
@@ -11,11 +12,11 @@ import ExpenseTracker from './mini-functions/ExpenseTracker'
 import MiniDiary from './mini-functions/MiniDiary'
 
 export default function MiniFunctionsArea() {
-  const { enabledFunctions, availableFunctions, enableFunction, disableFunction, maxEnabled } = useMiniFunctions()
+  const { enabledFunctions, maxEnabled } = useMiniFunctions()
   const { currentPlan } = useUserPlan()
   const { t } = useLanguage()
 
-  const renderMiniFunction = (functionData: any, isPreviewOnly = false) => {
+  const renderMiniFunction = (functionData: MiniFunctionData, isPreviewOnly = false) => {
     switch (functionData.type) {
       case 'news':
         return (

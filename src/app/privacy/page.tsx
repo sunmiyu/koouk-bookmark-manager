@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-black text-white">
@@ -111,7 +113,7 @@ export default function PrivacyPolicy() {
               <p className="text-gray-300">
                 We may update this Privacy Policy from time to time. 
                 We will notify you of any changes by posting the new policy on this page 
-                and updating the "Last updated" date.
+                and updating the &quot;Last updated&quot; date.
               </p>
             </section>
 
@@ -131,7 +133,7 @@ export default function PrivacyPolicy() {
             <div className="flex gap-4 text-sm">
               <a href="/terms" className="text-blue-400 hover:text-blue-300">Terms of Service</a>
               <a href="/cookies" className="text-blue-400 hover:text-blue-300">Cookie Policy</a>
-              <a href="/" className="text-blue-400 hover:text-blue-300">Back to Koouk</a>
+              <Link href="/" className="text-blue-400 hover:text-blue-300">Back to Koouk</Link>
             </div>
           </div>
         </div>

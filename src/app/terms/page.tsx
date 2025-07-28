@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function TermsOfService() {
   return (
     <div className="min-h-screen bg-black text-white">
@@ -10,7 +12,7 @@ export default function TermsOfService() {
             <section>
               <h2 className="responsive-text-xl font-semibold text-white mb-4">1. Acceptance of Terms</h2>
               <p className="text-gray-300">
-                By accessing and using Koouk ("the Service"), you accept and agree to be bound by 
+                By accessing and using Koouk (&quot;the Service&quot;), you accept and agree to be bound by 
                 the terms and provision of this agreement. If you do not agree to abide by the 
                 above, please do not use this service.
               </p>
@@ -56,7 +58,7 @@ export default function TermsOfService() {
               <ul className="list-disc list-inside space-y-2 text-gray-300">
                 <li>Use the service for any illegal or unauthorized purpose</li>
                 <li>Store or share harmful, offensive, or inappropriate content</li>
-                <li>Attempt to gain unauthorized access to the service or other users' accounts</li>
+                <li>Attempt to gain unauthorized access to the service or other users&apos; accounts</li>
                 <li>Interfere with or disrupt the service or servers</li>
                 <li>Use automated tools to access the service without permission</li>
                 <li>Violate any laws in your jurisdiction</li>
@@ -164,7 +166,7 @@ export default function TermsOfService() {
             <div className="flex gap-4 text-sm">
               <a href="/privacy" className="text-blue-400 hover:text-blue-300">Privacy Policy</a>
               <a href="/cookies" className="text-blue-400 hover:text-blue-300">Cookie Policy</a>
-              <a href="/" className="text-blue-400 hover:text-blue-300">Back to Koouk</a>
+              <Link href="/" className="text-blue-400 hover:text-blue-300">Back to Koouk</Link>
             </div>
           </div>
         </div>

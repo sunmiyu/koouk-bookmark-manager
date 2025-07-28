@@ -254,8 +254,8 @@ export default function DeleteAccount() {
           <div className="mt-12 pt-8 border-t border-gray-800">
             <h3 className="font-semibold mb-4">Need Help?</h3>
             <p className="text-gray-400 text-sm mb-4">
-              If you're having issues with Koouk or have questions before deleting your account, 
-              we're here to help.
+              If you&apos;re having issues with Koouk or have questions before deleting your account, 
+              we&apos;re here to help.
             </p>
             <div className="flex gap-4 text-sm">
               <a href="mailto:support@koouk.com" className="text-blue-400 hover:text-blue-300">

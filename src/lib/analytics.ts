@@ -83,7 +83,7 @@ export const trackEvents = {
   },
   
   // API 오류 추적
-  apiError: (endpoint: string, statusCode: number, errorType?: string) => {
+  apiError: (endpoint: string, statusCode: number) => {
     event({
       action: 'api_error',
       category: 'API',

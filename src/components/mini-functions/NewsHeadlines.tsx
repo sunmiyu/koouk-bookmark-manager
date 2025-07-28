@@ -52,14 +52,14 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
             setLoading(false)
           }, 1500)
         }
-      } catch (err) {
+      } catch {
         setError('Failed to load news')
         setLoading(false)
       }
     }
 
     fetchNews()
-  }, [isPreviewOnly])
+  }, [isPreviewOnly, sampleNews])
 
   if (loading) {
     return (

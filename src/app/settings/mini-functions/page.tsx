@@ -4,13 +4,11 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useMiniFunctions } from '@/contexts/MiniFunctionsContext'
 import { useUserPlan } from '@/contexts/UserPlanContext'
-import { useLanguage } from '@/contexts/LanguageContext'
 import { MiniFunctionData } from '@/types/miniFunctions'
 
 export default function MiniFunctionsSettings() {
   const { data: session } = useSession()
   const router = useRouter()
-  const { t } = useLanguage()
   const { currentPlan } = useUserPlan()
   const { 
     availableFunctions, 

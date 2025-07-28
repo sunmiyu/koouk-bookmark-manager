@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function CookiePolicy() {
   return (
     <div className="min-h-screen bg-black text-white">
@@ -112,7 +114,7 @@ export default function CookiePolicy() {
                 <div>
                   <h3 className="font-medium text-gray-200 mb-2">Cookie Banner</h3>
                   <p className="text-gray-300">
-                    When you first visit Koouk, you'll see a cookie banner asking for your consent 
+                    When you first visit Koouk, you&apos;ll see a cookie banner asking for your consent 
                     for optional analytics cookies. You can accept or decline these at any time.
                   </p>
                 </div>
@@ -178,7 +180,7 @@ export default function CookiePolicy() {
             <div className="flex gap-4 text-sm">
               <a href="/privacy" className="text-blue-400 hover:text-blue-300">Privacy Policy</a>
               <a href="/terms" className="text-blue-400 hover:text-blue-300">Terms of Service</a>
-              <a href="/" className="text-blue-400 hover:text-blue-300">Back to Koouk</a>
+              <Link href="/" className="text-blue-400 hover:text-blue-300">Back to Koouk</Link>
             </div>
           </div>
         </div>

@@ -184,7 +184,7 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
             </button>
           </div>
           <div className="text-gray-500 text-xs mt-1">
-            예: "커피 4500" 또는 "4500 커피"
+            예: &quot;커피 4500&quot; 또는 &quot;4500 커피&quot;
           </div>
         </div>
       )}

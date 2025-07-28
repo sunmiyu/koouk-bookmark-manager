@@ -33,7 +33,6 @@ export function UserPlanProvider({ children }: { children: ReactNode }) {
   }, [currentPlan])
 
   const getStorageLimit = (contentType: 'video' | 'link' | 'image' | 'note'): number => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     switch (currentPlan) {
       case 'free':
         return 50

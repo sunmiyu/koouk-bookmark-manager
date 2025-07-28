@@ -5,7 +5,7 @@ export interface MiniFunctionData {
   type: 'news' | 'music' | 'alarm' | 'expense' | 'commute' | 'stocks' | 'food' | 'diary'
   isEnabled: boolean
   lastUpdated: string
-  data?: any
+  data?: NewsItem[] | MusicRecommendation[] | AlarmData | ExpenseData | DiaryData
 }
 
 export interface NewsItem {

@@ -62,7 +62,6 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
     }
 
     const now = new Date()
-    const today = now.toDateString()
     
     // Find the next alarm (could be today or tomorrow)
     let closestAlarm: AlarmData | null = null

@@ -11,8 +11,8 @@ interface MiniFunctionsContextType {
   disableFunction: (type: MiniFunctionType) => void
   canEnableMore: boolean
   maxEnabled: number
-  updateFunctionData: (type: MiniFunctionType, data: any) => void
-  getFunctionData: (type: MiniFunctionType) => any
+  updateFunctionData: (type: MiniFunctionType, data: MiniFunctionData['data']) => void
+  getFunctionData: (type: MiniFunctionType) => MiniFunctionData['data']
 }
 
 const MiniFunctionsContext = createContext<MiniFunctionsContextType | undefined>(undefined)
@@ -109,7 +109,7 @@ export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const updateFunctionData = (type: MiniFunctionType, data: any) => {
+  const updateFunctionData = (type: MiniFunctionType, data: MiniFunctionData['data']) => {
     setEnabledFunctions(prev => prev.map(func => 
       func.type === type 
         ? { ...func, data, lastUpdated: new Date().toISOString() }

@@ -201,13 +201,6 @@ export default function Weather() {
         hour12: false
       })
       
-      // 날짜 포맷
-      const dateString = now.toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        weekday: 'long'
-      })
       
       setCurrentTime(timeString)
     }

@@ -60,7 +60,7 @@ export default function MusicRecommendations({ isPreviewOnly = false }: MusicRec
     // Get recommendations for current time
     const currentPlaylists = musicPlaylists[timeSlot as keyof typeof musicPlaylists] || musicPlaylists.morning
     setRecommendations(currentPlaylists)
-  }, [])
+  }, [musicPlaylists])
 
   const handlePlayMusic = (url: string, title: string) => {
     if (!isPreviewOnly) {

@@ -107,12 +107,12 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
   }
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-2">
       {displayNews.map((item, index) => (
         <div 
           key={index}
-          className={`${
-            !isPreviewOnly ? 'cursor-pointer hover:text-blue-400' : ''
+          className={`py-1 ${
+            !isPreviewOnly ? 'cursor-pointer hover:bg-gray-800 rounded px-1 transition-colors' : ''
           }`}
           onClick={() => {
             if (!isPreviewOnly && item.url !== '#') {
@@ -120,17 +120,26 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
             }
           }}
         >
-          <p className="text-white text-sm leading-tight truncate">
-            • {item.title}
-          </p>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <span>{item.source}</span>
-            <span>
-              {new Date(item.publishedAt).toLocaleDateString('ko-KR', {
-                month: 'short',
-                day: 'numeric'
-              })}
+          {/* 첫 번째 줄 */}
+          <div className="flex justify-between items-center h-5 leading-5">
+            <span className="text-sm text-white truncate flex-1">
+              {item.title}
             </span>
+            <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
+              {item.source}
+            </span>
+          </div>
+          
+          {/* 두 번째 줄 */}
+          <div className="h-5 leading-5 ml-0">
+            <div className="text-sm text-white flex justify-between items-center">
+              <span className="text-xs text-gray-400">
+                {new Date(item.publishedAt).toLocaleDateString('ko-KR', {
+                  month: 'short',
+                  day: 'numeric'
+                })}
+              </span>
+            </div>
           </div>
         </div>
       ))}

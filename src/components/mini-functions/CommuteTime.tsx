@@ -302,11 +302,11 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
       {commuteData.routes.map((route) => (
         <div key={route.id} className="bg-gray-800 rounded-lg p-2">
           <div className="flex items-center justify-between mb-2">
-            <div className="font-medium text-white text-sm">{route.name}</div>
+            <div className="font-medium text-white text-sm truncate pr-2 flex-1">{route.name}</div>
             {!isPreviewOnly && (
               <button
                 onClick={() => removeRoute(route.id)}
-                className="text-red-400 hover:text-red-300 text-sm"
+                className="text-red-400 hover:text-red-300 text-sm flex-shrink-0"
               >
                 ✕
               </button>
@@ -341,7 +341,7 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
       {!isPreviewOnly && commuteData.routes.length < 5 && (
         <div className="bg-gray-800 rounded-lg p-2">
           <div className="text-sm font-medium text-white mb-2">새 경로 추가</div>
-          <div className="space-y-2">
+          <div className="space-y-2 max-w-full">
             <input
               type="text"
               placeholder="경로명 (예: 집→회사)"

@@ -19,6 +19,9 @@ export default function MiniFunctionsSettings() {
     maxEnabled 
   } = useMiniFunctions()
 
+  // TEMPORARY: Disable login check for testing
+  // TODO: Re-enable this after OAuth is working
+  /*
   // Redirect if not logged in
   if (!session) {
     return (
@@ -36,6 +39,7 @@ export default function MiniFunctionsSettings() {
       </div>
     )
   }
+  */
 
   // Redirect free users to pricing
   if (currentPlan === 'free') {

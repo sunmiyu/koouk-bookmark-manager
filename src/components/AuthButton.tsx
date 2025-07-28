@@ -21,6 +21,9 @@ export default function AuthButton() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // TEMPORARY: Debug info for OAuth troubleshooting
+  console.log('Auth Debug:', { status, session: !!session, url: window.location.href })
+  
   if (status === 'loading') {
     return (
       <div className="text-sm text-gray-400">

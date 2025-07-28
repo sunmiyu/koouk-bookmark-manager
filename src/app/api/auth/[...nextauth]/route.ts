@@ -29,7 +29,7 @@ const handler = NextAuth({
   pages: {
     signIn: '/',
   },
-  debug: process.env.NODE_ENV === 'development',
+  debug: true, // TEMPORARY: Enable debug for production OAuth troubleshooting
 })
 
 export { handler as GET, handler as POST }

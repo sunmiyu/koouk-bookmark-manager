@@ -6,7 +6,7 @@ export default function LinkSection() {
   const { links } = useContent()
   const { getStorageLimit } = useUserPlan()
 
-  const limit = getStorageLimit('link')
+  const limit = getStorageLimit()
   const isAtLimit = links.length >= limit
   
   return (

@@ -142,7 +142,7 @@ export default function NearbyRestaurants({ isPreviewOnly = false }: NearbyResta
 
   useEffect(() => {
     loadRestaurantData()
-  }, [isPreviewOnly])
+  }, [isPreviewOnly, loadRestaurantData])
 
   // 카테고리 필터링
   const filteredRestaurants = selectedCategory === 'all' 

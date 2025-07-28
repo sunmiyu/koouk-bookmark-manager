@@ -170,7 +170,7 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
         saveWatchlist(updatedWatchlist.map(s => s.symbol))
         setNewSymbol('')
       }
-    } catch (err) {
+    } catch {
       alert('Failed to add stock. Please check the symbol.')
     } finally {
       setIsAddingStock(false)
@@ -195,7 +195,7 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
       const interval = setInterval(loadStockData, 5 * 60 * 1000)
       return () => clearInterval(interval)
     }
-  }, [isPreviewOnly])
+  }, [isPreviewOnly, loadStockData])
 
   const formatPrice = (price: number, currency: string) => {
     if (currency === 'KRW') {

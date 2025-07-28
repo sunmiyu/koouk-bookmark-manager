@@ -46,7 +46,7 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
   }
 
   // Kakao Mobility API 사용 (무료 30만건/일)
-  const fetchCommuteTime = async (origin: string, destination: string) => {
+  const fetchCommuteTime = async () => {
     try {
       // 실제 구현에서는 백엔드를 통해 API 호출해야 함 (API 키 보안)
       // 여기서는 시뮬레이션 데이터 사용
@@ -66,11 +66,11 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
   }
 
   // localStorage에서 경로 로드
-  const loadRoutes = () => {
+  const loadRoutes = (): CommuteRoute[] => {
     try {
       const saved = localStorage.getItem('koouk_commute_routes')
       if (saved) {
-        return JSON.parse(saved)
+        return JSON.parse(saved) as CommuteRoute[]
       }
       return []
     } catch {
@@ -141,9 +141,9 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
 
       // 저장된 경로들의 교통 상황 업데이트
       const updatedRoutes = await Promise.all(
-        savedRoutes.map(async (route: any) => {
+        savedRoutes.map(async (route: CommuteRoute) => {
           try {
-            const trafficData = await fetchCommuteTime(route.origin, route.destination)
+            const trafficData = await fetchCommuteTime()
             return {
               ...route,
               trafficDuration: trafficData.trafficDuration,
@@ -182,7 +182,7 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
 
     try {
       setIsAddingRoute(true)
-      const trafficData = await fetchCommuteTime(newRoute.origin, newRoute.destination)
+      const trafficData = await fetchCommuteTime()
       
       const route: CommuteRoute = {
         id: Date.now().toString(),
@@ -203,7 +203,7 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
 
       saveRoutes(updatedRoutes)
       setNewRoute({ name: '', origin: '', destination: '' })
-    } catch (err) {
+    } catch {
       alert('경로 추가에 실패했습니다. 주소를 확인해주세요.')
     } finally {
       setIsAddingRoute(false)
@@ -221,14 +221,20 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
   }
 
   useEffect(() => {
-    loadCommuteData()
+    const initData = async () => {
+      await loadCommuteData()
+    }
+    
+    initData()
     
     // 10분마다 교통상황 업데이트
     if (!isPreviewOnly) {
-      const interval = setInterval(loadCommuteData, 10 * 60 * 1000)
+      const interval = setInterval(() => {
+        loadCommuteData()
+      }, 10 * 60 * 1000)
       return () => clearInterval(interval)
     }
-  }, [isPreviewOnly])
+  }, [isPreviewOnly, loadCommuteData])
 
   const formatDuration = (minutes: number) => {
     if (minutes < 60) {

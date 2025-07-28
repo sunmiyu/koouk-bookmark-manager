@@ -66,7 +66,7 @@ export const getCachedLocation = () => {
   return null
 }
 
-export const setCachedLocation = (location: any) => {
+export const setCachedLocation = (location: { country: string; isKorea: boolean; timezone: string }) => {
   try {
     localStorage.setItem('koouk_user_location', JSON.stringify({
       location,

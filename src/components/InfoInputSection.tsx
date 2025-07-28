@@ -60,8 +60,8 @@ export default function InfoInputSection() {
     if (!inputValue.trim()) return
 
     // Check if at limit for this content type
-    const limit = getStorageLimit(inputType)
-    if (!canAddItem(inputType, currentCounts[inputType])) {
+    const limit = getStorageLimit()
+    if (!canAddItem(currentCounts[inputType])) {
       const planName = currentPlan === 'free' ? 'Free' : currentPlan === 'pro' ? 'Pro' : 'Unlimited'
       alert(`${planName} plan limit reached for ${inputType}s (${limit === Infinity ? 'unlimited' : limit}). Delete existing items${currentPlan === 'free' ? ' or upgrade to Pro' : ''}.`)
       return
@@ -124,7 +124,7 @@ export default function InfoInputSection() {
             setIsExpanded(true)
             // Auto submit after a short delay to ensure UI updates
             setTimeout(() => {
-              const limit = getStorageLimit('image')
+              const limit = getStorageLimit()
               if (currentCounts.image < limit) {
                 handleSubmit(e as unknown as React.FormEvent)
               }
@@ -176,7 +176,7 @@ export default function InfoInputSection() {
               <span className="responsive-text-sm text-gray-400">Detected as:</span>
               <div className="flex flex-wrap gap-1">
                 {(['link', 'video', 'image', 'note'] as const).map((type) => {
-                  const limit = getStorageLimit(type)
+                  const limit = getStorageLimit()
                   const isAtLimit = currentCounts[type] >= limit
                   return (
                     <button
@@ -215,13 +215,13 @@ export default function InfoInputSection() {
               </p>
               <div className="text-xs text-gray-400">
                 <span className={(() => {
-                  const limit = getStorageLimit(inputType)
+                  const limit = getStorageLimit()
                   return currentCounts[inputType] >= limit ? 'text-yellow-400' : ''
                 })()}>
                   {currentCounts[inputType]}
                 </span>
                 <span className="text-gray-500">/{(() => {
-                  const limit = getStorageLimit(inputType)
+                  const limit = getStorageLimit()
                   return limit === Infinity ? '∞' : limit
                 })()}</span>
               </div>
@@ -229,7 +229,7 @@ export default function InfoInputSection() {
             
             {/* Show limit warning */}
             {(() => {
-              const limit = getStorageLimit(inputType)
+              const limit = getStorageLimit()
               const isAtLimit = currentCounts[inputType] >= limit
               return isAtLimit && (
                 <div className="p-2 bg-yellow-900/30 border border-yellow-600/50 rounded text-xs">

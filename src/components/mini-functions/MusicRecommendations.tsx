@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { MusicRecommendation } from '@/types/miniFunctions'
 
 interface MusicRecommendationsProps {
@@ -11,8 +11,8 @@ export default function MusicRecommendations({ isPreviewOnly = false }: MusicRec
   const [recommendations, setRecommendations] = useState<MusicRecommendation[]>([])
   const [currentTimeSlot, setCurrentTimeSlot] = useState<string>('')
 
-  // Static playlist data
-  const musicPlaylists = {
+  // Static playlist data - memoized to prevent re-renders
+  const musicPlaylists = useMemo(() => ({
     morning: [
       { title: "아침집중", emoji: "🌅", url: "https://youtu.be/jfKfPfyJRdk", timeSlot: 'morning' as const },
       { title: "로파이힙합", emoji: "☕", url: "https://youtu.be/5qap5aO4i9A", timeSlot: 'morning' as const },
@@ -33,7 +33,7 @@ export default function MusicRecommendations({ isPreviewOnly = false }: MusicRec
       { title: "피아노선율", emoji: "🎹", url: "https://youtu.be/YE2iyBRmA_g", timeSlot: 'night' as const },
       { title: "자연소리", emoji: "🌊", url: "https://youtu.be/mPZkdNFkNps", timeSlot: 'night' as const }
     ]
-  }
+  }), [])
 
   const getTimeSlot = () => {
     const hour = new Date().getHours()

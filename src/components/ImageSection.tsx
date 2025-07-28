@@ -11,7 +11,7 @@ export default function ImageSection() {
   const { getStorageLimit } = useUserPlan()
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
 
-  const limit = getStorageLimit('image')
+  const limit = getStorageLimit()
   const isAtLimit = images.length >= limit
   
   return (

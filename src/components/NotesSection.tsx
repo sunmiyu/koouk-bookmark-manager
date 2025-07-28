@@ -11,7 +11,7 @@ export default function NotesSection() {
   const { getStorageLimit } = useUserPlan()
   const [selectedNote, setSelectedNote] = useState<{ title: string; content: string } | null>(null)
 
-  const limit = getStorageLimit('note')
+  const limit = getStorageLimit()
   const isAtLimit = notes.length >= limit
 
   const formatDate = (dateStr: string) => {

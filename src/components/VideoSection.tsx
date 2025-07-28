@@ -17,7 +17,7 @@ export default function VideoSection() {
   const { videos } = useContent()
   const { getStorageLimit } = useUserPlan()
 
-  const limit = getStorageLimit('video')
+  const limit = getStorageLimit()
   const isAtLimit = videos.length >= limit
   
   return (

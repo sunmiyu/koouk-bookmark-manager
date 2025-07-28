@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { NewsItem } from '@/types/miniFunctions'
 
 interface NewsHeadlinesProps {
@@ -12,8 +12,8 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Sample news data for preview/demo
-  const sampleNews: NewsItem[] = [
+  // Sample news data for preview/demo - memoized to prevent re-renders
+  const sampleNews: NewsItem[] = useMemo(() => [
     {
       title: "삼성전자 주가 3% 상승, 반도체 업황 개선 기대감",
       url: "#",
@@ -32,7 +32,7 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
       source: "연합뉴스",
       publishedAt: new Date().toISOString()
     }
-  ]
+  ], [])
 
   useEffect(() => {
     const fetchNews = async () => {

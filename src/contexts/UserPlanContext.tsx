@@ -9,9 +9,9 @@ interface UserPlanContextType {
   upgradeToProPlan: () => void
   upgradeToUnlimitedPlan: () => void
   downgradeToFreePlan: () => void
-  getStorageLimit: (contentType: 'video' | 'link' | 'image' | 'note') => number
-  isAtLimit: (contentType: 'video' | 'link' | 'image' | 'note', currentCount: number) => boolean
-  canAddItem: (contentType: 'video' | 'link' | 'image' | 'note', currentCount: number) => boolean
+  getStorageLimit: () => number
+  isAtLimit: (currentCount: number) => boolean
+  canAddItem: (currentCount: number) => boolean
 }
 
 const UserPlanContext = createContext<UserPlanContextType | undefined>(undefined)
@@ -32,7 +32,7 @@ export function UserPlanProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('koouk_user_plan', currentPlan)
   }, [currentPlan])
 
-  const getStorageLimit = (contentType: 'video' | 'link' | 'image' | 'note'): number => {
+  const getStorageLimit = (): number => {
     switch (currentPlan) {
       case 'free':
         return 50
@@ -45,13 +45,13 @@ export function UserPlanProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const isAtLimit = (contentType: 'video' | 'link' | 'image' | 'note', currentCount: number): boolean => {
-    const limit = getStorageLimit(contentType)
+  const isAtLimit = (currentCount: number): boolean => {
+    const limit = getStorageLimit()
     return currentCount >= limit
   }
 
-  const canAddItem = (contentType: 'video' | 'link' | 'image' | 'note', currentCount: number): boolean => {
-    return !isAtLimit(contentType, currentCount)
+  const canAddItem = (currentCount: number): boolean => {
+    return !isAtLimit(currentCount)
   }
 
   const upgradeToProPlan = () => {

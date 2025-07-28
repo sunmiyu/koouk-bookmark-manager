@@ -7,7 +7,7 @@ import { useUserPlan } from '@/contexts/UserPlanContext'
 import { MiniFunctionData } from '@/types/miniFunctions'
 
 export default function MiniFunctionsSettings() {
-  const { data: session } = useSession()
+  const { data: session } = useSession() // eslint-disable-line @typescript-eslint/no-unused-vars
   const router = useRouter()
   const { currentPlan } = useUserPlan()
   const { 

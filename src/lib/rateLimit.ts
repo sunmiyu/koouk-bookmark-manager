@@ -2,13 +2,15 @@ import { Ratelimit } from '@upstash/ratelimit'
 import { Redis } from '@upstash/redis'
 
 // Redis 인스턴스 생성 (Upstash 무료 플랜)
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL || '',
-  token: process.env.UPSTASH_REDIS_REST_TOKEN || '',
-})
+const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN 
+  ? new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    })
+  : null
 
-// Rate Limiter 생성
-export const rateLimiters = {
+// Rate Limiter 생성 (Redis가 있을 때만)
+export const rateLimiters = redis ? {
   // API 전체 제한 (IP 기준)
   global: new Ratelimit({
     redis,
@@ -29,7 +31,7 @@ export const rateLimiters = {
     limiter: Ratelimit.slidingWindow(30, '1 m'), // 분당 30회
     analytics: true,
   }),
-}
+} : null
 
 // 헬퍼 함수: IP 주소 가져오기
 export function getIP(request: Request): string {
@@ -49,10 +51,20 @@ export function getIP(request: Request): string {
 
 // 헬퍼 함수: Rate Limit 체크
 export async function checkRateLimit(
-  type: keyof typeof rateLimiters,
+  type: keyof NonNullable<typeof rateLimiters>,
   identifier: string
 ) {
   try {
+    // Redis가 없으면 항상 통과
+    if (!rateLimiters || !rateLimiters[type]) {
+      return {
+        success: true,
+        limit: 0,
+        remaining: 0,
+        reset: new Date(),
+      }
+    }
+    
     const result = await rateLimiters[type].limit(identifier)
     
     return {

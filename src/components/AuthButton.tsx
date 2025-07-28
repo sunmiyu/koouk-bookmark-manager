@@ -21,8 +21,10 @@ export default function AuthButton() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // TEMPORARY: Debug info for OAuth troubleshooting
-  console.log('Auth Debug:', { status, session: !!session, url: window.location.href })
+  // TEMPORARY: Debug info for OAuth troubleshooting (client-side only)
+  useEffect(() => {
+    console.log('Auth Debug:', { status, session: !!session, url: window.location.href })
+  }, [status, session])
   
   if (status === 'loading') {
     return (

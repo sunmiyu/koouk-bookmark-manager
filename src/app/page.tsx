@@ -110,18 +110,16 @@ function HomeContent() {
         <main className="space-y-6 sm:space-y-8">
           <MiniFunctionsArea />
           
+          {/* Horizontal divider between Mini Functions and Todos */}
+          <div className="border-t border-gray-800"></div>
+          
           <TodoSection />
+          
+          {/* Horizontal divider between Todos and Contents */}
+          <div className="border-t border-gray-800"></div>
 
-          {/* Horizontal divider */}
-          <div className="border-t border-gray-800 my-6 sm:my-8"></div>
-
-          {/* Info input section with extra top margin */}
-          <div className="mt-8 sm:mt-12">
-            <InfoInputSection />
-          </div>
-
-          {/* Horizontal divider */}
-          <div className="border-t border-gray-800 my-6 sm:my-8"></div>
+          {/* Info input section */}
+          <InfoInputSection />
           
           <div className="space-y-6 sm:space-y-8">
             <div className="flex items-center gap-2">

@@ -27,10 +27,10 @@ export default function MiniFunctionCard({
   }
 
   return (
-    <div className="min-w-[300px] flex-shrink-0">
+    <div className="min-w-[300px] lg:min-w-[400px] flex-shrink-0">
       {/* Main Card */}
       <div 
-        className={`card h-[100px] relative ${
+        className={`card h-[120px] relative ${
           !isPreviewOnly && expandedContent ? 'cursor-pointer hover:bg-gray-700' : ''
         } ${isPreviewOnly ? 'opacity-70' : ''}`}
         onClick={handleToggle}
@@ -65,7 +65,7 @@ export default function MiniFunctionCard({
         </div>
 
         {/* Main content */}
-        <div className="text-xs space-y-1">
+        <div className="text-xs space-y-1 overflow-hidden h-[60px]">
           {children}
         </div>
       </div>

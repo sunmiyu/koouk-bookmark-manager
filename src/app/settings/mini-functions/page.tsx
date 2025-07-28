@@ -127,20 +127,20 @@ export default function MiniFunctionsSettings() {
           </div>
 
           {/* Beta Testing Notice */}
-          <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-500/30 rounded-lg p-4 mb-6">
+          <div className="bg-gray-800 border border-gray-600 rounded-lg p-4 mb-6">
             <div className="flex items-start gap-3">
               <div className="text-blue-400 text-lg">🧪</div>
               <div>
-                <h3 className="font-semibold text-blue-300 mb-1">Beta Testing Phase</h3>
-                <p className="text-sm text-blue-200 mb-2">
+                <h3 className="font-semibold text-white mb-1">Beta Testing Phase</h3>
+                <p className="text-sm text-gray-300 mb-2">
                   Mini Functions are currently in testing mode with simulated data.
                 </p>
-                <ul className="text-xs text-blue-300/80 space-y-1">
+                <ul className="text-xs text-gray-400 space-y-1">
                   <li>• <strong>Stock Market:</strong> Real Yahoo Finance data</li>
                   <li>• <strong>Commute Time:</strong> Simulated traffic data (Real API integration planned)</li>
                   <li>• <strong>Other Functions:</strong> Sample data for UI/UX testing</li>
                 </ul>
-                <div className="mt-2 text-xs text-blue-400">
+                <div className="mt-2 text-xs text-gray-400">
                   📈 Real-time data services will be available in the official release
                 </div>
               </div>
@@ -205,7 +205,7 @@ export default function MiniFunctionsSettings() {
                   key={func.id}
                   className={`relative p-6 rounded-lg border transition-all cursor-pointer ${
                     func.isEnabled
-                      ? 'bg-blue-900/30 border-blue-600 ring-2 ring-blue-500/30'
+                      ? 'bg-gray-700 border-blue-500'
                       : 'bg-gray-800 border-gray-600 hover:border-gray-500'
                   }`}
                   onClick={() => handleToggleFunction(func)}
@@ -260,14 +260,14 @@ export default function MiniFunctionsSettings() {
 
           {/* Upgrade Prompt */}
           {currentPlan === 'pro' && (
-            <div className="mt-12 bg-gradient-to-r from-purple-900/30 to-pink-900/30 border border-purple-600/30 rounded-lg p-6">
+            <div className="mt-12 bg-gray-800 border border-gray-600 rounded-lg p-6">
               <h3 className="font-semibold text-lg mb-2">Want more Mini Functions?</h3>
               <p className="text-gray-400 mb-4">
                 Upgrade to Premium to unlock 4 Mini Functions (double your current limit!)
               </p>
               <button 
                 onClick={() => router.push('/pricing')}
-                className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
               >
                 Upgrade to Premium
               </button>
@@ -312,6 +312,8 @@ function getFunctionDescription(type: string): string {
       return 'Check real-time commute times and traffic conditions for your routes'
     case 'food':
       return 'Discover nearby restaurants with ratings, reviews, and opening hours'
+    case 'dday':
+      return 'Track important dates and countdown to special events and deadlines'
     default:
       return 'A useful mini function for your dashboard'
   }

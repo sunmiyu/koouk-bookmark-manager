@@ -15,6 +15,7 @@ import MiniDiary from './mini-functions/MiniDiary'
 import StockMarket from './mini-functions/StockMarket'
 import CommuteTime from './mini-functions/CommuteTime'
 import NearbyRestaurants from './mini-functions/NearbyRestaurants'
+import DDayCounter from './mini-functions/DDayCounter'
 
 export default function MiniFunctionsArea() {
   const { enabledFunctions, maxEnabled, disableFunction } = useMiniFunctions()
@@ -133,6 +134,17 @@ export default function MiniFunctionsArea() {
             <NearbyRestaurants isPreviewOnly={isPreviewOnly} />
           </MiniFunctionCard>
         )
+      case 'dday':
+        return (
+          <MiniFunctionCard 
+            key={functionData.id} 
+            functionData={functionData} 
+            isPreviewOnly={isPreviewOnly}
+            onRemove={onRemove}
+          >
+            <DDayCounter isPreviewOnly={isPreviewOnly} />
+          </MiniFunctionCard>
+        )
       default:
         return null
     }
@@ -220,9 +232,17 @@ export default function MiniFunctionsArea() {
           </button>
         </div>
       ) : (
-        <div className="flex overflow-x-auto responsive-gap-md pb-4">
-          {enabledFunctions.map(func => renderMiniFunction(func, false, () => disableFunction(func.type)))}
-        </div>
+        <>
+          {/* Mobile: 세로 스택 */}
+          <div className="block sm:hidden space-y-4">
+            {enabledFunctions.map(func => renderMiniFunction(func, false, () => disableFunction(func.type)))}
+          </div>
+          
+          {/* Desktop: 가로 스크롤 */}
+          <div className="hidden sm:flex overflow-x-auto responsive-gap-md pb-4">
+            {enabledFunctions.map(func => renderMiniFunction(func, false, () => disableFunction(func.type)))}
+          </div>
+        </>
       )}
     </div>
   )

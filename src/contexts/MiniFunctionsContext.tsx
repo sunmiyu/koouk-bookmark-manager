@@ -85,6 +85,14 @@ export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
       type: 'food',
       isEnabled: false,
       lastUpdated: new Date().toISOString()
+    },
+    {
+      id: 'dday',
+      title: 'D-day Counter',
+      icon: '📅',
+      type: 'dday',
+      isEnabled: false,
+      lastUpdated: new Date().toISOString()
     }
   ])
 

@@ -2,10 +2,10 @@ export interface MiniFunctionData {
   id: string
   title: string
   icon: string
-  type: 'news' | 'music' | 'alarm' | 'expense' | 'stocks' | 'commute' | 'food' | 'diary'
+  type: 'news' | 'music' | 'alarm' | 'expense' | 'stocks' | 'commute' | 'food' | 'diary' | 'dday'
   isEnabled: boolean
   lastUpdated: string
-  data?: NewsItem[] | MusicRecommendation[] | AlarmData | ExpenseData | DiaryData | StockData | CommuteData | RestaurantData
+  data?: NewsItem[] | MusicRecommendation[] | AlarmData | ExpenseData | DiaryData | StockData | CommuteData | RestaurantData | DDayData
 }
 
 export interface NewsItem {
@@ -107,6 +107,20 @@ export interface RestaurantItem {
 export interface RestaurantData {
   nearbyRestaurants: RestaurantItem[]
   userLocation?: string
+  lastUpdated: string
+}
+
+export interface DDayEvent {
+  id: string
+  name: string
+  targetDate: string
+  category: string
+  isImportant: boolean
+}
+
+export interface DDayData {
+  events: DDayEvent[]
+  nextEvent?: DDayEvent & { daysRemaining: number }
   lastUpdated: string
 }
 

@@ -67,7 +67,6 @@ export default function SearchBar({ className }: SearchBarProps) {
         value={searchQuery}
         onChange={(e) => handleSearch(e.target.value)}
         onBlur={() => setTimeout(() => setShowResults(false), 200)}
-        placeholder="Search contents here"
         className="w-full px-4 py-2 text-sm bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-white placeholder-gray-400 pr-8 text-center"
       />
       <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

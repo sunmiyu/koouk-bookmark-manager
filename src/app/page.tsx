@@ -173,7 +173,7 @@ function HomeContent() {
             </p>
             <p className="mt-2">
               <a 
-                href="mailto:tjsalg1@gmail.com?subject=Koouk 피드백&body=필요한 기능 제안이나 수정 보완할 점을 알려주세요:" 
+                href="mailto:support@koouk.im?bcc=tjsalg1@gmail.com&subject=Koouk 피드백&body=필요한 기능 제안이나 수정 보완할 점을 알려주세요:" 
                 className="text-green-400 hover:text-green-300 hover:underline text-sm"
               >
                 📧 피드백 보내기

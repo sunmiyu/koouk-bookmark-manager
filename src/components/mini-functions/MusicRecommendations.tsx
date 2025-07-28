@@ -74,7 +74,7 @@ export default function MusicRecommendations({ isPreviewOnly = false }: MusicRec
 
   return (
     <div className="space-y-1">
-      <div className="text-gray-400 text-xs">
+      <div className="text-gray-400 text-sm">
         {getTimeSlotLabel(currentTimeSlot)} 추천
       </div>
       
@@ -83,7 +83,7 @@ export default function MusicRecommendations({ isPreviewOnly = false }: MusicRec
           <div
             key={index}
             onClick={() => handlePlayMusic(rec.url, rec.title)}
-            className={`flex items-center gap-2 text-xs ${
+            className={`flex items-center gap-2 text-sm ${
               isPreviewOnly 
                 ? 'text-gray-400 cursor-not-allowed' 
                 : 'text-blue-400 hover:text-blue-300 cursor-pointer'
@@ -98,12 +98,12 @@ export default function MusicRecommendations({ isPreviewOnly = false }: MusicRec
 
       {isPreviewOnly && (
         <div className="text-center pt-2">
-          <span className="text-gray-500 text-xs">🎵 Unlock music in Pro plan</span>
+          <span className="text-gray-500 text-sm">🎵 Unlock music in Pro plan</span>
         </div>
       )}
 
       {!isPreviewOnly && (
-        <div className="text-xs text-gray-500 mt-2">
+        <div className="text-sm text-gray-500 mt-2">
           💡 Click to play on YouTube
         </div>
       )}

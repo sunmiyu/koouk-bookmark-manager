@@ -19,6 +19,7 @@ export default function MiniFunctionCard({
   isPreviewOnly = false
 }: MiniFunctionCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
 
   const handleToggle = () => {
     if (!isPreviewOnly && expandedContent) {
@@ -26,52 +27,60 @@ export default function MiniFunctionCard({
     }
   }
 
+  const shouldShowExpanded = (isExpanded || isHovered) && !isPreviewOnly && expandedContent
+
   return (
     <div className="min-w-[300px] lg:min-w-[400px] flex-shrink-0">
-      {/* Main Card */}
       <div 
-        className={`card h-[40px] relative ${
-          !isPreviewOnly && expandedContent ? 'cursor-pointer hover:bg-gray-700' : ''
-        } ${isPreviewOnly ? 'opacity-70' : ''}`}
+        className={`bg-gray-900 border border-gray-700 rounded-lg relative transition-all duration-200 ${
+          !isPreviewOnly && expandedContent ? 'cursor-pointer hover:bg-gray-800' : ''
+        } ${isPreviewOnly ? 'opacity-70' : ''} ${
+          shouldShowExpanded ? 'h-auto' : 'h-[50px] overflow-hidden'
+        }`}
         onClick={handleToggle}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         {/* Preview Only Badge */}
         {isPreviewOnly && (
-          <div className="absolute top-1 right-1 px-1 py-0.5 bg-yellow-600 text-yellow-100 text-xs rounded text-[10px]">
+          <div className="absolute top-1 right-1 px-1 py-0.5 bg-yellow-600 text-yellow-100 text-sm rounded text-[10px] z-10">
             Preview
           </div>
         )}
 
-        {/* Content Container - 40px compact layout */}
-        <div className="absolute inset-0 px-3 py-1.5 flex flex-col">
-          {/* 첫 번째 줄: 아이콘 + 컨텐츠 내용 첫째줄 + 확장버튼 */}
-          <div className="flex items-center h-3 mb-1 leading-none">
-            <span className="text-xs mr-2 flex-shrink-0">{functionData.icon}</span>
-            <div className="text-xs text-white whitespace-nowrap text-ellipsis overflow-hidden flex-1 leading-none">
-              {children}
+        {/* Content Container */}
+        <div className="p-3">
+          {/* 기본 2줄 컨텐츠 */}
+          <div className="space-y-1">
+            {/* 첫 번째 줄: 아이콘 + 첫 번째 내용 줄 + 확장버튼 */}
+            <div className="flex items-center h-5 leading-5">
+              <span className="text-sm mr-2 flex-shrink-0">{functionData.icon}</span>
+              <div className="text-sm text-white whitespace-nowrap text-ellipsis overflow-hidden flex-1">
+                {secondLine}
+              </div>
+              {!isPreviewOnly && expandedContent && (
+                <button className="ml-auto text-gray-400 hover:text-white flex-shrink-0 text-sm opacity-50 hover:opacity-100 transition-opacity">
+                  {isExpanded ? '⌃' : '⌄'}
+                </button>
+              )}
             </div>
-            {!isPreviewOnly && expandedContent && (
-              <button className="ml-auto text-gray-400 hover:text-white flex-shrink-0 text-xs leading-none">
-                {isExpanded ? '⌃' : '⌄'}
-              </button>
-            )}
+
+            {/* 두 번째 줄: 동적 컨텐츠 또는 실제 함수 내용 미리보기 */}
+            <div className="h-5 leading-5">
+              <div className="text-sm text-gray-400 whitespace-nowrap text-ellipsis overflow-hidden">
+                {children}
+              </div>
+            </div>
           </div>
 
-          {/* 두 번째 줄: 컨텐츠 내용 둘째줄 */}
-          <div className="h-3 leading-none">
-            <div className="text-xs text-gray-400 whitespace-nowrap text-ellipsis overflow-hidden leading-none">
-              {secondLine}
+          {/* 확장된 컨텐츠 */}
+          {shouldShowExpanded && (
+            <div className="mt-3 pt-3 border-t border-gray-700">
+              {expandedContent}
             </div>
-          </div>
+          )}
         </div>
       </div>
-
-      {/* Expanded Content */}
-      {isExpanded && expandedContent && !isPreviewOnly && (
-        <div className="mt-2 bg-gray-800 border border-gray-600 rounded-lg p-4">
-          {expandedContent}
-        </div>
-      )}
     </div>
   )
 }

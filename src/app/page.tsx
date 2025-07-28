@@ -164,7 +164,13 @@ function HomeContent() {
 
         <footer className="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-gray-800">
           <div className="text-center text-xs text-gray-500">
-            Koouk 2025 All rights reserved · 피드백 보내기: <a href="mailto:support@koouk.im" className="text-green-400 hover:text-green-300">support@koouk.im</a> · Your everyday moments dashboard
+            <div>
+              Koouk 2025 All rights reserved · 피드백 보내기: <a href="mailto:support@koouk.im" className="text-green-400 hover:text-green-300">support@koouk.im</a>
+              <span className="hidden sm:inline"> · Your everyday moments dashboard</span>
+            </div>
+            <div className="sm:hidden mt-1">
+              Your everyday moments dashboard
+            </div>
           </div>
         </footer>
       </div>

@@ -187,7 +187,7 @@ export default function NearbyRestaurants({ isPreviewOnly = false }: NearbyResta
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`px-2 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${
+              className={`px-2 py-1 text-sm rounded-full whitespace-nowrap transition-colors ${
                 selectedCategory === category
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
@@ -204,16 +204,16 @@ export default function NearbyRestaurants({ isPreviewOnly = false }: NearbyResta
         {displayedRestaurants.map((restaurant) => (
           <div key={restaurant.id} className="space-y-1 p-1.5 bg-gray-800 rounded">
             <div className="flex items-center justify-between">
-              <span className="text-white text-xs font-medium truncate flex-1">
+              <span className="text-white text-sm font-medium truncate flex-1">
                 {restaurant.name}
               </span>
-              <span className={`text-xs px-1 rounded ${
+              <span className={`text-sm px-1 rounded ${
                 restaurant.isOpen ? 'bg-green-600' : 'bg-gray-600'
               }`}>
                 {restaurant.isOpen ? '열림' : '닫힘'}
               </span>
             </div>
-            <div className="flex items-center justify-between text-xs text-gray-400">
+            <div className="flex items-center justify-between text-sm text-gray-400">
               <span>{restaurant.category} • {restaurant.distance}</span>
               <div className="flex items-center gap-1">
                 <span className="text-white">{restaurant.rating}</span>
@@ -232,7 +232,7 @@ export default function NearbyRestaurants({ isPreviewOnly = false }: NearbyResta
       )}
 
       {/* 위치 정보 */}
-      <div className="text-xs text-gray-400 text-center">
+      <div className="text-sm text-gray-400 text-center">
         📍 {restaurantData.userLocation} • {new Date(restaurantData.lastUpdated).toLocaleTimeString()}
       </div>
     </div>

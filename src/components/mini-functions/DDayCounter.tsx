@@ -104,8 +104,8 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
   if (!ddayData || !ddayData.nextEvent) {
     return (
       <div className="text-center text-gray-500 py-2">
-        <div className="text-xs">예정된 이벤트가 없습니다</div>
-        <div className="text-xs text-gray-600 mt-1">
+        <div className="text-sm">예정된 이벤트가 없습니다</div>
+        <div className="text-sm text-gray-600 mt-1">
           {isPreviewOnly ? '미리보기 모드' : 'D-day 이벤트를 추가해보세요'}
         </div>
       </div>
@@ -121,15 +121,15 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
           <div className="text-sm font-medium text-white truncate">
             {nextEvent.name}
           </div>
-          <div className="text-xs text-gray-400">
+          <div className="text-sm text-gray-400">
             {new Date(nextEvent.targetDate).toLocaleDateString('ko-KR')}
           </div>
         </div>
         <div className="flex flex-col items-end">
-          <div className="text-lg font-bold text-blue-400">
+          <div className="text-sm font-bold text-blue-400">
             D-{nextEvent.daysRemaining}
           </div>
-          <div className="text-xs text-gray-500">
+          <div className="text-sm text-gray-500">
             {nextEvent.category}
           </div>
         </div>
@@ -147,7 +147,7 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
 
       {/* 추가 이벤트 정보 */}
       {ddayData.events.length > 1 && (
-        <div className="text-xs text-gray-500 text-center">
+        <div className="text-sm text-gray-500 text-center">
           총 {ddayData.events.length}개의 D-day 이벤트
         </div>
       )}

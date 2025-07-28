@@ -270,7 +270,7 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
       <div className="text-center py-4">
         <div className="text-gray-400 mb-2">🚧</div>
         <div className="text-sm text-gray-400 mb-1">서비스 준비중</div>
-        <div className="text-xs text-gray-500">한국 지역에서만 이용 가능합니다</div>
+        <div className="text-sm text-gray-500">한국 지역에서만 이용 가능합니다</div>
       </div>
     )
   }
@@ -339,14 +339,14 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
             {!isPreviewOnly && (
               <button
                 onClick={() => removeRoute(route.id)}
-                className="text-red-400 hover:text-red-300 text-xs"
+                className="text-red-400 hover:text-red-300 text-sm"
               >
                 ✕
               </button>
             )}
           </div>
           
-          <div className="space-y-1 text-xs text-gray-300">
+          <div className="space-y-1 text-sm text-gray-300">
             <div className="flex justify-between">
               <span>평소 시간:</span>
               <span>{formatDuration(route.duration)}</span>
@@ -364,7 +364,7 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
           </div>
 
           {route.trafficDuration > route.duration && (
-            <div className="mt-2 text-xs text-orange-400">
+            <div className="mt-2 text-sm text-orange-400">
               ⚠️ 평소보다 {formatDuration(route.trafficDuration - route.duration)} 더 걸려요
             </div>
           )}
@@ -404,13 +404,13 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
               {isAddingRoute ? '추가중...' : '추가'}
             </button>
           </div>
-          <div className="text-xs text-gray-400 mt-2">
+          <div className="text-sm text-gray-400 mt-2">
             {commuteData.routes.length}/5 경로
           </div>
         </div>
       )}
 
-      <div className="text-xs text-gray-400 text-center">
+      <div className="text-sm text-gray-400 text-center">
         마지막 업데이트: {new Date(commuteData.lastUpdated).toLocaleTimeString()}
       </div>
     </div>

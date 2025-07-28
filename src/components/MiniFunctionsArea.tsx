@@ -55,7 +55,7 @@ export default function MiniFunctionsArea() {
             secondLine="최신 뉴스 헤드라인"
             expandedContent={<NewsHeadlines isPreviewOnly={isPreviewOnly} />}
           >
-            실시간 뉴스
+            오늘 주요 뉴스 5건
           </MiniFunctionCard>
         )
       case 'music':
@@ -67,7 +67,7 @@ export default function MiniFunctionsArea() {
             secondLine="맞춤 음악 추천"
             expandedContent={<MusicRecommendations isPreviewOnly={isPreviewOnly} />}
           >
-            음악 추천
+            추천 음악 장르: K-pop, Jazz
           </MiniFunctionCard>
         )
       case 'alarm':
@@ -79,7 +79,7 @@ export default function MiniFunctionsArea() {
             secondLine="다음 알람 시간"
             expandedContent={<AlarmFunction isPreviewOnly={isPreviewOnly} />}
           >
-            알람 관리
+            다음 알람: 내일 07:00
           </MiniFunctionCard>
         )
       case 'expense':
@@ -91,7 +91,7 @@ export default function MiniFunctionsArea() {
             secondLine="오늘의 지출 현황"
             expandedContent={<ExpenseTracker isPreviewOnly={isPreviewOnly} />}
           >
-            가계부
+            오늘 지출: 35,000원
           </MiniFunctionCard>
         )
       case 'diary':
@@ -103,7 +103,7 @@ export default function MiniFunctionsArea() {
             secondLine="오늘의 기록 작성"
             expandedContent={<MiniDiary isPreviewOnly={isPreviewOnly} />}
           >
-            미니 다이어리
+            오늘의 기분: 행복 하루 시작!
           </MiniFunctionCard>
         )
       case 'stocks':
@@ -115,7 +115,7 @@ export default function MiniFunctionsArea() {
             secondLine="관심 종목 시세"
             expandedContent={<StockMarket isPreviewOnly={isPreviewOnly} />}
           >
-            주식 정보
+            삼성전자 72,500 (+1.2%)
           </MiniFunctionCard>
         )
       case 'commute':
@@ -127,7 +127,7 @@ export default function MiniFunctionsArea() {
             secondLine="실시간 교통 정보"
             expandedContent={<CommuteTime isPreviewOnly={isPreviewOnly} />}
           >
-            출퇴근 시간
+            출근: 35분, 퇴근: 42분
           </MiniFunctionCard>
         )
       case 'food':
@@ -139,7 +139,7 @@ export default function MiniFunctionsArea() {
             secondLine="근처 맛집 정보"
             expandedContent={<NearbyRestaurants isPreviewOnly={isPreviewOnly} />}
           >
-            주변 맛집
+            주변 맛집 12곳 발견
           </MiniFunctionCard>
         )
       case 'dday':
@@ -151,7 +151,7 @@ export default function MiniFunctionsArea() {
             secondLine="다가오는 일정"
             expandedContent={<DDayCounter isPreviewOnly={isPreviewOnly} />}
           >
-            D-day 카운터
+            연말 휴가까지 D-45
           </MiniFunctionCard>
         )
       default:
@@ -177,11 +177,11 @@ export default function MiniFunctionsArea() {
         </div>
         <div className="text-center py-8 bg-gray-900 rounded-lg border border-gray-800">
           <div className="text-4xl mb-4">🚧</div>
-          <div className="text-lg font-medium text-gray-300 mb-2">서비스 준비중</div>
+          <div className="text-sm font-medium text-gray-300 mb-2">서비스 준비중</div>
           <div className="text-sm text-gray-400 mb-4">
             Mini Functions are currently available only in Korea
           </div>
-          <div className="text-xs text-gray-500">
+          <div className="text-sm text-gray-500">
             We&apos;re working to expand our services globally. Stay tuned!
           </div>
         </div>
@@ -207,13 +207,13 @@ export default function MiniFunctionsArea() {
     <div className="mb-6">
       <div className="flex items-center gap-3 mb-4">
         <h2 className="section-title">{t('mini_functions')}</h2>
-        <div className="text-xs text-gray-400">
+        <div className="text-sm text-gray-400">
           {enabledFunctions.length}/{maxEnabled} {t('active')}
         </div>
         <div className="flex items-center gap-2">
           {enabledFunctions.length < maxEnabled && (
             <button 
-              className="text-xs text-blue-400 hover:text-blue-300 underline"
+              className="text-sm text-blue-400 hover:text-blue-300 underline"
               onClick={() => router.push('/settings/mini-functions')}
             >
               + Add Function
@@ -221,7 +221,7 @@ export default function MiniFunctionsArea() {
           )}
           {enabledFunctions.length > 0 && (
             <button 
-              className="text-xs text-gray-400 hover:text-gray-300 underline"
+              className="text-sm text-gray-400 hover:text-gray-300 underline"
               onClick={() => router.push('/settings/mini-functions')}
             >
               ⚙️ Manage
@@ -247,8 +247,8 @@ export default function MiniFunctionsArea() {
             {enabledFunctions.map(func => renderMiniFunction(func, false))}
           </div>
           
-          {/* Desktop: 가로 스크롤 */}
-          <div className="hidden sm:flex overflow-x-auto responsive-gap-md pb-4">
+          {/* Desktop: 그리드 레이아웃 (최대 4개씩 한 줄) */}
+          <div className="hidden sm:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 responsive-gap-md">
             {enabledFunctions.map(func => renderMiniFunction(func, false))}
           </div>
         </>

@@ -132,8 +132,8 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
     <div className="space-y-1">
       {/* Today's total */}
       <div className="flex items-center justify-between">
-        <span className="text-gray-400 text-xs">오늘 지출</span>
-        <span className="text-white font-medium text-xs">
+        <span className="text-gray-400 text-sm">오늘 지출</span>
+        <span className="text-white font-medium text-sm">
           {formatCurrency(expenseData.todayTotal)}
         </span>
       </div>
@@ -143,17 +143,17 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
         <div className="space-y-1">
           {displayItems.map((item) => (
             <div key={item.id} className="flex items-center justify-between group">
-              <span className="text-white text-xs truncate flex-1">
+              <span className="text-white text-sm truncate flex-1">
                 {item.description}
               </span>
               <div className="flex items-center gap-1">
-                <span className="text-gray-300 text-xs">
+                <span className="text-gray-300 text-sm">
                   {formatCurrency(item.amount)}
                 </span>
                 {!isPreviewOnly && (
                   <button
                     onClick={() => removeExpense(item.id)}
-                    className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 text-xs w-4"
+                    className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 text-sm w-4"
                   >
                     ×
                   </button>
@@ -174,16 +174,16 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
               onChange={(e) => setNewExpense(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && addExpense()}
               placeholder="커피 4500"
-              className="flex-1 px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-white placeholder-gray-400"
+              className="flex-1 px-2 py-1 text-sm bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-white placeholder-gray-400"
             />
             <button
               onClick={addExpense}
-              className="px-2 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded"
+              className="px-2 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded"
             >
               +
             </button>
           </div>
-          <div className="text-gray-500 text-xs mt-1">
+          <div className="text-gray-500 text-sm mt-1">
             예: &quot;커피 4500&quot; 또는 &quot;4500 커피&quot;
           </div>
         </div>
@@ -191,7 +191,7 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
 
       {expenseData.items.length === 0 && (
         <div className="text-center py-2">
-          <span className="text-gray-500 text-xs">
+          <span className="text-gray-500 text-sm">
             {isPreviewOnly ? '💰 Track expenses in Pro plan' : 'No expenses today'}
           </span>
         </div>
@@ -199,7 +199,7 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
 
       {isPreviewOnly && expenseData.items.length > 0 && (
         <div className="text-center pt-1">
-          <span className="text-gray-500 text-xs">Add expenses in Pro plan</span>
+          <span className="text-gray-500 text-sm">Add expenses in Pro plan</span>
         </div>
       )}
     </div>

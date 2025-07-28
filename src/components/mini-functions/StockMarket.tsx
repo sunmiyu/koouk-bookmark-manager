@@ -252,13 +252,13 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
           <div key={stock.symbol} className="flex items-center justify-between text-sm">
             <div className="flex-1 min-w-0">
               <div className="font-medium text-white truncate">{stock.name}</div>
-              <div className="text-xs text-gray-400">{stock.symbol}</div>
+              <div className="text-sm text-gray-400">{stock.symbol}</div>
             </div>
             <div className="text-right">
               <div className="font-medium text-white">
                 {formatPrice(stock.price, stock.currency)}
               </div>
-              <div className={`text-xs ${stock.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              <div className={`text-sm ${stock.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                 {formatChange(stock.change, stock.changePercent, stock.currency)}
               </div>
             </div>
@@ -338,7 +338,7 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
                       {isAddingStock ? '...' : '+'}
                     </button>
                   </div>
-                  <div className="text-xs text-gray-400 mt-2">
+                  <div className="text-sm text-gray-400 mt-2">
                     {allStocks.length}/10 stocks added
                   </div>
                 </div>
@@ -347,7 +347,7 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
 
             {/* 푸터 */}
             <div className="p-4 border-t border-gray-700">
-              <div className="flex justify-between items-center text-xs text-gray-400">
+              <div className="flex justify-between items-center text-sm text-gray-400">
                 <span>Last updated: {new Date(stockData.lastUpdated).toLocaleTimeString()}</span>
                 <button
                   onClick={loadStockData}

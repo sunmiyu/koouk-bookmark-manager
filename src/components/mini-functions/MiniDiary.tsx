@@ -175,9 +175,9 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
       {/* Today's Entry */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-gray-400 text-xs">오늘의 기록</span>
+          <span className="text-gray-400 text-sm">오늘의 기록</span>
           {diaryData.todayEntry && !isPreviewOnly && (
-            <span className="text-xs text-gray-500">
+            <span className="text-sm text-gray-500">
               {diaryData.todayEntry.mood}
             </span>
           )}
@@ -207,7 +207,7 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
               value={currentText}
               onChange={(e) => setCurrentText(e.target.value)}
               placeholder="오늘은 어떤 하루였나요?"
-              className="w-full px-2 py-2 text-xs bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-white placeholder-gray-400 resize-none"
+              className="w-full px-2 py-2 text-sm bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-white placeholder-gray-400 resize-none"
               rows={3}
               maxLength={200}
             />
@@ -216,13 +216,13 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
             <div className="flex gap-2">
               <button
                 onClick={saveDiaryEntry}
-                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded"
+                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded"
               >
                 저장
               </button>
               <button
                 onClick={cancelEditing}
-                className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white text-xs rounded"
+                className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded"
               >
                 취소
               </button>
@@ -241,14 +241,14 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
           >
             {diaryData.todayEntry ? (
               <div className="space-y-1">
-                <p className="text-white text-xs leading-relaxed">
+                <p className="text-white text-sm leading-relaxed">
                   {diaryData.todayEntry.content}
                 </p>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-500 text-xs">
+                  <span className="text-gray-500 text-sm">
                     {diaryData.todayEntry.mood}
                   </span>
-                  <span className="text-gray-500 text-xs">
+                  <span className="text-gray-500 text-sm">
                     {new Date(diaryData.todayEntry.updatedAt).toLocaleTimeString('ko-KR', {
                       hour: '2-digit',
                       minute: '2-digit'
@@ -258,7 +258,7 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
               </div>
             ) : (
               <div className="flex items-center justify-center h-full">
-                <span className="text-gray-500 text-xs">
+                <span className="text-gray-500 text-sm">
                   {isPreviewOnly ? '📝 Write diary in Pro plan' : '오늘의 기록을 남겨보세요...'}
                 </span>
               </div>
@@ -270,7 +270,7 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
       {/* Recent Entries Preview */}
       {diaryData.recentEntries.length > 0 && (
         <div className="space-y-1">
-          <div className="text-gray-400 text-xs">최근 기록</div>
+          <div className="text-gray-400 text-sm">최근 기록</div>
           <div className="space-y-1">
             {diaryData.recentEntries.slice(0, 2).map((entry) => (
               <div key={entry.id} className="space-y-1">
@@ -278,19 +278,19 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
                   className="flex items-center gap-2 p-1 rounded hover:bg-gray-800 cursor-pointer"
                   onClick={() => toggleExpanded(entry.id)}
                 >
-                  <span className="text-xs">{entry.mood}</span>
-                  <span className="text-gray-400 text-xs w-8">
+                  <span className="text-sm">{entry.mood}</span>
+                  <span className="text-gray-400 text-sm w-8">
                     {formatDate(entry.date)}
                   </span>
-                  <span className="text-gray-300 text-xs flex-1 truncate">
+                  <span className="text-gray-300 text-sm flex-1 truncate">
                     {expandedEntryId === entry.id ? entry.content : truncateText(entry.content)}
                   </span>
-                  <span className="text-gray-500 text-xs">
+                  <span className="text-gray-500 text-sm">
                     {expandedEntryId === entry.id ? '⌃' : '⌄'}
                   </span>
                 </div>
                 {expandedEntryId === entry.id && (
-                  <div className="p-2 bg-gray-800 rounded text-xs text-gray-300 leading-relaxed">
+                  <div className="p-2 bg-gray-800 rounded text-sm text-gray-300 leading-relaxed">
                     {entry.content}
                   </div>
                 )}
@@ -302,7 +302,7 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
 
       {isPreviewOnly && (
         <div className="text-center pt-1">
-          <span className="text-gray-500 text-xs">
+          <span className="text-gray-500 text-sm">
             Full diary features in Pro plan
           </span>
         </div>

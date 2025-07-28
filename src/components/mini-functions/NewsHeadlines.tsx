@@ -120,10 +120,10 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
             }
           }}
         >
-          <p className="text-white text-xs leading-tight truncate">
+          <p className="text-white text-sm leading-tight truncate">
             • {item.title}
           </p>
-          <div className="flex items-center gap-2 text-xs text-gray-500">
+          <div className="flex items-center gap-2 text-sm text-gray-500">
             <span>{item.source}</span>
             <span>
               {new Date(item.publishedAt).toLocaleDateString('ko-KR', {
@@ -137,7 +137,7 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
       
       {isPreviewOnly && (
         <div className="text-center pt-2">
-          <span className="text-gray-500 text-xs">+ more news in Pro plan</span>
+          <span className="text-gray-500 text-sm">+ more news in Pro plan</span>
         </div>
       )}
     </div>

@@ -150,20 +150,20 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
   if (!nextAlarm) {
     return (
       <div className="space-y-2">
-        <div className="text-gray-400 text-xs">
+        <div className="text-gray-400 text-sm">
           No active alarms
         </div>
         {!isPreviewOnly && (
           <button
             onClick={addNewAlarm}
-            className="text-blue-400 hover:text-blue-300 text-xs underline"
+            className="text-blue-400 hover:text-blue-300 text-sm underline"
           >
             + Add alarm
           </button>
         )}
         {isPreviewOnly && (
           <div className="text-center">
-            <span className="text-gray-500 text-xs">⏰ Set alarms in Pro plan</span>
+            <span className="text-gray-500 text-sm">⏰ Set alarms in Pro plan</span>
           </div>
         )}
       </div>
@@ -176,12 +176,12 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
         <div className="text-white font-medium text-sm">
           {nextAlarm.time}
         </div>
-        <div className="text-green-400 text-xs">
+        <div className="text-green-400 text-sm">
           {timeRemaining}
         </div>
       </div>
       
-      <div className="text-gray-300 text-xs">
+      <div className="text-gray-300 text-sm">
         {nextAlarm.label}
       </div>
 
@@ -189,13 +189,13 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
         <div className="flex gap-2 mt-2">
           <button
             onClick={() => toggleAlarm(nextAlarm.id)}
-            className="text-xs text-red-400 hover:text-red-300"
+            className="text-sm text-red-400 hover:text-red-300"
           >
             Turn Off
           </button>
           <button
             onClick={addNewAlarm}
-            className="text-xs text-blue-400 hover:text-blue-300"
+            className="text-sm text-blue-400 hover:text-blue-300"
           >
             + Add
           </button>
@@ -204,7 +204,7 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
 
       {isPreviewOnly && (
         <div className="text-center pt-1">
-          <span className="text-gray-500 text-xs">Manage alarms in Pro plan</span>
+          <span className="text-gray-500 text-sm">Manage alarms in Pro plan</span>
         </div>
       )}
     </div>

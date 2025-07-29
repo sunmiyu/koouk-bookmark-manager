@@ -8,39 +8,44 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 const fallbackUrl = 'https://placeholder.supabase.co'
 const fallbackKey = 'placeholder-key'
 
-// Singleton pattern to prevent multiple instances
-let supabaseInstance: SupabaseClient | null = null
-let supabaseAdminInstance: SupabaseClient | null = null
+// Global instances to ensure singleton
+declare global {
+  var __supabase: SupabaseClient | undefined
+  var __supabaseAdmin: SupabaseClient | undefined
+}
 
-export const supabase = (() => {
-  if (!supabaseInstance) {
-    supabaseInstance = createClient(
-      supabaseUrl || fallbackUrl,
-      supabaseAnonKey || fallbackKey,
-      {
-        auth: {
-          storageKey: 'koouk-auth-token',
-          storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-        }
-      }
-    )
+// Create or reuse existing client instance
+export const supabase = globalThis.__supabase ?? createClient(
+  supabaseUrl || fallbackUrl,
+  supabaseAnonKey || fallbackKey,
+  {
+    auth: {
+      storageKey: 'koouk-auth-token',
+      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true
+    }
   }
-  return supabaseInstance
-})()
+)
+
+// Store in global to prevent recreation
+if (typeof window !== 'undefined') {
+  globalThis.__supabase = supabase
+}
 
 // Server-side client with service role key (for admin operations)
-export const supabaseAdmin = (() => {
-  if (!supabaseAdminInstance) {
-    supabaseAdminInstance = createClient(
-      supabaseUrl || fallbackUrl,
-      serviceRoleKey || fallbackKey,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      }
-    )
+export const supabaseAdmin = globalThis.__supabaseAdmin ?? createClient(
+  supabaseUrl || fallbackUrl,
+  serviceRoleKey || fallbackKey,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
   }
-  return supabaseAdminInstance
-})()
+)
+
+if (typeof window !== 'undefined') {
+  globalThis.__supabaseAdmin = supabaseAdmin
+}

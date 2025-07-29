@@ -25,13 +25,25 @@ self.addEventListener('install', (event) => {
 })
 
 self.addEventListener('fetch', (event) => {
+  // Skip caching for external analytics/tracking requests
+  if (event.request.url.includes('googletagmanager.com') || 
+      event.request.url.includes('google-analytics.com') ||
+      event.request.url.includes('supabase.co')) {
+    event.respondWith(fetch(event.request))
+    return
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
         if (response) {
           return response
         }
-        return fetch(event.request)
+        return fetch(event.request).catch(error => {
+          console.log('Fetch failed for:', event.request.url, error)
+          // Return a basic response for failed requests
+          return new Response('Service Unavailable', { status: 503 })
+        })
       })
   )
 })

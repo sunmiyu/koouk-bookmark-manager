@@ -10,29 +10,47 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
+        // Handle the OAuth callback
         const { data, error } = await supabase.auth.getSession()
         
         if (error) {
           console.error('Auth callback error:', error.message)
-          router.push('/?error=auth_error')
+          // Wait a bit and try again
+          setTimeout(() => {
+            router.push('/?error=auth_error')
+          }, 1000)
           return
         }
 
         if (data.session) {
           // Successfully authenticated
           console.log('User authenticated:', data.session.user.email)
-          router.push('/')
+          // Give some time for the session to be fully established
+          setTimeout(() => {
+            router.push('/')
+          }, 500)
         } else {
-          // No session, redirect to login
-          router.push('/')
+          // No session yet, wait a bit more
+          setTimeout(async () => {
+            const { data: retryData } = await supabase.auth.getSession()
+            if (retryData.session) {
+              router.push('/')
+            } else {
+              router.push('/')
+            }
+          }, 1000)
         }
       } catch (error) {
         console.error('Auth callback error:', error)
-        router.push('/?error=auth_error')
+        setTimeout(() => {
+          router.push('/?error=auth_error')
+        }, 1000)
       }
     }
 
-    handleAuthCallback()
+    // Add a small delay to ensure the URL params are processed
+    const timer = setTimeout(handleAuthCallback, 100)
+    return () => clearTimeout(timer)
   }, [router])
 
   return (

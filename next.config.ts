@@ -10,7 +10,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https: blob:",
       "font-src 'self'",
-      "connect-src 'self' https://api.openweathermap.org https://www.youtube.com https://www.google-analytics.com https://bpbfmitcwvqadtefgmek.supabase.co https://accounts.google.com https://oauth2.googleapis.com https://www.googleapis.com https://openidconnect.googleapis.com",
+      "connect-src 'self' https://api.openweathermap.org https://www.youtube.com https://www.google-analytics.com https://www.googletagmanager.com https://bpbfmitcwvqadtefgmek.supabase.co https://accounts.google.com https://oauth2.googleapis.com https://www.googleapis.com https://openidconnect.googleapis.com",
       "frame-src 'self' https://www.youtube.com",
       "media-src 'self' data: blob:"
     ].join('; ')

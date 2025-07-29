@@ -16,8 +16,6 @@ import ThemeToggle from '@/components/ThemeToggle'
 import { ContentProvider } from '@/contexts/ContentContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import MiniFunctionsArea from '@/components/MiniFunctionsArea'
-import { trackEvents } from '@/lib/analytics'
-
 function HomeContent() {
   const { t } = useLanguage()
 

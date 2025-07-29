@@ -135,10 +135,10 @@ export default function MiniFunctionsArea() {
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
             title="출근"
-            firstLine="집 → 회사"
-            secondLine="45분 예상, 도로 원활"
-            expandedContent={<CommuteTime isPreviewOnly={isPreviewOnly} />}
-          />
+            expandedContent={isPreviewOnly ? undefined : <CommuteTime isPreviewOnly={false} />}
+          >
+            <CommuteTime isPreviewOnly={true} />
+          </MiniFunctionCard>
         )
       case 'food':
         return (

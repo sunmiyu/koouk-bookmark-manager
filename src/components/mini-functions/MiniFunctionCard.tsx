@@ -19,7 +19,6 @@ export default function MiniFunctionCard({
   isPreviewOnly = false
 }: MiniFunctionCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
-  const [isHovered, setIsHovered] = useState(false)
 
   const handleToggle = () => {
     if (!isPreviewOnly && expandedContent) {
@@ -38,8 +37,6 @@ export default function MiniFunctionCard({
           shouldShowExpanded ? 'h-auto' : 'overflow-hidden'
         }`}
         onClick={handleToggle}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
       >
         {/* Preview Only Badge */}
         {isPreviewOnly && (

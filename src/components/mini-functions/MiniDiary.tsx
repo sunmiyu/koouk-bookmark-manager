@@ -204,7 +204,6 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
         })
 
         setCurrentText(newEntry.content)
-        setSelectedMood(newEntry.mood || '😊')
       }
       
       setIsEditing(false)
@@ -223,10 +222,8 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
   const cancelEditing = () => {
     if (diaryData.todayEntry) {
       setCurrentText(diaryData.todayEntry.content)
-      setSelectedMood(diaryData.todayEntry.mood || '😊')
     } else {
       setCurrentText('')
-      setSelectedMood('😊')
     }
     setIsEditing(false)
   }
@@ -267,33 +264,11 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
                 📖 History
               </button>
             )}
-            {diaryData.todayEntry && !isPreviewOnly && (
-              <span className="text-sm text-gray-500">
-                {diaryData.todayEntry.mood}
-              </span>
-            )}
           </div>
         </div>
 
         {isEditing && !isPreviewOnly ? (
           <div className="space-y-2">
-            {/* Mood selector */}
-            <div className="flex gap-1">
-              {moods.map((mood) => (
-                <button
-                  key={mood}
-                  onClick={() => setSelectedMood(mood)}
-                  className={`w-6 h-6 rounded text-sm transition-all ${
-                    selectedMood === mood 
-                      ? 'bg-blue-600 scale-110' 
-                      : 'bg-gray-700 hover:bg-gray-600'
-                  }`}
-                >
-                  {mood}
-                </button>
-              ))}
-            </div>
-
             {/* Text input */}
             <textarea
               value={currentText}
@@ -337,10 +312,7 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
                 <p className="text-white text-sm leading-relaxed">
                   {diaryData.todayEntry.content}
                 </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-500 text-sm">
-                    {diaryData.todayEntry.mood}
-                  </span>
+                <div className="flex items-center justify-end">
                   <span className="text-gray-500 text-sm">
                     {new Date(diaryData.todayEntry.updatedAt).toLocaleTimeString('ko-KR', {
                       hour: '2-digit',
@@ -371,7 +343,6 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
                   className="flex items-center gap-2 p-1 rounded hover:bg-gray-800 cursor-pointer"
                   onClick={() => toggleExpanded(entry.id)}
                 >
-                  <span className="text-sm">{entry.mood}</span>
                   <span className="text-gray-400 text-sm w-8">
                     {formatDate(entry.date)}
                   </span>

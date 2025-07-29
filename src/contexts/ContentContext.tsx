@@ -33,7 +33,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   const addItem = (item: Omit<ContentItem, 'id' | 'createdAt'>) => {
     const newItem: ContentItem = {
       ...item,
-      id: Date.now().toString(),
+      id: `${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
       createdAt: new Date().toISOString().split('T')[0]
     }
 

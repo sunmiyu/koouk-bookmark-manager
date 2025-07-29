@@ -13,7 +13,7 @@ export default function AuthCallback() {
         console.log('Auth callback started')
         
         // Check for errors first
-        const urlParams = new URLSearchParams(window.location.search)
+        const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '')
         const authError = urlParams.get('error')
         const authCode = urlParams.get('code')
         

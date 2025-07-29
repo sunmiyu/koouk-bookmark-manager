@@ -107,7 +107,7 @@ export default function NotesSection() {
               <div className="flex-1 min-w-0">
                 <h4 className="font-medium text-white responsive-text-sm truncate">메모 예시</h4>
                 <p className="text-xs text-gray-400 mt-1 line-clamp-2">이곳에 중요한 메모를 저장할 수 있습니다.</p>
-                <p className="text-xs text-purple-400 mt-2">{formatDate(new Date().toISOString())}</p>
+                <p className="text-xs text-purple-400 mt-2">{formatDate('2025-01-29')}</p>
               </div>
             </div>
           </div>

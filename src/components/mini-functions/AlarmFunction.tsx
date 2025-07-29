@@ -18,14 +18,23 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
   // Load alarms from Supabase
   useEffect(() => {
     if (isPreviewOnly) {
-      // Sample data for preview
-      const sampleAlarm: AlarmData = {
-        id: 'sample',
-        time: '07:00',
-        label: 'Morning Workout',
-        enabled: true
-      }
-      setNextAlarm(sampleAlarm)
+      // Sample data for preview - 2 alarms max
+      const sampleAlarms: AlarmData[] = [
+        {
+          id: 'sample1',
+          time: '07:00',
+          label: 'Morning workout',
+          enabled: true
+        },
+        {
+          id: 'sample2',
+          time: '18:00',
+          label: 'Evening run',
+          enabled: true
+        }
+      ]
+      setAlarms(sampleAlarms)
+      setNextAlarm(sampleAlarms[0])
       setTimeRemaining('5시간 23분 후')
       return
     }
@@ -155,7 +164,7 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
   }
 
   const addNewAlarm = async () => {
-    if (isPreviewOnly || loading) return
+    if (isPreviewOnly || loading || alarms.length >= 2) return
 
     try {
       setLoading(true)
@@ -258,39 +267,30 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <div className="text-white font-medium text-sm">
-          {nextAlarm.time}
+    <div className="space-y-1">
+      {alarms.slice(0, 2).map((alarm) => (
+        <div key={alarm.id} className="flex justify-between items-center py-1">
+          <div className="flex items-center gap-2">
+            <span className="text-white text-sm">■</span>
+            <span className="text-gray-300 font-medium">{alarm.label}</span>
+          </div>
+          <div className="text-gray-300 text-sm">
+            {alarm.time} {alarm.enabled ? '(Mon-Fri)' : '(Off)'}
+          </div>
         </div>
-        <div className="text-green-400 text-sm">
-          {timeRemaining}
-        </div>
-      </div>
-      
-      <div className="text-gray-300 text-sm">
-        {nextAlarm.label}
-      </div>
+      ))}
 
-      {!isPreviewOnly && (
-        <div className="flex gap-2 mt-2">
-          <button
-            onClick={() => toggleAlarm(nextAlarm.id)}
-            disabled={loading}
-            className="text-sm text-red-400 hover:text-red-300 disabled:opacity-50"
-          >
-            Turn Off
-          </button>
+      {!isPreviewOnly && alarms.length < 2 && (
+        <div className="mt-2">
           <button
             onClick={addNewAlarm}
             disabled={loading}
             className="text-sm text-blue-400 hover:text-blue-300 disabled:opacity-50"
           >
-            + Add
+            + Add alarm ({alarms.length}/2)
           </button>
         </div>
       )}
-
     </div>
   )
 }

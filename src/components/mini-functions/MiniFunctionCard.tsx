@@ -53,7 +53,7 @@ export default function MiniFunctionCard({
           </div>
           {/* Text Content */}
           <div className="flex-1 min-w-0">
-            <h4 className="font-medium text-white responsive-text-sm truncate mb-2">{title}</h4>
+            <h4 className="font-bold text-white responsive-text-sm truncate mb-2">{title}</h4>
             <div className="text-sm">
               {children}
             </div>

@@ -41,23 +41,23 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
   // Load today's expenses
   useEffect(() => {
     if (isPreviewOnly) {
-      // Sample data for preview
+      // Sample data for preview matching requirements
       setExpenseData({
         todayTotal: 34500,
         items: [
           {
             id: 'sample1',
-            amount: 4500,
+            amount: -5000,
             description: '커피',
             timestamp: new Date().toISOString(),
             category: 'food'
           },
           {
             id: 'sample2', 
-            amount: 30000,
-            description: '점심 회식',
+            amount: 2500000,
+            description: '월급',
             timestamp: new Date().toISOString(),
-            category: 'food'
+            category: 'income'
           }
         ]
       })
@@ -345,12 +345,15 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
         <div className="space-y-1">
           {displayItems.map((item) => (
             <div key={item.id} className="flex justify-between items-center group py-1">
-              <span className="text-gray-300 font-medium truncate flex-1">
-                {item.description}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-white text-sm">■</span>
+                <span className="text-gray-300 font-medium truncate flex-1">
+                  {item.description}
+                </span>
+              </div>
               <div className="flex items-center gap-1">
-                <span className="text-white font-semibold text-sm">
-                  {formatCurrency(item.amount)}
+                <span className={`font-semibold text-sm ${item.amount > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  ₩{Math.abs(item.amount).toLocaleString()} {item.amount > 0 ? '(+)' : '(-)'}
                 </span>
                 {!isPreviewOnly && (
                   <button

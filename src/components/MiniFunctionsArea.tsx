@@ -62,7 +62,11 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            title="뉴스 헤드라인"
+            title={
+              <div>
+                <span className="font-bold">뉴스헤드라인</span>
+              </div>  
+            }
             expandedContent={isPreviewOnly ? undefined : <NewsHeadlines isPreviewOnly={false} />}
           >
             <NewsHeadlines isPreviewOnly={true} />
@@ -74,7 +78,12 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            title="음악 추천"
+            title={
+              <div>
+                <span className="font-bold">음악추천</span>
+                <span className="font-normal ml-2 text-gray-300">오후 추천 List</span>
+              </div>
+            }
             expandedContent={isPreviewOnly ? undefined : <MusicRecommendations isPreviewOnly={false} />}
           >
             <MusicRecommendations isPreviewOnly={true} />
@@ -86,7 +95,12 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            title="알람"
+            title={
+              <div>
+                <span className="font-bold">알람</span>
+                <span className="font-normal ml-2 text-gray-300">2건</span>
+              </div>
+            }
             expandedContent={isPreviewOnly ? undefined : <AlarmFunction isPreviewOnly={false} />}
           >
             <AlarmFunction isPreviewOnly={true} />
@@ -98,7 +112,12 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            title="가계부"
+            title={
+              <div>
+                <span className="font-bold">가계부</span>
+                <span className="font-normal ml-2 text-gray-300">지출 ₩34,500 | 수입 ₩2,500,000</span>
+              </div>
+            }
             expandedContent={isPreviewOnly ? undefined : <ExpenseTracker isPreviewOnly={false} />}
           >
             <ExpenseTracker isPreviewOnly={true} />
@@ -122,7 +141,13 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            title="주식"
+            title={
+              <div>
+                <span className="font-bold">주식(국내)</span>
+                <span className="font-normal ml-2 text-gray-300">코스피 ▲ | 코스닥 △</span>
+                <span className="text-xs text-gray-400 block">한국 기준 09:00~15:30 지수 반영</span>
+              </div>
+            }
             expandedContent={isPreviewOnly ? undefined : <StockMarket isPreviewOnly={false} />}
           >
             <StockMarket isPreviewOnly={true} />
@@ -134,7 +159,12 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            title="출근"
+            title={
+              <div>
+                <span className="font-bold">출근</span>
+                <span className="font-normal ml-2 text-gray-300">집→회사 35분 | 회사→집 42분</span>
+              </div>
+            }
             expandedContent={isPreviewOnly ? undefined : <CommuteTime isPreviewOnly={false} />}
           >
             <CommuteTime isPreviewOnly={true} />
@@ -160,7 +190,12 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={ddayFunctionData} 
             isPreviewOnly={isPreviewOnly}
-            title="D-Day"
+            title={
+              <div>
+                <span className="font-bold">D-day</span>
+                <span className="font-normal ml-2 text-gray-300">신년 ('26.1/1) D-156</span>
+              </div>
+            }
             expandedContent={isPreviewOnly ? undefined : <DDayCounter isPreviewOnly={false} />}
           >
             <DDayCounter isPreviewOnly={true} />
@@ -237,9 +272,9 @@ export default function MiniFunctionsArea() {
       ) : (
         <>
           {/* Mobile: 세로 스택 */}
-          <div className="block sm:hidden">
+          <div className="block sm:hidden space-y-4">
             {enabledFunctions.map((func, index) => (
-              <div key={func.id} className={index > 0 ? 'mt-3.5' : ''}>
+              <div key={func.id}>
                 {renderMiniFunction(func, false)}
               </div>
             ))}

@@ -16,19 +16,19 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
   // Real news data with actual links - memoized to prevent re-renders
   const sampleNews: NewsItem[] = useMemo(() => [
     {
-      title: "삼성전자, 3분기 영업이익 9조7000억원 기록",
+      title: "삼성전자 3분기 영업이익 9조7000억원 기록, 메모리 반도체 회복세 주도",
       url: "https://www.hankyung.com/",
       source: "한국경제",
       publishedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() // 2시간 전
     },
     {
-      title: "AI 혁신으로 인한 미래 일자리 변화 전망",
+      title: "AI 혁신으로 인한 미래 일자리 변화 전망, 정부 재교육 프로그램 확대 검토",
       url: "https://www.joongang.co.kr/",
       source: "중앙일보",
       publishedAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString() // 4시간 전
     },
     {
-      title: "정부, 부동산 정책 변화 발표 예정",
+      title: "정부 부동산 정책 변화 발표 예정, 대출 규제 완화 방안 포함될 듯",
       url: "https://www.yna.co.kr/",
       source: "연합뉴스",
       publishedAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString() // 6시간 전
@@ -162,20 +162,23 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
             }
           }}
         >
-          {/* 제목만 표시 (메인 카드용) */}
           <div className="flex justify-between items-center">
-            <span className="text-sm text-white truncate flex-1">
-              {item.title}
-            </span>
-            <div className="flex items-center gap-2 text-xs text-gray-400 flex-shrink-0 ml-2">
+            <div className="flex items-center gap-2 flex-1">
+              <span className="text-white text-sm">■</span>
+              <span className="text-sm text-white truncate flex-1">
+                {item.title}
+              </span>
+            </div>
+            <div className="flex items-center gap-1 text-xs text-gray-400 flex-shrink-0 ml-2">
               <span>{item.source}</span>
-              <span>•</span>
               <span>
                 {new Date(item.publishedAt).toLocaleDateString('ko-KR', {
-                  month: 'short',
-                  day: 'numeric',
+                  month: 'numeric',
+                  day: 'numeric'
+                })} {new Date(item.publishedAt).toLocaleTimeString('ko-KR', {
                   hour: '2-digit',
-                  minute: '2-digit'
+                  minute: '2-digit',
+                  hour12: false
                 })}
               </span>
             </div>

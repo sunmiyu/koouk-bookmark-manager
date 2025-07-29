@@ -229,28 +229,31 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
     )
   }
 
-  const displayedStocks = stockData.watchlist.slice(0, 3) // 메인에서는 3개만
+  const displayedStocks = stockData.watchlist.slice(0, 5) // 메인에서는 5개만
   const allStocks = stockData.watchlist
 
   return (
     <div className="relative">
-      {/* 메인 화면: 3개 종목만 표시 */}
+      {/* 메인 화면: 5개 종목만 표시 */}
       <div className="space-y-2">
         {displayedStocks.map((stock) => (
           <div key={stock.symbol} className="flex justify-between items-center text-sm py-1">
-            <span className="font-medium text-white">{stock.name}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-white text-sm">■</span>
+              <span className="font-medium text-white">{stock.name}</span>
+            </div>
             <div className="flex items-center gap-2">
               <span className="font-semibold text-white">
-                {formatPrice(stock.price, stock.currency)}
+                ₩{stock.price.toLocaleString()}
               </span>
               <span className={`text-sm font-medium ${stock.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+                {stock.change >= 0 ? '▲' : '▼'}
               </span>
             </div>
           </div>
         ))}
         
-        {allStocks.length > 3 && (
+        {allStocks.length > 5 && (
           <button
             onClick={() => setIsExpanded(true)}
             className="w-full text-center text-blue-400 hover:text-blue-300 text-sm py-2 border border-gray-700 rounded-lg hover:border-blue-500 transition-colors"

@@ -153,8 +153,9 @@ Koouk is a personal lifestyle management platform that serves as your daily digi
 
 ### Current Implementation
 - **Frontend**: Next.js 15.4.4, TypeScript, Tailwind CSS
-- **Authentication**: NextAuth.js with Google OAuth
-- **Storage**: localStorage (temporary)
+- **Authentication**: Supabase Auth with Google OAuth
+- **Database**: Supabase PostgreSQL
+- **Storage**: Supabase + localStorage fallback
 - **Hosting**: Vercel with edge functions
 - **Analytics**: Google Analytics 4 + Vercel Analytics
 - **Security**: CORS middleware, rate limiting, CSP headers

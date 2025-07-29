@@ -73,7 +73,7 @@ export default function WeatherOnly() {
 
   // 사용자 위치 가져오기
   const getUserLocation = (): Promise<{lat: number, lon: number, city?: string}> => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       // 캐시된 위치 확인 (1시간)
       const cached = localStorage.getItem('user_geo_location')
       if (cached) {

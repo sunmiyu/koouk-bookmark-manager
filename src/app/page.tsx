@@ -12,12 +12,21 @@ import LinkSection from '@/components/LinkSection'
 import AuthButton from '@/components/AuthButton'
 import KooukLogo from '@/components/KooukLogo'
 import SearchBar from '@/components/SearchBar'
-import ThemeToggle from '@/components/ThemeToggle'
+import dynamic from 'next/dynamic'
+
+const ThemeToggle = dynamic(() => import('@/components/ThemeToggle'), {
+  ssr: false,
+  loading: () => (
+    <button className="flex items-center justify-center w-6 h-6 text-gray-300">
+      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+      </svg>
+    </button>
+  )
+})
 import { ContentProvider } from '@/contexts/ContentContext'
-import { useLanguage } from '@/contexts/LanguageContext'
 import MiniFunctionsArea from '@/components/MiniFunctionsArea'
 function HomeContent() {
-  const { t } = useLanguage()
 
   return (
     <ContentProvider>

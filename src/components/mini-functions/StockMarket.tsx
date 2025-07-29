@@ -206,13 +206,6 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
     return `$${price.toFixed(2)}`
   }
 
-  const formatChange = (change: number, changePercent: number, currency: string) => {
-    const changeStr = currency === 'KRW' 
-      ? `₩${Math.abs(change).toLocaleString()}`
-      : `$${Math.abs(change).toFixed(2)}`
-    
-    return `${change >= 0 ? '+' : '-'}${changeStr} (${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)`
-  }
 
   if (loading) {
     return (

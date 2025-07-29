@@ -60,10 +60,15 @@ export default function MiniFunctionCard({
           </div>
         </div>
 
-        {/* 확장된 컨텐츠 - 자연스러운 연속성을 위해 경계선 제거 */}
+        {/* 확장된 컨텐츠 - 아이콘 영역과 정렬을 맞춰서 자연스러운 연속성 */}
         {shouldShowExpanded && (
-          <div className="mt-4">
-            {expandedContent}
+          <div className="mt-4 flex items-start">
+            {/* 아이콘 영역과 동일한 공간 확보 (w-6 + responsive-gap-sm과 동일한 간격) */}
+            <div className="w-6 flex-shrink-0" style={{ marginRight: 'clamp(0.5rem, 2vw, 0.75rem)' }}></div>
+            {/* 확장 콘텐츠 */}
+            <div className="flex-1 min-w-0">
+              {expandedContent}
+            </div>
           </div>
         )}
       </div>

@@ -89,11 +89,12 @@ export default function ContentManager({ className = '' }: ContentManagerProps) 
       const { data: { user: authUser } } = await supabase.auth.getUser()
       setUser(authUser)
       
-      if (authUser) {
-        await loadContent('links')
-      }
+      // Always load content (will load dummy content if user is null)
+      await loadContent('links')
     } catch (error) {
       console.error('Failed to load user:', error)
+      // Even on error, load dummy content
+      await loadContent('links')
     }
   }
 

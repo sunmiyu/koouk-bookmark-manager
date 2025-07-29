@@ -25,16 +25,28 @@ export default function MiniFunctionsSettings() {
   // Get user session
   useEffect(() => {
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setUser(session?.user ?? null)
-      setLoading(false)
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+        if (error) {
+          console.error('Error getting session:', error)
+        }
+        setUser(session?.user ?? null)
+      } catch (error) {
+        console.error('Failed to get session:', error)
+        setUser(null)
+      } finally {
+        setLoading(false)
+      }
     }
 
     getSession()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session?.user?.email)
       setUser(session?.user ?? null)
-      setLoading(false)
+      if (!loading) {
+        setLoading(false)
+      }
     })
 
     return () => subscription.unsubscribe()

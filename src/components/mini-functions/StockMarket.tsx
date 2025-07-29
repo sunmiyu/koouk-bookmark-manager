@@ -239,7 +239,7 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
         <p>{error}</p>
         <button 
           onClick={loadStockData}
-          className="text-blue-400 hover:text-blue-300 underline mt-1"
+          className="text-blue-400 hover:text-blue-300 underline mt-1 cursor-pointer"
         >
           Retry
         </button>
@@ -274,7 +274,7 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
         {allStocks.length > 5 && (
           <button
             onClick={() => setIsExpanded(true)}
-            className="w-full text-center text-blue-400 hover:text-blue-300 text-sm py-2 border border-gray-700 rounded-lg hover:border-blue-500 transition-colors"
+            className="w-full text-center text-blue-400 hover:text-blue-300 text-sm py-2 border border-gray-700 rounded-lg hover:border-blue-500 transition-colors cursor-pointer"
           >
             📊 View All Stocks ({allStocks.length})
           </button>
@@ -290,7 +290,7 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
               <h3 className="font-semibold text-white">Stock Watchlist</h3>
               <button
                 onClick={() => setIsExpanded(false)}
-                className="text-gray-400 hover:text-white"
+                className="text-gray-400 hover:text-white cursor-pointer"
               >
                 ✕
               </button>
@@ -317,7 +317,7 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
                       {!isPreviewOnly && allStocks.length > 1 && (
                         <button
                           onClick={() => removeStock(stock.symbol)}
-                          className="text-red-400 hover:text-red-300 text-sm px-2"
+                          className="text-red-400 hover:text-red-300 text-sm px-2 cursor-pointer"
                         >
                           ✕
                         </button>

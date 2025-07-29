@@ -164,9 +164,9 @@ export default function TermsOfService() {
 
           <div className="mt-12 pt-8 border-t border-gray-800">
             <div className="flex gap-4 text-sm">
-              <a href="/privacy" className="text-blue-400 hover:text-blue-300">Privacy Policy</a>
-              <a href="/cookies" className="text-blue-400 hover:text-blue-300">Cookie Policy</a>
-              <Link href="/" className="text-blue-400 hover:text-blue-300">Back to Koouk</Link>
+              <a href="/privacy" className="text-blue-400 hover:text-blue-300 cursor-pointer">Privacy Policy</a>
+              <a href="/cookies" className="text-blue-400 hover:text-blue-300 cursor-pointer">Cookie Policy</a>
+              <Link href="/" className="text-blue-400 hover:text-blue-300 cursor-pointer">Back to Koouk</Link>
             </div>
           </div>
         </div>

@@ -7,9 +7,10 @@ import { supabase } from '@/lib/supabase'
 
 interface CommuteTimeProps {
   isPreviewOnly?: boolean
+  onTrafficStatusChange?: (status: { color: string; text: string }) => void
 }
 
-export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps) {
+export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChange }: CommuteTimeProps) {
   const [commuteData, setCommuteData] = useState<CommuteData>({
     routes: [],
     lastUpdated: ''
@@ -255,6 +256,14 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
     }
   }, [isPreviewOnly, loadCommuteData])
 
+  // Notify parent component about traffic status changes
+  useEffect(() => {
+    if (onTrafficStatusChange) {
+      const status = getTrafficStatus()
+      onTrafficStatusChange(status)
+    }
+  }, [commuteData, onTrafficStatusChange])
+
   const formatDuration = (minutes: number) => {
     if (minutes < 60) {
       return `${minutes}분`
@@ -286,7 +295,7 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
         <p>{error}</p>
         <button 
           onClick={loadCommuteData}
-          className="text-blue-400 hover:text-blue-300 underline mt-1"
+          className="text-blue-400 hover:text-blue-300 underline mt-1 cursor-pointer"
         >
           재시도
         </button>
@@ -325,7 +334,7 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
             <button
               onClick={addRoute}
               disabled={isAddingRoute}
-              className="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white text-sm rounded"
+              className="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white text-sm rounded cursor-pointer"
             >
               {isAddingRoute ? '추가중...' : '경로 추가'}
             </button>
@@ -335,13 +344,23 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
     )
   }
 
+  // Get traffic status for summary display
+  const getTrafficStatus = () => {
+    if (commuteData.routes.length === 0) return { color: 'green', text: '교통 원활' }
+    
+    const avgDelay = commuteData.routes.reduce((sum, route) => {
+      const delay = route.trafficDuration - route.duration
+      return sum + Math.max(delay, 0)
+    }, 0) / commuteData.routes.length
+
+    if (avgDelay > 15) return { color: 'red', text: '교통 혼잡' }
+    if (avgDelay > 5) return { color: 'yellow', text: '교통 지체' }
+    return { color: 'green', text: '교통 원활' }
+  }
+
   if (isPreviewOnly) {
-    // Preview mode: show only simple traffic status
-    return (
-      <div className="text-center text-gray-400">
-        <div className="text-sm">교통 원활</div>
-      </div>
-    )
+    // Preview mode: return empty for body, traffic status will be in header
+    return null
   }
 
   return (
@@ -352,7 +371,7 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
             <div className="font-medium text-white text-sm truncate pr-2 flex-1">{route.name}</div>
             <button
               onClick={() => removeRoute(route.id)}
-              className="text-red-400 hover:text-red-300 text-sm flex-shrink-0"
+              className="text-red-400 hover:text-red-300 text-sm flex-shrink-0 cursor-pointer"
             >
               ✕
             </button>
@@ -414,7 +433,7 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
             <button
               onClick={addRoute}
               disabled={isAddingRoute}
-              className="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white text-sm rounded"
+              className="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white text-sm rounded cursor-pointer"
             >
               {isAddingRoute ? '추가중...' : '추가'}
             </button>

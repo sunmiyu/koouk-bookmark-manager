@@ -22,6 +22,7 @@ export default function MiniFunctionsArea() {
   const { t } = useLanguage()
   const router = useRouter()
   const [isKorea, setIsKorea] = useState<boolean | null>(null)
+  const [trafficStatus, setTrafficStatus] = useState({ color: 'green', text: '교통 원활' })
 
   // 지역 감지
   useEffect(() => {
@@ -53,6 +54,16 @@ export default function MiniFunctionsArea() {
 
     checkLocation()
   }, [])
+
+  // 신호등 색상 가져오기
+  const getTrafficLight = (color: string) => {
+    switch (color) {
+      case 'red': return '🔴'
+      case 'yellow': return '🟡'
+      case 'green': return '🟢'
+      default: return '🟢'
+    }
+  }
 
   const renderMiniFunction = (functionData: MiniFunctionData, isPreviewOnly = false) => {
     switch (functionData.type) {
@@ -114,7 +125,7 @@ export default function MiniFunctionsArea() {
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
             title="일기"
-            expandedContent={isPreviewOnly ? undefined : <MiniDiary isPreviewOnly={false} />}
+            expandedContent={isPreviewOnly ? undefined : <MiniDiary showHistoryOnly={true} />}
           >
             <MiniDiary isPreviewOnly={true} />
           </MiniFunctionCard>
@@ -144,10 +155,15 @@ export default function MiniFunctionsArea() {
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
             title="출근"
-            summary="집→회사 35분 | 회사→집 42분"
-            expandedContent={isPreviewOnly ? undefined : <CommuteTime isPreviewOnly={false} />}
+            summary={
+              <div className="flex items-center gap-2">
+                <span>집→회사 35분 | 회사→집 42분</span>
+                <span>{getTrafficLight(trafficStatus.color)}</span>
+              </div>
+            }
+            expandedContent={isPreviewOnly ? undefined : <CommuteTime isPreviewOnly={false} onTrafficStatusChange={setTrafficStatus} />}
           >
-            <CommuteTime isPreviewOnly={true} />
+            <CommuteTime isPreviewOnly={true} onTrafficStatusChange={setTrafficStatus} />
           </MiniFunctionCard>
         )
       case 'food':
@@ -226,7 +242,7 @@ export default function MiniFunctionsArea() {
             {enabledFunctions.length}/{maxEnabled} {t('active')}
           </div>
           <button 
-            className="text-sm text-gray-400 hover:text-gray-300"
+            className="text-sm text-gray-400 hover:text-gray-300 cursor-pointer"
             onClick={() => router.push('/settings/mini-functions')}
             title="Mini Functions 관리"
           >
@@ -239,7 +255,7 @@ export default function MiniFunctionsArea() {
         <div className="text-center py-8 text-gray-500">
           <p className="mb-4">No Mini Functions enabled yet</p>
           <button 
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm cursor-pointer"
             onClick={() => router.push('/settings/mini-functions')}
           >
             Choose Your First Function

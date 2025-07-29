@@ -85,7 +85,7 @@ export default function AuthButton() {
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="w-16 py-1 bg-blue-600 text-white text-sm font-medium rounded-full hover:bg-blue-700 transition-all duration-200 h-[24px] flex items-center justify-center"
+          className="w-16 py-1 bg-blue-600 text-white text-sm font-medium rounded-full hover:bg-blue-700 transition-all duration-200 h-[24px] flex items-center justify-center cursor-pointer"
         >
           <span>{user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'User'}</span>
         </button>
@@ -99,21 +99,21 @@ export default function AuthButton() {
             <div className="py-1">
               <a
                 href="/settings/mini-functions"
-                className="block w-full text-left px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-gray-700 transition-colors"
+                className="block w-full text-left px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-gray-700 transition-colors cursor-pointer"
                 onClick={() => setIsDropdownOpen(false)}
               >
                 Mini Functions
               </a>
               <a
                 href="/account/delete"
-                className="block w-full text-left px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-gray-700 transition-colors"
+                className="block w-full text-left px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-gray-700 transition-colors cursor-pointer"
                 onClick={() => setIsDropdownOpen(false)}
               >
 {t('account_delete')}
               </a>
               <button
                 onClick={handleSignOut}
-                className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors"
+                className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors cursor-pointer"
               >
                 {t('logout')}
               </button>
@@ -128,7 +128,7 @@ export default function AuthButton() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="w-16 py-1 bg-gray-700 text-white text-sm font-medium rounded-full hover:bg-gray-600 transition-all duration-200 h-[24px] flex items-center justify-center"
+        className="w-16 py-1 bg-gray-700 text-white text-sm font-medium rounded-full hover:bg-gray-600 transition-all duration-200 h-[24px] flex items-center justify-center cursor-pointer"
       >
         <span>{t('login')}</span>
       </button>
@@ -137,7 +137,7 @@ export default function AuthButton() {
         <div className="absolute right-0 mt-3 w-52 bg-gray-800 rounded-lg shadow-lg border border-gray-700 z-10">
           <button
             onClick={handleSignIn}
-            className="w-full text-center px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 rounded-lg"
+            className="w-full text-center px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 rounded-lg cursor-pointer"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>

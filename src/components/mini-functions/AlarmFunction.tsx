@@ -183,7 +183,7 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
           <button
             onClick={addNewAlarm}
             disabled={loading}
-            className="text-blue-400 hover:text-blue-300 text-sm underline disabled:opacity-50"
+            className="text-blue-400 hover:text-blue-300 text-sm underline disabled:opacity-50 cursor-pointer"
           >
             + Add alarm
           </button>

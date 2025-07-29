@@ -7,9 +7,10 @@ import { supabase } from '@/lib/supabase'
 
 interface MiniDiaryProps {
   isPreviewOnly?: boolean
+  showHistoryOnly?: boolean
 }
 
-export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
+export default function MiniDiary({ isPreviewOnly = false, showHistoryOnly = false }: MiniDiaryProps) {
   const [diaryData, setDiaryData] = useState<DiaryData>({
     recentEntries: []
   })
@@ -252,20 +253,50 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
     return text.substring(0, maxLength) + '...'
   }
 
+  // Show only history if requested
+  if (showHistoryOnly) {
+    return (
+      <div className="space-y-2">
+        <div className="text-gray-400 text-sm">일기 기록</div>
+        {diaryData.recentEntries.length > 0 ? (
+          <div className="space-y-1 max-h-60 overflow-y-auto">
+            {diaryData.recentEntries.map((entry) => (
+              <div key={entry.id} className="space-y-1">
+                <div
+                  className="flex items-center gap-2 p-2 rounded hover:bg-gray-800 cursor-pointer"
+                  onClick={() => toggleExpanded(entry.id)}
+                >
+                  <span className="text-gray-400 text-sm w-12">
+                    {formatDate(entry.date)}
+                  </span>
+                  <span className="text-gray-300 text-sm flex-1">
+                    {expandedEntryId === entry.id ? entry.content : truncateText(entry.content, 50)}
+                  </span>
+                  <span className="text-gray-500 text-sm">
+                    {expandedEntryId === entry.id ? '⌃' : '⌄'}
+                  </span>
+                </div>
+                {expandedEntryId === entry.id && (
+                  <div className="p-3 bg-gray-800 rounded text-sm text-gray-300 leading-relaxed ml-2">
+                    {entry.content}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-4 text-gray-500 text-sm">
+            아직 일기가 없습니다
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-2">
       {/* Today's Entry */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-gray-400 text-sm">오늘의 기록</span>
-          <div className="flex items-center gap-2">
-            {!isPreviewOnly && (
-              <button className="text-xs text-blue-400 hover:text-blue-300 underline">
-                📖 History
-              </button>
-            )}
-          </div>
-        </div>
 
         {isEditing && !isPreviewOnly ? (
           <div className="space-y-2">
@@ -284,13 +315,13 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
               <button
                 onClick={saveDiaryEntry}
                 disabled={loading}
-                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded disabled:opacity-50"
+                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded disabled:opacity-50 cursor-pointer"
               >
                 저장
               </button>
               <button
                 onClick={cancelEditing}
-                className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded"
+                className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded cursor-pointer"
               >
                 취소
               </button>
@@ -331,38 +362,6 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
           </div>
         )}
       </div>
-
-      {/* Recent Entries Preview */}
-      {diaryData.recentEntries.length > 0 && (
-        <div className="space-y-1">
-          <div className="text-gray-400 text-sm">최근 기록</div>
-          <div className="space-y-1">
-            {diaryData.recentEntries.slice(0, 2).map((entry) => (
-              <div key={entry.id} className="space-y-1">
-                <div
-                  className="flex items-center gap-2 p-1 rounded hover:bg-gray-800 cursor-pointer"
-                  onClick={() => toggleExpanded(entry.id)}
-                >
-                  <span className="text-gray-400 text-sm w-8">
-                    {formatDate(entry.date)}
-                  </span>
-                  <span className="text-gray-300 text-sm flex-1 truncate">
-                    {expandedEntryId === entry.id ? entry.content : truncateText(entry.content)}
-                  </span>
-                  <span className="text-gray-500 text-sm">
-                    {expandedEntryId === entry.id ? '⌃' : '⌄'}
-                  </span>
-                </div>
-                {expandedEntryId === entry.id && (
-                  <div className="p-2 bg-gray-800 rounded text-sm text-gray-300 leading-relaxed">
-                    {entry.content}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
     </div>
   )

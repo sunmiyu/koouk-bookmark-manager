@@ -39,9 +39,7 @@ export default function ContentManager({ className = '' }: ContentManagerProps) 
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (user) {
-      loadContent(activeTab)
-    }
+    loadContent(activeTab)
   }, [activeTab, user]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const getDummyContent = (type: ContentType): ContentItem | null => {
@@ -100,41 +98,44 @@ export default function ContentManager({ className = '' }: ContentManagerProps) 
   }
 
   const loadContent = async (type: ContentType) => {
-    if (!user) return
-
     try {
       setLoading(true)
-      let data: unknown[] = []
+      let contentItems: ContentItem[] = []
 
-      switch (type) {
-        case 'links':
-          data = await linksService.getAll(user.id)
-          break
-        case 'videos':
-          data = await videosService.getAll(user.id)
-          break
-        case 'images':
-          data = await imagesService.getAll(user.id)
-          break
-        case 'notes':
-          data = await notesService.getAll(user.id)
-          break
+      if (user) {
+        // Load real data for logged-in users
+        let data: unknown[] = []
+
+        switch (type) {
+          case 'links':
+            data = await linksService.getAll(user.id)
+            break
+          case 'videos':
+            data = await videosService.getAll(user.id)
+            break
+          case 'images':
+            data = await imagesService.getAll(user.id)
+            break
+          case 'notes':
+            data = await notesService.getAll(user.id)
+            break
+        }
+
+        contentItems = data.map((item: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
+          id: item.id,
+          type,
+          title: item.title,
+          url: item.url,
+          content: item.content,
+          description: item.description,
+          thumbnail: item.thumbnail_url || item.thumbnail,
+          created_at: item.created_at
+        }))
       }
 
-      const contentItems: ContentItem[] = data.map((item: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
-        id: item.id,
-        type,
-        title: item.title,
-        url: item.url,
-        content: item.content,
-        description: item.description,
-        thumbnail: item.thumbnail_url || item.thumbnail,
-        created_at: item.created_at
-      }))
-
-      // Add dummy content if empty for logged-in users
+      // Add dummy content if empty (for both logged-in and non-logged-in users)
       let finalItems = contentItems
-      if (contentItems.length === 0 && user) {
+      if (contentItems.length === 0) {
         const dummyItem = getDummyContent(type)
         if (dummyItem) {
           finalItems = [dummyItem]
@@ -144,7 +145,13 @@ export default function ContentManager({ className = '' }: ContentManagerProps) 
       setItems(finalItems)
     } catch (error) {
       console.error(`Failed to load ${type}:`, error)
-      setItems([])
+      // Fallback to dummy content on error
+      const dummyItem = getDummyContent(type)
+      if (dummyItem) {
+        setItems([dummyItem])
+      } else {
+        setItems([])
+      }
     } finally {
       setLoading(false)
     }
@@ -271,14 +278,16 @@ export default function ContentManager({ className = '' }: ContentManagerProps) 
               {formatDate(item.created_at)}
             </div>
           </div>
-          <button
-            onClick={() => deleteItem(item.id)}
-            className="text-gray-400 hover:text-red-400 p-1 transition-colors flex-shrink-0"
-          >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
-          </button>
+          {user && (
+            <button
+              onClick={() => deleteItem(item.id)}
+              className="text-gray-400 hover:text-red-400 p-1 transition-colors flex-shrink-0"
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
     )
@@ -334,7 +343,7 @@ export default function ContentManager({ className = '' }: ContentManagerProps) 
                 ((activeTab === 'links' || activeTab === 'videos' || activeTab === 'images') && !newItem.url.trim()) ||
                 (activeTab === 'notes' && !newItem.content.trim())
               }
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               Add {activeTab.slice(0, -1)}
             </button>
@@ -343,7 +352,7 @@ export default function ContentManager({ className = '' }: ContentManagerProps) 
                 setIsAdding(false)
                 setNewItem({ title: '', url: '', content: '', description: '' })
               }}
-              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded"
+              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded cursor-pointer"
             >
               Cancel
             </button>
@@ -353,26 +362,16 @@ export default function ContentManager({ className = '' }: ContentManagerProps) 
     )
   }
 
-  if (!user) {
-    return (
-      <div className={`${className}`}>
-        <div className="text-center py-8">
-          <div className="text-gray-400 mb-2">Content Management</div>
-          <div className="text-gray-500 text-sm">Please log in to manage your content</div>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className={`${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="section-title">Content Manager</h2>
-        {!isAdding && (
+        {!isAdding && user && (
           <button
             onClick={() => setIsAdding(true)}
-            className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
+            className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm cursor-pointer"
           >
             + Add Content
           </button>
@@ -385,7 +384,7 @@ export default function ContentManager({ className = '' }: ContentManagerProps) 
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 rounded text-sm font-medium transition-colors whitespace-nowrap ${
+            className={`px-4 py-2 rounded text-sm font-medium transition-colors whitespace-nowrap cursor-pointer ${
               activeTab === tab
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
@@ -397,7 +396,7 @@ export default function ContentManager({ className = '' }: ContentManagerProps) 
       </div>
 
       {/* Add Form */}
-      {isAdding && renderAddForm()}
+      {isAdding && user && renderAddForm()}
 
       {/* Content */}
       {loading ? (

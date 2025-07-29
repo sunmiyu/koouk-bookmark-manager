@@ -272,7 +272,7 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
         <div className="text-center pt-2">
           <button
             onClick={() => setIsAddingEvent(true)}
-            className="text-blue-400 hover:text-blue-300 text-sm underline"
+            className="text-blue-400 hover:text-blue-300 text-sm underline cursor-pointer"
           >
             + 새 D-day 추가
           </button>
@@ -317,7 +317,7 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
             <button
               onClick={addNewEvent}
               disabled={loading || !newEvent.name.trim() || !newEvent.targetDate}
-              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded disabled:opacity-50"
+              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded disabled:opacity-50 cursor-pointer"
             >
               추가
             </button>
@@ -326,7 +326,7 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
                 setIsAddingEvent(false)
                 setNewEvent({ name: '', targetDate: '', category: '', isImportant: false })
               }}
-              className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded"
+              className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded cursor-pointer"
             >
               취소
             </button>

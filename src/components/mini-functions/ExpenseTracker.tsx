@@ -312,19 +312,27 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
           <div className="flex gap-2">
             <button 
               onClick={() => {
-                setShowHistory(!showHistory)
-                if (!showHistory) loadHistoryData()
+                if (!showHistory) {
+                  setShowHistory(true)
+                  loadHistoryData()
+                } else {
+                  setShowHistory(false)
+                }
               }}
-              className="text-xs text-blue-400 hover:text-blue-300 underline"
+              className="text-xs text-blue-400 hover:text-blue-300 underline cursor-pointer"
             >
               📊 History
             </button>
             <button 
               onClick={() => {
-                setShowMonthlyTotal(!showMonthlyTotal)
-                if (!showMonthlyTotal) loadMonthlyData()
+                if (!showMonthlyTotal) {
+                  setShowMonthlyTotal(true)
+                  loadMonthlyData()
+                } else {
+                  setShowMonthlyTotal(false)
+                }
               }}
-              className="text-xs text-green-400 hover:text-green-300 underline"
+              className="text-xs text-green-400 hover:text-green-300 underline cursor-pointer"
             >
               📈 월별 총계
             </button>
@@ -359,7 +367,7 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
                   <button
                     onClick={() => removeExpense(item.id)}
                     disabled={loading}
-                    className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 text-sm w-4 disabled:opacity-50"
+                    className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 text-sm w-4 disabled:opacity-50 cursor-pointer"
                   >
                     ×
                   </button>
@@ -384,7 +392,7 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
             />
             <button
               onClick={addExpense}
-              className="px-2 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded"
+              className="px-2 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded cursor-pointer"
             >
               +
             </button>
@@ -410,7 +418,7 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
             <span className="text-gray-400 text-sm">최근 10일 기록</span>
             <button 
               onClick={() => setShowHistory(false)}
-              className="text-gray-500 hover:text-gray-300 text-sm"
+              className="text-gray-500 hover:text-gray-300 text-sm cursor-pointer"
             >
               ✕
             </button>
@@ -448,7 +456,7 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
             <span className="text-gray-400 text-sm">월별 지출 총계</span>
             <button 
               onClick={() => setShowMonthlyTotal(false)}
-              className="text-gray-500 hover:text-gray-300 text-sm"
+              className="text-gray-500 hover:text-gray-300 text-sm cursor-pointer"
             >
               ✕
             </button>

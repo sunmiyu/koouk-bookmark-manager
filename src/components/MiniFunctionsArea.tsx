@@ -63,8 +63,8 @@ export default function MiniFunctionsArea() {
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
             title="뉴스 헤드라인"
-            firstLine="한국 경제 성장률 전망 발표"
-            secondLine="정부 새로운 정책 발표 예정"
+            firstLine="삼성전자, 3분기 영업이익 9조원 기록 • 한국경제 • 2시간 전"
+            secondLine="AI 혁신으로 인한 미래 일자리 변화 전망 • 중앙일보 • 4시간 전"
             expandedContent={<NewsHeadlines isPreviewOnly={isPreviewOnly} />}
           />
         )

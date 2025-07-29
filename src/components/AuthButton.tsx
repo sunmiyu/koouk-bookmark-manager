@@ -23,70 +23,22 @@ export default function AuthButton() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Get initial session and set up auth state listener
+  // Temporarily disable Supabase calls to debug
   useEffect(() => {
-    const getSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession()
-        console.log('AuthButton - Initial session check:', { session: !!session, error })
-        setUser(session?.user ?? null)
-      } catch (error) {
-        console.error('AuthButton - Session error:', error)
-        setUser(null)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    getSession()
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('AuthButton - Auth state change:', event, !!session)
-      setUser(session?.user ?? null)
-      if (loading) {
-        setLoading(false)
-      }
-    })
-
-    return () => subscription.unsubscribe()
+    // Mock data for testing
+    setUser(null)
+    setLoading(false)
   }, [])
 
   const handleSignIn = async () => {
-    try {
-      // Use current origin for redirect
-      const redirectUrl = `${window.location.origin}/auth/callback`
-      console.log('OAuth redirect URL:', redirectUrl)
-      
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: redirectUrl,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          }
-        }
-      })
-      
-      if (error) {
-        console.error('Error signing in:', error.message)
-      }
-    } catch (error) {
-      console.error('Error signing in:', error)
-    }
+    // Temporarily disabled for debugging
+    alert('로그인 기능이 일시적으로 비활성화되었습니다.')
     setIsDropdownOpen(false)
   }
 
   const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut()
-      if (error) {
-        console.error('Error signing out:', error.message)
-      }
-    } catch (error) {
-      console.error('Error signing out:', error)
-    }
+    // Temporarily disabled for debugging  
+    alert('로그아웃 기능이 일시적으로 비활성화되었습니다.')
     setIsDropdownOpen(false)
   }
   

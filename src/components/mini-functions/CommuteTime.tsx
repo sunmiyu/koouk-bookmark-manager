@@ -15,7 +15,7 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
     routes: [],
     lastUpdated: ''
   })
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false) // Disabled for debugging
   const [error, setError] = useState<string | null>(null)
   const [isAddingRoute, setIsAddingRoute] = useState(false)
   const [newRoute, setNewRoute] = useState({

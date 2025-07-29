@@ -54,21 +54,38 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Default to Seoul if no city provided
+    // Get location parameters
     const url = new URL(request.url)
-    const city = url.searchParams.get('city') || 'Seoul'
+    const city = url.searchParams.get('city')
+    const lat = url.searchParams.get('lat')
+    const lon = url.searchParams.get('lon')
+    
+    // Build API query
+    let weatherQuery = ''
+    let cacheKey = ''
+    
+    if (city) {
+      weatherQuery = `q=${encodeURIComponent(city)}`
+      cacheKey = `weather_${city}`
+    } else if (lat && lon) {
+      weatherQuery = `lat=${lat}&lon=${lon}`
+      cacheKey = `weather_${lat}_${lon}`
+    } else {
+      // Default to Seoul
+      weatherQuery = 'q=Seoul'
+      cacheKey = 'weather_Seoul'
+    }
     
     // 서버사이드 캐시 확인
-    const cacheKey = `weather_${city}`
     const cached = serverCache.get(cacheKey)
     if (cached && Date.now() - cached.timestamp < SERVER_CACHE_DURATION) {
-      console.log('Using server cache for', city)
+      console.log('Using server cache for', cacheKey)
       return NextResponse.json(cached.data)
     }
     
     // 5-day forecast API로 변경 (3시간 간격)
     const forecastResponse = await fetch(
-      `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric`,
+      `https://api.openweathermap.org/data/2.5/forecast?${weatherQuery}&appid=${apiKey}&units=metric`,
       {
         headers: {
           'User-Agent': 'Koouk/1.0'
@@ -128,7 +145,7 @@ export async function GET(request: NextRequest) {
     
     // 현재 온도도 필요하므로 현재 날씨도 가져오기
     const currentWeatherResponse = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric`,
+      `https://api.openweathermap.org/data/2.5/weather?${weatherQuery}&appid=${apiKey}&units=metric`,
       {
         headers: {
           'User-Agent': 'Koouk/1.0'

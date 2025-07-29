@@ -71,9 +71,70 @@ export default function WeatherOnly() {
     }
   }
 
-  // 내부 API 호출 (보안 강화)
+  // 사용자 위치 가져오기
+  const getUserLocation = (): Promise<{lat: number, lon: number, city?: string}> => {
+    return new Promise((resolve, reject) => {
+      // 캐시된 위치 확인 (1시간)
+      const cached = localStorage.getItem('user_geo_location')
+      if (cached) {
+        try {
+          const data = JSON.parse(cached)
+          if (Date.now() - data.timestamp < 60 * 60 * 1000) { // 1시간 캐시
+            resolve(data.location)
+            return
+          }
+        } catch (error) {
+          console.error('캐시된 위치 데이터 오류:', error)
+        }
+      }
+
+      if (!navigator.geolocation) {
+        // 브라우저가 지원하지 않으면 서울로 기본값
+        resolve({ lat: 37.5665, lon: 126.9780, city: 'Seoul' })
+        return
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const location = {
+            lat: position.coords.latitude,
+            lon: position.coords.longitude
+          }
+          
+          // 위치 캐시
+          localStorage.setItem('user_geo_location', JSON.stringify({
+            location,
+            timestamp: Date.now()
+          }))
+          
+          resolve(location)
+        },
+        (error) => {
+          console.warn('위치 정보 가져오기 실패:', error.message)
+          // GPS 실패시 서울로 기본값
+          resolve({ lat: 37.5665, lon: 126.9780, city: 'Seoul' })
+        },
+        {
+          timeout: 10000,
+          maximumAge: 3600000, // 1시간
+          enableHighAccuracy: false
+        }
+      )
+    })
+  }
+
+  // 내부 API 호출 (사용자 위치 기반)
   const fetchWeatherData = async (): Promise<WeatherData> => {
-    const response = await fetch('/api/weather?city=Seoul')
+    const userLocation = await getUserLocation()
+    
+    let apiUrl = '/api/weather'
+    if (userLocation.city) {
+      apiUrl += `?city=${encodeURIComponent(userLocation.city)}`
+    } else {
+      apiUrl += `?lat=${userLocation.lat}&lon=${userLocation.lon}`
+    }
+
+    const response = await fetch(apiUrl)
 
     if (!response.ok) {
       throw new Error(`날씨 데이터를 가져올 수 없습니다: ${response.status}`)
@@ -85,8 +146,8 @@ export default function WeatherOnly() {
       location: {
         city: data.location,
         country: 'KR',
-        lat: 37.5665,
-        lon: 126.9780
+        lat: userLocation.lat,
+        lon: userLocation.lon
       },
       weather: {
         current: data.temperature,
@@ -104,14 +165,17 @@ export default function WeatherOnly() {
   }
 
 
-  // 날씨 데이터 로드 (단순화 - 서울 고정)
+  // 날씨 데이터 로드 (사용자 위치 기반)
   const loadWeatherData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
       
-      // 서울 기준 캐시된 데이터 확인
-      const cachedData = getCachedWeatherData(37.5665, 126.9780)
+      // 사용자 위치 가져오기
+      const userLocation = await getUserLocation()
+      
+      // 사용자 위치 기준 캐시된 데이터 확인
+      const cachedData = getCachedWeatherData(userLocation.lat, userLocation.lon)
       if (cachedData) {
         setWeatherData(cachedData)
         setLoading(false)

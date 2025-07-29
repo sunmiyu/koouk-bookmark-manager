@@ -44,10 +44,18 @@ export default function AuthButton() {
 
   const handleSignIn = async () => {
     try {
+      // Use current origin for redirect
+      const redirectUrl = `${window.location.origin}/auth/callback`
+      console.log('OAuth redirect URL:', redirectUrl)
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `https://www.koouk.im/auth/callback`
+          redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
       })
       

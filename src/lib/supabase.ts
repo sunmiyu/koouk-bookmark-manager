@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -8,13 +8,39 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 const fallbackUrl = 'https://placeholder.supabase.co'
 const fallbackKey = 'placeholder-key'
 
-export const supabase = createClient(
-  supabaseUrl || fallbackUrl,
-  supabaseAnonKey || fallbackKey
-)
+// Singleton pattern to prevent multiple instances
+let supabaseInstance: SupabaseClient | null = null
+let supabaseAdminInstance: SupabaseClient | null = null
+
+export const supabase = (() => {
+  if (!supabaseInstance) {
+    supabaseInstance = createClient(
+      supabaseUrl || fallbackUrl,
+      supabaseAnonKey || fallbackKey,
+      {
+        auth: {
+          storageKey: 'koouk-auth-token',
+          storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+        }
+      }
+    )
+  }
+  return supabaseInstance
+})()
 
 // Server-side client with service role key (for admin operations)
-export const supabaseAdmin = createClient(
-  supabaseUrl || fallbackUrl,
-  serviceRoleKey || fallbackKey
-)
+export const supabaseAdmin = (() => {
+  if (!supabaseAdminInstance) {
+    supabaseAdminInstance = createClient(
+      supabaseUrl || fallbackUrl,
+      serviceRoleKey || fallbackKey,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
+  }
+  return supabaseAdminInstance
+})()

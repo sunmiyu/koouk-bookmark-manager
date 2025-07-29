@@ -1,8 +1,6 @@
-const CACHE_NAME = 'koouk-v1'
+const CACHE_NAME = 'koouk-v2'
 const urlsToCache = [
   '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
   '/manifest.json'
 ]
 
@@ -10,7 +8,18 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        return cache.addAll(urlsToCache)
+        // Only cache existing resources
+        return Promise.all(
+          urlsToCache.map(url => {
+            return fetch(url).then(response => {
+              if (response.ok) {
+                return cache.put(url, response)
+              }
+            }).catch(error => {
+              console.log('Failed to cache:', url, error)
+            })
+          })
+        )
       })
   )
 })

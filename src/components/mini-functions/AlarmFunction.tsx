@@ -12,7 +12,6 @@ interface AlarmFunctionProps {
 export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionProps) {
   const [alarms, setAlarms] = useState<AlarmData[]>([])
   const [nextAlarm, setNextAlarm] = useState<AlarmData | null>(null)
-  const [timeRemaining, setTimeRemaining] = useState<string>('')
   const [loading, setLoading] = useState(false)
 
   // Load alarms from Supabase
@@ -35,7 +34,6 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
       ]
       setAlarms(sampleAlarms)
       setNextAlarm(sampleAlarms[0])
-      setTimeRemaining('5시간 23분 후')
       return
     }
 
@@ -82,20 +80,6 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
     }
   }, [])
 
-  // Update time remaining every minute
-  useEffect(() => {
-    if (!nextAlarm || isPreviewOnly) return
-
-    const updateTimeRemaining = () => {
-      const remaining = calculateTimeRemaining(nextAlarm.time)
-      setTimeRemaining(remaining)
-    }
-
-    updateTimeRemaining()
-    const interval = setInterval(updateTimeRemaining, 60000) // Update every minute
-
-    return () => clearInterval(interval)
-  }, [nextAlarm, isPreviewOnly])
 
   const findNextAlarm = (alarmList: AlarmData[]) => {
     const enabledAlarms = alarmList.filter(alarm => alarm.enabled)
@@ -140,28 +124,6 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
     setNextAlarm(closestAlarm)
   }
 
-  const calculateTimeRemaining = (alarmTime: string): string => {
-    const [hours, minutes] = alarmTime.split(':').map(Number)
-    const now = new Date()
-    
-    const alarmDateTime = new Date()
-    alarmDateTime.setHours(hours, minutes, 0, 0)
-    
-    // If alarm time has passed today, set it for tomorrow
-    if (alarmDateTime <= now) {
-      alarmDateTime.setDate(alarmDateTime.getDate() + 1)
-    }
-    
-    const diff = alarmDateTime.getTime() - now.getTime()
-    const hoursRemaining = Math.floor(diff / (1000 * 60 * 60))
-    const minutesRemaining = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-    
-    if (hoursRemaining > 0) {
-      return `${hoursRemaining}시간 ${minutesRemaining}분 후`
-    } else {
-      return `${minutesRemaining}분 후`
-    }
-  }
 
   const addNewAlarm = async () => {
     if (isPreviewOnly || loading || alarms.length >= 2) return
@@ -210,37 +172,6 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
     }
   }
 
-  const toggleAlarm = async (alarmId: string) => {
-    if (isPreviewOnly || loading) return
-
-    try {
-      setLoading(true)
-      const { data: { user } } = await supabase.auth.getUser()
-      const alarm = alarms.find(a => a.id === alarmId)
-      
-      if (!alarm) return
-
-      if (user) {
-        // Update in Supabase
-        await alarmsService.update(alarmId, {
-          enabled: !alarm.enabled
-        })
-      }
-
-      const updatedAlarms = alarms.map(alarm =>
-        alarm.id === alarmId ? { ...alarm, enabled: !alarm.enabled } : alarm
-      )
-      setAlarms(updatedAlarms)
-      
-      // Update localStorage as backup
-      localStorage.setItem('koouk_alarms', JSON.stringify(updatedAlarms))
-      findNextAlarm(updatedAlarms)
-    } catch (error) {
-      console.error('Failed to toggle alarm:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   if (!nextAlarm) {
     return (

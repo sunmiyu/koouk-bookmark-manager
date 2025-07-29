@@ -193,7 +193,7 @@ export default function MiniFunctionsArea() {
             title={
               <div>
                 <span className="font-bold">D-day</span>
-                <span className="font-normal ml-2 text-gray-300">신년 ('26.1/1) D-156</span>
+                <span className="font-normal ml-2 text-gray-300">신년 (&apos;26.1/1) D-156</span>
               </div>
             }
             expandedContent={isPreviewOnly ? undefined : <DDayCounter isPreviewOnly={false} />}
@@ -273,7 +273,7 @@ export default function MiniFunctionsArea() {
         <>
           {/* Mobile: 세로 스택 */}
           <div className="block sm:hidden space-y-4">
-            {enabledFunctions.map((func, index) => (
+            {enabledFunctions.map((func) => (
               <div key={func.id}>
                 {renderMiniFunction(func, false)}
               </div>

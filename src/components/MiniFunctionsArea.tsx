@@ -62,18 +62,9 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            firstLine={
-              <>
-                <span className="truncate">한국 경제 성장률 전망 발표</span>
-                <span className="text-xs">한국경제 7월 29일</span>
-              </>
-            }
-            secondLine={
-              <>
-                <span className="truncate">정부 새로운 정책 발표 예정</span>
-                <span className="text-xs">중앙일보 7월 29일</span>
-              </>
-            }
+            title="뉴스 헤드라인"
+            firstLine="한국 경제 성장률 전망 발표"
+            secondLine="정부 새로운 정책 발표 예정"
             expandedContent={<NewsHeadlines isPreviewOnly={isPreviewOnly} />}
           />
         )
@@ -83,18 +74,9 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            firstLine={
-              <>
-                <span className="truncate">아침에 일어나면 듣는 Jazz</span>
-                <span className="text-xs">Youtube</span>
-              </>
-            }
-            secondLine={
-              <>
-                <span className="truncate">신나는 아침에 듣는 Kpop</span>
-                <span className="text-xs">Youtube</span>
-              </>
-            }
+            title="음악 추천"
+            firstLine="아침에 일어나면 듣는 Jazz"
+            secondLine="신나는 아침에 듣는 Kpop"
             expandedContent={<MusicRecommendations isPreviewOnly={isPreviewOnly} />}
           />
         )
@@ -104,18 +86,9 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            firstLine={
-              <>
-                <span>내일 07:00</span>
-                <span className="text-xs">5시간 12분 남음</span>
-              </>
-            }
-            secondLine={
-              <>
-                <span>매일 19:00</span>
-                <span className="text-xs">-</span>
-              </>
-            }
+            title="알람"
+            firstLine="내일 07:00 • 5시간 12분 남음"
+            secondLine="매일 19:00"
             expandedContent={<AlarmFunction isPreviewOnly={isPreviewOnly} />}
           />
         )
@@ -125,18 +98,9 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            firstLine={
-              <>
-                <span>총 지출</span>
-                <span className="text-xs">25,000원</span>
-              </>
-            }
-            secondLine={
-              <>
-                <span>총 수입</span>
-                <span className="text-xs">2,000,000원</span>
-              </>
-            }
+            title="가계부"
+            firstLine="총 지출 25,000원"
+            secondLine="총 수입 2,000,000원"
             expandedContent={<ExpenseTracker isPreviewOnly={isPreviewOnly} />}
           />
         )
@@ -146,12 +110,9 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            firstLine={
-              <span className="truncate">오늘은 정말 좋은 하루였다. 새로운 프로젝트를 시작하게 되어서...</span>
-            }
-            secondLine={
-              <span className="truncate">기분이 좋고 앞으로 어떤 일들이 펼쳐질지 기대된다.</span>
-            }
+            title="일기"
+            firstLine="오늘은 정말 좋은 하루였다..."
+            secondLine="기분이 좋고 앞으로 어떤 일들이..."
             expandedContent={<MiniDiary isPreviewOnly={isPreviewOnly} />}
           />
         )
@@ -161,18 +122,9 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            firstLine={
-              <>
-                <span>삼성전자</span>
-                <span className="text-xs">72,500 (+1.2%) 7월 29일</span>
-              </>
-            }
-            secondLine={
-              <>
-                <span>SK하이닉스</span>
-                <span className="text-xs">128,000 (-0.8%) 7월 29일</span>
-              </>
-            }
+            title="주식"
+            firstLine="삼성전자 72,500 (+1.2%)"
+            secondLine="SK하이닉스 128,000 (-0.8%)"
             expandedContent={<StockMarket isPreviewOnly={isPreviewOnly} />}
           />
         )
@@ -182,15 +134,9 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            firstLine={
-              <>
-                <span>집 → 회사</span>
-                <span className="text-xs">45분 예상, 도로 원활</span>
-              </>
-            }
-            secondLine={
-              <span></span>
-            }
+            title="출근"
+            firstLine="집 → 회사"
+            secondLine="45분 예상, 도로 원활"
             expandedContent={<CommuteTime isPreviewOnly={isPreviewOnly} />}
           />
         )
@@ -200,18 +146,9 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            firstLine={
-              <>
-                <span className="truncate">맛나감자탕 (한식, 150m)</span>
-                <span className="text-xs">4.3 (2847) 열림</span>
-              </>
-            }
-            secondLine={
-              <>
-                <span className="truncate">스타벅스 강남점 (카페, 230m)</span>
-                <span className="text-xs">4.1 (1523) 열림</span>
-              </>
-            }
+            title="맛집"
+            firstLine="맛나감자탕 • 한식 • 150m"
+            secondLine="스타벅스 강남점 • 카페 • 230m"
             expandedContent={<NearbyRestaurants isPreviewOnly={isPreviewOnly} />}
           />
         )
@@ -223,18 +160,9 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={ddayFunctionData} 
             isPreviewOnly={isPreviewOnly}
-            firstLine={
-              <>
-                <span>연말 휴가까지</span>
-                <span className="text-xs">D-45 12/30</span>
-              </>
-            }
-            secondLine={
-              <>
-                <span>아들 생일</span>
-                <span className="text-xs">D-256 4/12</span>
-              </>
-            }
+            title="D-Day"
+            firstLine="연말 휴가까지 D-45"
+            secondLine="아들 생일 D-256"
             expandedContent={<DDayCounter isPreviewOnly={isPreviewOnly} />}
           />
         )

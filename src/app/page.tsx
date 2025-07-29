@@ -2,6 +2,7 @@
 
 import WeatherOnly from '@/components/WeatherOnly'
 import TimeDisplay from '@/components/TimeDisplay'
+import FeedbackBoard from '@/components/FeedbackBoard'
 import InfoInputSection from '@/components/InfoInputSection'
 import TodoSection from '@/components/TodoSection'
 import VideoSection from '@/components/VideoSection'
@@ -165,7 +166,7 @@ function HomeContent() {
         <footer className="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-gray-800">
           <div className="text-center text-xs text-gray-500">
             <div>
-              Koouk 2025 All rights reserved · 피드백 보내기: <a href="mailto:support@koouk.im" className="text-green-400 hover:text-green-300">support@koouk.im</a>
+              Koouk 2025 All rights reserved · <FeedbackBoard />
               <span className="hidden sm:inline"> · Your everyday moments dashboard</span>
             </div>
             <div className="sm:hidden mt-1">

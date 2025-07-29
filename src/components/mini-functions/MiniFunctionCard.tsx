@@ -5,6 +5,7 @@ import { MiniFunctionData } from '@/types/miniFunctions'
 
 interface MiniFunctionCardProps {
   functionData: MiniFunctionData
+  title: React.ReactNode
   firstLine: React.ReactNode
   secondLine: React.ReactNode
   expandedContent?: React.ReactNode
@@ -13,6 +14,7 @@ interface MiniFunctionCardProps {
 
 export default function MiniFunctionCard({ 
   functionData, 
+  title,
   firstLine,
   secondLine,
   expandedContent,
@@ -51,12 +53,13 @@ export default function MiniFunctionCard({
         {/* Content Container */}
         <div className="flex items-start responsive-gap-sm">
           {/* Icon */}
-          <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 flex items-center justify-center">
+          <div className="w-6 h-6 bg-gray-700 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5">
             <span className="text-sm">{functionData.icon}</span>
           </div>
           {/* Text Content */}
           <div className="flex-1 min-w-0">
-            <h4 className="font-medium text-white responsive-text-sm line-clamp-2">{firstLine}</h4>
+            <h4 className="font-medium text-white responsive-text-sm truncate">{title}</h4>
+            <p className="text-xs text-gray-400 mt-1">{firstLine}</p>
             <p className="text-xs text-gray-400 mt-1">{secondLine}</p>
           </div>
         </div>

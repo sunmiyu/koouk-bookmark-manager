@@ -24,6 +24,7 @@ export default function ImageSection() {
         </div>
       </div>
       <div className="space-y-3 max-h-[800px] overflow-y-auto">
+        {/* Render actual images */}
         {images.map((image) => (
           <div 
             key={image.id} 
@@ -56,7 +57,7 @@ export default function ImageSection() {
                   onError={(e) => {
                     e.currentTarget.parentElement!.innerHTML = `
                       <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z" />
                       </svg>
                     `
                   }}
@@ -67,6 +68,65 @@ export default function ImageSection() {
                   {image.title || 'Untitled Image'}
                 </h4>
                 <p className="text-xs text-gray-400 mt-1">Image • Design</p>
+              </div>
+            </div>
+          </div>
+        ))}
+        
+        {/* Add sample data if empty */}
+        {images.length === 0 && (
+          <div 
+            className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
+            onClick={() => {
+              trackEvents.openModal('image')
+              setSelectedImage({ url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop', title: '아름다운 풍경 예시' })
+            }}
+          >
+            {/* Delete button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                alert('이것은 샘플 데이터입니다. 로그인 후 실제 이미지를 추가해보세요!')
+              }}
+              className="absolute top-2 right-2 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs z-10"
+              title="Delete image"
+            >
+              ✕
+            </button>
+            <div className="flex items-start responsive-gap-sm">
+              <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img 
+                  src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop"
+                  alt="아름다운 풍경 예시"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-medium text-white responsive-text-sm line-clamp-2">아름다운 풍경 예시</h4>
+                <p className="text-xs text-gray-400 mt-1">Image • Design</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Show empty slots to fill 10 total */}
+        {Array.from({ length: Math.max(0, 10 - Math.max(images.length, 1)) }, (_, index) => (
+          <div 
+            key={`empty-${index}`}
+            className="bg-gray-900 border-2 border-dashed border-gray-700 rounded-lg responsive-p-sm opacity-50"
+          >
+            <div className="flex items-start responsive-gap-sm">
+              <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden">
+                <div className="w-full h-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-medium text-gray-600 responsive-text-sm">이미지 추가하기</h4>
+                <p className="text-xs text-gray-600 mt-1">새로운 이미지를 저장해보세요</p>
               </div>
             </div>
           </div>

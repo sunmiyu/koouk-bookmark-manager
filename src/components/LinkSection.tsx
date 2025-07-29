@@ -19,6 +19,7 @@ export default function LinkSection() {
         </div>
       </div>
       <div className="space-y-3 max-h-[800px] overflow-y-auto">
+        {/* Render actual links */}
         {links.map((link) => (
           <div 
             key={link.id} 
@@ -59,16 +60,64 @@ export default function LinkSection() {
             </div>
           </div>
         ))}
+        
+        {/* Add sample data if empty */}
+        {links.length === 0 && (
+          <div 
+            className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
+            onClick={() => {
+              trackEvents.clickExternalLink('https://example.com')
+              window.open('https://example.com', '_blank')
+            }}
+          >
+            {/* Delete button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                // Sample data can't be deleted, just show alert
+                alert('이것은 샘플 데이터입니다. 로그인 후 실제 링크를 추가해보세요!')
+              }}
+              className="absolute top-2 right-2 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs z-10"
+              title="Delete link"
+            >
+              ✕
+            </button>
+            <div className="flex items-start responsive-gap-sm">
+              <div className="w-6 h-6 bg-blue-500 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.102m0 0l.708-.708M9.708 14.292l4-4m0 0l2.586-2.586M13.414 7.414l.708-.708" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-medium text-white responsive-text-sm truncate">유용한 웹사이트 예시</h4>
+                <p className="text-xs text-gray-400 mt-1">로그인 후 실제 링크를 추가해보세요</p>
+                <p className="text-xs text-blue-400 mt-1 truncate">https://example.com</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Show empty slots to fill 10 total */}
+        {Array.from({ length: Math.max(0, 10 - Math.max(links.length, 1)) }, (_, index) => (
+          <div 
+            key={`empty-${index}`}
+            className="bg-gray-900 border-2 border-dashed border-gray-700 rounded-lg responsive-p-sm opacity-50"
+          >
+            <div className="flex items-start responsive-gap-sm">
+              <div className="w-6 h-6 bg-gray-700 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-medium text-gray-600 responsive-text-sm">링크 추가하기</h4>
+                <p className="text-xs text-gray-600 mt-1">새로운 링크를 저장해보세요</p>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
       
-      {links.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          <svg className="w-12 h-12 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.102m0 0l.708-.708M9.708 14.292l4-4m0 0l2.586-2.586M13.414 7.414l.708-.708" />
-          </svg>
-          <p>No links yet</p>
-        </div>
-      )}
       
       {isAtLimit && (
         <div className="mt-4 p-3 bg-yellow-900/30 border border-yellow-600/50 rounded-lg">

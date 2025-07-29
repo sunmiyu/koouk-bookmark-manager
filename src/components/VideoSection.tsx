@@ -30,6 +30,7 @@ export default function VideoSection() {
         </div>
       </div>
       <div className="space-y-3 max-h-[800px] overflow-y-auto">
+        {/* Render actual videos */}
         {videos.map((video) => {
           const thumbnailUrl = video.url ? getYouTubeThumbnail(video.url) : ''
           return (
@@ -89,16 +90,71 @@ export default function VideoSection() {
             </div>
           )
         })}
+        
+        {/* Add sample data if empty */}
+        {videos.length === 0 && (
+          <div 
+            className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
+            onClick={() => {
+              trackEvents.clickExternalLink('https://youtube.com/watch?v=dQw4w9WgXcQ')
+              window.open('https://youtube.com/watch?v=dQw4w9WgXcQ', '_blank')
+            }}
+          >
+            {/* Delete button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                alert('이것은 샘플 데이터입니다. 로그인 후 실제 비디오를 추가해보세요!')
+              }}
+              className="absolute top-2 right-2 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs z-10"
+              title="Delete video"
+            >
+              ✕
+            </button>
+            <div className="flex items-start responsive-gap-sm">
+              <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden relative">
+                <img 
+                  src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg"
+                  alt="Sample Video"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white bg-red-600 rounded-full p-0.5 sm:p-1 bg-opacity-80" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-medium text-white responsive-text-sm line-clamp-2">추천 영상 예시</h4>
+                <p className="text-xs text-gray-400 mt-1">Video • YouTube</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Show empty slots to fill 10 total */}
+        {Array.from({ length: Math.max(0, 10 - Math.max(videos.length, 1)) }, (_, index) => (
+          <div 
+            key={`empty-${index}`}
+            className="bg-gray-900 border-2 border-dashed border-gray-700 rounded-lg responsive-p-sm opacity-50"
+          >
+            <div className="flex items-start responsive-gap-sm">
+              <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden">
+                <div className="w-full h-full flex items-center justify-center">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-medium text-gray-600 responsive-text-sm">비디오 추가하기</h4>
+                <p className="text-xs text-gray-600 mt-1">새로운 영상을 저장해보세요</p>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
       
-      {videos.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          <svg className="w-12 h-12 mx-auto mb-3" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-          </svg>
-          <p>No videos yet</p>
-        </div>
-      )}
       
       {isAtLimit && (
         <div className="mt-4 p-3 bg-yellow-900/30 border border-yellow-600/50 rounded-lg">

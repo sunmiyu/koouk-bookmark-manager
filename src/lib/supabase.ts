@@ -8,36 +8,33 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 const fallbackUrl = 'https://placeholder.supabase.co'
 const fallbackKey = 'placeholder-key'
 
-// Enhanced singleton pattern with proper cleanup
-const SUPABASE_STORAGE_KEY = 'koouk-auth-token'
+// Create single instance to avoid multiple client warnings
+let supabaseInstance: SupabaseClient | null = null
+let supabaseAdminInstance: SupabaseClient | null = null
 
-// Global storage for instances
-let _supabaseInstance: SupabaseClient | null = null
-let _supabaseAdminInstance: SupabaseClient | null = null
-
-function getSupabaseClient(): SupabaseClient {
-  if (!_supabaseInstance) {
-    console.log('Creating new Supabase client instance')
-    _supabaseInstance = createClient(
+export const supabase = (() => {
+  if (!supabaseInstance) {
+    supabaseInstance = createClient(
       supabaseUrl || fallbackUrl,
       supabaseAnonKey || fallbackKey,
       {
         auth: {
-          storageKey: SUPABASE_STORAGE_KEY,
+          storageKey: 'koouk-auth-token',
           storage: typeof window !== 'undefined' ? window.localStorage : undefined,
           autoRefreshToken: true,
           persistSession: true,
-          detectSessionInUrl: true
+          detectSessionInUrl: true,
+          flowType: 'pkce'
         }
       }
     )
   }
-  return _supabaseInstance
-}
+  return supabaseInstance
+})()
 
-function getSupabaseAdminClient(): SupabaseClient {
-  if (!_supabaseAdminInstance) {
-    _supabaseAdminInstance = createClient(
+export const supabaseAdmin = (() => {
+  if (!supabaseAdminInstance) {
+    supabaseAdminInstance = createClient(
       supabaseUrl || fallbackUrl,
       serviceRoleKey || fallbackKey,
       {
@@ -48,8 +45,5 @@ function getSupabaseAdminClient(): SupabaseClient {
       }
     )
   }
-  return _supabaseAdminInstance
-}
-
-export const supabase = getSupabaseClient()
-export const supabaseAdmin = getSupabaseAdminClient()
+  return supabaseAdminInstance
+})()

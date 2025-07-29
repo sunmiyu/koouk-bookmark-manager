@@ -12,63 +12,73 @@ export default function AuthCallback() {
       try {
         console.log('Auth callback started')
         
-        // First, try to get session from URL params
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
-        console.log('Session data:', sessionData, 'Error:', sessionError)
-        
-        if (sessionData?.session) {
-          console.log('Session found immediately:', sessionData.session.user.email)
-          router.push('/')
-          return
-        }
-
-        // If no session, check for auth code in URL and exchange it
+        // Check for errors first
         const urlParams = new URLSearchParams(window.location.search)
-        const authCode = urlParams.get('code')
         const authError = urlParams.get('error')
+        const authCode = urlParams.get('code')
         
         console.log('URL params - code:', !!authCode, 'error:', authError)
 
         if (authError) {
           console.error('OAuth error from URL:', authError)
-          router.push('/?error=oauth_error')
+          let errorMessage = 'Authentication failed'
+          
+          switch (authError) {
+            case 'server_error':
+              errorMessage = 'Server error during authentication. Please check your OAuth configuration.'
+              break
+            case 'access_denied':
+              errorMessage = 'Access denied by user.'
+              break
+            case 'invalid_request':
+              errorMessage = 'Invalid OAuth request.'
+              break
+            default:
+              errorMessage = `Authentication error: ${authError}`
+          }
+          
+          alert(errorMessage)
+          router.push('/')
           return
         }
 
         if (authCode) {
           console.log('Auth code found, exchanging for session...')
-          // Wait a bit for the session to be processed
-          let retries = 0
-          const maxRetries = 5
           
-          const checkSession = async (): Promise<void> => {
-            const { data: retryData } = await supabase.auth.getSession()
-            
-            if (retryData?.session) {
-              console.log('Session established after retry:', retryData.session.user.email)
-              router.push('/')
-              return
-            }
-            
-            retries++
-            if (retries < maxRetries) {
-              console.log(`Retry ${retries}/${maxRetries} - waiting for session...`)
-              setTimeout(checkSession, 1000)
-            } else {
-              console.log('Max retries reached, redirecting to home')
-              router.push('/')
-            }
+          // Use exchangeCodeForSession for PKCE flow
+          const { data, error } = await supabase.auth.exchangeCodeForSession(authCode)
+          
+          if (error) {
+            console.error('Code exchange error:', error)
+            alert(`Authentication failed: ${error.message}`)
+            router.push('/')
+            return
           }
           
-          setTimeout(checkSession, 500)
-        } else {
-          console.log('No auth code found, redirecting home')
-          router.push('/')
+          if (data?.session) {
+            console.log('Session established:', data.session.user.email)
+            router.push('/')
+            return
+          }
         }
+
+        // If no code, try to get existing session
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+        console.log('Session data:', sessionData, 'Error:', sessionError)
+        
+        if (sessionData?.session) {
+          console.log('Existing session found:', sessionData.session.user.email)
+          router.push('/')
+          return
+        }
+
+        console.log('No session found, redirecting home')
+        router.push('/')
         
       } catch (error) {
         console.error('Auth callback error:', error)
-        router.push('/?error=callback_error')
+        alert(`Authentication error: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        router.push('/')
       }
     }
 

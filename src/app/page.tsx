@@ -5,7 +5,10 @@ import TimeDisplay from '@/components/TimeDisplay'
 import FeedbackBoard from '@/components/FeedbackBoard'
 import InfoInputSection from '@/components/InfoInputSection'
 import TodoSection from '@/components/TodoSection'
-import ContentManager from '@/components/ContentManager'
+import LinkSection from '@/components/LinkSection'
+import VideoSection from '@/components/VideoSection'
+import ImageSection from '@/components/ImageSection'
+import NotesSection from '@/components/NotesSection'
 import AuthButton from '@/components/AuthButton'
 import KooukLogo from '@/components/KooukLogo'
 import SearchBar from '@/components/SearchBar'
@@ -71,8 +74,13 @@ function HomeContent() {
           {/* Info input section */}
           <InfoInputSection />
           
-          {/* Content Manager - All content types in one unified interface */}
-          <ContentManager />
+          {/* Content Sections */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+            <LinkSection />
+            <VideoSection />
+            <ImageSection />
+            <NotesSection />
+          </div>
         </main>
 
         <footer className="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-gray-800">

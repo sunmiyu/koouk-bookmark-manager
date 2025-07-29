@@ -56,18 +56,27 @@ export default function MiniFunctionsSettings() {
   if (loading) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="animate-pulse text-gray-400">Loading...</div>
+        <div className="animate-pulse text-gray-400">Loading user session...</div>
       </div>
     )
   }
 
+  // Debug logging
+  console.log('Settings page - User state:', { 
+    user: user ? { id: user.id, email: user.email } : null, 
+    loading, 
+    currentPlan 
+  })
+
   // Redirect if not logged in
   if (!user) {
+    console.log('Settings page - User not found, showing access denied')
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
           <p className="text-gray-400 mb-6">You must be logged in to access this page.</p>
+          <p className="text-gray-500 text-sm mb-4">Debug: User state is null</p>
           <button 
             onClick={() => router.push('/')}
             className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"

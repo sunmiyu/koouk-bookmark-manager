@@ -68,7 +68,8 @@ export default function ContentManager({ className = '' }: ContentManagerProps) 
           id: 'dummy-image',
           type: 'images',
           title: '저장된 이미지',
-          url: 'https://via.placeholder.com/300x200',
+          url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop',
+          description: '아름다운 풍경 사진입니다',
           created_at: now
         }
       case 'notes':
@@ -252,15 +253,63 @@ export default function ContentManager({ className = '' }: ContentManagerProps) 
   const renderItem = (item: ContentItem) => {
     return (
       <div key={item.id} className="bg-gray-800 rounded-lg p-4 border border-gray-700 hover:border-gray-600 transition-colors">
+        {/* 이미지 타입일 때 썸네일 표시 */}
+        {item.type === 'images' && item.url && (
+          <div className="mb-3">
+            <img 
+              src={item.url} 
+              alt={item.title}
+              className="w-full h-32 object-cover rounded-lg"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement
+                target.style.display = 'none'
+              }}
+            />
+          </div>
+        )}
+        
+        {/* 비디오 타입일 때 비디오 아이콘 표시 */}
+        {item.type === 'videos' && (
+          <div className="mb-3 flex items-center gap-2">
+            <div className="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
+        )}
+
+        {/* 링크 타입일 때 링크 아이콘 표시 */}
+        {item.type === 'links' && (
+          <div className="mb-3 flex items-center gap-2">
+            <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
+        )}
+
+        {/* 노트 타입일 때 노트 아이콘 표시 */}
+        {item.type === 'notes' && (
+          <div className="mb-3 flex items-center gap-2">
+            <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <h3 className="font-medium text-white truncate">{item.title}</h3>
-            {item.url && (
+            {item.url && item.type !== 'images' && (
               <a 
                 href={item.url} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-blue-400 hover:text-blue-300 text-sm truncate block mt-1"
+                className="text-blue-400 hover:text-blue-300 text-sm truncate block mt-1 cursor-pointer"
               >
                 {item.url}
               </a>
@@ -282,7 +331,7 @@ export default function ContentManager({ className = '' }: ContentManagerProps) 
           {user && (
             <button
               onClick={() => deleteItem(item.id)}
-              className="text-gray-400 hover:text-red-400 p-1 transition-colors flex-shrink-0"
+              className="text-gray-400 hover:text-red-400 p-1 transition-colors flex-shrink-0 cursor-pointer"
             >
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />

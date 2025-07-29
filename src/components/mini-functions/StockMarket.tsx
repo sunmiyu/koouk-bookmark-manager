@@ -25,58 +25,53 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
   const [newSymbol, setNewSymbol] = useState('')
   const [isAddingStock, setIsAddingStock] = useState(false)
 
-  // Yahoo Finance API 호출
-  const fetchStockData = async (symbols: string[]) => {
-    try {
-      const promises = symbols.map(async (symbol) => {
-        const response = await fetch(
-          `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`,
-          {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            }
-          }
-        )
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch ${symbol}`)
-        }
-        
-        const data = await response.json()
-        const result = data?.chart?.result?.[0]
-        
-        if (!result) {
-          throw new Error(`No data for ${symbol}`)
-        }
-
-        const meta = result.meta
-        const currentPrice = meta.regularMarketPrice || 0
-        const previousClose = meta.previousClose || 0
-        const change = currentPrice - previousClose
-        const changePercent = (change / previousClose) * 100
-
-        return {
-          symbol: symbol,
-          name: meta.longName || symbol,
-          price: currentPrice,
-          change: change,
-          changePercent: changePercent,
-          currency: meta.currency || 'USD',
-          lastUpdated: new Date().toISOString()
-        } as StockItem
-      })
-
-      const results = await Promise.race([
-        Promise.all(promises),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout')), 10000)
-        )
-      ]) as StockItem[]
-      return results.filter(stock => stock.price > 0) // 유효한 데이터만 필터링
-    } catch (error) {
-      console.error('Error fetching stock data:', error)
-      throw error
+  // 모의 주식 데이터 생성 (테스트 기간용)
+  const generateMockStockData = (symbols: string[]): StockItem[] => {
+    const stockDatabase: Record<string, { name: string; basePrice: number; currency: string }> = {
+      '005930.KS': { name: '삼성전자', basePrice: 70000, currency: 'KRW' },
+      '000660.KS': { name: 'SK하이닉스', basePrice: 125000, currency: 'KRW' },
+      '035420.KS': { name: 'NAVER', basePrice: 180000, currency: 'KRW' },
+      '207940.KS': { name: '삼성바이오로직스', basePrice: 850000, currency: 'KRW' },
+      'AAPL': { name: 'Apple Inc.', basePrice: 195, currency: 'USD' },
+      'GOOGL': { name: 'Alphabet Inc.', basePrice: 140, currency: 'USD' },
+      'MSFT': { name: 'Microsoft Corporation', basePrice: 415, currency: 'USD' },
+      'TSLA': { name: 'Tesla, Inc.', basePrice: 240, currency: 'USD' },
+      'NVDA': { name: 'NVIDIA Corporation', basePrice: 875, currency: 'USD' },
+      'AMZN': { name: 'Amazon.com Inc.', basePrice: 155, currency: 'USD' }
     }
+
+    return symbols.map(symbol => {
+      const stock = stockDatabase[symbol] || { 
+        name: symbol, 
+        basePrice: 100, 
+        currency: symbol.includes('.KS') ? 'KRW' : 'USD' 
+      }
+      
+      // 랜덤 변동률 생성 (-5% ~ +5%)
+      const changePercent = (Math.random() - 0.5) * 10
+      const change = stock.basePrice * (changePercent / 100)
+      const currentPrice = stock.basePrice + change
+
+      return {
+        symbol,
+        name: stock.name,
+        price: Math.round(currentPrice * 100) / 100,
+        change: Math.round(change * 100) / 100,
+        changePercent: Math.round(changePercent * 100) / 100,
+        currency: stock.currency,
+        lastUpdated: new Date().toISOString()
+      }
+    })
+  }
+
+  // 주식 데이터 가져오기 (테스트용 모의 데이터)
+  const fetchStockData = async (symbols: string[]): Promise<StockItem[]> => {
+    // 실제 API 호출 대신 모의 데이터 반환
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(generateMockStockData(symbols))
+      }, 500) // 실제 API 호출처럼 딜레이 추가
+    })
   }
 
   // localStorage에서 관심 종목 로드

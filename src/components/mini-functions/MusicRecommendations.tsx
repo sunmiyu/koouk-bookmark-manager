@@ -14,24 +14,24 @@ export default function MusicRecommendations({ isPreviewOnly = false }: MusicRec
   // Static playlist data - memoized to prevent re-renders
   const musicPlaylists = useMemo(() => ({
     morning: [
-      { title: "아침집중", emoji: "🌅", url: "https://youtu.be/jfKfPfyJRdk", timeSlot: 'morning' as const },
-      { title: "로파이힙합", emoji: "☕", url: "https://youtu.be/5qap5aO4i9A", timeSlot: 'morning' as const },
-      { title: "잔잔한재즈", emoji: "🎹", url: "https://youtu.be/kgx4WGK0oNU", timeSlot: 'morning' as const }
+      { title: "아침집중", emoji: "🌅", url: "https://www.youtube.com/watch?v=DWcJFNfaw9c", timeSlot: 'morning' as const },
+      { title: "로파이힙합", emoji: "☕", url: "https://www.youtube.com/watch?v=jfKfPfyJRdk", timeSlot: 'morning' as const },
+      { title: "잔잔한재즈", emoji: "🎹", url: "https://www.youtube.com/watch?v=4oStw0r33so", timeSlot: 'morning' as const }
     ],
     afternoon: [
-      { title: "카페감성", emoji: "☕", url: "https://youtu.be/2KaLnYs7r8s", timeSlot: 'afternoon' as const },
-      { title: "작업BGM", emoji: "💻", url: "https://youtu.be/BeUkULvYmZ8", timeSlot: 'afternoon' as const },
-      { title: "팝송모음", emoji: "🎤", url: "https://youtu.be/x4bGx1XvAWU", timeSlot: 'afternoon' as const }
+      { title: "카페감성", emoji: "☕", url: "https://www.youtube.com/watch?v=5qap5aO4i9A", timeSlot: 'afternoon' as const },
+      { title: "작업BGM", emoji: "💻", url: "https://www.youtube.com/watch?v=BeUkULvYmZ8", timeSlot: 'afternoon' as const },
+      { title: "팝송모음", emoji: "🎤", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", timeSlot: 'afternoon' as const }
     ],
     evening: [
-      { title: "운동용", emoji: "💪", url: "https://youtu.be/GpC3SdQrmfk", timeSlot: 'evening' as const },
-      { title: "힙합비트", emoji: "🔥", url: "https://youtu.be/frObM0U0pXY", timeSlot: 'evening' as const },
-      { title: "록음악", emoji: "🎸", url: "https://youtu.be/LmGGfqWPMi0", timeSlot: 'evening' as const }
+      { title: "운동용", emoji: "💪", url: "https://www.youtube.com/watch?v=9bZkp7q19f0", timeSlot: 'evening' as const },
+      { title: "힙합비트", emoji: "🔥", url: "https://www.youtube.com/watch?v=hLQl3WQQoQ0", timeSlot: 'evening' as const },
+      { title: "록음악", emoji: "🎸", url: "https://www.youtube.com/watch?v=fJ9rUzIMcZQ", timeSlot: 'evening' as const }
     ],
     night: [
-      { title: "잠들기전", emoji: "🌙", url: "https://youtu.be/PYGODWJgR-c", timeSlot: 'night' as const },
-      { title: "피아노선율", emoji: "🎹", url: "https://youtu.be/YE2iyBRmA_g", timeSlot: 'night' as const },
-      { title: "자연소리", emoji: "🌊", url: "https://youtu.be/mPZkdNFkNps", timeSlot: 'night' as const }
+      { title: "잠들기전", emoji: "🌙", url: "https://www.youtube.com/watch?v=YE2iyBRmA_g", timeSlot: 'night' as const },
+      { title: "피아노선율", emoji: "🎹", url: "https://www.youtube.com/watch?v=ALZHF5UqnU4", timeSlot: 'night' as const },
+      { title: "자연소리", emoji: "🌊", url: "https://www.youtube.com/watch?v=mPZkdNFkNps", timeSlot: 'night' as const }
     ]
   }), [])
 

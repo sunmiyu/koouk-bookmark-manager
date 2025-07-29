@@ -24,6 +24,7 @@ export const metadata: Metadata = {
   title: "Koouk - Personal Life Hub",
   description: "Your personal life hub - manage bookmarks, daily info, and lifestyle in one place | 개인 라이프 허브 - 북마크, 일상 정보, 라이프스타일을 한 곳에서 관리",
   manifest: "/manifest.json",
+  metadataBase: new URL('https://koouk.im'),
   icons: {
     icon: [
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
@@ -43,7 +44,23 @@ export const metadata: Metadata = {
     description: "All your bookmarks in one place | 모든 북마크를 한 곳에서",
     type: "website",
     locale: "en_US",
-    alternateLocale: "ko_KR"
+    alternateLocale: "ko_KR",
+    url: "https://koouk.im",
+    siteName: "Koouk",
+    images: [
+      {
+        url: "/icon-512x512.png",
+        width: 512,
+        height: 512,
+        alt: "Koouk - Personal Life Hub"
+      }
+    ]
+  },
+  twitter: {
+    card: "summary",
+    title: "Koouk - Personal Life Hub",
+    description: "All your bookmarks in one place | 모든 북마크를 한 곳에서",
+    images: ["/icon-512x512.png"]
   }
 };
 

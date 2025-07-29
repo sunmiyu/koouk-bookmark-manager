@@ -1,14 +1,17 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useMiniFunctions } from '@/contexts/MiniFunctionsContext'
 import { useUserPlan } from '@/contexts/UserPlanContext'
 import { MiniFunctionData } from '@/types/miniFunctions'
+import { supabase } from '@/lib/supabase'
+import type { User } from '@supabase/supabase-js'
 
 export default function MiniFunctionsSettings() {
-  const { data: session } = useSession() // eslint-disable-line @typescript-eslint/no-unused-vars
   const router = useRouter()
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
   const { currentPlan } = useUserPlan()
   const { 
     availableFunctions, 
@@ -19,11 +22,35 @@ export default function MiniFunctionsSettings() {
     maxEnabled 
   } = useMiniFunctions()
 
-  // TEMPORARY: Disable login check for testing
-  // TODO: Re-enable this after OAuth is working
-  /*
+  // Get user session
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      setUser(session?.user ?? null)
+      setLoading(false)
+    }
+
+    getSession()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="animate-pulse text-gray-400">Loading...</div>
+      </div>
+    )
+  }
+
   // Redirect if not logged in
-  if (!session) {
+  if (!user) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-center">
@@ -39,7 +66,6 @@ export default function MiniFunctionsSettings() {
       </div>
     )
   }
-  */
 
   // Redirect free users to pricing
   if (currentPlan === 'free') {

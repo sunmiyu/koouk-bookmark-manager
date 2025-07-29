@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { AlarmData } from '@/types/miniFunctions'
 import { alarmsService } from '@/lib/supabase-services'
 import { supabase } from '@/lib/supabase'
@@ -31,9 +31,9 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
     }
 
     loadAlarms()
-  }, [isPreviewOnly])
+  }, [isPreviewOnly]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const loadAlarms = async () => {
+  const loadAlarms = useCallback(async () => {
     try {
       setLoading(true)
       const { data: { user } } = await supabase.auth.getUser()
@@ -71,7 +71,7 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   // Update time remaining every minute
   useEffect(() => {

@@ -124,7 +124,7 @@ export default function WeatherOnly() {
   }
 
   // 내부 API 호출 (사용자 위치 기반)
-  const fetchWeatherData = async (): Promise<WeatherData> => {
+  const fetchWeatherData = useCallback(async (): Promise<WeatherData> => {
     const userLocation = await getUserLocation()
     
     let apiUrl = '/api/weather'
@@ -162,10 +162,10 @@ export default function WeatherOnly() {
       lastUpdated: Date.now(),
       debug: data.debug // 디버깅 정보 포함
     }
-  }
+  }, [])
 
 
-  // 날씨 데이터 로드 (사용자 위치 기반)
+  // 날씨 데이터 로드 (사용자 위치 기반)  
   const loadWeatherData = useCallback(async () => {
     try {
       setLoading(true)
@@ -207,7 +207,7 @@ export default function WeatherOnly() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [fetchWeatherData])
 
   useEffect(() => {
     loadWeatherData()

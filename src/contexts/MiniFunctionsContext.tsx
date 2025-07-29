@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 import { MiniFunctionData, MiniFunctionType } from '@/types/miniFunctions'
 import { supabase } from '@/lib/supabase'
 
@@ -100,9 +100,9 @@ export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
   // Load enabled functions from Supabase
   useEffect(() => {
     loadEnabledFunctions()
-  }, [availableFunctions])
+  }, [availableFunctions]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const loadEnabledFunctions = async () => {
+  const loadEnabledFunctions = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser()
       
@@ -177,14 +177,14 @@ export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
         setEnabledFunctions(enabled)
       }
     }
-  }
+  }, [availableFunctions])
 
   // Save enabled functions to Supabase and localStorage
   useEffect(() => {
     saveEnabledFunctions()
-  }, [enabledFunctions])
+  }, [enabledFunctions]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const saveEnabledFunctions = async () => {
+  const saveEnabledFunctions = useCallback(async () => {
     const enabledTypes = enabledFunctions.map(func => func.type)
     
     try {
@@ -213,7 +213,7 @@ export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
       // Fallback to localStorage only
       localStorage.setItem('koouk_enabled_mini_functions', JSON.stringify(enabledTypes))
     }
-  }
+  }, [enabledFunctions])
 
   // Calculate max enabled functions based on plan
   // 테스트 기간: 모든 9개 Mini Function 사용 가능

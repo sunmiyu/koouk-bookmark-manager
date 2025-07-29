@@ -65,14 +65,14 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
   }
 
   // 주식 데이터 가져오기 (테스트용 모의 데이터)
-  const fetchStockData = async (symbols: string[]): Promise<StockItem[]> => {
+  const fetchStockData = useCallback(async (symbols: string[]): Promise<StockItem[]> => {
     // 실제 API 호출 대신 모의 데이터 반환
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(generateMockStockData(symbols))
       }, 500) // 실제 API 호출처럼 딜레이 추가
     })
-  }
+  }, [])
 
   // localStorage에서 관심 종목 로드
   const loadWatchlist = () => {
@@ -150,7 +150,7 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
     } finally {
       setLoading(false)
     }
-  }, [isPreviewOnly])
+  }, [isPreviewOnly, fetchStockData])
 
   // 새 종목 추가
   const addStock = async () => {

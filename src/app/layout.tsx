@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import SessionProvider from "@/components/SessionProvider";
 import SecurityMonitor from "@/components/SecurityMonitor";
 import CookieBanner from "@/components/CookieBanner";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserPlanProvider } from "@/contexts/UserPlanContext";
 import { MiniFunctionsProvider } from "@/contexts/MiniFunctionsContext";
-import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Analytics } from '@vercel/analytics/react';
 import { GoogleAnalytics } from '@next/third-parties/google'
 
@@ -83,19 +81,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider>
-          <LanguageProvider>
-            <SessionProvider>
-              <UserPlanProvider>
-                <MiniFunctionsProvider>
-                  <SecurityMonitor />
-                  {children}
-                  <CookieBanner />
-                </MiniFunctionsProvider>
-              </UserPlanProvider>
-            </SessionProvider>
-          </LanguageProvider>
-        </ThemeProvider>
+        <LanguageProvider>
+          <UserPlanProvider>
+            <MiniFunctionsProvider>
+              <SecurityMonitor />
+              {children}
+              <CookieBanner />
+            </MiniFunctionsProvider>
+          </UserPlanProvider>
+        </LanguageProvider>
         <Analytics />
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />

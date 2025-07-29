@@ -5,32 +5,18 @@ import TimeDisplay from '@/components/TimeDisplay'
 import FeedbackBoard from '@/components/FeedbackBoard'
 import InfoInputSection from '@/components/InfoInputSection'
 import TodoSection from '@/components/TodoSection'
-import VideoSection from '@/components/VideoSection'
-import ImageSection from '@/components/ImageSection'
-import NotesSection from '@/components/NotesSection'
-import LinkSection from '@/components/LinkSection'
+import ContentManager from '@/components/ContentManager'
 import AuthButton from '@/components/AuthButton'
 import KooukLogo from '@/components/KooukLogo'
 import SearchBar from '@/components/SearchBar'
-import dynamic from 'next/dynamic'
-
-const ThemeToggle = dynamic(() => import('@/components/ThemeToggle'), {
-  ssr: false,
-  loading: () => (
-    <button className="flex items-center justify-center w-6 h-6 text-gray-300">
-      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-      </svg>
-    </button>
-  )
-})
+import Link from 'next/link'
 import { ContentProvider } from '@/contexts/ContentContext'
 import MiniFunctionsArea from '@/components/MiniFunctionsArea'
 function HomeContent() {
 
   return (
     <ContentProvider>
-      <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
+      <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto responsive-p-md py-4 sm:py-6">
         <header className="mb-6">
           {/* First row: Logo, Weather, Time */}
@@ -41,8 +27,6 @@ function HomeContent() {
               <WeatherOnly />
               <span className="text-gray-500">|</span>
               <TimeDisplay />
-              <span className="text-gray-500">|</span>
-              <ThemeToggle />
             </div>
           </div>
           
@@ -87,54 +71,17 @@ function HomeContent() {
           {/* Info input section */}
           <InfoInputSection />
           
-          <div className="space-y-6 sm:space-y-8">
-            <div className="flex items-center gap-2">
-              <h2 className="responsive-text-xl font-semibold">Content Sections</h2>
-              
-              {/* Info icon with tooltip */}
-              <div className="relative group">
-                <svg className="w-5 h-5 text-green-400 cursor-help" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
-                
-                {/* Tooltip */}
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
-                  Free: 각 타입별 50개 제한 
-                  <a href="/pricing" className="text-blue-400 hover:text-blue-300 ml-2">업그레이드 →</a>
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
-                </div>
-              </div>
-            </div>
-            
-            {/* 모바일에서는 세로 스택, 태블릿 이상에서는 가로 스크롤 */}
-            <div className="block sm:hidden space-y-6">
-              <LinkSection />
-              <VideoSection />
-              <ImageSection />
-              <NotesSection />
-            </div>
-            
-            <div className="hidden sm:flex overflow-x-auto responsive-gap-lg pb-4">
-              <div className="flex-shrink-0 min-w-[300px] lg:min-w-[400px]">
-                <LinkSection />
-              </div>
-              <div className="flex-shrink-0 min-w-[300px] lg:min-w-[400px]">
-                <VideoSection />
-              </div>
-              <div className="flex-shrink-0 min-w-[300px] lg:min-w-[400px]">
-                <ImageSection />
-              </div>
-              <div className="flex-shrink-0 min-w-[300px] lg:min-w-[400px]">
-                <NotesSection />
-              </div>
-            </div>
-          </div>
+          {/* Content Manager - All content types in one unified interface */}
+          <ContentManager />
         </main>
 
         <footer className="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-gray-800">
           <div className="text-center text-xs text-gray-500">
             <div>
-              Koouk 2025 All rights reserved · <FeedbackBoard />
+              Koouk 2025 All rights reserved · <FeedbackBoard /> · 
+              <Link href="/privacy-policy" className="hover:text-gray-300 underline ml-1">
+                개인정보처리방침
+              </Link>
               <span className="hidden sm:inline"> · Your everyday moments dashboard</span>
             </div>
             <div className="sm:hidden mt-1">

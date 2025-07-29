@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { CommuteRoute, CommuteData } from '@/types/miniFunctions'
+import { commuteService } from '@/lib/supabase-services'
+import { supabase } from '@/lib/supabase'
 
 interface CommuteTimeProps {
   isPreviewOnly?: boolean
@@ -42,22 +44,58 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
     }
   }
 
-  // localStorage에서 경로 로드
-  const loadRoutes = (): CommuteRoute[] => {
+  // Supabase에서 경로 로드
+  const loadRoutes = async (): Promise<CommuteRoute[]> => {
     try {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        // Fallback to localStorage
+        const saved = localStorage.getItem('koouk_commute_routes')
+        if (saved) {
+          return JSON.parse(saved) as CommuteRoute[]
+        }
+        return []
+      }
+
+      const dbRoutes = await commuteService.getAll(user.id)
+      return dbRoutes.map(route => ({
+        id: route.id,
+        name: route.name,
+        origin: route.origin,
+        destination: route.destination,
+        duration: route.duration || 0,
+        distance: route.distance || 0,
+        trafficDuration: route.duration || 0, // Will be updated
+        lastUpdated: route.updated_at
+      }))
+    } catch (error) {
+      console.error('Failed to load routes:', error)
+      // Fallback to localStorage
       const saved = localStorage.getItem('koouk_commute_routes')
       if (saved) {
         return JSON.parse(saved) as CommuteRoute[]
       }
       return []
-    } catch {
-      return []
     }
   }
 
-  // localStorage에 경로 저장
-  const saveRoutes = (routes: CommuteRoute[]) => {
-    localStorage.setItem('koouk_commute_routes', JSON.stringify(routes))
+  // Supabase에 경로 저장
+  const saveRoutes = async (routes: CommuteRoute[]) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        // For simplicity, we won't sync all routes here
+        // Routes are saved individually when created/updated
+      }
+      
+      // Always save to localStorage as backup
+      localStorage.setItem('koouk_commute_routes', JSON.stringify(routes))
+    } catch (error) {
+      console.error('Failed to save routes:', error)
+      localStorage.setItem('koouk_commute_routes', JSON.stringify(routes))
+    }
   }
 
   // 출퇴근 데이터 로드
@@ -109,7 +147,7 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
         return
       }
 
-      const savedRoutes = loadRoutes()
+      const savedRoutes = await loadRoutes()
       if (savedRoutes.length === 0) {
         setCommuteData({
           routes: [],

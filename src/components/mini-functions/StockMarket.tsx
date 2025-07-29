@@ -137,7 +137,7 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
       setLoading(true)
       setError(null)
       
-      const symbols = loadWatchlist()
+      const symbols = await loadWatchlist()
       const stocks = await fetchStockData(symbols)
       
       setStockData({

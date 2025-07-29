@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { AlarmData } from '@/types/miniFunctions'
+import { alarmsService } from '@/lib/supabase-services'
+import { supabase } from '@/lib/supabase'
 
 interface AlarmFunctionProps {
   isPreviewOnly?: boolean
@@ -11,8 +13,9 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
   const [alarms, setAlarms] = useState<AlarmData[]>([])
   const [nextAlarm, setNextAlarm] = useState<AlarmData | null>(null)
   const [timeRemaining, setTimeRemaining] = useState<string>('')
+  const [loading, setLoading] = useState(false)
 
-  // Load alarms from localStorage
+  // Load alarms from Supabase
   useEffect(() => {
     if (isPreviewOnly) {
       // Sample data for preview
@@ -27,17 +30,48 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
       return
     }
 
-    const saved = localStorage.getItem('koouk_alarms')
-    if (saved) {
-      try {
+    loadAlarms()
+  }, [isPreviewOnly])
+
+  const loadAlarms = async () => {
+    try {
+      setLoading(true)
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        // Fallback to localStorage
+        const saved = localStorage.getItem('koouk_alarms')
+        if (saved) {
+          const parsedAlarms = JSON.parse(saved) as AlarmData[]
+          setAlarms(parsedAlarms)
+          findNextAlarm(parsedAlarms)
+        }
+        return
+      }
+
+      const dbAlarms = await alarmsService.getAll(user.id)
+      const alarmData: AlarmData[] = dbAlarms.map(alarm => ({
+        id: alarm.id,
+        time: alarm.time,
+        label: alarm.label,
+        enabled: alarm.enabled
+      }))
+
+      setAlarms(alarmData)
+      findNextAlarm(alarmData)
+    } catch (error) {
+      console.error('Failed to load alarms:', error)
+      // Fallback to localStorage
+      const saved = localStorage.getItem('koouk_alarms')
+      if (saved) {
         const parsedAlarms = JSON.parse(saved) as AlarmData[]
         setAlarms(parsedAlarms)
         findNextAlarm(parsedAlarms)
-      } catch (error) {
-        console.error('Failed to load alarms:', error)
       }
+    } finally {
+      setLoading(false)
     }
-  }, [isPreviewOnly])
+  }
 
   // Update time remaining every minute
   useEffect(() => {
@@ -120,31 +154,83 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
     }
   }
 
-  const addNewAlarm = () => {
-    if (isPreviewOnly) return
+  const addNewAlarm = async () => {
+    if (isPreviewOnly || loading) return
 
-    const newAlarm: AlarmData = {
-      id: Date.now().toString(),
-      time: '07:00',
-      label: 'New Alarm',
-      enabled: true
+    try {
+      setLoading(true)
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        // Save to Supabase
+        const newDbAlarm = await alarmsService.create({
+          user_id: user.id,
+          time: '07:00',
+          label: 'New Alarm',
+          enabled: true
+        })
+
+        const newAlarm: AlarmData = {
+          id: newDbAlarm.id,
+          time: newDbAlarm.time,
+          label: newDbAlarm.label,
+          enabled: newDbAlarm.enabled
+        }
+
+        const updatedAlarms = [...alarms, newAlarm]
+        setAlarms(updatedAlarms)
+        findNextAlarm(updatedAlarms)
+      } else {
+        // Fallback to localStorage
+        const newAlarm: AlarmData = {
+          id: Date.now().toString(),
+          time: '07:00',
+          label: 'New Alarm',
+          enabled: true
+        }
+
+        const updatedAlarms = [...alarms, newAlarm]
+        setAlarms(updatedAlarms)
+        localStorage.setItem('koouk_alarms', JSON.stringify(updatedAlarms))
+        findNextAlarm(updatedAlarms)
+      }
+    } catch (error) {
+      console.error('Failed to add alarm:', error)
+    } finally {
+      setLoading(false)
     }
-
-    const updatedAlarms = [...alarms, newAlarm]
-    setAlarms(updatedAlarms)
-    localStorage.setItem('koouk_alarms', JSON.stringify(updatedAlarms))
-    findNextAlarm(updatedAlarms)
   }
 
-  const toggleAlarm = (alarmId: string) => {
-    if (isPreviewOnly) return
+  const toggleAlarm = async (alarmId: string) => {
+    if (isPreviewOnly || loading) return
 
-    const updatedAlarms = alarms.map(alarm =>
-      alarm.id === alarmId ? { ...alarm, enabled: !alarm.enabled } : alarm
-    )
-    setAlarms(updatedAlarms)
-    localStorage.setItem('koouk_alarms', JSON.stringify(updatedAlarms))
-    findNextAlarm(updatedAlarms)
+    try {
+      setLoading(true)
+      const { data: { user } } = await supabase.auth.getUser()
+      const alarm = alarms.find(a => a.id === alarmId)
+      
+      if (!alarm) return
+
+      if (user) {
+        // Update in Supabase
+        await alarmsService.update(alarmId, {
+          enabled: !alarm.enabled
+        })
+      }
+
+      const updatedAlarms = alarms.map(alarm =>
+        alarm.id === alarmId ? { ...alarm, enabled: !alarm.enabled } : alarm
+      )
+      setAlarms(updatedAlarms)
+      
+      // Update localStorage as backup
+      localStorage.setItem('koouk_alarms', JSON.stringify(updatedAlarms))
+      findNextAlarm(updatedAlarms)
+    } catch (error) {
+      console.error('Failed to toggle alarm:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (!nextAlarm) {
@@ -156,7 +242,8 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
         {!isPreviewOnly && (
           <button
             onClick={addNewAlarm}
-            className="text-blue-400 hover:text-blue-300 text-sm underline"
+            disabled={loading}
+            className="text-blue-400 hover:text-blue-300 text-sm underline disabled:opacity-50"
           >
             + Add alarm
           </button>
@@ -189,13 +276,15 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
         <div className="flex gap-2 mt-2">
           <button
             onClick={() => toggleAlarm(nextAlarm.id)}
-            className="text-sm text-red-400 hover:text-red-300"
+            disabled={loading}
+            className="text-sm text-red-400 hover:text-red-300 disabled:opacity-50"
           >
             Turn Off
           </button>
           <button
             onClick={addNewAlarm}
-            className="text-sm text-blue-400 hover:text-blue-300"
+            disabled={loading}
+            className="text-sm text-blue-400 hover:text-blue-300 disabled:opacity-50"
           >
             + Add
           </button>

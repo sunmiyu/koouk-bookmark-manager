@@ -1,13 +1,15 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useSession, signIn, signOut } from 'next-auth/react'
+import { supabase } from '@/lib/supabase'
 import { useLanguage } from '@/contexts/LanguageContext'
+import type { User } from '@supabase/supabase-js'
 
 export default function AuthButton() {
-  const { data: session, status } = useSession()
   const { t } = useLanguage()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -21,12 +23,56 @@ export default function AuthButton() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // TEMPORARY: Debug info for OAuth troubleshooting (client-side only)
+  // Get initial session and set up auth state listener
   useEffect(() => {
-    console.log('Auth Debug:', { status, session: !!session, url: window.location.href })
-  }, [status, session])
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      setUser(session?.user ?? null)
+      setLoading(false)
+    }
+
+    getSession()
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const handleSignIn = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      })
+      
+      if (error) {
+        console.error('Error signing in:', error.message)
+      }
+    } catch (error) {
+      console.error('Error signing in:', error)
+    }
+    setIsDropdownOpen(false)
+  }
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.error('Error signing out:', error.message)
+      }
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+    setIsDropdownOpen(false)
+  }
   
-  if (status === 'loading') {
+  if (loading) {
     return (
       <div className="text-sm text-gray-400">
         {t('loading')}
@@ -34,21 +80,21 @@ export default function AuthButton() {
     )
   }
 
-  if (session) {
+  if (user) {
     return (
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="w-16 py-1 bg-blue-600 text-white text-sm font-medium rounded-full hover:bg-blue-700 transition-all duration-200 h-[24px] flex items-center justify-center"
         >
-          <span>{session.user?.name?.split(' ')[0] || 'User'}</span>
+          <span>{user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'User'}</span>
         </button>
         
         {isDropdownOpen && (
           <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 z-10">
             <div className="p-3 border-b border-gray-700">
-              <div className="text-sm text-white font-medium">{session.user?.name}</div>
-              <div className="text-xs text-gray-400">{session.user?.email}</div>
+              <div className="text-sm text-white font-medium">{user.user_metadata?.full_name || user.email}</div>
+              <div className="text-xs text-gray-400">{user.email}</div>
             </div>
             <div className="py-1">
               <a
@@ -66,13 +112,10 @@ export default function AuthButton() {
 {t('account_delete')}
               </a>
               <button
-                onClick={() => {
-                  signOut()
-                  setIsDropdownOpen(false)
-                }}
+                onClick={handleSignOut}
                 className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors"
               >
-{t('logout')}
+                {t('logout')}
               </button>
             </div>
           </div>
@@ -93,10 +136,7 @@ export default function AuthButton() {
       {isDropdownOpen && (
         <div className="absolute right-0 mt-3 w-52 bg-gray-800 rounded-lg shadow-lg border border-gray-700 z-10">
           <button
-            onClick={() => {
-              signIn('google')
-              setIsDropdownOpen(false)
-            }}
+            onClick={handleSignIn}
             className="w-full text-center px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 rounded-lg"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -105,7 +145,7 @@ export default function AuthButton() {
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
             </svg>
-{t('gmail_login')}
+            {t('gmail_login')}
           </button>
         </div>
       )}

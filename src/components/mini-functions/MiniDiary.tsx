@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { DiaryEntry, DiaryData } from '@/types/miniFunctions'
+import { diaryService } from '@/lib/supabase-services'
+import { supabase } from '@/lib/supabase'
 
 interface MiniDiaryProps {
   isPreviewOnly?: boolean
@@ -15,10 +17,11 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
   const [currentText, setCurrentText] = useState('')
   const [selectedMood, setSelectedMood] = useState<DiaryEntry['mood']>('😊')
   const [expandedEntryId, setExpandedEntryId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   const moods: DiaryEntry['mood'][] = ['😊', '😐', '😔', '😴', '🔥', '💪', '🎉']
 
-  // Load diary data from localStorage
+  // Load diary data from Supabase
   useEffect(() => {
     if (isPreviewOnly) {
       // Sample data for preview
@@ -45,89 +48,186 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
       return
     }
 
-    const today = new Date().toISOString().split('T')[0]
-    const saved = localStorage.getItem('koouk_diary')
-    
-    if (saved) {
-      try {
+    loadDiaryData()
+  }, [isPreviewOnly])
+
+  const loadDiaryData = async () => {
+    try {
+      setLoading(true)
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        // Fallback to localStorage if not authenticated
+        const today = new Date().toISOString().split('T')[0]
+        const saved = localStorage.getItem('koouk_diary')
+        if (saved) {
+          const allEntries = JSON.parse(saved) as DiaryEntry[]
+          const todayEntry = allEntries.find(entry => entry.date === today)
+          const recentEntries = allEntries
+            .filter(entry => entry.date !== today)
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+            .slice(0, 7)
+
+          setDiaryData({ todayEntry, recentEntries })
+          
+          if (todayEntry) {
+            setCurrentText(todayEntry.content)
+            setSelectedMood(todayEntry.mood || '😊')
+          }
+        }
+        return
+      }
+
+      const today = new Date().toISOString().split('T')[0]
+      const entries = await diaryService.getAll(user.id)
+      
+      const diaryEntries: DiaryEntry[] = entries.map(entry => ({
+        id: entry.id,
+        date: entry.date || today,
+        content: entry.content,
+        mood: entry.mood || '😊',
+        createdAt: entry.created_at,
+        updatedAt: entry.updated_at
+      }))
+
+      const todayEntry = diaryEntries.find(entry => entry.date === today)
+      const recentEntries = diaryEntries
+        .filter(entry => entry.date !== today)
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, 7)
+
+      setDiaryData({ todayEntry, recentEntries })
+
+      if (todayEntry) {
+        setCurrentText(todayEntry.content)
+        setSelectedMood(todayEntry.mood || '😊')
+      } else {
+        setCurrentText('')
+        setSelectedMood('😊')
+      }
+    } catch (error) {
+      console.error('Failed to load diary:', error)
+      // Fallback to localStorage
+      const today = new Date().toISOString().split('T')[0]
+      const saved = localStorage.getItem('koouk_diary')
+      if (saved) {
         const allEntries = JSON.parse(saved) as DiaryEntry[]
         const todayEntry = allEntries.find(entry => entry.date === today)
         const recentEntries = allEntries
           .filter(entry => entry.date !== today)
           .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-          .slice(0, 7) // Last 7 days
+          .slice(0, 7)
 
-        setDiaryData({
-          todayEntry,
-          recentEntries
-        })
-
+        setDiaryData({ todayEntry, recentEntries })
+        
         if (todayEntry) {
           setCurrentText(todayEntry.content)
           setSelectedMood(todayEntry.mood || '😊')
-        } else {
-          setCurrentText('')
-          setSelectedMood('😊')
         }
-      } catch (error) {
-        console.error('Failed to load diary:', error)
       }
+    } finally {
+      setLoading(false)
     }
-  }, [isPreviewOnly])
+  }
 
-  const saveDiaryEntry = () => {
-    if (isPreviewOnly || !currentText.trim()) return
+  const saveDiaryEntry = async () => {
+    if (isPreviewOnly || !currentText.trim() || loading) return
 
-    const today = new Date().toISOString().split('T')[0]
-    const now = new Date().toISOString()
+    try {
+      setLoading(true)
+      const { data: { user } } = await supabase.auth.getUser()
+      const today = new Date().toISOString().split('T')[0]
+      const now = new Date().toISOString()
 
-    const newEntry: DiaryEntry = {
-      id: diaryData.todayEntry?.id || Date.now().toString(),
-      date: today,
-      content: currentText.trim(),
-      mood: selectedMood,
-      createdAt: diaryData.todayEntry?.createdAt || now,
-      updatedAt: now
-    }
+      if (user) {
+        // Save to Supabase
+        let savedEntry
+        
+        if (diaryData.todayEntry) {
+          // Update existing entry
+          savedEntry = await diaryService.update(diaryData.todayEntry.id, {
+            content: currentText.trim(),
+            mood: selectedMood,
+            date: today
+          })
+        } else {
+          // Create new entry
+          savedEntry = await diaryService.create({
+            user_id: user.id,
+            content: currentText.trim(),
+            mood: selectedMood,
+            date: today
+          })
+        }
 
-    // Load all entries from localStorage
-    const saved = localStorage.getItem('koouk_diary')
-    let allEntries: DiaryEntry[] = []
-    
-    if (saved) {
-      try {
-        allEntries = JSON.parse(saved)
-      } catch (error) {
-        console.error('Failed to parse diary entries:', error)
+        const newEntry: DiaryEntry = {
+          id: savedEntry.id,
+          date: savedEntry.date || today,
+          content: savedEntry.content,
+          mood: savedEntry.mood || '😊',
+          createdAt: savedEntry.created_at,
+          updatedAt: savedEntry.updated_at
+        }
+
+        // Update state
+        setDiaryData(prev => ({
+          todayEntry: newEntry,
+          recentEntries: prev.recentEntries
+        }))
+
+        setCurrentText(newEntry.content)
+        setSelectedMood(newEntry.mood || '😊')
+      } else {
+        // Fallback to localStorage
+        const newEntry: DiaryEntry = {
+          id: diaryData.todayEntry?.id || Date.now().toString(),
+          date: today,
+          content: currentText.trim(),
+          mood: selectedMood,
+          createdAt: diaryData.todayEntry?.createdAt || now,
+          updatedAt: now
+        }
+
+        const saved = localStorage.getItem('koouk_diary')
+        let allEntries: DiaryEntry[] = []
+        
+        if (saved) {
+          try {
+            allEntries = JSON.parse(saved)
+          } catch (error) {
+            console.error('Failed to parse diary entries:', error)
+          }
+        }
+
+        const existingIndex = allEntries.findIndex(entry => entry.date === today)
+        if (existingIndex >= 0) {
+          allEntries[existingIndex] = newEntry
+        } else {
+          allEntries.push(newEntry)
+        }
+
+        localStorage.setItem('koouk_diary', JSON.stringify(allEntries))
+
+        const recentEntries = allEntries
+          .filter(entry => entry.date !== today)
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+          .slice(0, 7)
+
+        setDiaryData({
+          todayEntry: newEntry,
+          recentEntries
+        })
+
+        setCurrentText(newEntry.content)
+        setSelectedMood(newEntry.mood || '😊')
       }
+      
+      setIsEditing(false)
+    } catch (error) {
+      console.error('Failed to save diary entry:', error)
+    } finally {
+      setLoading(false)
     }
-
-    // Update or add today's entry
-    const existingIndex = allEntries.findIndex(entry => entry.date === today)
-    if (existingIndex >= 0) {
-      allEntries[existingIndex] = newEntry
-    } else {
-      allEntries.push(newEntry)
-    }
-
-    // Save back to localStorage
-    localStorage.setItem('koouk_diary', JSON.stringify(allEntries))
-
-    // Update state
-    const recentEntries = allEntries
-      .filter(entry => entry.date !== today)
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 7)
-
-    setDiaryData({
-      todayEntry: newEntry,
-      recentEntries
-    })
-
-    // Reset form state
-    setCurrentText(newEntry.content)
-    setSelectedMood(newEntry.mood || '😊')
-    setIsEditing(false)
   }
 
   const startEditing = () => {
@@ -223,7 +323,8 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
             <div className="flex gap-2">
               <button
                 onClick={saveDiaryEntry}
-                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded"
+                disabled={loading}
+                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded disabled:opacity-50"
               >
                 저장
               </button>

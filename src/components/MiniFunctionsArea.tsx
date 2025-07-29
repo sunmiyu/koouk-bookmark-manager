@@ -249,11 +249,9 @@ export default function MiniFunctionsArea() {
         <>
           {/* Mobile: 세로 스택 */}
           <div className="block sm:hidden space-y-4">
-            {enabledFunctions.map((func) => (
-              <div key={func.id}>
-                {renderMiniFunction(func, false)}
-              </div>
-            ))}
+            {enabledFunctions.map((func) => 
+              renderMiniFunction(func, false)
+            )}
           </div>
           
           {/* Desktop: 그리드 레이아웃 (한 줄에 최대 4개) */}

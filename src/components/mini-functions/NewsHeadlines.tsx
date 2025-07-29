@@ -162,25 +162,28 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
             }
           }}
         >
-          <div className="flex justify-between items-start gap-2">
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <span className="text-white text-sm flex-shrink-0">■</span>
-              <span className="text-sm text-white truncate">
-                {item.title}
-              </span>
-            </div>
-            <div className="flex flex-col items-end text-xs text-gray-400 flex-shrink-0">
-              <span>{item.source}</span>
-              <span>
-                {new Date(item.publishedAt).toLocaleDateString('ko-KR', {
-                  month: 'numeric',
-                  day: 'numeric'
-                })} {new Date(item.publishedAt).toLocaleTimeString('ko-KR', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: false
-                })}
-              </span>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-start gap-2">
+              <span className="text-white text-sm flex-shrink-0 mt-0.5">■</span>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm text-white line-clamp-2 leading-relaxed">
+                  {item.title}
+                </div>
+                <div className="flex items-center gap-1 text-xs text-gray-400 mt-1">
+                  <span>{item.source}</span>
+                  <span>•</span>
+                  <span>
+                    {new Date(item.publishedAt).toLocaleDateString('ko-KR', {
+                      month: 'numeric',
+                      day: 'numeric'
+                    })} {new Date(item.publishedAt).toLocaleTimeString('ko-KR', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false
+                    })}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

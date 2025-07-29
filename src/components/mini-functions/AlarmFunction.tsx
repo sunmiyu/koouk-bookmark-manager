@@ -250,7 +250,7 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
         )}
         {isPreviewOnly && (
           <div className="text-center">
-            <span className="text-gray-500 text-sm">⏰ Set alarms in Pro plan</span>
+            <span className="text-gray-500 text-sm">⏰ Set your daily alarms</span>
           </div>
         )}
       </div>
@@ -291,11 +291,6 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
         </div>
       )}
 
-      {isPreviewOnly && (
-        <div className="text-center pt-1">
-          <span className="text-gray-500 text-sm">Manage alarms in Pro plan</span>
-        </div>
-      )}
     </div>
   )
 }

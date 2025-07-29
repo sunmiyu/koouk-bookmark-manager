@@ -96,11 +96,6 @@ export default function MusicRecommendations({ isPreviewOnly = false }: MusicRec
         ))}
       </div>
 
-      {isPreviewOnly && (
-        <div className="text-center pt-2">
-          <span className="text-gray-500 text-sm">🎵 Unlock music in Pro plan</span>
-        </div>
-      )}
 
       {!isPreviewOnly && (
         <div className="text-sm text-gray-500 mt-2">

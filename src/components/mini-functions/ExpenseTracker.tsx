@@ -395,7 +395,7 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
       {expenseData.items.length === 0 && (
         <div className="text-center py-2">
           <span className="text-gray-500 text-sm">
-            {isPreviewOnly ? '💰 Track expenses in Pro plan' : 'No expenses today'}
+            {isPreviewOnly ? '💰 Track your daily expenses' : 'No expenses today'}
           </span>
         </div>
       )}
@@ -476,11 +476,6 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
         </div>
       )}
 
-      {isPreviewOnly && expenseData.items.length > 0 && (
-        <div className="text-center pt-1">
-          <span className="text-gray-500 text-sm">Add expenses in Pro plan</span>
-        </div>
-      )}
     </div>
   )
 }

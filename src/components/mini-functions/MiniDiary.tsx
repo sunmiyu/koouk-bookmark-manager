@@ -367,7 +367,7 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
             ) : (
               <div className="flex items-center justify-center h-full">
                 <span className="text-gray-500 text-sm">
-                  {isPreviewOnly ? '📝 Write diary in Pro plan' : '오늘의 감정, 기억하고싶은일을 기록하세요'}
+                  {isPreviewOnly ? '📝 Write your daily diary' : '오늘의 감정, 기억하고싶은일을 기록하세요'}
                 </span>
               </div>
             )}
@@ -408,13 +408,6 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
         </div>
       )}
 
-      {isPreviewOnly && (
-        <div className="text-center pt-1">
-          <span className="text-gray-500 text-sm">
-            Full diary features in Pro plan
-          </span>
-        </div>
-      )}
     </div>
   )
 }

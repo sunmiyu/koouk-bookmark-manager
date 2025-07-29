@@ -12,11 +12,8 @@ interface Restaurant {
   isOpen: boolean
 }
 
-interface NearbyRestaurantsProps {
-  isPreviewOnly?: boolean
-}
 
-export default function NearbyRestaurants({ isPreviewOnly = false }: NearbyRestaurantsProps) {
+export default function NearbyRestaurants() {
   // 샘플 식당 데이터 (거리순 정렬)
   const restaurants: Restaurant[] = [
     {
@@ -72,11 +69,6 @@ export default function NearbyRestaurants({ isPreviewOnly = false }: NearbyResta
         </div>
       ))}
       
-      {isPreviewOnly && (
-        <div className="text-center pt-2">
-          <span className="text-gray-500 text-sm">🍽️ Full restaurant info in Pro plan</span>
-        </div>
-      )}
     </div>
   )
 }

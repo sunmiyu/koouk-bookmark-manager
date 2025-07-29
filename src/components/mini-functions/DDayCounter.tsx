@@ -334,11 +334,6 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
         </div>
       )}
 
-      {isPreviewOnly && (
-        <div className="text-center pt-1">
-          <span className="text-gray-500 text-sm">Manage D-day events in Pro plan</span>
-        </div>
-      )}
     </div>
   )
 }

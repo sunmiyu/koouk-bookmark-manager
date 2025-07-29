@@ -147,9 +147,9 @@ export default function MiniFunctionsArea() {
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
             title="맛집"
-            expandedContent={isPreviewOnly ? undefined : <NearbyRestaurants isPreviewOnly={false} />}
+            expandedContent={isPreviewOnly ? undefined : <NearbyRestaurants />}
           >
-            <NearbyRestaurants isPreviewOnly={true} />
+            <NearbyRestaurants />
           </MiniFunctionCard>
         )
       case 'dday':

@@ -1,19 +1,48 @@
 'use client'
 
-import { useState } from 'react'
-import { useSession, signOut } from 'next-auth/react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
+import type { User } from '@supabase/supabase-js'
 
 export default function DeleteAccount() {
-  const { data: session } = useSession()
   const router = useRouter()
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
   const [step, setStep] = useState(1)
   const [confirmText, setConfirmText] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
   const [showExportData, setShowExportData] = useState(false)
 
+  // Get user session
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      setUser(session?.user ?? null)
+      setLoading(false)
+    }
+
+    getSession()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="animate-pulse text-gray-400">Loading...</div>
+      </div>
+    )
+  }
+
   // Redirect if not logged in
-  if (!session) {
+  if (!user) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-center">
@@ -34,8 +63,8 @@ export default function DeleteAccount() {
     // Get all user data from localStorage
     const userData = {
       user: {
-        email: session.user?.email,
-        name: session.user?.name,
+        email: user.email,
+        name: user.user_metadata?.full_name || user.email,
         exportDate: new Date().toISOString()
       },
       data: {
@@ -84,7 +113,8 @@ export default function DeleteAccount() {
       // await fetch('/api/user/delete', { method: 'DELETE' })
 
       // Sign out and redirect
-      await signOut({ callbackUrl: '/?deleted=true' })
+      await supabase.auth.signOut()
+      router.push('/?deleted=true')
     } catch (error) {
       console.error('Error deleting account:', error)
       alert('An error occurred while deleting your account. Please try again.')
@@ -137,11 +167,11 @@ export default function DeleteAccount() {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-400">Email:</span>
-                    <span>{session.user?.email}</span>
+                    <span>{user.email}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Name:</span>
-                    <span>{session.user?.name}</span>
+                    <span>{user.user_metadata?.full_name || user.email}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Current Plan:</span>

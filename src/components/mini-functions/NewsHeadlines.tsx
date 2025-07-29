@@ -183,11 +183,6 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
         </div>
       ))}
       
-      {isPreviewOnly && (
-        <div className="text-center pt-2">
-          <span className="text-gray-500 text-sm">+ more news in Pro plan</span>
-        </div>
-      )}
     </div>
   )
 }

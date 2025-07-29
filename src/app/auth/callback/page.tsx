@@ -10,47 +10,69 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Handle the OAuth callback
-        const { data, error } = await supabase.auth.getSession()
+        console.log('Auth callback started')
         
-        if (error) {
-          console.error('Auth callback error:', error.message)
-          // Wait a bit and try again
-          setTimeout(() => {
-            router.push('/?error=auth_error')
-          }, 1000)
+        // First, try to get session from URL params
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+        console.log('Session data:', sessionData, 'Error:', sessionError)
+        
+        if (sessionData?.session) {
+          console.log('Session found immediately:', sessionData.session.user.email)
+          router.push('/')
           return
         }
 
-        if (data.session) {
-          // Successfully authenticated
-          console.log('User authenticated:', data.session.user.email)
-          // Give some time for the session to be fully established
-          setTimeout(() => {
-            router.push('/')
-          }, 500)
-        } else {
-          // No session yet, wait a bit more
-          setTimeout(async () => {
+        // If no session, check for auth code in URL and exchange it
+        const urlParams = new URLSearchParams(window.location.search)
+        const authCode = urlParams.get('code')
+        const authError = urlParams.get('error')
+        
+        console.log('URL params - code:', !!authCode, 'error:', authError)
+
+        if (authError) {
+          console.error('OAuth error from URL:', authError)
+          router.push('/?error=oauth_error')
+          return
+        }
+
+        if (authCode) {
+          console.log('Auth code found, exchanging for session...')
+          // Wait a bit for the session to be processed
+          let retries = 0
+          const maxRetries = 5
+          
+          const checkSession = async (): Promise<void> => {
             const { data: retryData } = await supabase.auth.getSession()
-            if (retryData.session) {
+            
+            if (retryData?.session) {
+              console.log('Session established after retry:', retryData.session.user.email)
               router.push('/')
+              return
+            }
+            
+            retries++
+            if (retries < maxRetries) {
+              console.log(`Retry ${retries}/${maxRetries} - waiting for session...`)
+              setTimeout(checkSession, 1000)
             } else {
+              console.log('Max retries reached, redirecting to home')
               router.push('/')
             }
-          }, 1000)
+          }
+          
+          setTimeout(checkSession, 500)
+        } else {
+          console.log('No auth code found, redirecting home')
+          router.push('/')
         }
+        
       } catch (error) {
         console.error('Auth callback error:', error)
-        setTimeout(() => {
-          router.push('/?error=auth_error')
-        }, 1000)
+        router.push('/?error=callback_error')
       }
     }
 
-    // Add a small delay to ensure the URL params are processed
-    const timer = setTimeout(handleAuthCallback, 100)
-    return () => clearTimeout(timer)
+    handleAuthCallback()
   }, [router])
 
   return (

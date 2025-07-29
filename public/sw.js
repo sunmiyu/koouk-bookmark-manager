@@ -21,8 +21,8 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Don't intercept any fetch requests
-self.addEventListener('fetch', (event) => {
-  // Let all requests pass through normally
-  return;
-});
+// Completely remove fetch event listener to prevent no-op warning
+// self.addEventListener('fetch', (event) => {
+//   // Let all requests pass through normally
+//   return;
+// });

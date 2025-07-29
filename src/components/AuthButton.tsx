@@ -26,17 +26,27 @@ export default function AuthButton() {
   // Get initial session and set up auth state listener
   useEffect(() => {
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setUser(session?.user ?? null)
-      setLoading(false)
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+        console.log('AuthButton - Initial session check:', { session: !!session, error })
+        setUser(session?.user ?? null)
+      } catch (error) {
+        console.error('AuthButton - Session error:', error)
+        setUser(null)
+      } finally {
+        setLoading(false)
+      }
     }
 
     getSession()
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('AuthButton - Auth state change:', event, !!session)
       setUser(session?.user ?? null)
-      setLoading(false)
+      if (loading) {
+        setLoading(false)
+      }
     })
 
     return () => subscription.unsubscribe()

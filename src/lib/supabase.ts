@@ -8,44 +8,48 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 const fallbackUrl = 'https://placeholder.supabase.co'
 const fallbackKey = 'placeholder-key'
 
-// Global instances to ensure singleton
-declare global {
-  var __supabase: SupabaseClient | undefined
-  var __supabaseAdmin: SupabaseClient | undefined
-}
+// Enhanced singleton pattern with proper cleanup
+const SUPABASE_STORAGE_KEY = 'koouk-auth-token'
 
-// Create or reuse existing client instance
-export const supabase = globalThis.__supabase ?? createClient(
-  supabaseUrl || fallbackUrl,
-  supabaseAnonKey || fallbackKey,
-  {
-    auth: {
-      storageKey: 'koouk-auth-token',
-      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true
-    }
+// Global storage for instances
+let _supabaseInstance: SupabaseClient | null = null
+let _supabaseAdminInstance: SupabaseClient | null = null
+
+function getSupabaseClient(): SupabaseClient {
+  if (!_supabaseInstance) {
+    console.log('Creating new Supabase client instance')
+    _supabaseInstance = createClient(
+      supabaseUrl || fallbackUrl,
+      supabaseAnonKey || fallbackKey,
+      {
+        auth: {
+          storageKey: SUPABASE_STORAGE_KEY,
+          storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: true
+        }
+      }
+    )
   }
-)
-
-// Store in global to prevent recreation
-if (typeof window !== 'undefined') {
-  globalThis.__supabase = supabase
+  return _supabaseInstance
 }
 
-// Server-side client with service role key (for admin operations)
-export const supabaseAdmin = globalThis.__supabaseAdmin ?? createClient(
-  supabaseUrl || fallbackUrl,
-  serviceRoleKey || fallbackKey,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
+function getSupabaseAdminClient(): SupabaseClient {
+  if (!_supabaseAdminInstance) {
+    _supabaseAdminInstance = createClient(
+      supabaseUrl || fallbackUrl,
+      serviceRoleKey || fallbackKey,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
   }
-)
-
-if (typeof window !== 'undefined') {
-  globalThis.__supabaseAdmin = supabaseAdmin
+  return _supabaseAdminInstance
 }
+
+export const supabase = getSupabaseClient()
+export const supabaseAdmin = getSupabaseAdminClient()

@@ -6,8 +6,8 @@ export function middleware(request: NextRequest) {
   
   // 허용할 도메인들
   const allowedOrigins = [
-    'https://koouk.vercel.app',
-    'https://koouk-clone.vercel.app', 
+    'https://www.koouk.im',
+    'https://koouk.im',
     'http://localhost:3000',
     'http://localhost:3001'
   ]

@@ -139,11 +139,13 @@ export default function ContentManager({ className = '' }: ContentManagerProps) 
       let finalItems = contentItems
       if (contentItems.length === 0) {
         const dummyItem = getDummyContent(type)
+        console.log(`Loading dummy content for ${type}:`, dummyItem)
         if (dummyItem) {
           finalItems = [dummyItem]
         }
       }
 
+      console.log(`Final items for ${type}:`, finalItems)
       setItems(finalItems)
     } catch (error) {
       console.error(`Failed to load ${type}:`, error)
@@ -417,7 +419,14 @@ export default function ContentManager({ className = '' }: ContentManagerProps) 
     <div className={`${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="section-title">Content Manager</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="section-title">Content Manager</h2>
+          {!user && (
+            <span className="text-xs bg-yellow-600 text-yellow-100 px-2 py-1 rounded">
+              Preview Mode
+            </span>
+          )}
+        </div>
         {!isAdding && user && (
           <button
             onClick={() => setIsAdding(true)}
@@ -456,7 +465,11 @@ export default function ContentManager({ className = '' }: ContentManagerProps) 
       ) : items.length === 0 ? (
         <div className="text-center py-8">
           <div className="text-gray-400 mb-2">No {activeTab} yet</div>
-          <div className="text-gray-500 text-sm">Add your first {activeTab.slice(0, -1)} to get started</div>
+          {user ? (
+            <div className="text-gray-500 text-sm">Add your first {activeTab.slice(0, -1)} to get started</div>
+          ) : (
+            <div className="text-gray-500 text-sm">Login to manage your {activeTab}</div>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

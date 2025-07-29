@@ -7,6 +7,7 @@ import CookieBanner from "@/components/CookieBanner";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserPlanProvider } from "@/contexts/UserPlanContext";
 import { MiniFunctionsProvider } from "@/contexts/MiniFunctionsContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Analytics } from '@vercel/analytics/react';
 import { GoogleAnalytics } from '@next/third-parties/google'
 
@@ -82,17 +83,19 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <LanguageProvider>
-          <SessionProvider>
-            <UserPlanProvider>
-              <MiniFunctionsProvider>
-                <SecurityMonitor />
-                {children}
-                <CookieBanner />
-              </MiniFunctionsProvider>
-            </UserPlanProvider>
-          </SessionProvider>
-        </LanguageProvider>
+        <ThemeProvider>
+          <LanguageProvider>
+            <SessionProvider>
+              <UserPlanProvider>
+                <MiniFunctionsProvider>
+                  <SecurityMonitor />
+                  {children}
+                  <CookieBanner />
+                </MiniFunctionsProvider>
+              </UserPlanProvider>
+            </SessionProvider>
+          </LanguageProvider>
+        </ThemeProvider>
         <Analytics />
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />

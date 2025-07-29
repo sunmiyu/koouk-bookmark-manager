@@ -313,20 +313,20 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
             )}
           </div>
           
-          <div className="space-y-1 text-sm text-gray-300">
-            <div className="flex justify-between">
-              <span>평소 시간:</span>
-              <span>{formatDuration(route.duration)}</span>
+          <div className="space-y-1 text-sm">
+            <div className="flex justify-between items-center py-1">
+              <span className="text-gray-300 font-medium">평소 시간</span>
+              <span className="text-white font-semibold">{formatDuration(route.duration)}</span>
             </div>
-            <div className="flex justify-between">
-              <span>현재 교통:</span>
-              <span className={route.trafficDuration > route.duration ? 'text-orange-400' : 'text-green-400'}>
+            <div className="flex justify-between items-center py-1">
+              <span className="text-gray-300 font-medium">현재 교통</span>
+              <span className={`font-semibold ${route.trafficDuration > route.duration ? 'text-orange-400' : 'text-green-400'}`}>
                 {formatDuration(route.trafficDuration)}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span>거리:</span>
-              <span>{formatDistance(route.distance)}</span>
+            <div className="flex justify-between items-center py-1">
+              <span className="text-gray-300 font-medium">거리</span>
+              <span className="text-white font-semibold">{formatDistance(route.distance)}</span>
             </div>
           </div>
 

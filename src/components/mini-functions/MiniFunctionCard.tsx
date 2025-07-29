@@ -6,17 +6,15 @@ import { MiniFunctionData } from '@/types/miniFunctions'
 interface MiniFunctionCardProps {
   functionData: MiniFunctionData
   title: React.ReactNode
-  firstLine: React.ReactNode
-  secondLine: React.ReactNode
-  expandedContent?: React.ReactNode
+  children: React.ReactNode // 기본 콘텐츠 (접힘/펼침 상태 모두 사용)
+  expandedContent?: React.ReactNode // 추가 확장 콘텐츠
   isPreviewOnly?: boolean
 }
 
 export default function MiniFunctionCard({ 
   functionData, 
   title,
-  firstLine,
-  secondLine,
+  children,
   expandedContent,
   isPreviewOnly = false
 }: MiniFunctionCardProps) {
@@ -29,7 +27,7 @@ export default function MiniFunctionCard({
     }
   }
 
-  const shouldShowExpanded = (isExpanded || (!isExpanded && isHovered)) && !isPreviewOnly && expandedContent
+  const shouldShowExpanded = isExpanded && !isPreviewOnly && expandedContent
 
   return (
     <div className="w-full">
@@ -58,15 +56,16 @@ export default function MiniFunctionCard({
           </div>
           {/* Text Content */}
           <div className="flex-1 min-w-0">
-            <h4 className="font-medium text-white responsive-text-sm truncate">{title}</h4>
-            <p className="text-xs text-gray-400 mt-1">{firstLine}</p>
-            <p className="text-xs text-gray-400 mt-1">{secondLine}</p>
+            <h4 className="font-medium text-white responsive-text-sm truncate mb-2">{title}</h4>
+            <div className="text-sm">
+              {children}
+            </div>
           </div>
         </div>
 
-        {/* 확장된 컨텐츠 */}
+        {/* 확장된 컨텐츠 - 자연스러운 연속성을 위해 경계선 제거 */}
         {shouldShowExpanded && (
-          <div className="pt-3 border-t border-gray-700 mt-3">
+          <div className="mt-4">
             {expandedContent}
           </div>
         )}

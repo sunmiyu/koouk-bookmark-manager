@@ -146,9 +146,9 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
       </div>
 
       {/* Today's total */}
-      <div className="flex items-center justify-between">
-        <span className="text-gray-400 text-sm">오늘 지출</span>
-        <span className="text-white font-medium text-sm">
+      <div className="flex justify-between items-center py-1">
+        <span className="text-gray-300 font-medium">오늘 지출</span>
+        <span className="text-white font-semibold">
           {formatCurrency(expenseData.todayTotal)}
         </span>
       </div>
@@ -157,12 +157,12 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
       {displayItems.length > 0 && (
         <div className="space-y-1">
           {displayItems.map((item) => (
-            <div key={item.id} className="flex items-center justify-between group">
-              <span className="text-white text-sm truncate flex-1">
+            <div key={item.id} className="flex justify-between items-center group py-1">
+              <span className="text-gray-300 font-medium truncate flex-1">
                 {item.description}
               </span>
               <div className="flex items-center gap-1">
-                <span className="text-gray-300 text-sm">
+                <span className="text-white font-semibold text-sm">
                   {formatCurrency(item.amount)}
                 </span>
                 {!isPreviewOnly && (

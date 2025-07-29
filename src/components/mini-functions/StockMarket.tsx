@@ -244,18 +244,15 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
       {/* 메인 화면: 3개 종목만 표시 */}
       <div className="space-y-2">
         {displayedStocks.map((stock) => (
-          <div key={stock.symbol} className="flex items-center justify-between text-sm">
-            <div className="flex-1 min-w-0">
-              <div className="font-medium text-white truncate">{stock.name}</div>
-              <div className="text-sm text-gray-400">{stock.symbol}</div>
-            </div>
-            <div className="text-right">
-              <div className="font-medium text-white">
+          <div key={stock.symbol} className="flex justify-between items-center text-sm py-1">
+            <span className="font-medium text-white">{stock.name}</span>
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-white">
                 {formatPrice(stock.price, stock.currency)}
-              </div>
-              <div className={`text-sm ${stock.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {formatChange(stock.change, stock.changePercent, stock.currency)}
-              </div>
+              </span>
+              <span className={`text-sm font-medium ${stock.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+              </span>
             </div>
           </div>
         ))}
@@ -294,22 +291,24 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
                       <div className="font-medium text-white">{stock.name}</div>
                       <div className="text-sm text-gray-400">{stock.symbol}</div>
                     </div>
-                    <div className="text-right mr-3">
-                      <div className="font-medium text-white">
-                        {formatPrice(stock.price, stock.currency)}
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <div className="font-medium text-white">
+                          {formatPrice(stock.price, stock.currency)}
+                        </div>
+                        <div className={`text-sm font-medium ${stock.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+                        </div>
                       </div>
-                      <div className={`text-sm ${stock.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                        {formatChange(stock.change, stock.changePercent, stock.currency)}
-                      </div>
+                      {!isPreviewOnly && allStocks.length > 1 && (
+                        <button
+                          onClick={() => removeStock(stock.symbol)}
+                          className="text-red-400 hover:text-red-300 text-sm px-2"
+                        >
+                          ✕
+                        </button>
+                      )}
                     </div>
-                    {!isPreviewOnly && allStocks.length > 1 && (
-                      <button
-                        onClick={() => removeStock(stock.symbol)}
-                        className="text-red-400 hover:text-red-300 text-sm px-2"
-                      >
-                        ✕
-                      </button>
-                    )}
                   </div>
                 ))}
               </div>

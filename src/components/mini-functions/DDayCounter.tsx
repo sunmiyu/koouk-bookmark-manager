@@ -116,22 +116,17 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <div className="text-sm font-medium text-white truncate">
-            {nextEvent.name}
-          </div>
-          <div className="text-sm text-gray-400">
-            {new Date(nextEvent.targetDate).toLocaleDateString('ko-KR')}
-          </div>
-        </div>
-        <div className="flex flex-col items-end">
-          <div className="text-sm font-bold text-blue-400">
+      <div className="flex justify-between items-center py-1">
+        <span className="text-white font-medium truncate flex-1">
+          {nextEvent.name}
+        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-gray-400 text-sm">
+            {new Date(nextEvent.targetDate).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
+          </span>
+          <span className="text-blue-400 font-bold text-sm">
             D-{nextEvent.daysRemaining}
-          </div>
-          <div className="text-sm text-gray-500">
-            {nextEvent.category}
-          </div>
+          </span>
         </div>
       </div>
 

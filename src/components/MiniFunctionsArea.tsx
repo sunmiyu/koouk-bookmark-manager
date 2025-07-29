@@ -63,10 +63,10 @@ export default function MiniFunctionsArea() {
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
             title="뉴스 헤드라인"
-            firstLine="삼성전자, 3분기 영업이익 9조원 기록 • 한국경제 • 2시간 전"
-            secondLine="AI 혁신으로 인한 미래 일자리 변화 전망 • 중앙일보 • 4시간 전"
-            expandedContent={<NewsHeadlines isPreviewOnly={isPreviewOnly} />}
-          />
+            expandedContent={isPreviewOnly ? undefined : <NewsHeadlines isPreviewOnly={false} />}
+          >
+            <NewsHeadlines isPreviewOnly={true} />
+          </MiniFunctionCard>
         )
       case 'music':
         return (
@@ -75,10 +75,10 @@ export default function MiniFunctionsArea() {
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
             title="음악 추천"
-            firstLine="아침에 일어나면 듣는 Jazz"
-            secondLine="신나는 아침에 듣는 Kpop"
-            expandedContent={<MusicRecommendations isPreviewOnly={isPreviewOnly} />}
-          />
+            expandedContent={isPreviewOnly ? undefined : <MusicRecommendations isPreviewOnly={false} />}
+          >
+            <MusicRecommendations isPreviewOnly={true} />
+          </MiniFunctionCard>
         )
       case 'alarm':
         return (
@@ -87,10 +87,10 @@ export default function MiniFunctionsArea() {
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
             title="알람"
-            firstLine="내일 07:00 • 5시간 12분 남음"
-            secondLine="매일 19:00"
-            expandedContent={<AlarmFunction isPreviewOnly={isPreviewOnly} />}
-          />
+            expandedContent={isPreviewOnly ? undefined : <AlarmFunction isPreviewOnly={false} />}
+          >
+            <AlarmFunction isPreviewOnly={true} />
+          </MiniFunctionCard>
         )
       case 'expense':
         return (
@@ -99,10 +99,10 @@ export default function MiniFunctionsArea() {
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
             title="가계부"
-            firstLine="총 지출 25,000원"
-            secondLine="총 수입 2,000,000원"
-            expandedContent={<ExpenseTracker isPreviewOnly={isPreviewOnly} />}
-          />
+            expandedContent={isPreviewOnly ? undefined : <ExpenseTracker isPreviewOnly={false} />}
+          >
+            <ExpenseTracker isPreviewOnly={true} />
+          </MiniFunctionCard>
         )
       case 'diary':
         return (
@@ -111,10 +111,10 @@ export default function MiniFunctionsArea() {
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
             title="일기"
-            firstLine="오늘은 정말 좋은 하루였다..."
-            secondLine="기분이 좋고 앞으로 어떤 일들이..."
-            expandedContent={<MiniDiary isPreviewOnly={isPreviewOnly} />}
-          />
+            expandedContent={isPreviewOnly ? undefined : <MiniDiary isPreviewOnly={false} />}
+          >
+            <MiniDiary isPreviewOnly={true} />
+          </MiniFunctionCard>
         )
       case 'stocks':
         return (
@@ -123,10 +123,10 @@ export default function MiniFunctionsArea() {
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
             title="주식"
-            firstLine="삼성전자 72,500 (+1.2%)"
-            secondLine="SK하이닉스 128,000 (-0.8%)"
-            expandedContent={<StockMarket isPreviewOnly={isPreviewOnly} />}
-          />
+            expandedContent={isPreviewOnly ? undefined : <StockMarket isPreviewOnly={false} />}
+          >
+            <StockMarket isPreviewOnly={true} />
+          </MiniFunctionCard>
         )
       case 'commute':
         return (
@@ -147,10 +147,10 @@ export default function MiniFunctionsArea() {
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
             title="맛집"
-            firstLine="맛나감자탕 • 한식 • 150m"
-            secondLine="스타벅스 강남점 • 카페 • 230m"
-            expandedContent={<NearbyRestaurants isPreviewOnly={isPreviewOnly} />}
-          />
+            expandedContent={isPreviewOnly ? undefined : <NearbyRestaurants isPreviewOnly={false} />}
+          >
+            <NearbyRestaurants isPreviewOnly={true} />
+          </MiniFunctionCard>
         )
       case 'dday':
         // D-day 아이콘 변경
@@ -161,10 +161,10 @@ export default function MiniFunctionsArea() {
             functionData={ddayFunctionData} 
             isPreviewOnly={isPreviewOnly}
             title="D-Day"
-            firstLine="연말 휴가까지 D-45"
-            secondLine="아들 생일 D-256"
-            expandedContent={<DDayCounter isPreviewOnly={isPreviewOnly} />}
-          />
+            expandedContent={isPreviewOnly ? undefined : <DDayCounter isPreviewOnly={false} />}
+          >
+            <DDayCounter isPreviewOnly={true} />
+          </MiniFunctionCard>
         )
       default:
         return null

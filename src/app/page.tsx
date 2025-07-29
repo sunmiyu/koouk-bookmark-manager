@@ -12,33 +12,18 @@ import LinkSection from '@/components/LinkSection'
 import AuthButton from '@/components/AuthButton'
 import KooukLogo from '@/components/KooukLogo'
 import SearchBar from '@/components/SearchBar'
+import ThemeToggle from '@/components/ThemeToggle'
 import { ContentProvider } from '@/contexts/ContentContext'
-import { useUserPlan } from '@/contexts/UserPlanContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import MiniFunctionsArea from '@/components/MiniFunctionsArea'
 import { trackEvents } from '@/lib/analytics'
 
 function HomeContent() {
-  const { currentPlan, upgradeToProPlan } = useUserPlan()
   const { t } = useLanguage()
-
-  const handleProClick = () => {
-    if (currentPlan === 'free') {
-      const confirmed = confirm(t('upgrade_to_pro'))
-      if (confirmed) {
-        upgradeToProPlan()
-        trackEvents.upgradePlan('free', 'pro')
-        alert(t('upgraded_successfully'))
-      }
-    } else {
-      // Already Pro or Unlimited, go to pricing page
-      window.location.href = '/pricing'
-    }
-  }
 
   return (
     <ContentProvider>
-      <div className="min-h-screen bg-black text-white">
+      <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
       <div className="container mx-auto responsive-p-md py-4 sm:py-6">
         <header className="mb-6">
           {/* First row: Logo, Weather, Time */}
@@ -49,6 +34,8 @@ function HomeContent() {
               <WeatherOnly />
               <span className="text-gray-500">|</span>
               <TimeDisplay />
+              <span className="text-gray-500">|</span>
+              <ThemeToggle />
             </div>
           </div>
           
@@ -60,19 +47,6 @@ function HomeContent() {
               <div className="w-64">
                 <SearchBar />
               </div>
-              {/* Pro button */}
-              <button
-                onClick={handleProClick}
-                className={`w-16 py-1 text-white text-sm font-medium rounded-full transition-all duration-200 h-[24px] flex items-center justify-center flex-shrink-0 ${
-                  currentPlan === 'free' 
-                    ? 'bg-green-600 hover:bg-green-700' 
-                    : currentPlan === 'pro'
-                      ? 'bg-blue-600 hover:bg-blue-700'
-                      : 'bg-purple-600 hover:bg-purple-700'
-                }`}
-              >
-                {currentPlan === 'free' ? 'Pro' : currentPlan === 'pro' ? 'Pro✓' : 'Pro+'}
-              </button>
               {/* Login button */}
               <div className="flex-shrink-0">
                 <AuthButton />
@@ -85,19 +59,6 @@ function HomeContent() {
               <div className="max-w-xs">
                 <SearchBar />
               </div>
-              {/* Pro + Login 버튼 */}
-              <button
-                onClick={handleProClick}
-                className={`w-16 py-1 text-white text-sm font-medium rounded-full transition-all duration-200 h-[24px] flex items-center justify-center flex-shrink-0 ${
-                  currentPlan === 'free' 
-                    ? 'bg-green-600 hover:bg-green-700' 
-                    : currentPlan === 'pro'
-                      ? 'bg-blue-600 hover:bg-blue-700'
-                      : 'bg-purple-600 hover:bg-purple-700'
-                }`}
-              >
-                {currentPlan === 'free' ? 'Pro' : currentPlan === 'pro' ? 'Pro✓' : 'Pro+'}
-              </button>
               <div className="flex-shrink-0">
                 <AuthButton />
               </div>

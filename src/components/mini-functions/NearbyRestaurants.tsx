@@ -53,14 +53,20 @@ export default function NearbyRestaurants({ isPreviewOnly = false }: NearbyResta
       {restaurants.map((restaurant) => (
         <div key={restaurant.id} className="flex justify-between items-center py-1 hover:bg-gray-800 rounded px-1 transition-colors">
           <div className="flex-1 truncate">
-            <span className="text-sm text-white">
-              {restaurant.name} ({restaurant.category}, {restaurant.distance})
-            </span>
+            <div className="text-white font-medium text-sm">
+              {restaurant.name}
+            </div>
+            <div className="text-gray-400 text-xs">
+              {restaurant.category} • {restaurant.distance}
+            </div>
           </div>
-          <div className="flex items-center gap-1 text-xs text-gray-400 flex-shrink-0 ml-2">
-            <span>{restaurant.rating} ({restaurant.reviewCount})</span>
-            <span className={restaurant.isOpen ? 'text-green-400' : 'text-red-400'}>
-              {restaurant.isOpen ? '열림' : '닫힘'}
+          <div className="flex flex-col items-end gap-1 flex-shrink-0 ml-2">
+            <div className="flex items-center gap-1 text-xs text-gray-400">
+              <span>⭐ {restaurant.rating}</span>
+              <span>({restaurant.reviewCount})</span>
+            </div>
+            <span className={`text-xs font-medium ${restaurant.isOpen ? 'text-green-400' : 'text-red-400'}`}>
+              {restaurant.isOpen ? '영업중' : '영업종료'}
             </span>
           </div>
         </div>

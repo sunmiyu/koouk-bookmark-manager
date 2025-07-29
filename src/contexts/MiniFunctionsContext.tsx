@@ -108,6 +108,13 @@ export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         console.error('Failed to load enabled mini functions:', error)
       }
+    } else {
+      // 테스트 기간: 기본적으로 모든 9개 Mini Function 활성화
+      const allEnabled = availableFunctions.map(func => ({ ...func, isEnabled: true }))
+      setEnabledFunctions(allEnabled)
+      // localStorage에 저장
+      const allTypes = availableFunctions.map(func => func.type)
+      localStorage.setItem('koouk_enabled_mini_functions', JSON.stringify(allTypes))
     }
   }, [availableFunctions])
 
@@ -118,8 +125,8 @@ export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
   }, [enabledFunctions])
 
   // Calculate max enabled functions based on plan
-  // TEMPORARY: Allow 8 functions for testing period
-  const maxEnabled = 8
+  // 테스트 기간: 모든 9개 Mini Function 사용 가능
+  const maxEnabled = 9
   const canEnableMore = enabledFunctions.length < maxEnabled
 
   const enableFunction = (type: MiniFunctionType) => {

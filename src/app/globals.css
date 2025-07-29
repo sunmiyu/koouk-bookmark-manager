@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Tailwind CSS 다크모드 설정 */
+@config "../../tailwind.config.js";
+
 * {
   margin: 0;
   padding: 0;
@@ -32,13 +35,24 @@ html {
 }
 
 body {
-  background-color: #000000;
-  color: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
   font-size: 1rem;
   line-height: 1.5;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 다크모드 기본값 */
+body {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+/* 라이트모드 */
+body:not(.dark) {
+  background-color: #ffffff;
+  color: #1a1a1a;
 }
 
 .container {

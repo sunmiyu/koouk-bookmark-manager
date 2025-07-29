@@ -335,20 +335,27 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
     )
   }
 
+  if (isPreviewOnly) {
+    // Preview mode: show only simple traffic status
+    return (
+      <div className="text-center text-gray-400">
+        <div className="text-sm">교통 원활</div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-2">
       {commuteData.routes.map((route) => (
         <div key={route.id} className="bg-gray-800 rounded-lg p-2">
           <div className="flex items-center justify-between mb-2">
             <div className="font-medium text-white text-sm truncate pr-2 flex-1">{route.name}</div>
-            {!isPreviewOnly && (
-              <button
-                onClick={() => removeRoute(route.id)}
-                className="text-red-400 hover:text-red-300 text-sm flex-shrink-0"
-              >
-                ✕
-              </button>
-            )}
+            <button
+              onClick={() => removeRoute(route.id)}
+              className="text-red-400 hover:text-red-300 text-sm flex-shrink-0"
+            >
+              ✕
+            </button>
           </div>
           
           <div className="space-y-1 text-sm">
@@ -365,6 +372,9 @@ export default function CommuteTime({ isPreviewOnly = false }: CommuteTimeProps)
             <div className="flex justify-between items-center py-1">
               <span className="text-gray-300 font-medium">거리</span>
               <span className="text-white font-semibold">{formatDistance(route.distance)}</span>
+            </div>
+            <div className="text-xs text-gray-500 mt-2">
+              집 (비스타2차) → 회사 (대구 중구 대방동)
             </div>
           </div>
 

@@ -96,7 +96,7 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
   // 주식 데이터 로드
   const loadStockData = useCallback(async () => {
     if (isPreviewOnly) {
-      // 프리뷰용 샘플 데이터
+      // 프리뷰용 샘플 데이터 - 한국 주식
       setStockData({
         watchlist: [
           {
@@ -109,20 +109,38 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
             lastUpdated: new Date().toISOString()
           },
           {
-            symbol: 'AAPL',
-            name: 'Apple Inc.',
-            price: 195.50,
-            change: -2.30,
-            changePercent: -1.16,
-            currency: 'USD',
-            lastUpdated: new Date().toISOString()
-          },
-          {
             symbol: '000660.KS',
             name: 'SK하이닉스',
             price: 125000,
             change: 3500,
             changePercent: 2.88,
+            currency: 'KRW',
+            lastUpdated: new Date().toISOString()
+          },
+          {
+            symbol: '035420.KS',
+            name: 'NAVER',
+            price: 180000,
+            change: -5000,
+            changePercent: -2.70,
+            currency: 'KRW',
+            lastUpdated: new Date().toISOString()
+          },
+          {
+            symbol: '207940.KS',
+            name: '삼성바이오로직스',
+            price: 850000,
+            change: 15000,
+            changePercent: 1.80,
+            currency: 'KRW',
+            lastUpdated: new Date().toISOString()
+          },
+          {
+            symbol: '373220.KS',
+            name: 'LG에너지솔루션',
+            price: 420000,
+            change: -8000,
+            changePercent: -1.87,
             currency: 'KRW',
             lastUpdated: new Date().toISOString()
           }

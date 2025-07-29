@@ -5,7 +5,8 @@ import { MiniFunctionData } from '@/types/miniFunctions'
 
 interface MiniFunctionCardProps {
   functionData: MiniFunctionData
-  title: React.ReactNode
+  title: string
+  summary?: React.ReactNode
   children: React.ReactNode // 기본 콘텐츠 (접힘/펼침 상태 모두 사용)
   expandedContent?: React.ReactNode // 추가 확장 콘텐츠
   isPreviewOnly?: boolean
@@ -14,6 +15,7 @@ interface MiniFunctionCardProps {
 export default function MiniFunctionCard({ 
   functionData, 
   title,
+  summary,
   children,
   expandedContent,
   isPreviewOnly = false
@@ -45,18 +47,31 @@ export default function MiniFunctionCard({
           </div>
         )}
 
-        {/* Content Container */}
-        <div className="flex items-start responsive-gap-sm">
-          {/* Icon */}
-          <div className="w-6 h-6 bg-gray-700 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5">
-            <span className="text-sm">{functionData.icon}</span>
-          </div>
-          {/* Text Content */}
-          <div className="flex-1 min-w-0">
-            <h4 className="font-bold text-white responsive-text-sm truncate mb-2">{title}</h4>
-            <div className="text-sm">
-              {children}
+        {/* Header */}
+        <div className="flex items-center justify-between mb-3">
+          {/* Left: Icon + Title */}
+          <div className="flex items-center responsive-gap-sm">
+            <div className="w-6 h-6 bg-gray-700 rounded-sm flex items-center justify-center flex-shrink-0">
+              <span className="text-sm">{functionData.icon}</span>
             </div>
+            <h4 className="font-bold text-white responsive-text-sm truncate">{title}</h4>
+          </div>
+          {/* Right: Summary */}
+          {summary && (
+            <div className="text-sm text-gray-300 text-right flex-shrink-0 ml-2">
+              {summary}
+            </div>
+          )}
+        </div>
+
+        {/* Divider */}
+        <div className="border-b border-gray-600 mb-3"></div>
+
+        {/* Body - aligned with icon position */}
+        <div className="flex items-start responsive-gap-sm">
+          <div className="w-6 flex-shrink-0"></div>
+          <div className="flex-1 min-w-0 text-sm">
+            {children}
           </div>
         </div>
 

@@ -162,14 +162,14 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
             }
           }}
         >
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2 flex-1">
-              <span className="text-white text-sm">■</span>
-              <span className="text-sm text-white truncate flex-1">
+          <div className="flex justify-between items-start gap-2">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <span className="text-white text-sm flex-shrink-0">■</span>
+              <span className="text-sm text-white truncate">
                 {item.title}
               </span>
             </div>
-            <div className="flex items-center gap-1 text-xs text-gray-400 flex-shrink-0 ml-2">
+            <div className="flex flex-col items-end text-xs text-gray-400 flex-shrink-0">
               <span>{item.source}</span>
               <span>
                 {new Date(item.publishedAt).toLocaleDateString('ko-KR', {

@@ -44,6 +44,48 @@ export default function ContentManager({ className = '' }: ContentManagerProps) 
     }
   }, [activeTab, user]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const getDummyContent = (type: ContentType): ContentItem | null => {
+    const now = new Date().toISOString()
+    
+    switch (type) {
+      case 'links':
+        return {
+          id: 'dummy-link',
+          type: 'links',
+          title: '유용한 웹사이트 모음',
+          url: 'https://example.com',
+          description: '북마크 예시입니다. 삭제 버튼으로 제거할 수 있습니다.',
+          created_at: now
+        }
+      case 'videos':
+        return {
+          id: 'dummy-video',
+          type: 'videos',
+          title: '추천 영상',
+          url: 'https://youtube.com/watch?v=example',
+          created_at: now
+        }
+      case 'images':
+        return {
+          id: 'dummy-image',
+          type: 'images',
+          title: '저장된 이미지',
+          url: 'https://via.placeholder.com/300x200',
+          created_at: now
+        }
+      case 'notes':
+        return {
+          id: 'dummy-note',
+          type: 'notes',
+          title: '메모 예시',
+          content: '이곳에 중요한 메모를 저장할 수 있습니다. 삭제 기능으로 제거 가능합니다.',
+          created_at: now
+        }
+      default:
+        return null
+    }
+  }
+
   const loadUserAndContent = async () => {
     try {
       const { data: { user: authUser } } = await supabase.auth.getUser()
@@ -90,7 +132,16 @@ export default function ContentManager({ className = '' }: ContentManagerProps) 
         created_at: item.created_at
       }))
 
-      setItems(contentItems)
+      // Add dummy content if empty for logged-in users
+      let finalItems = contentItems
+      if (contentItems.length === 0 && user) {
+        const dummyItem = getDummyContent(type)
+        if (dummyItem) {
+          finalItems = [dummyItem]
+        }
+      }
+
+      setItems(finalItems)
     } catch (error) {
       console.error(`Failed to load ${type}:`, error)
       setItems([])

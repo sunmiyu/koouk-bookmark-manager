@@ -15,11 +15,8 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
   })
   const [isEditing, setIsEditing] = useState(false)
   const [currentText, setCurrentText] = useState('')
-  const [selectedMood, setSelectedMood] = useState<DiaryEntry['mood']>('😊')
   const [expandedEntryId, setExpandedEntryId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-
-  const moods: DiaryEntry['mood'][] = ['😊', '😐', '😔', '😴', '🔥', '💪', '🎉']
 
   // Load diary data from Supabase
   useEffect(() => {
@@ -29,8 +26,7 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
         todayEntry: {
           id: 'sample',
           date: new Date().toISOString().split('T')[0],
-          content: '새 프로젝트 회의에서 좋은 아이디어가 나왔다! 내일 구현해보자 😊',
-          mood: '😊',
+          content: '새 프로젝트 회의에서 좋은 아이디어가 나왔다! 내일 구현해보자',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         },
@@ -39,7 +35,6 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
             id: 'sample1',
             date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
             content: '팀 회의에서 좋은 피드백을 받았다',
-            mood: '💪',
             createdAt: new Date(Date.now() - 86400000).toISOString(),
             updatedAt: new Date(Date.now() - 86400000).toISOString()
           }
@@ -72,7 +67,6 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
           
           if (todayEntry) {
             setCurrentText(todayEntry.content)
-            setSelectedMood(todayEntry.mood || '😊')
           }
         }
         return
@@ -85,7 +79,6 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
         id: entry.id,
         date: entry.date || today,
         content: entry.content,
-        mood: entry.mood || '😊',
         createdAt: entry.created_at,
         updatedAt: entry.updated_at
       }))
@@ -100,10 +93,8 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
 
       if (todayEntry) {
         setCurrentText(todayEntry.content)
-        setSelectedMood(todayEntry.mood || '😊')
       } else {
         setCurrentText('')
-        setSelectedMood('😊')
       }
     } catch (error) {
       console.error('Failed to load diary:', error)
@@ -122,7 +113,6 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
         
         if (todayEntry) {
           setCurrentText(todayEntry.content)
-          setSelectedMood(todayEntry.mood || '😊')
         }
       }
     } finally {
@@ -147,7 +137,6 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
           // Update existing entry
           savedEntry = await diaryService.update(diaryData.todayEntry.id, {
             content: currentText.trim(),
-            mood: selectedMood,
             date: today
           })
         } else {
@@ -155,7 +144,6 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
           savedEntry = await diaryService.create({
             user_id: user.id,
             content: currentText.trim(),
-            mood: selectedMood,
             date: today
           })
         }
@@ -164,7 +152,6 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
           id: savedEntry.id,
           date: savedEntry.date || today,
           content: savedEntry.content,
-          mood: savedEntry.mood || '😊',
           createdAt: savedEntry.created_at,
           updatedAt: savedEntry.updated_at
         }
@@ -176,14 +163,12 @@ export default function MiniDiary({ isPreviewOnly = false }: MiniDiaryProps) {
         }))
 
         setCurrentText(newEntry.content)
-        setSelectedMood(newEntry.mood || '😊')
       } else {
         // Fallback to localStorage
         const newEntry: DiaryEntry = {
           id: diaryData.todayEntry?.id || Date.now().toString(),
           date: today,
           content: currentText.trim(),
-          mood: selectedMood,
           createdAt: diaryData.todayEntry?.createdAt || now,
           updatedAt: now
         }

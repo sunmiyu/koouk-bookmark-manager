@@ -62,11 +62,7 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            title={
-              <div>
-                <span className="font-bold">뉴스헤드라인</span>
-              </div>  
-            }
+            title="뉴스헤드라인"
             expandedContent={isPreviewOnly ? undefined : <NewsHeadlines isPreviewOnly={false} />}
           >
             <NewsHeadlines isPreviewOnly={true} />
@@ -78,12 +74,8 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            title={
-              <div>
-                <span className="font-bold">음악추천</span>
-                <span className="font-normal ml-2 text-gray-300">오후 추천 List</span>
-              </div>
-            }
+            title="음악추천"
+            summary="오후 추천 List"
             expandedContent={isPreviewOnly ? undefined : <MusicRecommendations isPreviewOnly={false} />}
           >
             <MusicRecommendations isPreviewOnly={true} />
@@ -95,12 +87,8 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            title={
-              <div>
-                <span className="font-bold">알람</span>
-                <span className="font-normal ml-2 text-gray-300">2건</span>
-              </div>
-            }
+            title="알람"
+            summary="2건"
             expandedContent={isPreviewOnly ? undefined : <AlarmFunction isPreviewOnly={false} />}
           >
             <AlarmFunction isPreviewOnly={true} />
@@ -112,12 +100,8 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            title={
-              <div>
-                <span className="font-bold">가계부</span>
-                <span className="font-normal ml-2 text-gray-300">지출 ₩34,500 | 수입 ₩2,500,000</span>
-              </div>
-            }
+            title="가계부"
+            summary="지출 ₩34,500 | 수입 ₩2,500,000"
             expandedContent={isPreviewOnly ? undefined : <ExpenseTracker isPreviewOnly={false} />}
           >
             <ExpenseTracker isPreviewOnly={true} />
@@ -141,11 +125,11 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            title={
+            title="주식(국내)"
+            summary={
               <div>
-                <span className="font-bold">주식(국내)</span>
-                <span className="font-normal ml-2 text-gray-300">코스피 ▲ | 코스닥 △</span>
-                <span className="text-xs text-gray-400 block">한국 기준 09:00~15:30 지수 반영</span>
+                <div>코스피 ▲ | 코스닥 △</div>
+                <div className="text-xs text-gray-400">09:00~15:30 지수 반영</div>
               </div>
             }
             expandedContent={isPreviewOnly ? undefined : <StockMarket isPreviewOnly={false} />}
@@ -159,12 +143,8 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={functionData} 
             isPreviewOnly={isPreviewOnly}
-            title={
-              <div>
-                <span className="font-bold">출근</span>
-                <span className="font-normal ml-2 text-gray-300">집→회사 35분 | 회사→집 42분</span>
-              </div>
-            }
+            title="출근"
+            summary="집→회사 35분 | 회사→집 42분"
             expandedContent={isPreviewOnly ? undefined : <CommuteTime isPreviewOnly={false} />}
           >
             <CommuteTime isPreviewOnly={true} />
@@ -190,12 +170,8 @@ export default function MiniFunctionsArea() {
             key={functionData.id} 
             functionData={ddayFunctionData} 
             isPreviewOnly={isPreviewOnly}
-            title={
-              <div>
-                <span className="font-bold">D-day</span>
-                <span className="font-normal ml-2 text-gray-300">신년 (&apos;26.1/1) D-156</span>
-              </div>
-            }
+            title="D-day"
+            summary="신년 (&apos;26.1/1) D-156"
             expandedContent={isPreviewOnly ? undefined : <DDayCounter isPreviewOnly={false} />}
           >
             <DDayCounter isPreviewOnly={true} />

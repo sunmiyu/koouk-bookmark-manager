@@ -22,8 +22,43 @@ const MiniFunctionsContext = createContext<MiniFunctionsContextType | undefined>
 export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth()
   
-  // Available Mini Functions
+  // Available Mini Functions (로컬 저장 함수들은 기본 활성화)
   const [availableFunctions] = useState<MiniFunctionData[]>([
+    // 로컬 저장 가능 (무료 플랜 - 기본 활성화)
+    {
+      id: 'expense',
+      title: 'Today\'s Expenses',
+      icon: '💰',
+      type: 'expense',
+      isEnabled: true, // 기본 활성화
+      lastUpdated: new Date().toISOString()
+    },
+    {
+      id: 'diary',
+      title: 'Mini Diary',
+      icon: '📝',
+      type: 'diary',
+      isEnabled: true, // 기본 활성화
+      lastUpdated: new Date().toISOString()
+    },
+    {
+      id: 'alarm',
+      title: 'Next Alarm',
+      icon: '⏰',
+      type: 'alarm',
+      isEnabled: true, // 기본 활성화
+      lastUpdated: new Date().toISOString()
+    },
+    {
+      id: 'dday',
+      title: 'D-day Counter',
+      icon: '📅',
+      type: 'dday',
+      isEnabled: true, // 기본 활성화
+      lastUpdated: new Date().toISOString()
+    },
+    
+    // API 필요 (유료 플랜 - 기본 비활성화)
     {
       id: 'news',
       title: 'News Headlines',
@@ -37,30 +72,6 @@ export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
       title: 'Music Recommendations',
       icon: '🎵',
       type: 'music',
-      isEnabled: false,
-      lastUpdated: new Date().toISOString()
-    },
-    {
-      id: 'alarm',
-      title: 'Next Alarm',
-      icon: '⏰',
-      type: 'alarm',
-      isEnabled: false,
-      lastUpdated: new Date().toISOString()
-    },
-    {
-      id: 'expense',
-      title: 'Today\'s Expenses',
-      icon: '💰',
-      type: 'expense',
-      isEnabled: false,
-      lastUpdated: new Date().toISOString()
-    },
-    {
-      id: 'diary',
-      title: 'Mini Diary',
-      icon: '📝',
-      type: 'diary',
       isEnabled: false,
       lastUpdated: new Date().toISOString()
     },
@@ -85,14 +96,6 @@ export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
       title: 'Nearby Restaurants',
       icon: '🍽️',
       type: 'food',
-      isEnabled: false,
-      lastUpdated: new Date().toISOString()
-    },
-    {
-      id: 'dday',
-      title: 'D-day Counter',
-      icon: '📅',
-      type: 'dday',
       isEnabled: false,
       lastUpdated: new Date().toISOString()
     }

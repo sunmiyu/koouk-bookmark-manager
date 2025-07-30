@@ -4,34 +4,48 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useMiniFunctions } from '@/contexts/MiniFunctionsContext'
 
-// Mini Function 타입 정의
+
+// Mini Function 타입 확장
 interface MiniFunctionType {
   id: string
   name: string
   description: string
   icon: string
+  requiresAPI: boolean
+  planRequired: 'free' | 'pro' | 'unlimited'
 }
 
-// 사용 가능한 모든 Mini Function들
+// 사용 가능한 모든 Mini Function들 (로컬 저장 우선)
 const AVAILABLE_FUNCTIONS: MiniFunctionType[] = [
-  { id: 'expenses', name: '가계부', description: '일일 지출 및 수입 관리', icon: '💰' },
-  { id: 'diary', name: '일기', description: '오늘의 감정과 기억 기록', icon: '📝' },
-  { id: 'alarms', name: '알람', description: '일상 알람 및 리마인더', icon: '⏰' },
-  { id: 'dday', name: 'D-Day', description: '중요한 날짜 카운트다운', icon: '📅' },
-  { id: 'commute', name: '출근길', description: '교통 상황 및 경로 정보', icon: '🚗' },
-  { id: 'music', name: '음악 추천', description: '기분별 음악 추천', icon: '🎵' },
-  { id: 'news', name: '뉴스', description: '최신 뉴스 헤드라인', icon: '📰' },
-  { id: 'stocks', name: '주식', description: '주요 주식 지수 및 정보', icon: '📈' },
-  { id: 'restaurants', name: '맛집', description: '근처 맛집 추천', icon: '🍽️' },
-  { id: 'song-practice', name: '노래 연습 List', description: '연습할 노래 목록 관리', icon: '🎤' },
-  { id: 'anniversaries', name: '기념일 등록', description: '중요한 기념일 관리 및 알림', icon: '🎉' },
-  { id: 'goals', name: '목표 세팅', description: '개인 목표 설정 및 관리', icon: '🎯' },
-  { id: 'english-study', name: '영어 공부', description: '매일 영어 단어 학습', icon: '📚' }
+  // 로컬 저장 가능 (무료 플랜)
+  { id: 'expenses', name: '가계부', description: '일일 지출 및 수입 관리', icon: '💰', requiresAPI: false, planRequired: 'free' },
+  { id: 'diary', name: '일기', description: '오늘의 감정과 기억 기록', icon: '📝', requiresAPI: false, planRequired: 'free' },
+  { id: 'alarms', name: '알람', description: '일상 알람 및 리마인더', icon: '⏰', requiresAPI: false, planRequired: 'free' },
+  { id: 'dday', name: 'D-Day', description: '중요한 날짜 카운트다운', icon: '📅', requiresAPI: false, planRequired: 'free' },
+  { id: 'song-practice', name: '노래 연습 List', description: '연습할 노래 목록 관리', icon: '🎤', requiresAPI: false, planRequired: 'free' },
+  { id: 'anniversaries', name: '기념일 등록', description: '중요한 기념일 관리 및 알림', icon: '🎉', requiresAPI: false, planRequired: 'free' },
+  { id: 'goals', name: '목표 세팅', description: '개인 목표 설정 및 관리', icon: '🎯', requiresAPI: false, planRequired: 'free' },
+  { id: 'english-study', name: '영어 공부', description: '매일 영어 단어 학습', icon: '📚', requiresAPI: false, planRequired: 'free' },
+  { id: 'unit-converter', name: '단위변환', description: '길이, 무게, 온도 등 단위 변환', icon: '📐', requiresAPI: false, planRequired: 'free' },
+  { id: 'currency-converter', name: '환율변환', description: '실시간 환율 계산기', icon: '💱', requiresAPI: true, planRequired: 'pro' },
+  { id: 'world-time', name: '세계시간', description: '여러 시간대 동시 표시', icon: '🌍', requiresAPI: false, planRequired: 'free' },
+  { id: 'exercise-tracker', name: '운동기록', description: '운동 종류별 기록 관리', icon: '💪', requiresAPI: false, planRequired: 'free' },
+  { id: 'motivation-quotes', name: '동기부여 글귀', description: '매일 새로운 동기부여 메시지', icon: '✨', requiresAPI: false, planRequired: 'free' },
+  
+  // API 필요 (유료 플랜)
+  { id: 'news', name: '뉴스', description: '최신 뉴스 헤드라인', icon: '📰', requiresAPI: true, planRequired: 'pro' },
+  { id: 'music', name: '음악 추천', description: '기분별 음악 추천', icon: '🎵', requiresAPI: true, planRequired: 'pro' },
+  { id: 'stocks', name: '주식', description: '주요 주식 지수 및 정보', icon: '📈', requiresAPI: true, planRequired: 'pro' },
+  { id: 'commute', name: '출근길', description: '교통 상황 및 경로 정보', icon: '🚗', requiresAPI: true, planRequired: 'pro' },
+  { id: 'restaurants', name: '맛집', description: '근처 맛집 추천', icon: '🍽️', requiresAPI: true, planRequired: 'unlimited' },
+  { id: 'currency-rates', name: '환율현황', description: '주요 통화 실시간 환율', icon: '📊', requiresAPI: true, planRequired: 'pro' },
+  { id: 'pharmacy-24h', name: '24시간 주변약국', description: '24시간 운영 약국 위치', icon: '🏥', requiresAPI: true, planRequired: 'pro' }
 ]
 
 export default function MiniFunctionsControlPage() {
   const { enabledFunctions, toggleFunction } = useMiniFunctions()
   const [selectedFunction, setSelectedFunction] = useState<string | null>(null)
+  const [currentPlan, setCurrentPlan] = useState<'free' | 'pro' | 'unlimited'>('free')
 
   const enabledFunctionIds = enabledFunctions.map(f => f.id)
 
@@ -514,6 +528,49 @@ export default function MiniFunctionsControlPage() {
           </Link>
         </div>
 
+        {/* Plan Selection Section */}
+        <div className="mb-8">
+          <div className="bg-white/70 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-lg p-6">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Subscription Plan</h2>
+                <p className="text-gray-600">Choose your plan to unlock Mini Functions</p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-3">
+                {/* Plan Buttons */}
+                {[
+                  { id: 'free', name: 'Free', price: '₩0', features: '12 Basic Functions' },
+                  { id: 'pro', name: 'Pro', price: '₩9,900/mo', features: 'All Functions + API' },
+                  { id: 'unlimited', name: 'Unlimited', price: '₩19,900/mo', features: 'Premium APIs + Priority' }
+                ].map((plan) => (
+                  <button
+                    key={plan.id}
+                    onClick={() => setCurrentPlan(plan.id as any)}
+                    className={`px-4 py-3 rounded-lg border-2 transition-all min-w-[140px] text-left ${
+                      currentPlan === plan.id
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'
+                    }`}
+                  >
+                    <div className="font-semibold text-sm">{plan.name}</div>
+                    <div className="text-xs font-medium mt-0.5">{plan.price}</div>
+                    <div className="text-xs text-gray-500 mt-1">{plan.features}</div>
+                  </button>
+                ))}
+                
+                {/* Pricing Page Link */}
+                <Link
+                  href="/pricing"
+                  className="px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all text-center flex items-center justify-center min-w-[120px] shadow-lg font-medium text-sm"
+                >
+                  View Pricing
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Professional Sidebar Navigation */}
           <div className="w-full lg:w-72 flex-shrink-0">
@@ -535,29 +592,49 @@ export default function MiniFunctionsControlPage() {
                 <div className="space-y-1">
                   {AVAILABLE_FUNCTIONS.map((func) => {
                     const isEnabled = enabledFunctionIds.includes(func.id)
+                    const canAccess = func.planRequired === 'free' || 
+                                    (func.planRequired === 'pro' && (currentPlan === 'pro' || currentPlan === 'unlimited')) ||
+                                    (func.planRequired === 'unlimited' && currentPlan === 'unlimited')
+                    const isLocked = !canAccess
+                    
                     return (
                       <div
                         key={func.id}
-                        onClick={() => setSelectedFunction(func.id)}
-                        className={`p-3 rounded-lg cursor-pointer transition-all duration-200 group border ${
-                          selectedFunction === func.id
-                            ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-sm'
-                            : 'hover:bg-gray-50 text-gray-700 border-transparent hover:border-gray-200'
+                        onClick={() => !isLocked && setSelectedFunction(func.id)}
+                        className={`p-3 rounded-lg transition-all duration-200 group border relative ${
+                          isLocked 
+                            ? 'opacity-50 cursor-not-allowed bg-gray-50 border-gray-200'
+                            : selectedFunction === func.id
+                              ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-sm cursor-pointer'
+                              : 'hover:bg-gray-50 text-gray-700 border-transparent hover:border-gray-200 cursor-pointer'
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <span className="text-lg">{func.icon}</span>
-                            <div>
-                              <span className="font-medium text-sm block">{func.name}</span>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-sm block">{func.name}</span>
+                                {func.requiresAPI && (
+                                  <span className="px-1.5 py-0.5 bg-purple-100 text-purple-600 text-xs rounded-md font-medium">API</span>
+                                )}
+                                {isLocked && (
+                                  <span className="px-1.5 py-0.5 bg-yellow-100 text-yellow-600 text-xs rounded-md font-medium">
+                                    {func.planRequired === 'pro' ? 'Pro' : 'Unlimited'}
+                                  </span>
+                                )}
+                              </div>
                               <span className="text-xs text-gray-500 truncate">{func.description}</span>
                             </div>
                           </div>
-                          <div className={`w-2.5 h-2.5 rounded-full border-2 ${
-                            isEnabled 
-                              ? 'bg-green-500 border-green-200' 
-                              : 'bg-gray-300 border-gray-200'
-                          }`}></div>
+                          <div className="flex items-center gap-2">
+                            {isLocked && <span className="text-gray-400">🔒</span>}
+                            <div className={`w-2.5 h-2.5 rounded-full border-2 ${
+                              isEnabled && !isLocked
+                                ? 'bg-green-500 border-green-200' 
+                                : 'bg-gray-300 border-gray-200'
+                            }`}></div>
+                          </div>
                         </div>
                       </div>
                     )
@@ -584,16 +661,43 @@ export default function MiniFunctionsControlPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
-                        <input
-                          type="checkbox"
-                          id="function-enabled"
-                          checked={enabledFunctionIds.includes(selectedFunction)}
-                          onChange={() => toggleFunction(selectedFunction)}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
-                        />
-                        <label htmlFor="function-enabled" className="text-sm font-medium text-gray-700">Enable Function</label>
-                      </div>
+                      {(() => {
+                        const func = AVAILABLE_FUNCTIONS.find(f => f.id === selectedFunction)
+                        const canAccess = func && (func.planRequired === 'free' || 
+                                        (func.planRequired === 'pro' && (currentPlan === 'pro' || currentPlan === 'unlimited')) ||
+                                        (func.planRequired === 'unlimited' && currentPlan === 'unlimited'))
+                        const isLocked = !canAccess
+                        
+                        return (
+                          <div className="flex items-center gap-3">
+                            {isLocked ? (
+                              <div className="flex items-center gap-3 bg-yellow-50 px-4 py-2 rounded-lg border border-yellow-200">
+                                <span className="text-yellow-600">🔒</span>
+                                <span className="text-sm font-medium text-yellow-700">
+                                  {func?.planRequired === 'pro' ? 'Pro Plan Required' : 'Unlimited Plan Required'}
+                                </span>
+                                <Link
+                                  href="/pricing"
+                                  className="text-xs px-2 py-1 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 font-medium"
+                                >
+                                  Upgrade
+                                </Link>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
+                                <input
+                                  type="checkbox"
+                                  id="function-enabled"
+                                  checked={enabledFunctionIds.includes(selectedFunction)}
+                                  onChange={() => toggleFunction(selectedFunction)}
+                                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
+                                />
+                                <label htmlFor="function-enabled" className="text-sm font-medium text-gray-700">Enable Function</label>
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })()} 
                     </div>
                   </div>
 

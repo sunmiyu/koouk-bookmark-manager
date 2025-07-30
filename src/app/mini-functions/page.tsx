@@ -26,8 +26,7 @@ const AVAILABLE_FUNCTIONS: MiniFunctionType[] = [
   { id: 'song-practice', name: '노래 연습 List', description: '연습할 노래 목록 관리', icon: '🎤' },
   { id: 'anniversaries', name: '기념일 등록', description: '중요한 기념일 관리 및 알림', icon: '🎉' },
   { id: 'goals', name: '목표 세팅', description: '개인 목표 설정 및 관리', icon: '🎯' },
-  { id: 'english-study', name: '영어 공부', description: '매일 영어 단어 학습', icon: '📚' },
-  { id: 'simple-memo', name: '단순 메모장', description: '간단한 메모 작성 및 관리', icon: '📋' }
+  { id: 'english-study', name: '영어 공부', description: '매일 영어 단어 학습', icon: '📚' }
 ]
 
 export default function MiniFunctionsControlPage() {
@@ -503,46 +502,6 @@ export default function MiniFunctionsControlPage() {
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                   <label htmlFor="english-pronunciation" className="text-sm font-medium text-gray-700">발음 표시하기</label>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-
-      case 'simple-memo':
-        return (
-          <div className="space-y-6">
-            <div>
-              <h4 className="text-lg font-medium text-gray-900 mb-4">단순 메모장 설정</h4>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">메모 자동 저장</label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      id="memo-auto-save"
-                      defaultChecked={true}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <label htmlFor="memo-auto-save" className="text-sm font-medium text-gray-700">타이핑 중 자동 저장</label>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">메모 최대 길이</label>
-                  <select className="px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-sm">
-                    <option value="500">500자</option>
-                    <option value="1000">1000자</option>
-                    <option value="2000">2000자</option>
-                    <option value="unlimited">제한 없음</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">메모 글꼴 크기</label>
-                  <select className="px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-sm">
-                    <option value="small">작게</option>
-                    <option value="medium">보통</option>
-                    <option value="large">크게</option>
-                  </select>
                 </div>
               </div>
             </div>

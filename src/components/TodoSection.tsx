@@ -291,8 +291,8 @@ export default function TodoSection() {
     const pastCard = isPast(card.date)
     
     return (
-      <div key={card.date} className={`bg-gray-800/50 backdrop-blur-sm border rounded-xl p-4 min-w-[280px] sm:min-w-[250px] flex-shrink-0 transition-all duration-200 hover:bg-gray-800/70 ${
-        todayCard ? 'border-blue-500/50 shadow-lg shadow-blue-500/10' : 'border-gray-700/50 hover:border-gray-600/50'
+      <div key={card.date} className={`bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 min-w-[280px] sm:min-w-[250px] flex-shrink-0 transition-all duration-200 hover:bg-gray-800/70 ${
+        todayCard ? 'shadow-lg shadow-blue-500/10' : ''
       }`}>
         <div className="mb-4">
           <div className="flex items-center justify-between">
@@ -361,14 +361,14 @@ export default function TodoSection() {
                 onChange={(e) => setNewTodoText(prev => ({ ...prev, [card.date]: e.target.value }))}
                 onKeyPress={(e) => handleKeyPress(e, card.date)}
                 placeholder="Add new todo..."
-                className="flex-1 px-3 py-2 text-sm bg-gray-700/50 border border-gray-600/50 rounded-lg focus:outline-none focus:border-blue-500 focus:bg-gray-700 text-white placeholder-gray-400 transition-colors"
+                className="flex-1 px-3 py-2 text-sm bg-gray-700/50 rounded-lg focus:outline-none focus:bg-gray-700 text-white placeholder-gray-400 transition-colors"
               />
               <button
                 onClick={() => setShowRepeatOptions(prev => ({ ...prev, [card.date]: !prev[card.date] }))}
                 className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all flex-shrink-0 text-sm font-medium ${
                   showRepeatOptions[card.date] 
-                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/25 border border-purple-500' 
-                    : 'bg-gray-700/50 text-gray-400 hover:text-white hover:bg-gray-700 border border-gray-600/50 hover:border-gray-500'
+                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/25' 
+                    : 'bg-gray-700/50 text-gray-400 hover:text-white hover:bg-gray-700'
                 }`}
                 title="Repeat options"
               >
@@ -376,7 +376,7 @@ export default function TodoSection() {
               </button>
               <button 
                 onClick={() => addTodo(card.date)}
-                className="w-9 h-9 flex items-center justify-center bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-600 hover:text-white transition-all flex-shrink-0 text-sm font-medium shadow-sm"
+                className="w-9 h-9 flex items-center justify-center bg-blue-600/20 text-blue-400 rounded-lg hover:bg-blue-600 hover:text-white transition-all flex-shrink-0 text-sm font-medium shadow-sm"
                 title="Add todo"
               >
                 +
@@ -384,7 +384,7 @@ export default function TodoSection() {
             </div>
             
             {showRepeatOptions[card.date] && (
-              <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-lg p-4">
+              <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4">
                 <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Repeat Settings</div>
                 <div className="space-y-3">
                   {(['none', 'weekly', 'monthly', 'yearly'] as const).map((type) => (
@@ -425,7 +425,7 @@ export default function TodoSection() {
   }
 
   return (
-    <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800/50 rounded-xl p-6">
+    <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-8">
       {/* Professional Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">

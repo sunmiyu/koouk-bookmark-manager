@@ -205,7 +205,7 @@ export default function MiniFunctionsArea() {
         <div className="flex items-center gap-3 mb-4">
           <h2 className="section-title">{t('mini_functions')}</h2>
         </div>
-        <div className="text-center py-8 bg-gray-900 rounded-lg border border-gray-800">
+        <div className="text-center py-8 bg-gray-900 rounded-lg">
           <div className="text-4xl mb-4">🚧</div>
           <div className="text-sm font-medium text-gray-300 mb-2">서비스 준비중</div>
           <div className="text-sm text-gray-400 mb-4">
@@ -234,7 +234,7 @@ export default function MiniFunctionsArea() {
   }
 
   return (
-    <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800/50 rounded-xl p-6">
+    <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-8">
       {/* Professional Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -249,13 +249,13 @@ export default function MiniFunctionsArea() {
         </div>
         
         <div className="flex items-center gap-3">
-          <div className="px-3 py-1.5 bg-gray-800/50 rounded-lg border border-gray-700/50">
+          <div className="px-3 py-1.5 bg-gray-800/50 rounded-lg">
             <span className="text-sm font-medium text-gray-300">
               {enabledFunctions.length}/{maxEnabled} {t('active')}
             </span>
           </div>
           <button 
-            className="w-9 h-9 flex items-center justify-center bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 border border-gray-700 hover:border-gray-600 rounded-lg transition-all cursor-pointer"
+            className="w-9 h-9 flex items-center justify-center bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-all cursor-pointer"
             onClick={() => router.push('/mini-functions')}
             title="Mini Functions 관리"
           >

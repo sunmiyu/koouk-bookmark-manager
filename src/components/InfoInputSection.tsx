@@ -138,7 +138,7 @@ export default function InfoInputSection() {
   }
 
   return (
-    <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800/50 rounded-xl p-6">
+    <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-8">
       {/* Professional Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center">
@@ -160,15 +160,15 @@ export default function InfoInputSection() {
             onKeyPress={handleKeyPress}
             onPaste={handlePaste}
             placeholder="Paste URL, image, or type your note..."
-            className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700/50 rounded-lg focus:outline-none focus:border-blue-500 focus:bg-gray-800 text-white placeholder-gray-400 text-sm pr-24 transition-all"
+            className="w-full px-4 py-3 bg-gray-800/50 rounded-lg focus:outline-none focus:bg-gray-800 text-white placeholder-gray-400 text-sm pr-24 transition-all"
           />
           
           {isExpanded && (
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
-              <span className={`px-2 py-1 rounded-md text-xs font-medium border ${
-                inputType === 'video' ? 'bg-red-600/20 text-red-400 border-red-500/30' :
-                inputType === 'image' ? 'bg-green-600/20 text-green-400 border-green-500/30' :
-                inputType === 'link' ? 'bg-blue-600/20 text-blue-400 border-blue-500/30' : 'bg-purple-600/20 text-purple-400 border-purple-500/30'
+              <span className={`px-2 py-1 rounded-md text-xs font-medium ${
+                inputType === 'video' ? 'bg-red-600/20 text-red-400' :
+                inputType === 'image' ? 'bg-green-600/20 text-green-400' :
+                inputType === 'link' ? 'bg-blue-600/20 text-blue-400' : 'bg-purple-600/20 text-purple-400'
               }`}>
                 {inputType}
               </span>
@@ -183,7 +183,7 @@ export default function InfoInputSection() {
         </div>
 
         {isExpanded && (
-          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-lg p-4">
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
               <span className="text-sm font-medium text-gray-400">Content Type:</span>
               <div className="flex flex-wrap gap-2">
@@ -196,14 +196,14 @@ export default function InfoInputSection() {
                       type="button"
                       onClick={() => setInputType(type)}
                       disabled={isAtLimit}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all relative border ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all relative ${
                         inputType === type 
-                          ? type === 'video' ? 'bg-red-600/20 text-red-400 border-red-500/30' :
-                            type === 'image' ? 'bg-green-600/20 text-green-400 border-green-500/30' :
-                            type === 'link' ? 'bg-blue-600/20 text-blue-400 border-blue-500/30' : 'bg-purple-600/20 text-purple-400 border-purple-500/30'
+                          ? type === 'video' ? 'bg-red-600/20 text-red-400' :
+                            type === 'image' ? 'bg-green-600/20 text-green-400' :
+                            type === 'link' ? 'bg-blue-600/20 text-blue-400' : 'bg-purple-600/20 text-purple-400'
                           : isAtLimit 
-                            ? 'bg-gray-600/20 text-gray-500 cursor-not-allowed border-gray-600/30'
-                            : 'bg-gray-700/30 text-gray-300 hover:bg-gray-700/50 border-gray-600/30 hover:border-gray-500/50'
+                            ? 'bg-gray-600/20 text-gray-500 cursor-not-allowed'
+                            : 'bg-gray-700/30 text-gray-300 hover:bg-gray-700/50'
                       }`}
                       title={isAtLimit ? `${type} limit reached (${limit === Infinity ? 'unlimited' : limit})` : ''}
                     >

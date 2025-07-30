@@ -28,7 +28,7 @@ function HomeContent() {
         <div className="container mx-auto responsive-p-md py-4 sm:py-6 max-w-7xl px-4 sm:px-6 lg:px-8">
           <header className="mb-12">
             {/* Professional Header Container */}
-            <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800/50 rounded-xl p-4">
+            <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6">
               <div className="flex items-center justify-between">
                 {/* Left: Logo */}
                 <div className="flex items-center">
@@ -54,8 +54,8 @@ function HomeContent() {
           </header>
 
           {/* Professional Tab Navigation */}
-          <div className="mb-8 mt-6">
-            <div className="border-b border-gray-800">
+          <div className="mb-12 mt-6">
+            <div className="">
               <nav className="-mb-px flex space-x-8" aria-label="Tabs">
                 <button
                   onClick={() => setActiveTab('dashboard')}
@@ -109,12 +109,9 @@ function HomeContent() {
           {/* Tab Content */}
           <main>
             {activeTab === 'dashboard' && (
-              <div className="space-y-6 sm:space-y-8">
+              <div className="space-y-12">
                 {/* Todos Section */}
                 <TodoSection />
-                
-                {/* Horizontal divider between Todos and Mini Functions */}
-                <div className="border-t border-gray-800"></div>
                 
                 {/* Mini Functions Section */}
                 <MiniFunctionsArea />
@@ -122,12 +119,12 @@ function HomeContent() {
             )}
 
             {activeTab === 'contents' && (
-              <div className="space-y-6 sm:space-y-8">
+              <div className="space-y-12">
                 {/* Info input section */}
                 <InfoInputSection />
                 
                 {/* Contents Section */}
-                <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800/50 rounded-xl p-6">
+                <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-8">
                   {/* Professional Header */}
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
@@ -158,9 +155,9 @@ function HomeContent() {
             )}
 
             {activeTab === 'popular' && (
-              <div className="space-y-6 sm:space-y-8">
+              <div className="space-y-12">
                 {/* Popular Link Section - Empty for now */}
-                <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800/50 rounded-xl p-6">
+                <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-8">
                   {/* Professional Header */}
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-8 h-8 bg-yellow-600/20 rounded-lg flex items-center justify-center">
@@ -188,9 +185,9 @@ function HomeContent() {
             )}
           </main>
 
-          <footer className="mt-12 sm:mt-16">
+          <footer className="mt-16">
             {/* Professional Footer Container */}
-            <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800/50 rounded-xl p-6">
+            <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-8">
               <div className="flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-6">
                 {/* All content in one row for PC, stacked for mobile */}
                 <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6 w-full lg:w-auto">
@@ -223,7 +220,7 @@ function HomeContent() {
                 </div>
                 
                 {/* Status Indicator */}
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-green-600/10 rounded-lg border border-green-500/20 flex-shrink-0">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-green-600/10 rounded-lg flex-shrink-0">
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                   <span className="text-green-400 text-xs font-medium whitespace-nowrap">All Systems Operational</span>
                 </div>

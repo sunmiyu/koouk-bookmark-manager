@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { CommuteRoute, CommuteData } from '@/types/miniFunctions'
 import { commuteService } from '@/lib/supabase-services'
 import { useAuth } from '@/contexts/AuthContext'
@@ -16,7 +16,7 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
     routes: [],
     lastUpdated: ''
   })
-  const [loading, setLoading] = useState(false) // Disabled for debugging
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isAddingRoute, setIsAddingRoute] = useState(false)
   const [newRoute, setNewRoute] = useState({
@@ -25,108 +25,82 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
     destination: ''
   })
 
-
-  // Kakao Mobility API 사용 (무료 30만건/일)
-  const fetchCommuteTime = async () => {
-    try {
-      // 실제 구현에서는 백엔드를 통해 API 호출해야 함 (API 키 보안)
-      // 여기서는 시뮬레이션 데이터 사용
-      const mockDuration = Math.floor(Math.random() * 60) + 15 // 15-75분
-      const mockTrafficDuration = mockDuration + Math.floor(Math.random() * 20) - 10 // 교통상황 반영
-      const mockDistance = Math.floor(Math.random() * 20000) + 5000 // 5-25km
-
-      return {
-        duration: mockDuration,
-        trafficDuration: Math.max(mockTrafficDuration, 5),
-        distance: mockDistance
+  // Memoized preview data to prevent recreations
+  const previewData = useMemo(() => ({
+    routes: [
+      {
+        id: '1',
+        name: '집 → 회사',
+        origin: '강남구',
+        destination: '서초구',
+        duration: 35,
+        distance: 12000,
+        trafficDuration: 45,
+        lastUpdated: new Date().toISOString()
+      },
+      {
+        id: '2',
+        name: '회사 → 집',
+        origin: '서초구',
+        destination: '강남구',
+        duration: 40,
+        distance: 12500,
+        trafficDuration: 55,
+        lastUpdated: new Date().toISOString()
       }
-    } catch (error) {
-      console.error('Commute API error:', error)
-      throw error
+    ],
+    lastUpdated: new Date().toISOString()
+  }), [])
+
+  // Stable functions
+  const fetchCommuteTime = async () => {
+    // Mock traffic API response
+    return {
+      duration: Math.floor(Math.random() * 30) + 20,
+      distance: Math.floor(Math.random() * 5000) + 8000,
+      trafficDuration: Math.floor(Math.random() * 50) + 25
     }
   }
 
-  // Supabase에서 경로 로드
+  const checkLocation = async () => {
+    // Mock location check - always return true for Korea
+    return true
+  }
+
   const loadRoutes = async (): Promise<CommuteRoute[]> => {
     try {
-      if (!user) {
-        // Fallback to localStorage
-        const saved = localStorage.getItem('koouk_commute_routes')
-        if (saved) {
-          return JSON.parse(saved) as CommuteRoute[]
-        }
-        return []
-      }
-
-      const dbRoutes = await commuteService.getAll(user.id)
-      return dbRoutes.map(route => ({
-        id: route.id,
-        name: route.name,
-        origin: route.origin,
-        destination: route.destination,
-        duration: route.duration || 0,
-        distance: route.distance || 0,
-        trafficDuration: route.duration || 0, // Will be updated
-        lastUpdated: route.updated_at
-      }))
-    } catch (error) {
-      console.error('Failed to load routes:', error)
-      // Fallback to localStorage
       const saved = localStorage.getItem('koouk_commute_routes')
-      if (saved) {
-        return JSON.parse(saved) as CommuteRoute[]
-      }
+      return saved ? JSON.parse(saved) : []
+    } catch {
       return []
     }
   }
 
-  // Supabase에 경로 저장
-  const saveRoutes = async (routes: CommuteRoute[]) => {
-    try {
-      if (user) {
-        // For simplicity, we won't sync all routes here
-        // Routes are saved individually when created/updated
-      }
-      
-      // Always save to localStorage as backup
-      localStorage.setItem('koouk_commute_routes', JSON.stringify(routes))
-    } catch (error) {
-      console.error('Failed to save routes:', error)
-      localStorage.setItem('koouk_commute_routes', JSON.stringify(routes))
-    }
+  const saveRoutes = (routes: CommuteRoute[]) => {
+    localStorage.setItem('koouk_commute_routes', JSON.stringify(routes))
   }
 
-  // 출퇴근 데이터 로드
-  const loadCommuteData = useCallback(async () => {
+  const getTrafficStatus = () => {
+    if (commuteData.routes.length === 0) {
+      return { color: 'gray', text: '데이터 없음' }
+    }
+
+    const avgDelay = commuteData.routes.reduce((acc, route) => {
+      const delay = ((route.trafficDuration - route.duration) / route.duration) * 100
+      return acc + delay
+    }, 0) / commuteData.routes.length
+
+    if (avgDelay < 10) return { color: 'green', text: '원활' }
+    if (avgDelay < 30) return { color: 'yellow', text: '보통' }
+    return { color: 'red', text: '지연' }
+  }
+
+  // Main data loading function - simplified and stable
+  const loadCommuteData = async () => {
     console.log('CommuteTime: loadCommuteData 시작', { isPreviewOnly })
+    
     if (isPreviewOnly) {
-      // 프리뷰용 샘플 데이터
-      setCommuteData({
-        routes: [
-          {
-            id: '1',
-            name: '집 → 회사',
-            origin: '서울특별시 강남구 역삼동',
-            destination: '서울특별시 중구 명동',
-            duration: 35,
-            distance: 12500,
-            trafficDuration: 42,
-            lastUpdated: new Date().toISOString()
-          },
-          {
-            id: '2',
-            name: '회사 → 집',
-            origin: '서울특별시 중구 명동',
-            destination: '서울특별시 강남구 역삼동',
-            duration: 38,
-            distance: 12800,
-            trafficDuration: 45,
-            lastUpdated: new Date().toISOString()
-          }
-        ],
-        currentRoute: undefined,
-        lastUpdated: new Date().toISOString()
-      })
+      setCommuteData(previewData)
       setLoading(false)
       return
     }
@@ -135,9 +109,7 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
       setLoading(true)
       setError(null)
 
-      // 한국이 아니면 에러 처리 (테스트를 위해 임시로 true로 설정)
-      // const locationIsKorea = await checkLocation()
-      const locationIsKorea = true
+      const locationIsKorea = await checkLocation()
       if (!locationIsKorea) {
         setError('Service is only available in Korea')
         console.log('CommuteTime: 한국이 아님')
@@ -155,7 +127,7 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
         return
       }
 
-      // 저장된 경로들의 교통 상황 업데이트
+      // Update traffic data for saved routes
       const updatedRoutes = await Promise.all(
         savedRoutes.map(async (route: CommuteRoute) => {
           try {
@@ -183,9 +155,9 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
       console.log('CommuteTime: 로딩 완료')
       setLoading(false)
     }
-  }, [isPreviewOnly])
+  }
 
-  // 새 경로 추가
+  // Add new route
   const addRoute = async () => {
     if (!newRoute.name.trim() || !newRoute.origin.trim() || !newRoute.destination.trim()) {
       alert('모든 필드를 입력해주세요.')
@@ -217,17 +189,16 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
         routes: updatedRoutes,
         lastUpdated: new Date().toISOString()
       })
-
       saveRoutes(updatedRoutes)
       setNewRoute({ name: '', origin: '', destination: '' })
     } catch {
-      alert('경로 추가에 실패했습니다. 주소를 확인해주세요.')
+      alert('경로 추가에 실패했습니다.')
     } finally {
       setIsAddingRoute(false)
     }
   }
 
-  // 경로 삭제
+  // Remove route
   const removeRoute = (id: string) => {
     const updatedRoutes = commuteData.routes.filter(r => r.id !== id)
     setCommuteData({
@@ -237,6 +208,7 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
     saveRoutes(updatedRoutes)
   }
 
+  // Effects with proper dependencies
   useEffect(() => {
     let isMounted = true
     
@@ -248,13 +220,14 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
     
     initData()
     
-    // 10분마다 교통상황 업데이트
-    if (!isPreviewOnly && isMounted) {
+    // Auto-refresh every 10 minutes if not preview
+    if (!isPreviewOnly) {
       const interval = setInterval(() => {
         if (isMounted) {
           loadCommuteData()
         }
       }, 10 * 60 * 1000)
+      
       return () => {
         isMounted = false
         clearInterval(interval)
@@ -264,18 +237,14 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
     return () => {
       isMounted = false
     }
-    // loadCommuteData는 useCallback으로 안정화되었지만 무한루프 방지를 위해 의존성에서 제외
-    // eslint-disable-next-line react-hooks/exhaustive-deps  
-  }, [isPreviewOnly, user])
+  }, [isPreviewOnly, user?.id])
 
-  // Notify parent component about traffic status changes
+  // Notify parent about traffic status
   useEffect(() => {
     if (onTrafficStatusChange) {
       const status = getTrafficStatus()
       onTrafficStatusChange(status)
     }
-    // getTrafficStatus는 commuteData에만 의존하므로 의존성에서 제외
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commuteData, onTrafficStatusChange])
 
   const formatDuration = (minutes: number) => {
@@ -302,8 +271,7 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
     )
   }
 
-
-  if (error && error !== 'Service is only available in Korea') {
+  if (error) {
     return (
       <div className="text-red-400 text-sm">
         <p>{error}</p>
@@ -311,156 +279,96 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
           onClick={loadCommuteData}
           className="text-blue-400 hover:text-blue-300 underline mt-1 cursor-pointer"
         >
-          재시도
+          Retry
         </button>
       </div>
     )
   }
 
-  if (commuteData.routes.length === 0) {
-    return (
-      <div className="text-center py-4">
-        <div className="text-gray-400 mb-2">🚗</div>
-        <div className="text-sm text-gray-400 mb-2">등록된 경로가 없습니다</div>
-        {!isPreviewOnly && (
-          <div className="space-y-2">
-            <input
-              type="text"
-              placeholder="경로명 (예: 집→회사)"
-              value={newRoute.name}
-              onChange={(e) => setNewRoute({...newRoute, name: e.target.value})}
-              className="w-full px-2 py-1 bg-gray-800 border border-gray-600 rounded text-white text-sm"
-            />
-            <input
-              type="text"
-              placeholder="출발지"
-              value={newRoute.origin}
-              onChange={(e) => setNewRoute({...newRoute, origin: e.target.value})}
-              className="w-full px-2 py-1 bg-gray-800 border border-gray-600 rounded text-white text-sm"
-            />
-            <input
-              type="text"
-              placeholder="목적지"
-              value={newRoute.destination}
-              onChange={(e) => setNewRoute({...newRoute, destination: e.target.value})}
-              className="w-full px-2 py-1 bg-gray-800 border border-gray-600 rounded text-white text-sm"
-            />
-            <button
-              onClick={addRoute}
-              disabled={isAddingRoute}
-              className="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white text-sm rounded cursor-pointer"
-            >
-              {isAddingRoute ? '추가중...' : '경로 추가'}
-            </button>
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  // Get traffic status for summary display
-  const getTrafficStatus = () => {
-    if (commuteData.routes.length === 0) return { color: 'green', text: '교통 원활' }
-    
-    const avgDelay = commuteData.routes.reduce((sum, route) => {
-      const delay = route.trafficDuration - route.duration
-      return sum + Math.max(delay, 0)
-    }, 0) / commuteData.routes.length
-
-    if (avgDelay > 15) return { color: 'red', text: '교통 혼잡' }
-    if (avgDelay > 5) return { color: 'yellow', text: '교통 지체' }
-    return { color: 'green', text: '교통 원활' }
-  }
-
-  if (isPreviewOnly) {
-    // Preview mode: return empty for body, traffic status will be in header
-    return null
-  }
-
   return (
-    <div className="space-y-2">
-      {commuteData.routes.map((route) => (
-        <div key={route.id} className="bg-gray-800 rounded-lg p-2">
-          <div className="flex items-center justify-between mb-2">
-            <div className="font-medium text-white text-sm truncate pr-2 flex-1">{route.name}</div>
-            <button
-              onClick={() => removeRoute(route.id)}
-              className="text-red-400 hover:text-red-300 text-sm flex-shrink-0 cursor-pointer"
-            >
-              ✕
-            </button>
-          </div>
-          
-          <div className="space-y-1 text-sm">
-            <div className="flex justify-between items-center py-1">
-              <span className="text-gray-300 font-medium">평소 시간</span>
-              <span className="text-white font-semibold">{formatDuration(route.duration)}</span>
-            </div>
-            <div className="flex justify-between items-center py-1">
-              <span className="text-gray-300 font-medium">현재 교통</span>
-              <span className={`font-semibold ${route.trafficDuration > route.duration ? 'text-orange-400' : 'text-green-400'}`}>
-                {formatDuration(route.trafficDuration)}
-              </span>
-            </div>
-            <div className="flex justify-between items-center py-1">
-              <span className="text-gray-300 font-medium">거리</span>
-              <span className="text-white font-semibold">{formatDistance(route.distance)}</span>
-            </div>
-            <div className="text-xs text-gray-500 mt-2">
-              집 (비스타2차) → 회사 (대구 중구 대방동)
-            </div>
-          </div>
-
-          {route.trafficDuration > route.duration && (
-            <div className="mt-2 text-sm text-orange-400">
-              ⚠️ 평소보다 {formatDuration(route.trafficDuration - route.duration)} 더 걸려요
-            </div>
+    <div className="space-y-3">
+      {commuteData.routes.length === 0 ? (
+        <div className="text-gray-400 text-center py-4">
+          <p className="text-sm">등록된 경로가 없습니다.</p>
+          {!isPreviewOnly && (
+            <p className="text-xs mt-1">아래에서 새 경로를 추가해보세요.</p>
           )}
         </div>
-      ))}
-
-      {!isPreviewOnly && commuteData.routes.length < 5 && (
-        <div className="bg-gray-800 rounded-lg p-2">
-          <div className="text-sm font-medium text-white mb-2">새 경로 추가</div>
-          <div className="space-y-2 max-w-full">
-            <input
-              type="text"
-              placeholder="경로명 (예: 집→회사)"
-              value={newRoute.name}
-              onChange={(e) => setNewRoute({...newRoute, name: e.target.value})}
-              className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
-            />
-            <input
-              type="text"
-              placeholder="출발지"
-              value={newRoute.origin}
-              onChange={(e) => setNewRoute({...newRoute, origin: e.target.value})}
-              className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
-            />
-            <input
-              type="text"
-              placeholder="목적지"
-              value={newRoute.destination}
-              onChange={(e) => setNewRoute({...newRoute, destination: e.target.value})}
-              className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
-            />
-            <button
-              onClick={addRoute}
-              disabled={isAddingRoute}
-              className="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white text-sm rounded cursor-pointer"
-            >
-              {isAddingRoute ? '추가중...' : '추가'}
-            </button>
-          </div>
-          <div className="text-sm text-gray-400 mt-2">
-            {commuteData.routes.length}/5 경로
-          </div>
+      ) : (
+        <div className="space-y-2">
+          {commuteData.routes.map((route) => (
+            <div key={route.id} className="bg-gray-800 rounded-lg p-3">
+              <div className="flex justify-between items-start mb-2">
+                <h4 className="text-white font-medium text-sm">{route.name}</h4>
+                {!isPreviewOnly && (
+                  <button
+                    onClick={() => removeRoute(route.id)}
+                    className="text-red-400 hover:text-red-300 text-xs cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+              <div className="text-xs text-gray-400 space-y-1">
+                <div>{route.origin} → {route.destination}</div>
+                <div className="flex justify-between">
+                  <span>평소: {formatDuration(route.duration)}</span>
+                  <span>거리: {formatDistance(route.distance)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className={`font-medium ${
+                    route.trafficDuration > route.duration * 1.2 ? 'text-red-400' :
+                    route.trafficDuration > route.duration * 1.1 ? 'text-yellow-400' : 'text-green-400'
+                  }`}>
+                    현재: {formatDuration(route.trafficDuration)}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {new Date(route.lastUpdated).toLocaleTimeString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
-      <div className="text-sm text-gray-400 text-center">
-        마지막 업데이트: {new Date(commuteData.lastUpdated).toLocaleTimeString()}
-      </div>
+      {!isPreviewOnly && commuteData.routes.length < 5 && (
+        <div className="bg-gray-800 rounded-lg p-3">
+          <h4 className="text-white font-medium text-sm mb-3">새 경로 추가</h4>
+          <div className="space-y-2">
+            <input
+              type="text"
+              placeholder="경로 이름 (예: 집 → 회사)"
+              value={newRoute.name}
+              onChange={(e) => setNewRoute(prev => ({ ...prev, name: e.target.value }))}
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:border-blue-500"
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="text"
+                placeholder="출발지"
+                value={newRoute.origin}
+                onChange={(e) => setNewRoute(prev => ({ ...prev, origin: e.target.value }))}
+                className="px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:border-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="도착지"
+                value={newRoute.destination}
+                onChange={(e) => setNewRoute(prev => ({ ...prev, destination: e.target.value }))}
+                className="px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:border-blue-500"
+              />
+            </div>
+            <button
+              onClick={addRoute}
+              disabled={isAddingRoute}
+              className="w-full py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white text-sm rounded transition-colors"
+            >
+              {isAddingRoute ? '추가 중...' : '경로 추가'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

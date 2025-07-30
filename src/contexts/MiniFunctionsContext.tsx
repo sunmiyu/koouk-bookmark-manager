@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 import { MiniFunctionData, MiniFunctionType } from '@/types/miniFunctions'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface MiniFunctionsContextType {
   availableFunctions: MiniFunctionData[]
@@ -18,6 +19,7 @@ interface MiniFunctionsContextType {
 const MiniFunctionsContext = createContext<MiniFunctionsContextType | undefined>(undefined)
 
 export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth()
   
   // Available Mini Functions
   const [availableFunctions] = useState<MiniFunctionData[]>([
@@ -104,8 +106,6 @@ export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
 
   const loadEnabledFunctions = useCallback(async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
       if (!user) {
         // Fallback to localStorage
         const saved = localStorage.getItem('koouk_enabled_mini_functions')
@@ -177,7 +177,7 @@ export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
         setEnabledFunctions(enabled)
       }
     }
-  }, [availableFunctions])
+  }, [availableFunctions, user])
 
   // Save enabled functions to Supabase and localStorage
   useEffect(() => {
@@ -188,8 +188,6 @@ export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
     const enabledTypes = enabledFunctions.map(func => func.type)
     
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
       if (user) {
         // Update Supabase - disable all first, then enable selected ones
         await supabase
@@ -213,7 +211,7 @@ export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
       // Fallback to localStorage only
       localStorage.setItem('koouk_enabled_mini_functions', JSON.stringify(enabledTypes))
     }
-  }, [enabledFunctions])
+  }, [enabledFunctions, user])
 
   // Calculate max enabled functions based on plan
   // 테스트 기간: 모든 9개 Mini Function 사용 가능
@@ -229,8 +227,6 @@ export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
       setEnabledFunctions(prev => [...prev, { ...func }])
       
       try {
-        const { data: { user } } = await supabase.auth.getUser()
-        
         if (user) {
           // Update or insert in Supabase
           await supabase
@@ -255,8 +251,6 @@ export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
       setEnabledFunctions(prev => prev.filter(f => f.type !== type))
       
       try {
-        const { data: { user } } = await supabase.auth.getUser()
-        
         if (user) {
           // Update in Supabase
           await supabase

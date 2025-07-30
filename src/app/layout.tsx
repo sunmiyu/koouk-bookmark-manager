@@ -5,6 +5,7 @@ import SecurityMonitor from "@/components/SecurityMonitor";
 import CookieBanner from "@/components/CookieBanner";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserPlanProvider } from "@/contexts/UserPlanContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { MiniFunctionsProvider } from "@/contexts/MiniFunctionsContext";
 import { Analytics } from '@vercel/analytics/react';
 import { GoogleAnalytics } from '@next/third-parties/google'
@@ -82,13 +83,15 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <LanguageProvider>
-          <UserPlanProvider>
-            <MiniFunctionsProvider>
-              <SecurityMonitor />
-              {children}
-              <CookieBanner />
-            </MiniFunctionsProvider>
-          </UserPlanProvider>
+          <AuthProvider>
+            <UserPlanProvider>
+              <MiniFunctionsProvider>
+                <SecurityMonitor />
+                {children}
+                <CookieBanner />
+              </MiniFunctionsProvider>
+            </UserPlanProvider>
+          </AuthProvider>
         </LanguageProvider>
         <Analytics />
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (

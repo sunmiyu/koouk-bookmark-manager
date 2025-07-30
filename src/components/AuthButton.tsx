@@ -1,15 +1,14 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useLanguage } from '@/contexts/LanguageContext'
-import type { User } from '@supabase/supabase-js'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function AuthButton() {
   const { t } = useLanguage()
+  const { user, loading, signOut } = useAuth()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -21,56 +20,6 @@ export default function AuthButton() {
 
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  // Get initial session and set up auth state listener with duplicate prevention
-  useEffect(() => {
-    let isMounted = true
-    let subscription: { unsubscribe: () => void } | null = null
-
-    const initializeAuth = async () => {
-      try {
-        // Prevent duplicate initialization
-        if (!isMounted) return
-
-        const { data: { session }, error } = await supabase.auth.getSession()
-        console.log('AuthButton - Initial session check:', { session: !!session, error })
-        
-        if (isMounted) {
-          setUser(session?.user ?? null)
-          setLoading(false)
-        }
-
-        // Only set up listener if component is still mounted
-        if (isMounted) {
-          const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
-            console.log('AuthButton - Auth state change:', event, !!session)
-            if (isMounted) {
-              setUser(session?.user ?? null)
-              if (loading) {
-                setLoading(false)
-              }
-            }
-          })
-          subscription = data.subscription
-        }
-      } catch (error) {
-        console.error('AuthButton - Session error:', error)
-        if (isMounted) {
-          setUser(null)
-          setLoading(false)
-        }
-      }
-    }
-
-    initializeAuth()
-
-    return () => {
-      isMounted = false
-      if (subscription) {
-        subscription.unsubscribe()
-      }
-    }
   }, [])
 
   const handleSignIn = async () => {
@@ -100,14 +49,7 @@ export default function AuthButton() {
   }
 
   const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut()
-      if (error) {
-        console.error('Error signing out:', error.message)
-      }
-    } catch (error) {
-      console.error('Error signing out:', error)
-    }
+    await signOut()
     setIsDropdownOpen(false)
   }
   

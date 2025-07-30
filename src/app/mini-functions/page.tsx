@@ -22,7 +22,12 @@ const AVAILABLE_FUNCTIONS: MiniFunctionType[] = [
   { id: 'music', name: '음악 추천', description: '기분별 음악 추천', icon: '🎵' },
   { id: 'news', name: '뉴스', description: '최신 뉴스 헤드라인', icon: '📰' },
   { id: 'stocks', name: '주식', description: '주요 주식 지수 및 정보', icon: '📈' },
-  { id: 'restaurants', name: '맛집', description: '근처 맛집 추천', icon: '🍽️' }
+  { id: 'restaurants', name: '맛집', description: '근처 맛집 추천', icon: '🍽️' },
+  { id: 'song-practice', name: '노래 연습 List', description: '연습할 노래 목록 관리', icon: '🎤' },
+  { id: 'anniversaries', name: '기념일 등록', description: '중요한 기념일 관리 및 알림', icon: '🎉' },
+  { id: 'goals', name: '목표 세팅', description: '개인 목표 설정 및 관리', icon: '🎯' },
+  { id: 'english-study', name: '영어 공부', description: '매일 영어 단어 학습', icon: '📚' },
+  { id: 'simple-memo', name: '단순 메모장', description: '간단한 메모 작성 및 관리', icon: '📋' }
 ]
 
 export default function MiniFunctionsControlPage() {
@@ -329,6 +334,215 @@ export default function MiniFunctionsControlPage() {
                       </label>
                     ))}
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+
+      case 'song-practice':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h4 className="text-lg font-medium text-gray-900 mb-4">노래 연습 List 설정</h4>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">연습 목록</label>
+                  <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-gray-200">
+                            <th className="text-left py-2 px-2 font-medium text-gray-700">노래 제목</th>
+                            <th className="text-left py-2 px-2 font-medium text-gray-700">가수</th>
+                            <th className="w-16"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr className="border-b border-gray-100">
+                            <td className="py-2 px-2">
+                              <input type="text" placeholder="노래 제목" className="w-full px-2 py-1 bg-white border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                            </td>
+                            <td className="py-2 px-2">
+                              <input type="text" placeholder="가수명" className="w-full px-2 py-1 bg-white border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                            </td>
+                            <td className="py-2 px-2">
+                              <button className="text-red-500 hover:text-red-700 text-sm">삭제</button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <button className="mt-3 text-blue-600 hover:text-blue-700 text-sm font-medium">+ 새 노래 추가</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+
+      case 'anniversaries':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h4 className="text-lg font-medium text-gray-900 mb-4">기념일 등록 설정</h4>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="anniversary-todo-sync"
+                    defaultChecked={true}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <label htmlFor="anniversary-todo-sync" className="text-sm font-medium text-gray-700">기념일을 Todo List에 자동 반영</label>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">기념일 목록</label>
+                  <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
+                    <div className="space-y-3">
+                      <div className="flex gap-3 items-center">
+                        <select className="px-3 py-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
+                          <option>생일</option>
+                          <option>결혼기념일</option>
+                          <option>졸업</option>
+                          <option>입사</option>
+                          <option>기타</option>
+                        </select>
+                        <input type="date" className="px-3 py-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                        <input type="text" placeholder="기념일 이름" className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                        <button className="text-red-500 hover:text-red-700 text-sm">삭제</button>
+                      </div>
+                    </div>
+                    <button className="mt-3 text-blue-600 hover:text-blue-700 text-sm font-medium">+ 새 기념일 추가</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+
+      case 'goals':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h4 className="text-lg font-medium text-gray-900 mb-4">목표 세팅</h4>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">목표 목록</label>
+                  <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-gray-200">
+                            <th className="text-left py-2 px-2 font-medium text-gray-700">목표</th>
+                            <th className="text-left py-2 px-2 font-medium text-gray-700">완료 예정일</th>
+                            <th className="w-16"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr className="border-b border-gray-100">
+                            <td className="py-2 px-2">
+                              <input type="text" placeholder="목표를 입력하세요" className="w-full px-2 py-1 bg-white border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                            </td>
+                            <td className="py-2 px-2">
+                              <input type="date" className="w-full px-2 py-1 bg-white border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                            </td>
+                            <td className="py-2 px-2">
+                              <button className="text-red-500 hover:text-red-700 text-sm">삭제</button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <button className="mt-3 text-blue-600 hover:text-blue-700 text-sm font-medium">+ 새 목표 추가</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+
+      case 'english-study':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h4 className="text-lg font-medium text-gray-900 mb-4">영어 공부 설정</h4>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">매일 표시할 단어 개수</label>
+                  <select className="px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-sm">
+                    <option value="5">5개</option>
+                    <option value="10">10개</option>
+                    <option value="custom">맞춤 설정</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">맞춤 개수 (맞춤 설정 선택시)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="50"
+                    placeholder="1-50 사이의 숫자"
+                    className="px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">학습 난이도</label>
+                  <select className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-sm">
+                    <option value="beginner">초급 (기본 단어)</option>
+                    <option value="intermediate">중급 (일상 단어)</option>
+                    <option value="advanced">고급 (고급 단어)</option>
+                    <option value="mixed">혼합 (모든 수준)</option>
+                  </select>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="english-pronunciation"
+                    defaultChecked={false}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <label htmlFor="english-pronunciation" className="text-sm font-medium text-gray-700">발음 표시하기</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+
+      case 'simple-memo':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h4 className="text-lg font-medium text-gray-900 mb-4">단순 메모장 설정</h4>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">메모 자동 저장</label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="memo-auto-save"
+                      defaultChecked={true}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <label htmlFor="memo-auto-save" className="text-sm font-medium text-gray-700">타이핑 중 자동 저장</label>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">메모 최대 길이</label>
+                  <select className="px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-sm">
+                    <option value="500">500자</option>
+                    <option value="1000">1000자</option>
+                    <option value="2000">2000자</option>
+                    <option value="unlimited">제한 없음</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">메모 글꼴 크기</label>
+                  <select className="px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-sm">
+                    <option value="small">작게</option>
+                    <option value="medium">보통</option>
+                    <option value="large">크게</option>
+                  </select>
                 </div>
               </div>
             </div>

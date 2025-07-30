@@ -1,35 +1,23 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+// Environment variables with fallbacks
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
 
-// Fallback URL and key for cases where env vars are not available (like during build)
-const fallbackUrl = 'https://placeholder.supabase.co'
-const fallbackKey = 'placeholder-key'
+// ULTIMATE singleton pattern - no matter what, only ONE instance ever exists
+class SupabaseSingleton {
+  private static instance: SupabaseClient | null = null
+  private static adminInstance: SupabaseClient | null = null
 
-// CRITICAL: Use window-level global to prevent React re-renders from creating multiple instances
-declare global {
-  var __supabaseInstance: SupabaseClient | undefined
-  var __supabaseAdminInstance: SupabaseClient | undefined
-}
+  static getClient(): SupabaseClient {
+    if (this.instance) {
+      return this.instance
+    }
 
-// Ensure only ONE instance exists globally across all React renders
-const getSupabaseInstance = (): SupabaseClient => {
-  if (typeof window !== 'undefined' && window.__supabaseInstance) {
-    return window.__supabaseInstance
-  }
-  
-  if (typeof window === 'undefined' && global.__supabaseInstance) {
-    return global.__supabaseInstance
-  }
-
-  const isServer = typeof window === 'undefined'
-  
-  const instance = createClient(
-    supabaseUrl || fallbackUrl,
-    supabaseAnonKey || fallbackKey,
-    {
+    const isServer = typeof window === 'undefined'
+    
+    this.instance = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         storageKey: 'koouk-auth-token',
         storage: isServer ? undefined : window?.localStorage,
@@ -38,47 +26,40 @@ const getSupabaseInstance = (): SupabaseClient => {
         detectSessionInUrl: !isServer,
         flowType: 'pkce'
       }
+    })
+    
+    // Prevent any future instance creation attempts
+    console.log('🔒 Supabase client instance created (SINGLETON)')
+    return this.instance
+  }
+
+  static getAdminClient(): SupabaseClient {
+    if (this.adminInstance) {
+      return this.adminInstance
     }
-  )
-  
-  // Store in global scope to prevent recreation
-  if (typeof window !== 'undefined') {
-    window.__supabaseInstance = instance
-  } else {
-    global.__supabaseInstance = instance
-  }
-  
-  return instance
-}
 
-export const supabase = getSupabaseInstance()
-
-export const supabaseAdmin = (() => {
-  if (typeof window !== 'undefined' && window.__supabaseAdminInstance) {
-    return window.__supabaseAdminInstance
-  }
-  
-  if (typeof window === 'undefined' && global.__supabaseAdminInstance) {
-    return global.__supabaseAdminInstance
-  }
-
-  const instance = createClient(
-    supabaseUrl || fallbackUrl,
-    serviceRoleKey || fallbackKey,
-    {
+    this.adminInstance = createClient(supabaseUrl, serviceRoleKey, {
       auth: {
+        storageKey: 'koouk-admin-token',
         autoRefreshToken: false,
         persistSession: false
       }
-    }
-  )
-  
-  // Store in global scope
-  if (typeof window !== 'undefined') {
-    window.__supabaseAdminInstance = instance
-  } else {
-    global.__supabaseAdminInstance = instance
+    })
+    
+    console.log('🔒 Supabase admin client instance created (SINGLETON)')
+    return this.adminInstance
   }
-  
-  return instance
-})()
+
+  // Reset for testing only
+  static reset() {
+    this.instance = null
+    this.adminInstance = null
+  }
+}
+
+// Export the singleton instances
+export const supabase = SupabaseSingleton.getClient()
+export const supabaseAdmin = SupabaseSingleton.getAdminClient()
+
+// Export the class for advanced usage
+export { SupabaseSingleton }

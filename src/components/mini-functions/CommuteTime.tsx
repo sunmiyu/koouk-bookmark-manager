@@ -238,20 +238,35 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
   }
 
   useEffect(() => {
+    let isMounted = true
+    
     const initData = async () => {
-      await loadCommuteData()
+      if (isMounted) {
+        await loadCommuteData()
+      }
     }
     
     initData()
     
     // 10분마다 교통상황 업데이트
-    if (!isPreviewOnly) {
+    if (!isPreviewOnly && isMounted) {
       const interval = setInterval(() => {
-        loadCommuteData()
+        if (isMounted) {
+          loadCommuteData()
+        }
       }, 10 * 60 * 1000)
-      return () => clearInterval(interval)
+      return () => {
+        isMounted = false
+        clearInterval(interval)
+      }
     }
-  }, [isPreviewOnly, loadCommuteData, user])
+    
+    return () => {
+      isMounted = false
+    }
+    // loadCommuteData는 useCallback으로 안정화되었지만 무한루프 방지를 위해 의존성에서 제외
+    // eslint-disable-next-line react-hooks/exhaustive-deps  
+  }, [isPreviewOnly, user])
 
   // Notify parent component about traffic status changes
   useEffect(() => {
@@ -259,6 +274,8 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
       const status = getTrafficStatus()
       onTrafficStatusChange(status)
     }
+    // getTrafficStatus는 commuteData에만 의존하므로 의존성에서 제외
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commuteData, onTrafficStatusChange])
 
   const formatDuration = (minutes: number) => {

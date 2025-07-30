@@ -81,26 +81,19 @@ export default function AuthButton() {
               <div className="text-xs text-gray-400">{user.email}</div>
             </div>
             <div className="py-1">
-              <a
-                href="/settings/mini-functions"
-                className="block w-full text-left px-3 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-gray-700 transition-colors cursor-pointer"
-                onClick={() => setIsDropdownOpen(false)}
-              >
-                Mini Functions
-              </a>
-              <a
-                href="/account/delete"
-                className="block w-full text-left px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-gray-700 transition-colors cursor-pointer"
-                onClick={() => setIsDropdownOpen(false)}
-              >
-{t('account_delete')}
-              </a>
               <button
                 onClick={handleSignOut}
                 className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors cursor-pointer"
               >
-                {t('logout')}
+                Logout
               </button>
+              <a
+                href="/account/delete"
+                className="block w-full text-left px-3 py-2 text-sm text-gray-800 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-700 transition-colors cursor-pointer"
+                onClick={() => setIsDropdownOpen(false)}
+              >
+                Delete Account
+              </a>
             </div>
           </div>
         )}
@@ -122,10 +115,10 @@ export default function AuthButton() {
           {/* Header */}
           <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white text-center">
-              Koouk에 로그인
+              Sign in to Koouk
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 text-center mt-1">
-              개인 라이프 허브에 접속하세요
+              Access your personal life hub
             </p>
           </div>
           
@@ -142,14 +135,9 @@ export default function AuthButton() {
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
               </svg>
               <span className="text-gray-700 dark:text-gray-300 font-medium group-hover:text-gray-900 dark:group-hover:text-white">
-                Google 계정으로 계속하기
+                Continue with Google
               </span>
             </button>
-            
-            {/* Footer text */}
-            <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-4 leading-relaxed">
-              로그인하면 Koouk의 <span className="underline">서비스 약관</span> 및 <span className="underline">개인정보처리방침</span>에 동의하게 됩니다.
-            </p>
           </div>
         </div>
       )}

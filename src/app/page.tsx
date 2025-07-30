@@ -76,29 +76,31 @@ function HomeContent() {
           
           {/* Contents Section */}
           <div className="space-y-6 sm:space-y-8">
-            <h2 className="text-xl sm:text-2xl font-bold text-white">Contents</h2>
+            <h2 className="section-title">Contents</h2>
             
             {/* Content Sections Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               <LinkSection />
+              <NotesSection />
               <VideoSection />
               <ImageSection />
-              <NotesSection />
             </div>
           </div>
         </main>
 
         <footer className="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-gray-800">
-          <div className="text-center text-xs text-gray-500">
-            <div>
-              Koouk 2025 All rights reserved · <FeedbackBoard /> · 
-              <Link href="/privacy-policy" className="hover:text-gray-300 underline ml-1">
-                개인정보처리방침
-              </Link>
-            </div>
-            <div className="mt-1">
+          <div className="text-center text-xs text-gray-500 flex items-center justify-center gap-2">
+            <span>Koouk 2025 All rights reserved</span>
+            <span>|</span>
+            <Link href="/privacy-policy" className="hover:text-gray-300 underline">
+              Privacy Policy
+            </Link>
+            <span>|</span>
+            <FeedbackBoard />
+            <span>|</span>
+            <span className="text-green-400 hover:text-green-300 transition-colors">
               Your daily Dashboard
-            </div>
+            </span>
           </div>
         </footer>
       </div>

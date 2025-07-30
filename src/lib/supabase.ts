@@ -8,49 +8,37 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 const fallbackUrl = 'https://placeholder.supabase.co'
 const fallbackKey = 'placeholder-key'
 
-// Create single instance with proper error handling
-let supabaseInstance: SupabaseClient | null = null
+// Global singleton instance to prevent multiple clients
+let globalSupabaseInstance: SupabaseClient | null = null
 let supabaseAdminInstance: SupabaseClient | null = null
 
-export const getSupabaseClient = () => {
-  if (typeof window === 'undefined') {
-    // Server-side: create new instance each time
-    return createClient(
-      supabaseUrl || fallbackUrl,
-      supabaseAnonKey || fallbackKey,
-      {
-        auth: {
-          storageKey: 'koouk-auth-token',
-          autoRefreshToken: false,
-          persistSession: false,
-          detectSessionInUrl: false,
-          flowType: 'pkce'
-        }
-      }
-    )
+// Ensure only ONE instance is created across the entire app
+const createSupabaseInstance = () => {
+  if (globalSupabaseInstance) {
+    return globalSupabaseInstance
   }
+
+  const isServer = typeof window === 'undefined'
   
-  // Client-side: use singleton
-  if (!supabaseInstance) {
-    supabaseInstance = createClient(
-      supabaseUrl || fallbackUrl,
-      supabaseAnonKey || fallbackKey,
-      {
-        auth: {
-          storageKey: 'koouk-auth-token',
-          storage: window.localStorage,
-          autoRefreshToken: true,
-          persistSession: true,
-          detectSessionInUrl: true,
-          flowType: 'pkce'
-        }
+  globalSupabaseInstance = createClient(
+    supabaseUrl || fallbackUrl,
+    supabaseAnonKey || fallbackKey,
+    {
+      auth: {
+        storageKey: 'koouk-auth-token',
+        storage: isServer ? undefined : window.localStorage,
+        autoRefreshToken: !isServer,
+        persistSession: !isServer,
+        detectSessionInUrl: !isServer,
+        flowType: 'pkce'
       }
-    )
-  }
-  return supabaseInstance
+    }
+  )
+  
+  return globalSupabaseInstance
 }
 
-export const supabase = getSupabaseClient()
+export const supabase = createSupabaseInstance()
 
 export const supabaseAdmin = (() => {
   if (!supabaseAdminInstance) {

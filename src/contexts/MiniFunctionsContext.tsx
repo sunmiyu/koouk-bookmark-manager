@@ -10,6 +10,7 @@ interface MiniFunctionsContextType {
   enabledFunctions: MiniFunctionData[]
   enableFunction: (type: MiniFunctionType) => void
   disableFunction: (type: MiniFunctionType) => void
+  toggleFunction: (functionId: string) => void
   canEnableMore: boolean
   maxEnabled: number
   updateFunctionData: (type: MiniFunctionType, data: MiniFunctionData['data']) => void
@@ -265,6 +266,18 @@ export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const toggleFunction = async (functionId: string) => {
+    // Convert functionId to MiniFunctionType
+    const func = availableFunctions.find(f => f.id === functionId)
+    if (!func) return
+    
+    if (func.isEnabled) {
+      await disableFunction(func.type)
+    } else {
+      await enableFunction(func.type)
+    }
+  }
+
   const updateFunctionData = (type: MiniFunctionType, data: MiniFunctionData['data']) => {
     setEnabledFunctions(prev => prev.map(func => 
       func.type === type 
@@ -284,6 +297,7 @@ export function MiniFunctionsProvider({ children }: { children: ReactNode }) {
       enabledFunctions,
       enableFunction,
       disableFunction,
+      toggleFunction,
       canEnableMore,
       maxEnabled,
       updateFunctionData,

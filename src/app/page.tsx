@@ -72,14 +72,16 @@ function HomeContent() {
           <div className="border-t border-gray-800 my-6 sm:my-8"></div>
 
           {/* Info input section */}
-          <InfoInputSection />
+          <div className="mt-6 sm:mt-8">
+            <InfoInputSection />
+          </div>
           
           {/* Contents Section */}
           <div className="space-y-6 sm:space-y-8">
             <h2 className="section-title">Contents</h2>
             
             {/* Content Sections Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
               <LinkSection />
               <NotesSection />
               <VideoSection />
@@ -89,16 +91,16 @@ function HomeContent() {
         </main>
 
         <footer className="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-gray-800">
-          <div className="text-center text-xs text-gray-500 flex items-center justify-center gap-2">
-            <span>Koouk 2025 All rights reserved</span>
-            <span>|</span>
-            <Link href="/privacy-policy" className="hover:text-gray-300 underline">
+          <div className="text-center text-xs text-gray-500 flex items-center justify-center gap-1 flex-nowrap">
+            <span className="whitespace-nowrap">Koouk 2025 All rights reserved</span>
+            <span className="mx-1">|</span>
+            <Link href="/privacy-policy" className="hover:text-gray-300 underline whitespace-nowrap">
               Privacy Policy
             </Link>
-            <span>|</span>
+            <span className="mx-1">|</span>
             <FeedbackBoard />
-            <span>|</span>
-            <span className="text-green-400 hover:text-green-300 transition-colors">
+            <span className="mx-1">|</span>
+            <span className="text-white hover:text-gray-300 transition-colors whitespace-nowrap">
               Your daily Dashboard
             </span>
           </div>

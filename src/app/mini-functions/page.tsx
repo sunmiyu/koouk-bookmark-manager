@@ -488,17 +488,24 @@ export default function MiniFunctionsControlPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#FAFAFA' }}>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="container mx-auto px-6 py-8">
-        {/* Header */}
+        {/* Professional Header */}
         <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-semibold text-gray-900 mb-2">Mini Function Control</h1>
-            <p className="text-gray-600">Mini Function들을 추가, 삭제하고 편집하세요</p>
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-blue-600/10 rounded-xl flex items-center justify-center border border-blue-200/50">
+              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-3xl font-semibold text-gray-900 mb-1">Mini Function Control</h1>
+              <p className="text-gray-600">Configure and manage your mini functions</p>
+            </div>
           </div>
           <Link
             href="/"
-            className="px-4 py-2 bg-white hover:bg-gray-50 text-gray-700 rounded-md border border-gray-300 transition-colors flex items-center gap-2 shadow-sm"
+            className="px-4 py-2.5 bg-white hover:bg-gray-50 text-gray-700 rounded-lg border border-gray-200 transition-all flex items-center gap-2 shadow-sm hover:shadow-md font-medium"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -508,11 +515,21 @@ export default function MiniFunctionsControlPage() {
         </div>
 
         <div className="flex gap-8">
-          {/* Vertical Navigation Sidebar */}
-          <div className="w-64 flex-shrink-0">
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">Mini Functions</h3>
+          {/* Professional Sidebar Navigation */}
+          <div className="w-72 flex-shrink-0">
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-lg sticky top-8">
+              <div className="p-6 border-b border-gray-200/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-purple-600/10 rounded-lg flex items-center justify-center">
+                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 011-1h1m0 0V3a2 2 0 112 0v1h1a2 2 0 011 1v1M9 7h6" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Functions</h3>
+                    <p className="text-sm text-gray-500">Select to configure</p>
+                  </div>
+                </div>
               </div>
               <div className="p-4">
                 <div className="space-y-1">
@@ -522,18 +539,25 @@ export default function MiniFunctionsControlPage() {
                       <div
                         key={func.id}
                         onClick={() => setSelectedFunction(func.id)}
-                        className={`p-3 rounded-md cursor-pointer transition-colors ${
+                        className={`p-3 rounded-lg cursor-pointer transition-all duration-200 group border ${
                           selectedFunction === func.id
-                            ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                            : 'hover:bg-gray-50 text-gray-700'
+                            ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-sm'
+                            : 'hover:bg-gray-50 text-gray-700 border-transparent hover:border-gray-200'
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <span className="text-lg">{func.icon}</span>
-                            <span className="font-medium text-sm">{func.name}</span>
+                            <div>
+                              <span className="font-medium text-sm block">{func.name}</span>
+                              <span className="text-xs text-gray-500 truncate">{func.description}</span>
+                            </div>
                           </div>
-                          <div className={`w-2 h-2 rounded-full ${isEnabled ? 'bg-green-400' : 'bg-gray-300'}`}></div>
+                          <div className={`w-2.5 h-2.5 rounded-full border-2 ${
+                            isEnabled 
+                              ? 'bg-green-500 border-green-200' 
+                              : 'bg-gray-300 border-gray-200'
+                          }`}></div>
                         </div>
                       </div>
                     )
@@ -543,57 +567,59 @@ export default function MiniFunctionsControlPage() {
             </div>
           </div>
 
-          {/* Main Content Area */}
+          {/* Professional Main Content Area */}
           <div className="flex-1">
-            {/* Function Configuration Panel */}
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-lg">
               {selectedFunction ? (
                 <div>
-                  {/* Header */}
-                  <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                  {/* Enhanced Header */}
+                  <div className="flex items-center justify-between p-6 border-b border-gray-200/50">
                     <div className="flex items-center gap-4">
-                      <span className="text-3xl">{AVAILABLE_FUNCTIONS.find(f => f.id === selectedFunction)?.icon}</span>
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-2xl shadow-lg">
+                        {AVAILABLE_FUNCTIONS.find(f => f.id === selectedFunction)?.icon}
+                      </div>
                       <div>
-                        <p className="text-gray-600 text-sm">{AVAILABLE_FUNCTIONS.find(f => f.id === selectedFunction)?.description}</p>
+                        <p className="text-gray-700 font-medium">{AVAILABLE_FUNCTIONS.find(f => f.id === selectedFunction)?.description}</p>
+                        <p className="text-gray-500 text-sm">Configure settings and preferences</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
                         <input
                           type="checkbox"
                           id="function-enabled"
                           checked={enabledFunctionIds.includes(selectedFunction)}
                           onChange={() => toggleFunction(selectedFunction)}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
                         />
-                        <label htmlFor="function-enabled" className="text-sm font-medium text-gray-700">활성화</label>
+                        <label htmlFor="function-enabled" className="text-sm font-medium text-gray-700">Enable Function</label>
                       </div>
                     </div>
                   </div>
 
-                  {/* Function-specific Configuration */}
+                  {/* Enhanced Configuration Content */}
                   <div className="p-6">
-                    <div className="space-y-6">
+                    <div className="space-y-8">
                       {renderFunctionConfig(selectedFunction)}
                       
-                      {/* Save Button */}
-                      <div className="pt-6 border-t border-gray-200">
-                        <button className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors font-medium text-sm shadow-sm">
-                          설정 저장
+                      {/* Enhanced Save Button */}
+                      <div className="pt-6 border-t border-gray-200/50">
+                        <button className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg transition-all font-medium text-sm shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                          Save Configuration
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-16 p-6">
-                  <div className="text-gray-400 mb-4">
-                    <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="text-center py-20 p-6">
+                  <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                     </svg>
                   </div>
-                  <h3 className="text-xl font-medium text-gray-900 mb-2">Mini Function을 선택하세요</h3>
-                  <p className="text-gray-600">왼쪽에서 편집할 Function을 클릭하세요</p>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">Select a Mini Function</h3>
+                  <p className="text-gray-600 max-w-md mx-auto">Choose a function from the sidebar to configure its settings and preferences</p>
                 </div>
               )}
             </div>

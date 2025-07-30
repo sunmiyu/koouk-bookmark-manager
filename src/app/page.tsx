@@ -118,16 +118,28 @@ function HomeContent() {
                 <InfoInputSection />
                 
                 {/* Contents Section */}
-                <div className="space-y-6 sm:space-y-8">
-                  <div className="flex items-center justify-between gap-4">
-                    <h2 className="section-title">Contents Storage</h2>
+                <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800/50 rounded-xl p-6">
+                  {/* Professional Header */}
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-orange-600/20 rounded-lg flex items-center justify-center">
+                        <svg className="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 011-1h1m0 0V3a2 2 0 112 0v1h1a2 2 0 011 1v1M9 7h6" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-semibold text-white">Contents Storage</h2>
+                        <p className="text-sm text-gray-400">Your saved links, notes, media & files</p>
+                      </div>
+                    </div>
+                    
                     <div className="w-48 sm:w-64 flex-shrink-0">
                       <SearchBar />
                     </div>
                   </div>
                   
                   {/* Content Sections Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     <LinkSection />
                     <NotesSection />
                     <VideoSection />

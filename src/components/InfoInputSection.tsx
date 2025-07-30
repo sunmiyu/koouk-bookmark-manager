@@ -138,8 +138,21 @@ export default function InfoInputSection() {
   }
 
   return (
-    <div className="mb-6 sm:mb-8">
-      <form onSubmit={handleSubmit} className="relative">
+    <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800/50 rounded-xl p-6">
+      {/* Professional Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center">
+          <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+        </div>
+        <div>
+          <h2 className="text-xl font-semibold text-white">Add Content</h2>
+          <p className="text-sm text-gray-400">Save links, videos, images, and notes</p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="relative">
           <input
             type="text"
@@ -147,22 +160,22 @@ export default function InfoInputSection() {
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
             onPaste={handlePaste}
-            placeholder="+ Add link, video, image, or note..."
-            className="w-full responsive-p-lg bg-gray-800 border-2 border-dashed border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-white placeholder-gray-400 responsive-text-base pr-16 sm:pr-20 text-center"
+            placeholder="Paste URL, image, or type your note..."
+            className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700/50 rounded-lg focus:outline-none focus:border-blue-500 focus:bg-gray-800 text-white placeholder-gray-400 text-sm pr-24 transition-all"
           />
           
           {isExpanded && (
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 sm:gap-2">
-              <span className={`px-1.5 sm:px-2 py-1 rounded text-xs ${
-                inputType === 'video' ? 'bg-red-600' :
-                inputType === 'image' ? 'bg-green-600' :
-                inputType === 'link' ? 'bg-blue-600' : 'bg-purple-600'
-              } text-white`}>
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+              <span className={`px-2 py-1 rounded-md text-xs font-medium border ${
+                inputType === 'video' ? 'bg-red-600/20 text-red-400 border-red-500/30' :
+                inputType === 'image' ? 'bg-green-600/20 text-green-400 border-green-500/30' :
+                inputType === 'link' ? 'bg-blue-600/20 text-blue-400 border-blue-500/30' : 'bg-purple-600/20 text-purple-400 border-purple-500/30'
+              }`}>
                 {inputType}
               </span>
               <button
                 type="submit"
-                className="px-2 sm:px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs transition-colors"
+                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-medium transition-all shadow-sm"
               >
                 Add
               </button>
@@ -171,10 +184,10 @@ export default function InfoInputSection() {
         </div>
 
         {isExpanded && (
-          <div className="mt-2 responsive-p-sm bg-gray-800 border border-gray-600 rounded-lg">
-            <div className="flex flex-col sm:flex-row sm:items-center responsive-gap-sm mb-2">
-              <span className="responsive-text-sm text-gray-400">Detected as:</span>
-              <div className="flex flex-wrap gap-1">
+          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-lg p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
+              <span className="text-sm font-medium text-gray-400">Content Type:</span>
+              <div className="flex flex-wrap gap-2">
                 {(['link', 'video', 'image', 'note'] as const).map((type) => {
                   const limit = getStorageLimit()
                   const isAtLimit = currentCounts[type] >= limit
@@ -184,14 +197,14 @@ export default function InfoInputSection() {
                       type="button"
                       onClick={() => setInputType(type)}
                       disabled={isAtLimit}
-                      className={`px-2 py-1 rounded text-xs capitalize transition-colors relative ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all relative border ${
                         inputType === type 
-                          ? type === 'video' ? 'bg-red-600 text-white' :
-                            type === 'image' ? 'bg-green-600 text-white' :
-                            type === 'link' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white'
+                          ? type === 'video' ? 'bg-red-600/20 text-red-400 border-red-500/30' :
+                            type === 'image' ? 'bg-green-600/20 text-green-400 border-green-500/30' :
+                            type === 'link' ? 'bg-blue-600/20 text-blue-400 border-blue-500/30' : 'bg-purple-600/20 text-purple-400 border-purple-500/30'
                           : isAtLimit 
-                            ? 'bg-gray-600 text-gray-500 cursor-not-allowed'
-                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                            ? 'bg-gray-600/20 text-gray-500 cursor-not-allowed border-gray-600/30'
+                            : 'bg-gray-700/30 text-gray-300 hover:bg-gray-700/50 border-gray-600/30 hover:border-gray-500/50'
                       }`}
                       title={isAtLimit ? `${type} limit reached (${limit === Infinity ? 'unlimited' : limit})` : ''}
                     >

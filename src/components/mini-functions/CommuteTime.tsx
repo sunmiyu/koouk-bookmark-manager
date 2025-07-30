@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { CommuteRoute, CommuteData } from '@/types/miniFunctions'
-import { commuteService } from '@/lib/supabase-services'
+// import { commuteService } from '@/lib/supabase-services'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface CommuteTimeProps {
@@ -80,7 +80,7 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
     localStorage.setItem('koouk_commute_routes', JSON.stringify(routes))
   }
 
-  const getTrafficStatus = () => {
+  const getTrafficStatus = useCallback(() => {
     if (commuteData.routes.length === 0) {
       return { color: 'gray', text: '데이터 없음' }
     }
@@ -93,10 +93,10 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
     if (avgDelay < 10) return { color: 'green', text: '원활' }
     if (avgDelay < 30) return { color: 'yellow', text: '보통' }
     return { color: 'red', text: '지연' }
-  }
+  }, [commuteData.routes])
 
   // Main data loading function - simplified and stable
-  const loadCommuteData = async () => {
+  const loadCommuteData = useCallback(async () => {
     console.log('CommuteTime: loadCommuteData 시작', { isPreviewOnly })
     
     if (isPreviewOnly) {
@@ -155,7 +155,7 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
       console.log('CommuteTime: 로딩 완료')
       setLoading(false)
     }
-  }
+  }, [isPreviewOnly])
 
   // Add new route
   const addRoute = async () => {
@@ -237,7 +237,7 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
     return () => {
       isMounted = false
     }
-  }, [isPreviewOnly, user?.id])
+  }, [isPreviewOnly, user?.id, loadCommuteData])
 
   // Notify parent about traffic status
   useEffect(() => {
@@ -245,7 +245,7 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
       const status = getTrafficStatus()
       onTrafficStatusChange(status)
     }
-  }, [commuteData, onTrafficStatusChange])
+  }, [commuteData, onTrafficStatusChange, getTrafficStatus])
 
   const formatDuration = (minutes: number) => {
     if (minutes < 60) {

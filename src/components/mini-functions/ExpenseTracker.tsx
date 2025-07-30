@@ -29,7 +29,7 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
     }
     getSession()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async () => {
     })
 
     return () => subscription.unsubscribe()

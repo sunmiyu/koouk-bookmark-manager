@@ -1,6 +1,7 @@
 import { useContent } from '@/contexts/ContentContext'
 import { useUserPlan } from '@/contexts/UserPlanContext'
 import { trackEvents } from '@/lib/analytics'
+import Image from 'next/image'
 
 const getYouTubeVideoId = (url: string): string | null => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
@@ -113,10 +114,11 @@ export default function VideoSection() {
             </button>
             <div className="flex items-start responsive-gap-sm">
               <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden relative">
-                <img 
+                <Image 
                   src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg"
                   alt="Sample Video"
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white bg-red-600 rounded-full p-0.5 sm:p-1 bg-opacity-80" fill="currentColor" viewBox="0 0 20 20">

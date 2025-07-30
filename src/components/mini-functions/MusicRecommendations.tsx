@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { MusicRecommendation, MoodType } from '@/types/miniFunctions'
+import Image from 'next/image'
 
 interface MusicRecommendationsProps {
   isPreviewOnly?: boolean
@@ -23,7 +24,7 @@ export default function MusicRecommendations({ isPreviewOnly = false }: MusicRec
   const [error, setError] = useState<string | null>(null)
 
   // 음악 추천 API 호출
-  const fetchRecommendations = async (mood: MoodType) => {
+  const fetchRecommendations = useCallback(async (mood: MoodType) => {
     if (isPreviewOnly) {
       // 프리뷰 모드에서는 목업 데이터 사용
       setRecommendations([
@@ -64,12 +65,12 @@ export default function MusicRecommendations({ isPreviewOnly = false }: MusicRec
     } finally {
       setLoading(false)
     }
-  }
+  }, [isPreviewOnly])
 
   // 컴포넌트 마운트 시 및 mood 변경 시 추천 음악 로드
   useEffect(() => {
     fetchRecommendations(selectedMood)
-  }, [selectedMood, isPreviewOnly])
+  }, [selectedMood, isPreviewOnly, fetchRecommendations])
 
   // Mood 변경 핸들러
   const handleMoodChange = (mood: MoodType) => {
@@ -137,14 +138,17 @@ export default function MusicRecommendations({ isPreviewOnly = false }: MusicRec
               <div className="flex items-center gap-3">
                 {/* 썸네일 */}
                 <div className="flex-shrink-0">
-                  <img
-                    src={music.thumbnail}
-                    alt={music.title}
-                    className="w-12 h-9 rounded object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://img.youtube.com/vi/default/mqdefault.jpg'
-                    }}
-                  />
+                  <div className="w-12 h-9 rounded overflow-hidden relative">
+                    <Image
+                      src={music.thumbnail}
+                      alt={music.title}
+                      fill
+                      className="object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://img.youtube.com/vi/default/mqdefault.jpg'
+                      }}
+                    />
+                  </div>
                 </div>
                 
                 {/* 음악 정보 */}

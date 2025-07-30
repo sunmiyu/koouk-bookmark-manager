@@ -128,7 +128,7 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
     } finally {
       setLoading(false)
     }
-  }, [isPreviewOnly])
+  }, [isPreviewOnly, user])
 
   const convertDbEventsToEvents = (dbEvents: unknown[]): DDayEvent[] => {
     return dbEvents.map((event: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any

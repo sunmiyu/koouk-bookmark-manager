@@ -546,7 +546,7 @@ export default function MiniFunctionsControlPage() {
                 ].map((plan) => (
                   <button
                     key={plan.id}
-                    onClick={() => setCurrentPlan(plan.id as any)}
+                    onClick={() => setCurrentPlan(plan.id as 'free' | 'pro' | 'unlimited')}
                     className={`px-4 py-3 rounded-lg border-2 transition-all min-w-[140px] text-left ${
                       currentPlan === plan.id
                         ? 'border-blue-500 bg-blue-50 text-blue-700'

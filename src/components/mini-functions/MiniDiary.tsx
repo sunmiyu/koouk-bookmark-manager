@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { DiaryEntry, DiaryData } from '@/types/miniFunctions'
 import { diaryService } from '@/lib/supabase-services'
 import { useAuth } from '@/contexts/AuthContext'
@@ -48,7 +48,7 @@ export default function MiniDiary({ isPreviewOnly = false, showHistoryOnly = fal
     loadDiaryData()
   }, [isPreviewOnly])
 
-  const loadDiaryData = async () => {
+  const loadDiaryData = useCallback(async () => {
     try {
       setLoading(true)
       
@@ -119,7 +119,7 @@ export default function MiniDiary({ isPreviewOnly = false, showHistoryOnly = fal
     } finally {
       setLoading(false)
     }
-  }
+  }, [user])
 
   const saveDiaryEntry = async () => {
     if (isPreviewOnly || !currentText.trim() || loading) return

@@ -50,7 +50,7 @@ export default function MiniFunctionsSettings() {
     })
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [loading])
 
   // Show loading state
   if (loading) {

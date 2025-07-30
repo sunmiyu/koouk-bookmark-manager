@@ -78,7 +78,7 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [user])
 
 
   const findNextAlarm = (alarmList: AlarmData[]) => {

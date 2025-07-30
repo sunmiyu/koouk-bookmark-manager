@@ -264,10 +264,12 @@ export default function MiniFunctionsArea() {
       ) : (
         <>
           {/* Mobile: 세로 스택 */}
-          <div className="block sm:hidden space-y-4">
-            {enabledFunctions.map((func) => 
-              renderMiniFunction(func, false)
-            )}
+          <div className="block sm:hidden">
+            {enabledFunctions.map((func, index) => (
+              <div key={func.id} className={index > 0 ? 'mt-6' : ''}>
+                {renderMiniFunction(func, false)}
+              </div>
+            ))}
           </div>
           
           {/* Desktop: 그리드 레이아웃 (한 줄에 최대 4개) */}

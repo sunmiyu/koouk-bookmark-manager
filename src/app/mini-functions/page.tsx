@@ -42,7 +42,6 @@ export default function MiniFunctionsControlPage() {
         return (
           <div className="space-y-6">
             <div>
-              <h4 className="text-lg font-medium text-gray-900 mb-4">뉴스 카테고리 설정</h4>
               <div className="grid grid-cols-2 gap-3">
                 {[
                   { id: 'politics', name: '정치', icon: '🏛️' },
@@ -81,7 +80,6 @@ export default function MiniFunctionsControlPage() {
         return (
           <div className="space-y-6">
             <div>
-              <h4 className="text-lg font-medium text-gray-900 mb-4">음악 장르 선호도</h4>
               <div className="grid grid-cols-2 gap-3">
                 {[
                   { id: 'kpop', name: 'K-POP', icon: '🎵' },
@@ -123,7 +121,6 @@ export default function MiniFunctionsControlPage() {
         return (
           <div className="space-y-6">
             <div>
-              <h4 className="text-lg font-medium text-gray-900 mb-4">가계부 설정</h4>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">월 예산 목표</label>
@@ -151,7 +148,6 @@ export default function MiniFunctionsControlPage() {
         return (
           <div className="space-y-6">
             <div>
-              <h4 className="text-lg font-medium text-gray-900 mb-4">일기 설정</h4>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">일기 알림 시간</label>
@@ -179,7 +175,6 @@ export default function MiniFunctionsControlPage() {
         return (
           <div className="space-y-6">
             <div>
-              <h4 className="text-lg font-medium text-gray-900 mb-4">알람 설정</h4>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">최대 알람 개수</label>
@@ -206,7 +201,6 @@ export default function MiniFunctionsControlPage() {
         return (
           <div className="space-y-6">
             <div>
-              <h4 className="text-lg font-medium text-gray-900 mb-4">D-Day 설정</h4>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">표시할 이벤트 개수</label>
@@ -234,7 +228,6 @@ export default function MiniFunctionsControlPage() {
         return (
           <div className="space-y-6">
             <div>
-              <h4 className="text-lg font-medium text-gray-900 mb-4">출근길 설정</h4>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">기본 출발지</label>
@@ -269,7 +262,6 @@ export default function MiniFunctionsControlPage() {
         return (
           <div className="space-y-6">
             <div>
-              <h4 className="text-lg font-medium text-gray-900 mb-4">주식 설정</h4>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">관심 종목 추가</label>
@@ -295,7 +287,6 @@ export default function MiniFunctionsControlPage() {
         return (
           <div className="space-y-6">
             <div>
-              <h4 className="text-lg font-medium text-gray-900 mb-4">맛집 추천 설정</h4>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">검색 반경</label>
@@ -326,7 +317,6 @@ export default function MiniFunctionsControlPage() {
         return (
           <div className="space-y-6">
             <div>
-              <h4 className="text-lg font-medium text-gray-900 mb-4">노래 연습 List 설정</h4>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">연습 목록</label>
@@ -367,7 +357,6 @@ export default function MiniFunctionsControlPage() {
         return (
           <div className="space-y-6">
             <div>
-              <h4 className="text-lg font-medium text-gray-900 mb-4">기념일 등록 설정</h4>
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <input
@@ -407,7 +396,6 @@ export default function MiniFunctionsControlPage() {
         return (
           <div className="space-y-6">
             <div>
-              <h4 className="text-lg font-medium text-gray-900 mb-4">목표 세팅</h4>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">목표 목록</label>
@@ -448,7 +436,6 @@ export default function MiniFunctionsControlPage() {
         return (
           <div className="space-y-6">
             <div>
-              <h4 className="text-lg font-medium text-gray-900 mb-4">영어 공부 설정</h4>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">매일 표시할 단어 개수</label>
@@ -567,7 +554,6 @@ export default function MiniFunctionsControlPage() {
                     <div className="flex items-center gap-4">
                       <span className="text-3xl">{AVAILABLE_FUNCTIONS.find(f => f.id === selectedFunction)?.icon}</span>
                       <div>
-                        <h3 className="text-2xl font-semibold text-gray-900">{AVAILABLE_FUNCTIONS.find(f => f.id === selectedFunction)?.name}</h3>
                         <p className="text-gray-600 text-sm">{AVAILABLE_FUNCTIONS.find(f => f.id === selectedFunction)?.description}</p>
                       </div>
                     </div>

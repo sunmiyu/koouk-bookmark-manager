@@ -61,8 +61,7 @@ function HomeContent() {
         </header>
 
         <main className="space-y-6 sm:space-y-8">
-          {/* Temporarily disabled MiniFunctionsArea due to ReferenceError: Cannot access 'N' before initialization */}
-          {/* <MiniFunctionsArea /> */}
+          <MiniFunctionsArea />
           
           {/* Horizontal divider between Mini Functions and Todos */}
           <div className="border-t border-gray-800"></div>
@@ -75,12 +74,17 @@ function HomeContent() {
           {/* Info input section */}
           <InfoInputSection />
           
-          {/* Content Sections */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-            <LinkSection />
-            <VideoSection />
-            <ImageSection />
-            <NotesSection />
+          {/* Contents Section */}
+          <div className="space-y-6 sm:space-y-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-white">Contents</h2>
+            
+            {/* Content Sections Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+              <LinkSection />
+              <VideoSection />
+              <ImageSection />
+              <NotesSection />
+            </div>
           </div>
         </main>
 
@@ -91,10 +95,9 @@ function HomeContent() {
               <Link href="/privacy-policy" className="hover:text-gray-300 underline ml-1">
                 개인정보처리방침
               </Link>
-              <span className="hidden sm:inline"> · Your everyday moments dashboard</span>
             </div>
-            <div className="sm:hidden mt-1">
-              Your everyday moments dashboard
+            <div className="mt-1">
+              Your daily Dashboard
             </div>
           </div>
         </footer>

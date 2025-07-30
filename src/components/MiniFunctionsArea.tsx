@@ -264,9 +264,9 @@ export default function MiniFunctionsArea() {
       ) : (
         <>
           {/* Mobile: 세로 스택 */}
-          <div className="block sm:hidden">
-            {enabledFunctions.map((func, index) => (
-              <div key={func.id} className={index > 0 ? 'mt-6' : ''}>
+          <div className="block sm:hidden space-y-6">
+            {enabledFunctions.map((func) => (
+              <div key={func.id}>
                 {renderMiniFunction(func, false)}
               </div>
             ))}

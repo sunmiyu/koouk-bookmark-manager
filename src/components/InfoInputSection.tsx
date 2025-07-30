@@ -147,8 +147,7 @@ export default function InfoInputSection() {
           </svg>
         </div>
         <div>
-          <h2 className="text-xl font-semibold text-white">Add Content</h2>
-          <p className="text-sm text-gray-400">Save links, videos, images, and notes</p>
+          <h2 className="text-lg font-semibold text-white">Add Content</h2>
         </div>
       </div>
 

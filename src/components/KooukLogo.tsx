@@ -10,11 +10,8 @@ export default function KooukLogo() {
       
       {/* Modern KOOUK text */}
       <div className="flex flex-col">
-        <div className="text-xl sm:text-2xl font-semibold text-white leading-none tracking-wide">
+        <div className="text-3xl font-semibold text-white leading-none tracking-wide">
           Koouk
-        </div>
-        <div className="text-xs text-gray-400 font-medium tracking-wider hidden sm:block">
-          DASHBOARD
         </div>
       </div>
     </div>

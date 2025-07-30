@@ -244,8 +244,7 @@ export default function MiniFunctionsArea() {
             </svg>
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-white">{t('mini_functions')}</h2>
-            <p className="text-sm text-gray-400">Quick access to your tools</p>
+            <h2 className="text-lg font-semibold text-white">{t('mini_functions')}</h2>
           </div>
         </div>
         

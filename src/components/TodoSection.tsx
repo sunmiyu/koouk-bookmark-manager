@@ -428,32 +428,35 @@ export default function TodoSection() {
     <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800/50 rounded-xl p-6">
       {/* Professional Header */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center">
-            <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m0 0h6m-6 0v-2m6 2v2m0-2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2m-6 0V3a2 2 0 112 0v2m0 4h6m-6 4h6" />
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center">
+              <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m0 0h6m-6 0v-2m6 2v2m0-2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2m-6 0V3a2 2 0 112 0v2m0 4h6m-6 4h6" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-white">Todos</h2>
+            </div>
+          </div>
+          
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+              showHistory 
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25' 
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+            }`}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-white">Todos</h2>
-            <p className="text-sm text-gray-400">Manage your daily tasks</p>
-          </div>
+            <span className="hidden sm:inline">{showHistory ? 'Hide History' : 'Show History'}</span>
+            <span className="sm:hidden">{showHistory ? 'Hide' : 'History'}</span>
+          </button>
         </div>
         
-        <button
-          onClick={() => setShowHistory(!showHistory)}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
-            showHistory 
-              ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25' 
-              : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700 hover:border-gray-600'
-          }`}
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span className="hidden sm:inline">{showHistory ? 'Hide History' : 'Show History'}</span>
-          <span className="sm:hidden">{showHistory ? 'Hide' : 'History'}</span>
-        </button>
+        <div></div>
       </div>
 
       {/* History Section */}
@@ -470,9 +473,6 @@ export default function TodoSection() {
       
       {/* Current Todos Section */}
       <div>
-        <div className="mb-3">
-          <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wide">Upcoming</h3>
-        </div>
         <div className="flex overflow-x-auto responsive-gap-md pb-4">
           {dateCards.map((card) => renderDateCard(card, false))}
         </div>

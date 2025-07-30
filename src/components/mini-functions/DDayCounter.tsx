@@ -235,7 +235,7 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
 
   return (
     <div className="space-y-2">
-      <div className="flex justify-between items-center py-1">
+      <div className="flex justify-between items-center group py-1">
         <span className="text-white font-medium truncate flex-1">
           {nextEvent.name}
         </span>
@@ -246,6 +246,26 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
           <span className="text-blue-400 font-bold text-sm">
             D-{nextEvent.daysRemaining}
           </span>
+          {!isPreviewOnly && (
+            <div className="flex gap-1 opacity-0 group-hover:opacity-100">
+              <button
+                onClick={() => {/* Edit functionality */}}
+                disabled={loading}
+                className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm disabled:opacity-50"
+                title="Edit D-day"
+              >
+                ✎
+              </button>
+              <button
+                onClick={() => {/* Delete functionality */}}
+                disabled={loading}
+                className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm disabled:opacity-50"
+                title="Delete D-day"
+              >
+                ✕
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

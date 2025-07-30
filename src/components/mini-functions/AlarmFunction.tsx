@@ -199,13 +199,35 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
   return (
     <div className="space-y-1">
       {alarms.slice(0, 2).map((alarm) => (
-        <div key={alarm.id} className="flex justify-between items-center py-1">
+        <div key={alarm.id} className="flex justify-between items-center group py-1">
           <div className="flex items-center gap-2">
             <span className="text-white text-sm">■</span>
             <span className="text-gray-300 font-medium">{alarm.label}</span>
           </div>
-          <div className="text-gray-300 text-sm">
-            {alarm.time} {alarm.enabled ? '(Mon-Fri)' : '(Off)'}
+          <div className="flex items-center gap-2">
+            <div className="text-gray-300 text-sm">
+              {alarm.time} {alarm.enabled ? '(Mon-Fri)' : '(Off)'}
+            </div>
+            {!isPreviewOnly && (
+              <div className="flex gap-1 opacity-0 group-hover:opacity-100">
+                <button
+                  onClick={() => {/* Edit functionality */}}
+                  disabled={loading}
+                  className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm disabled:opacity-50"
+                  title="Edit alarm"
+                >
+                  ✎
+                </button>
+                <button
+                  onClick={() => {/* Delete functionality */}}
+                  disabled={loading}
+                  className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm disabled:opacity-50"
+                  title="Delete alarm"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
           </div>
         </div>
       ))}

@@ -297,16 +297,26 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
       ) : (
         <div className="space-y-2">
           {commuteData.routes.map((route) => (
-            <div key={route.id} className="bg-gray-800 rounded-lg p-3">
+            <div key={route.id} className="bg-gray-800 rounded-lg p-3 group">
               <div className="flex justify-between items-start mb-2">
                 <h4 className="text-white font-medium text-sm">{route.name}</h4>
                 {!isPreviewOnly && (
-                  <button
-                    onClick={() => removeRoute(route.id)}
-                    className="text-red-400 hover:text-red-300 text-xs cursor-pointer"
-                  >
-                    ✕
-                  </button>
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100">
+                    <button
+                      onClick={() => {/* Edit functionality */}}
+                      className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm"
+                      title="Edit route"
+                    >
+                      ✎
+                    </button>
+                    <button
+                      onClick={() => removeRoute(route.id)}
+                      className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm"
+                      title="Delete route"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 )}
               </div>
               <div className="text-xs text-gray-400 space-y-1">

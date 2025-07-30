@@ -162,12 +162,10 @@ export default function MusicRecommendations({ isPreviewOnly = false }: MusicRec
                   href={music.youtubeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-shrink-0 w-7 h-7 flex items-center justify-center text-purple-600 hover:text-purple-700 border border-purple-600 rounded hover:border-purple-700 transition-colors cursor-pointer"
+                  className="flex-shrink-0 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors cursor-pointer text-sm"
                   title="YouTube에서 재생"
                 >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z"/>
-                  </svg>
+                  ▶
                 </a>
               </div>
             </div>

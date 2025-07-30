@@ -76,20 +76,20 @@ export default function AuthButton() {
         
         {isDropdownOpen && (
           <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 z-10">
-            <div className="p-3 border-b border-gray-700">
+            <div className="p-3 border-b border-gray-700 text-center">
               <div className="text-sm text-white font-medium">{user.user_metadata?.full_name || user.email}</div>
               <div className="text-xs text-gray-400">{user.email}</div>
             </div>
             <div className="py-1">
               <button
                 onClick={handleSignOut}
-                className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors cursor-pointer"
+                className="w-full text-center px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors cursor-pointer"
               >
                 Logout
               </button>
               <a
                 href="/account/delete"
-                className="block w-full text-left px-3 py-2 text-sm text-gray-800 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-700 transition-colors cursor-pointer"
+                className="block w-full text-center px-3 py-2 text-sm text-gray-500 hover:text-gray-300 hover:bg-gray-700 transition-colors cursor-pointer"
                 onClick={() => setIsDropdownOpen(false)}
               >
                 Delete Account

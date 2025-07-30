@@ -7,6 +7,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserPlanProvider } from "@/contexts/UserPlanContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { MiniFunctionsProvider } from "@/contexts/MiniFunctionsContext";
+import { ContentProvider } from "@/contexts/ContentContext";
 import { Analytics } from '@vercel/analytics/react';
 import { GoogleAnalytics } from '@next/third-parties/google'
 
@@ -86,9 +87,11 @@ export default function RootLayout({
           <AuthProvider>
             <UserPlanProvider>
               <MiniFunctionsProvider>
-                <SecurityMonitor />
-                {children}
-                <CookieBanner />
+                <ContentProvider>
+                  <SecurityMonitor />
+                  {children}
+                  <CookieBanner />
+                </ContentProvider>
               </MiniFunctionsProvider>
             </UserPlanProvider>
           </AuthProvider>

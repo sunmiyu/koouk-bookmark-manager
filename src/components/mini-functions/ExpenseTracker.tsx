@@ -361,13 +361,24 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
                   ₩{Math.abs(item.amount).toLocaleString()} {item.amount > 0 ? '(+)' : '(-)'}
                 </span>
                 {!isPreviewOnly && (
-                  <button
-                    onClick={() => removeExpense(item.id)}
-                    disabled={loading}
-                    className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 text-sm w-4 disabled:opacity-50 cursor-pointer"
-                  >
-                    ×
-                  </button>
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100">
+                    <button
+                      onClick={() => {/* Edit functionality */}}
+                      disabled={loading}
+                      className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm disabled:opacity-50"
+                      title="Edit expense"
+                    >
+                      ✎
+                    </button>
+                    <button
+                      onClick={() => removeExpense(item.id)}
+                      disabled={loading}
+                      className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm disabled:opacity-50"
+                      title="Delete expense"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

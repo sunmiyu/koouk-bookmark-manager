@@ -56,7 +56,7 @@ export default function NotesSection() {
                   deleteItem(note.id, 'note')
                 }
               }}
-              className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center text-red-400 hover:text-red-300 border border-red-400 rounded hover:border-red-300 transition-colors opacity-0 group-hover:opacity-100 text-xs z-10"
+              className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors opacity-0 group-hover:opacity-100 text-sm z-10"
               title="Delete note"
             >
               ✕
@@ -93,7 +93,7 @@ export default function NotesSection() {
                 e.stopPropagation()
                 alert('이것은 샘플 데이터입니다. 로그인 후 실제 노트를 추가해보세요!')
               }}
-              className="absolute top-2 right-2 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs z-10"
+              className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors opacity-0 group-hover:opacity-100 text-sm z-10"
               title="Delete note"
             >
               ✕

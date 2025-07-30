@@ -338,10 +338,36 @@ export default function MiniDiary({ isPreviewOnly = false, showHistoryOnly = fal
             }`}
           >
             {diaryData.todayEntry ? (
-              <div className="space-y-1">
-                <p className="text-white text-sm leading-relaxed">
-                  {diaryData.todayEntry.content}
-                </p>
+              <div className="space-y-1 group">
+                <div className="flex justify-between items-start">
+                  <p className="text-white text-sm leading-relaxed flex-1">
+                    {diaryData.todayEntry.content}
+                  </p>
+                  {!isPreviewOnly && (
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 ml-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          startEditing();
+                        }}
+                        className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm"
+                        title="Edit diary"
+                      >
+                        ✎
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          /* Delete functionality */
+                        }}
+                        className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm"
+                        title="Delete diary"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                </div>
                 <div className="flex items-center justify-end">
                   <span className="text-gray-500 text-sm">
                     {new Date(diaryData.todayEntry.updatedAt).toLocaleTimeString('ko-KR', {

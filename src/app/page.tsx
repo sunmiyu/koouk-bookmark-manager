@@ -33,30 +33,9 @@ function HomeContent() {
             </div>
           </div>
           
-          {/* Second row: Search, Pro, Account */}
-          <div className="flex items-center gap-4">
-            {/* 데스크톱: 오른쪽 정렬 */}
-            <div className="hidden sm:flex items-center justify-end gap-4 flex-1">
-              {/* Search bar - 고정 너비 */}
-              <div className="w-64">
-                <SearchBar />
-              </div>
-              {/* Login button */}
-              <div className="flex-shrink-0">
-                <AuthButton />
-              </div>
-            </div>
-            
-            {/* 모바일: 오른쪽 정렬 */}
-            <div className="sm:hidden flex items-center justify-end gap-3 flex-1">
-              {/* Search bar - 적당한 크기 */}
-              <div className="max-w-xs">
-                <SearchBar />
-              </div>
-              <div className="flex-shrink-0">
-                <AuthButton />
-              </div>
-            </div>
+          {/* Second row: Account */}
+          <div className="flex items-center justify-end gap-4">
+            <AuthButton />
           </div>
         </header>
 
@@ -78,7 +57,12 @@ function HomeContent() {
           
           {/* Contents Section */}
           <div className="space-y-6 sm:space-y-8">
-            <h2 className="section-title">Contents</h2>
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="section-title">Contents</h2>
+              <div className="w-48 sm:w-64 flex-shrink-0">
+                <SearchBar />
+              </div>
+            </div>
             
             {/* Content Sections Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">

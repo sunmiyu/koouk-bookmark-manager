@@ -61,14 +61,12 @@ function HomeContent() {
         </header>
 
         <main className="space-y-6 sm:space-y-8">
-          {/* Temporarily disabled MiniFunctionsArea for debugging */}
-          {/* <MiniFunctionsArea /> */}
+          <MiniFunctionsArea />
           
           {/* Horizontal divider between Mini Functions and Todos */}
           <div className="border-t border-gray-800"></div>
           
-          {/* Temporarily disabled TodoSection for debugging */}
-          {/* <TodoSection /> */}
+          <TodoSection />
           
           {/* Horizontal divider between Todos and Contents */}
           <div className="border-t border-gray-800 my-6 sm:my-8"></div>

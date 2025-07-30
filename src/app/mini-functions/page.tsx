@@ -34,23 +34,6 @@ export default function MiniFunctionsControlPage() {
   const [selectedFunction, setSelectedFunction] = useState<string | null>(null)
 
   const enabledFunctionIds = enabledFunctions.map(f => f.id)
-  const availableFunctions = AVAILABLE_FUNCTIONS.filter(f => !enabledFunctionIds.includes(f.id))
-
-  const handleAddFunction = (functionId: string) => {
-    if (enabledFunctions.length >= 8) {
-      alert('최대 8개의 Mini Function만 사용할 수 있습니다.')
-      return
-    }
-    toggleFunction(functionId)
-  }
-
-  const handleRemoveFunction = (functionId: string) => {
-    toggleFunction(functionId)
-  }
-
-  const selectedFunctionData = selectedFunction 
-    ? enabledFunctions.find(f => f.id === selectedFunction) || AVAILABLE_FUNCTIONS.find(f => f.id === selectedFunction)
-    : null
 
   // Function별 설정 화면 렌더링
   const renderFunctionConfig = (functionId: string) => {

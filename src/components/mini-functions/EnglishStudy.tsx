@@ -124,7 +124,7 @@ export default function EnglishStudy({ isPreviewOnly = false }: EnglishStudyProp
                       </div>
                       {wordData.example && (
                         <div className="text-gray-400 text-sm italic">
-                          "{wordData.example}"
+                          &quot;{wordData.example}&quot;
                         </div>
                       )}
                     </div>

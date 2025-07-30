@@ -138,14 +138,9 @@ export default function InfoInputSection() {
   }
 
   return (
-    <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-8">
+    <div className="bg-black rounded-xl p-8">
       {/* Professional Header */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center">
-          <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-        </div>
         <div>
           <h2 className="text-lg font-semibold text-white">Add Content</h2>
         </div>

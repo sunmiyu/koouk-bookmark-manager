@@ -234,22 +234,17 @@ export default function MiniFunctionsArea() {
   }
 
   return (
-    <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-8">
+    <div className="bg-black rounded-xl p-8">
       {/* Professional Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-purple-600/20 rounded-lg flex items-center justify-center">
-            <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 011-1h1m0 0V3a2 2 0 112 0v1h1a2 2 0 011 1v1M9 7h6" />
-            </svg>
-          </div>
           <div>
             <h2 className="text-lg font-semibold text-white">{t('mini_functions')}</h2>
           </div>
         </div>
         
         <div className="flex items-center gap-3">
-          <div className="px-3 py-1.5 bg-gray-800/50 rounded-lg">
+          <div className="px-3 py-1.5 bg-black rounded-lg">
             <span className="text-sm font-medium text-gray-300">
               {enabledFunctions.length}/{maxEnabled} {t('active')}
             </span>

@@ -28,22 +28,21 @@ function HomeContent() {
         <div className="container mx-auto responsive-p-md py-4 sm:py-6 max-w-7xl px-4 sm:px-6 lg:px-8">
           <header className="mb-12">
             {/* Professional Header Container */}
-            <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6">
+            <div className="bg-black rounded-xl p-6">
               <div className="flex items-center justify-between">
-                {/* Left: Logo */}
+                {/* Left: Empty space */}
                 <div className="flex items-center">
-                  <KooukLogo />
                 </div>
                 
                 {/* Right: Weather, Time & Account */}
                 <div className="flex items-center gap-3">
                   {/* Weather & Time */}
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-3 px-3 py-1.5 bg-gray-800/50 rounded-lg">
+                    <div className="flex items-center gap-3 px-3 py-1.5 bg-black rounded-lg">
                       <WeatherOnly />
                     </div>
                     <div className="w-px h-6 bg-gray-700"></div>
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/50 rounded-lg">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-black rounded-lg">
                       <TimeDisplay />
                     </div>
                   </div>
@@ -66,9 +65,6 @@ function HomeContent() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m0 0h6m-6 0v-2m6 2v2m0-2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2m-6 0V3a2 2 0 112 0v2m0 4h6m-6 4h6" />
-                    </svg>
                     Dashboard
                   </div>
                 </button>
@@ -81,9 +77,6 @@ function HomeContent() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 011-1h1m0 0V3a2 2 0 112 0v1h1a2 2 0 011 1v1M9 7h6" />
-                    </svg>
                     Contents Storage
                   </div>
                 </button>
@@ -96,10 +89,7 @@ function HomeContent() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                    </svg>
-                    Popular Link
+                    AI Tool Link
                   </div>
                 </button>
               </nav>
@@ -124,15 +114,10 @@ function HomeContent() {
                 <InfoInputSection />
                 
                 {/* Contents Section */}
-                <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-8">
+                <div className="bg-black rounded-xl p-8">
                   {/* Professional Header */}
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-orange-600/20 rounded-lg flex items-center justify-center">
-                        <svg className="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 011-1h1m0 0V3a2 2 0 112 0v1h1a2 2 0 011 1v1M9 7h6" />
-                        </svg>
-                      </div>
                       <div>
                         <h2 className="text-lg font-semibold text-white">Contents Storage</h2>
                       </div>
@@ -156,17 +141,12 @@ function HomeContent() {
 
             {activeTab === 'popular' && (
               <div className="space-y-12">
-                {/* Popular Link Section - Empty for now */}
-                <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-8">
+                {/* AI Tool Link Section */}
+                <div className="bg-black rounded-xl p-8">
                   {/* Professional Header */}
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-8 h-8 bg-yellow-600/20 rounded-lg flex items-center justify-center">
-                      <svg className="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                      </svg>
-                    </div>
                     <div>
-                      <h2 className="text-lg font-semibold text-white">Popular Link</h2>
+                      <h2 className="text-lg font-semibold text-white">AI Tool Link</h2>
                     </div>
                   </div>
                   
@@ -177,8 +157,8 @@ function HomeContent() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-medium text-white mb-2">Popular Link Coming Soon</h3>
-                    <p className="text-gray-400">This section will be populated with popular links</p>
+                    <h3 className="text-lg font-medium text-white mb-2">AI Tool Link Collection</h3>
+                    <p className="text-gray-400">Curated collection of useful AI tools for productivity and creativity</p>
                   </div>
                 </div>
               </div>
@@ -187,7 +167,7 @@ function HomeContent() {
 
           <footer className="mt-16">
             {/* Professional Footer Container */}
-            <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-8">
+            <div className="bg-black rounded-xl p-8">
               <div className="flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-6">
                 {/* All content in one row for PC, stacked for mobile */}
                 <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6 w-full lg:w-auto">

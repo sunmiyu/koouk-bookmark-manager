@@ -425,16 +425,11 @@ export default function TodoSection() {
   }
 
   return (
-    <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-8">
+    <div className="bg-black rounded-xl p-8">
       {/* Professional Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m0 0h6m-6 0v-2m6 2v2m0-2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2m-6 0V3a2 2 0 112 0v2m0 4h6m-6 4h6" />
-              </svg>
-            </div>
             <div>
               <h2 className="text-lg font-semibold text-white">Todos</h2>
             </div>

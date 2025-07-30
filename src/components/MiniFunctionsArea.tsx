@@ -234,16 +234,30 @@ export default function MiniFunctionsArea() {
   }
 
   return (
-    <div className="mb-6">
-      <div className="flex items-center gap-3 mb-4">
-        <h2 className="section-title">{t('mini_functions')}</h2>
-        <div className="flex items-center gap-1">
-          <div className="text-sm text-gray-400">
-            {enabledFunctions.length}/{maxEnabled} {t('active')}
+    <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800/50 rounded-xl p-6">
+      {/* Professional Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-purple-600/20 rounded-lg flex items-center justify-center">
+            <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 011-1h1m0 0V3a2 2 0 112 0v1h1a2 2 0 011 1v1M9 7h6" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-white">{t('mini_functions')}</h2>
+            <p className="text-sm text-gray-400">Quick access to your tools</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <div className="px-3 py-1.5 bg-gray-800/50 rounded-lg border border-gray-700/50">
+            <span className="text-sm font-medium text-gray-300">
+              {enabledFunctions.length}/{maxEnabled} {t('active')}
+            </span>
           </div>
           <button 
-            className="text-sm text-gray-400 hover:text-gray-300 cursor-pointer"
-            onClick={() => router.push('/settings/mini-functions')}
+            className="w-9 h-9 flex items-center justify-center bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 border border-gray-700 hover:border-gray-600 rounded-lg transition-all cursor-pointer"
+            onClick={() => router.push('/mini-functions')}
             title="Mini Functions 관리"
           >
             ⚙️
@@ -252,26 +266,29 @@ export default function MiniFunctionsArea() {
       </div>
       
       {enabledFunctions.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <p className="mb-4">No Mini Functions enabled yet</p>
+        <div className="text-center py-12">
+          <div className="w-16 h-16 bg-blue-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-white mb-2">No Mini Functions Active</h3>
+          <p className="text-gray-400 mb-6">Choose your first function to get started</p>
           <button 
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm cursor-pointer"
-            onClick={() => router.push('/settings/mini-functions')}
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium cursor-pointer shadow-lg shadow-blue-600/25 transition-all"
+            onClick={() => router.push('/mini-functions')}
           >
             Choose Your First Function
           </button>
         </div>
       ) : (
-        <>
-          {/* 모든 화면 크기에서 일관된 그리드 레이아웃 사용 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {enabledFunctions.map(func => (
-              <div key={func.id} className="min-h-0">
-                {renderMiniFunction(func, false)}
-              </div>
-            ))}
-          </div>
-        </>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {enabledFunctions.map(func => (
+            <div key={func.id} className="min-h-0">
+              {renderMiniFunction(func, false)}
+            </div>
+          ))}
+        </div>
       )}
     </div>
   )

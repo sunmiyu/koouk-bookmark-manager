@@ -291,12 +291,19 @@ export default function TodoSection() {
     const pastCard = isPast(card.date)
     
     return (
-      <div key={card.date} className={`card min-w-[280px] sm:min-w-[250px] flex-shrink-0 ${todayCard ? 'ring-2 ring-blue-500' : ''}`}>
-        <div className="mb-3">
-          <div className="flex items-center responsive-gap-sm">
-            <div className="text-base font-semibold">{month}/{day} {weekday}</div>
-            {todayCard && <span className="px-2 py-1 bg-blue-600 text-white text-xs rounded">Today</span>}
-            {pastCard && !isHistoryCard && <span className="px-2 py-1 bg-gray-600 text-white text-xs rounded">Past</span>}
+      <div key={card.date} className={`bg-gray-800/50 backdrop-blur-sm border rounded-xl p-4 min-w-[280px] sm:min-w-[250px] flex-shrink-0 transition-all duration-200 hover:bg-gray-800/70 ${
+        todayCard ? 'border-blue-500/50 shadow-lg shadow-blue-500/10' : 'border-gray-700/50 hover:border-gray-600/50'
+      }`}>
+        <div className="mb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="text-base font-semibold text-white">{month}/{day}</div>
+              <div className="text-sm text-gray-400">{weekday}</div>
+            </div>
+            <div className="flex gap-1">
+              {todayCard && <span className="px-2 py-1 bg-blue-600/20 text-blue-400 text-xs rounded-md font-medium border border-blue-500/30">Today</span>}
+              {pastCard && !isHistoryCard && <span className="px-2 py-1 bg-gray-600/20 text-gray-400 text-xs rounded-md font-medium border border-gray-500/30">Past</span>}
+            </div>
           </div>
         </div>
         
@@ -305,36 +312,40 @@ export default function TodoSection() {
             <div></div>
           ) : (
             card.todos.map((todo) => (
-              <div key={todo.id} className="flex items-center gap-2 group">
+              <div key={todo.id} className="flex items-center gap-3 group p-2 rounded-lg hover:bg-gray-700/30 transition-colors">
                 <input
                   type="checkbox"
                   checked={todo.completed}
                   onChange={isHistoryCard ? undefined : () => toggleTodo(card.date, todo.id)}
                   disabled={isHistoryCard}
-                  className="rounded w-3.5 h-3.5 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 flex-shrink-0"
+                  className="rounded w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-offset-0 flex-shrink-0"
                 />
-                <span className={`flex-1 text-sm ${todo.completed ? 'line-through text-gray-500' : 'text-white'} break-words`}>
+                <span className={`flex-1 text-sm transition-colors break-words ${
+                  todo.completed ? 'line-through text-gray-500' : 'text-gray-200'
+                }`}>
                   {todo.text}
                   {todo.repeat && todo.repeat.type !== 'none' && (
-                    <span className="ml-2 text-xs text-purple-400">
-                      {todo.repeat.type === 'weekly' && '📅'}
-                      {todo.repeat.type === 'monthly' && '🗓️'}
-                      {todo.repeat.type === 'yearly' && '📆'}
+                    <span className="ml-2 text-xs px-1.5 py-0.5 bg-purple-600/20 text-purple-400 rounded-md border border-purple-500/30">
+                      {todo.repeat.type === 'weekly' && '📅 Weekly'}
+                      {todo.repeat.type === 'monthly' && '🗓️ Monthly'}
+                      {todo.repeat.type === 'yearly' && '📆 Yearly'}
                     </span>
                   )}
                 </span>
                 {!isHistoryCard && (
                   <button
                     onClick={() => deleteTodo(card.date, todo.id)}
-                    className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 text-xs px-1 transition-opacity flex-shrink-0"
+                    className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center transition-all text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded flex-shrink-0"
                   >
-                    ×
+                    ✕
                   </button>
                 )}
                 {isHistoryCard && todo.completed && (
-                  <svg className="w-3.5 h-3.5 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
+                  <div className="w-6 h-6 flex items-center justify-center bg-green-600/20 rounded-lg border border-green-500/30">
+                    <svg className="w-3.5 h-3.5 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
                 )}
               </div>
             ))
@@ -342,7 +353,7 @@ export default function TodoSection() {
         </div>
 
         {!isHistoryCard && (
-          <div className="space-y-2">
+          <div className="space-y-3 pt-2 border-t border-gray-700/50">
             <div className="flex gap-2">
               <input
                 type="text"
@@ -350,14 +361,14 @@ export default function TodoSection() {
                 onChange={(e) => setNewTodoText(prev => ({ ...prev, [card.date]: e.target.value }))}
                 onKeyPress={(e) => handleKeyPress(e, card.date)}
                 placeholder="Add new todo..."
-                className="flex-1 px-2 py-1 text-sm bg-gray-800 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-white placeholder-gray-400"
+                className="flex-1 px-3 py-2 text-sm bg-gray-700/50 border border-gray-600/50 rounded-lg focus:outline-none focus:border-blue-500 focus:bg-gray-700 text-white placeholder-gray-400 transition-colors"
               />
               <button
                 onClick={() => setShowRepeatOptions(prev => ({ ...prev, [card.date]: !prev[card.date] }))}
-                className={`w-7 h-7 flex items-center justify-center border border-gray-600 rounded transition-colors flex-shrink-0 text-sm ${
+                className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all flex-shrink-0 text-sm font-medium ${
                   showRepeatOptions[card.date] 
-                    ? 'bg-purple-600 text-white border-purple-500' 
-                    : 'text-gray-400 hover:text-white hover:border-gray-400'
+                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/25 border border-purple-500' 
+                    : 'bg-gray-700/50 text-gray-400 hover:text-white hover:bg-gray-700 border border-gray-600/50 hover:border-gray-500'
                 }`}
                 title="Repeat options"
               >
@@ -365,7 +376,7 @@ export default function TodoSection() {
               </button>
               <button 
                 onClick={() => addTodo(card.date)}
-                className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors flex-shrink-0 text-sm"
+                className="w-9 h-9 flex items-center justify-center bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-600 hover:text-white transition-all flex-shrink-0 text-sm font-medium shadow-sm"
                 title="Add todo"
               >
                 +
@@ -373,11 +384,11 @@ export default function TodoSection() {
             </div>
             
             {showRepeatOptions[card.date] && (
-              <div className="bg-gray-800 p-3 rounded border border-gray-600">
-                <div className="text-xs text-gray-400 mb-2">반복 설정</div>
-                <div className="space-y-2">
+              <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-lg p-4">
+                <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Repeat Settings</div>
+                <div className="space-y-3">
                   {(['none', 'weekly', 'monthly', 'yearly'] as const).map((type) => (
-                    <label key={type} className="flex items-center gap-2 text-sm">
+                    <label key={type} className="flex items-center gap-3 text-sm cursor-pointer hover:bg-gray-700/30 p-2 rounded-lg transition-colors">
                       <input
                         type="radio"
                         name={`repeat-${card.date}`}
@@ -386,9 +397,9 @@ export default function TodoSection() {
                           ...prev,
                           [card.date]: { type }
                         }))}
-                        className="text-purple-600 bg-gray-700 border-gray-600 focus:ring-purple-500"
+                        className="text-purple-600 bg-gray-700 border-gray-600 focus:ring-purple-500 focus:ring-offset-0"
                       />
-                      <span className="text-gray-300">
+                      <span className="text-gray-300 font-medium">
                         {type === 'none' && '반복 안함'}
                         {type === 'weekly' && '매주 반복'}
                         {type === 'monthly' && '매월 동일 날짜'}
@@ -414,15 +425,27 @@ export default function TodoSection() {
   }
 
   return (
-    <div>
-      <div className="flex items-center gap-3 mb-1">
-        <h2 className="section-title">Todos</h2>
+    <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800/50 rounded-xl p-6">
+      {/* Professional Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center">
+            <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m0 0h6m-6 0v-2m6 2v2m0-2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2m-6 0V3a2 2 0 112 0v2m0 4h6m-6 4h6" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-white">Todos</h2>
+            <p className="text-sm text-gray-400">Manage your daily tasks</p>
+          </div>
+        </div>
+        
         <button
           onClick={() => setShowHistory(!showHistory)}
-          className={`px-3 py-1 rounded responsive-text-sm transition-colors flex items-center responsive-gap-sm ${
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
             showHistory 
-              ? 'bg-purple-600 text-white' 
-              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25' 
+              : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700 hover:border-gray-600'
           }`}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -433,16 +456,26 @@ export default function TodoSection() {
         </button>
       </div>
 
+      {/* History Section */}
       {showHistory && (
-        <div className="mb-3">
+        <div className="mb-6">
+          <div className="mb-3">
+            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wide">History</h3>
+          </div>
           <div className="flex overflow-x-auto responsive-gap-md pb-4">
             {historyData.map((card) => renderDateCard(card, true))}
           </div>
         </div>
       )}
       
-      <div className="flex overflow-x-auto responsive-gap-md pb-4">
-        {dateCards.map((card) => renderDateCard(card, false))}
+      {/* Current Todos Section */}
+      <div>
+        <div className="mb-3">
+          <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wide">Upcoming</h3>
+        </div>
+        <div className="flex overflow-x-auto responsive-gap-md pb-4">
+          {dateCards.map((card) => renderDateCard(card, false))}
+        </div>
       </div>
     </div>
   )

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { DiaryEntry, DiaryData } from '@/types/miniFunctions'
 import { diaryService } from '@/lib/supabase-services'
-import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface MiniDiaryProps {
   isPreviewOnly?: boolean
@@ -11,6 +11,7 @@ interface MiniDiaryProps {
 }
 
 export default function MiniDiary({ isPreviewOnly = false, showHistoryOnly = false }: MiniDiaryProps) {
+  const { user } = useAuth()
   const [diaryData, setDiaryData] = useState<DiaryData>({
     recentEntries: []
   })
@@ -50,7 +51,6 @@ export default function MiniDiary({ isPreviewOnly = false, showHistoryOnly = fal
   const loadDiaryData = async () => {
     try {
       setLoading(true)
-      const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) {
         // Fallback to localStorage if not authenticated
@@ -126,7 +126,6 @@ export default function MiniDiary({ isPreviewOnly = false, showHistoryOnly = fal
 
     try {
       setLoading(true)
-      const { data: { user } } = await supabase.auth.getUser()
       const today = new Date().toISOString().split('T')[0]
       const now = new Date().toISOString()
 

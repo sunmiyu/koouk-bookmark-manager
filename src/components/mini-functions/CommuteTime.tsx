@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { CommuteRoute, CommuteData } from '@/types/miniFunctions'
 import { commuteService } from '@/lib/supabase-services'
-import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface CommuteTimeProps {

@@ -3,13 +3,14 @@
 import { useState, useEffect, useCallback } from 'react'
 import { DDayData, DDayEvent } from '@/types/miniFunctions'
 import { ddayService } from '@/lib/supabase-services'
-import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface DDayCounterProps {
   isPreviewOnly?: boolean
 }
 
 export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps) {
+  const { user } = useAuth()
   const [ddayData, setDdayData] = useState<DDayData | null>(null)
   const [loading, setLoading] = useState(true)
   const [isAddingEvent, setIsAddingEvent] = useState(false)
@@ -74,7 +75,6 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
         return
       }
       
-      const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) {
         // 비로그인 사용자 - 더미 데이터 사용
@@ -162,7 +162,6 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
 
     try {
       setLoading(true)
-      const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) return
 

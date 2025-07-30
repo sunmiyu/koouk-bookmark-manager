@@ -16,11 +16,14 @@ export interface NewsItem {
 }
 
 export interface MusicRecommendation {
+  id: string
   title: string
-  emoji: string
-  url: string
-  timeSlot: 'morning' | 'afternoon' | 'evening' | 'night'
+  artist: string
+  thumbnail: string
+  youtubeUrl: string
 }
+
+export type MoodType = 'morning' | 'focus' | 'relax' | 'workout' | 'evening' | 'sleep'
 
 export interface AlarmData {
   id: string

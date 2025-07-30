@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react'
 import { ExpenseData, ExpenseItem } from '@/types/miniFunctions'
 import { supabase } from '@/lib/supabase'
 import { expensesService } from '@/lib/supabase-services'
-import type { User } from '@supabase/supabase-js'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface ExpenseTrackerProps {
   isPreviewOnly?: boolean
 }
 
 export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTrackerProps) {
+  const { user } = useAuth()
   const [expenseData, setExpenseData] = useState<ExpenseData>({
     todayTotal: 0,
     items: []
@@ -21,18 +22,14 @@ export default function ExpenseTracker({ isPreviewOnly = false }: ExpenseTracker
   const [showMonthlyTotal, setShowMonthlyTotal] = useState(false)
   const [historyData, setHistoryData] = useState<{ date: string; total: number; count: number }[]>([])
   const [monthlyData, setMonthlyData] = useState<{ month: string; total: number; count: number }[]>([])
-  const [user, setUser] = useState<User | null>(null)
 
   // Get user session
   useEffect(() => {
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setUser(session?.user ?? null)
     }
     getSession()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user ?? null)
     })
 
     return () => subscription.unsubscribe()

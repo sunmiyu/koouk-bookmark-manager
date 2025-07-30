@@ -1,106 +1,188 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
-import { MusicRecommendation } from '@/types/miniFunctions'
+import { useState, useEffect } from 'react'
+import { MusicRecommendation, MoodType } from '@/types/miniFunctions'
 
 interface MusicRecommendationsProps {
   isPreviewOnly?: boolean
 }
 
+const MOOD_OPTIONS: { value: MoodType; label: string; emoji: string }[] = [
+  { value: 'morning', label: '상쾌한 아침', emoji: '☀️' },
+  { value: 'focus', label: '집중 모드', emoji: '🎯' },
+  { value: 'relax', label: '휴식 시간', emoji: '😌' },
+  { value: 'workout', label: '운동할 때', emoji: '💪' },
+  { value: 'evening', label: '저녁 감성', emoji: '🌅' },
+  { value: 'sleep', label: '잠들기 전', emoji: '😴' }
+]
+
 export default function MusicRecommendations({ isPreviewOnly = false }: MusicRecommendationsProps) {
   const [recommendations, setRecommendations] = useState<MusicRecommendation[]>([])
-  const [currentTimeSlot, setCurrentTimeSlot] = useState<string>('')
+  const [selectedMood, setSelectedMood] = useState<MoodType>('relax')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  // Static playlist data - memoized to prevent re-renders
-  const musicPlaylists = useMemo(() => ({
-    morning: [
-      { title: "아침집중", emoji: "🌅", url: "https://www.youtube.com/watch?v=DWcJFNfaw9c", timeSlot: 'morning' as const },
-      { title: "로파이힙합", emoji: "☕", url: "https://www.youtube.com/watch?v=jfKfPfyJRdk", timeSlot: 'morning' as const },
-      { title: "잔잔한재즈", emoji: "🎹", url: "https://www.youtube.com/watch?v=4oStw0r33so", timeSlot: 'morning' as const }
-    ],
-    afternoon: [
-      { title: "카페감성", emoji: "☕", url: "https://www.youtube.com/watch?v=5qap5aO4i9A", timeSlot: 'afternoon' as const },
-      { title: "작업BGM", emoji: "💻", url: "https://www.youtube.com/watch?v=BeUkULvYmZ8", timeSlot: 'afternoon' as const },
-      { title: "팝송모음", emoji: "🎤", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", timeSlot: 'afternoon' as const }
-    ],
-    evening: [
-      { title: "운동용", emoji: "💪", url: "https://www.youtube.com/watch?v=9bZkp7q19f0", timeSlot: 'evening' as const },
-      { title: "힙합비트", emoji: "🔥", url: "https://www.youtube.com/watch?v=hLQl3WQQoQ0", timeSlot: 'evening' as const },
-      { title: "록음악", emoji: "🎸", url: "https://www.youtube.com/watch?v=fJ9rUzIMcZQ", timeSlot: 'evening' as const }
-    ],
-    night: [
-      { title: "잠들기전", emoji: "🌙", url: "https://www.youtube.com/watch?v=YE2iyBRmA_g", timeSlot: 'night' as const },
-      { title: "피아노선율", emoji: "🎹", url: "https://www.youtube.com/watch?v=ALZHF5UqnU4", timeSlot: 'night' as const },
-      { title: "자연소리", emoji: "🌊", url: "https://www.youtube.com/watch?v=mPZkdNFkNps", timeSlot: 'night' as const }
-    ]
-  }), [])
+  // 음악 추천 API 호출
+  const fetchRecommendations = async (mood: MoodType) => {
+    if (isPreviewOnly) {
+      // 프리뷰 모드에서는 목업 데이터 사용
+      setRecommendations([
+        {
+          id: 'preview1',
+          title: '휴식 시간 잔잔한 음악',
+          artist: 'Relaxing Music',
+          thumbnail: 'https://img.youtube.com/vi/WeY-u3nL67k/mqdefault.jpg',
+          youtubeUrl: 'https://www.youtube.com/watch?v=WeY-u3nL67k'
+        },
+        {
+          id: 'preview2', 
+          title: '힐링 음악 모음',
+          artist: 'Healing Songs',
+          thumbnail: 'https://img.youtube.com/vi/rUxyKA_-grg/mqdefault.jpg',
+          youtubeUrl: 'https://www.youtube.com/watch?v=rUxyKA_-grg'
+        }
+      ])
+      return
+    }
 
-  const getTimeSlot = () => {
-    const hour = new Date().getHours()
-    if (hour >= 6 && hour < 12) return 'morning'
-    if (hour >= 12 && hour < 18) return 'afternoon'  
-    if (hour >= 18 && hour < 22) return 'evening'
-    return 'night'
-  }
+    setLoading(true)
+    setError(null)
 
-  const getTimeSlotLabel = (slot: string) => {
-    switch(slot) {
-      case 'morning': return '아침'
-      case 'afternoon': return '오후'
-      case 'evening': return '저녁'
-      case 'night': return '밤'
-      default: return '지금'
+    try {
+      const response = await fetch(`/api/music-recommendations?mood=${mood}`)
+      const data = await response.json()
+
+      if (data.success) {
+        setRecommendations(data.recommendations)
+      } else {
+        throw new Error('음악 추천을 가져오는데 실패했습니다')
+      }
+    } catch (err) {
+      console.error('Music recommendations error:', err)
+      setError('음악 추천을 불러올 수 없습니다')
+      setRecommendations([])
+    } finally {
+      setLoading(false)
     }
   }
 
+  // 컴포넌트 마운트 시 및 mood 변경 시 추천 음악 로드
   useEffect(() => {
-    const timeSlot = getTimeSlot()
-    setCurrentTimeSlot(timeSlot)
-    
-    // Get recommendations for current time
-    const currentPlaylists = musicPlaylists[timeSlot as keyof typeof musicPlaylists] || musicPlaylists.morning
-    setRecommendations(currentPlaylists)
-  }, [musicPlaylists])
+    fetchRecommendations(selectedMood)
+  }, [selectedMood, isPreviewOnly])
 
-  const handlePlayMusic = (url: string, title: string) => {
-    if (!isPreviewOnly) {
-      window.open(url, '_blank')
-      // Track music play event
-      console.log(`Playing: ${title}`)
-    }
+  // Mood 변경 핸들러
+  const handleMoodChange = (mood: MoodType) => {
+    setSelectedMood(mood)
   }
 
-  const displayRecommendations = isPreviewOnly ? recommendations.slice(0, 2) : recommendations.slice(0, 3)
+  // 새로고침 핸들러
+  const handleRefresh = () => {
+    fetchRecommendations(selectedMood)
+  }
+
+  if (loading) {
+    return (
+      <div className="text-center py-4">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600 mx-auto mb-2"></div>
+        <div className="text-sm text-gray-400">음악을 찾고 있어요...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-4">
+        <div className="text-red-400 text-sm mb-2">{error}</div>
+        <button
+          onClick={handleRefresh}
+          className="text-purple-400 hover:text-purple-300 text-sm underline cursor-pointer"
+        >
+          다시 시도
+        </button>
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-1">
-      <div className="text-gray-400 text-sm">
-        {getTimeSlotLabel(currentTimeSlot)} 추천
-      </div>
-      
-      <div className="space-y-1">
-        {displayRecommendations.map((rec, index) => (
-          <div
-            key={index}
-            onClick={() => handlePlayMusic(rec.url, rec.title)}
-            className={`flex items-center gap-2 text-sm ${
-              isPreviewOnly 
-                ? 'text-gray-400 cursor-not-allowed' 
-                : 'text-blue-400 hover:text-blue-300 cursor-pointer'
-            }`}
-            title={isPreviewOnly ? 'Preview mode' : `Play ${rec.title}`}
-          >
-            <span>{rec.emoji}</span>
-            <span className="underline truncate">{rec.title}</span>
-          </div>
-        ))}
-      </div>
-
-
+    <div className="space-y-3">
+      {/* Mood 선택 */}
       {!isPreviewOnly && (
-        <div className="text-sm text-gray-500 mt-2">
-          💡 Click to play on YouTube
+        <div className="flex flex-wrap gap-1">
+          {MOOD_OPTIONS.map((mood) => (
+            <button
+              key={mood.value}
+              onClick={() => handleMoodChange(mood.value)}
+              className={`px-2 py-1 rounded-full text-xs transition-colors ${
+                selectedMood === mood.value
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              {mood.emoji} {mood.label}
+            </button>
+          ))}
         </div>
+      )}
+
+      {/* 음악 추천 목록 */}
+      <div className="space-y-2">
+        {recommendations.length === 0 ? (
+          <div className="text-center py-4 text-gray-400 text-sm">
+            🎵 추천 음악을 불러오는 중...
+          </div>
+        ) : (
+          recommendations.map((music) => (
+            <div key={music.id} className="bg-gray-800 rounded-lg p-3 hover:bg-gray-750 transition-colors">
+              <div className="flex items-center gap-3">
+                {/* 썸네일 */}
+                <div className="flex-shrink-0">
+                  <img
+                    src={music.thumbnail}
+                    alt={music.title}
+                    className="w-12 h-9 rounded object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://img.youtube.com/vi/default/mqdefault.jpg'
+                    }}
+                  />
+                </div>
+                
+                {/* 음악 정보 */}
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-white text-sm font-medium truncate">
+                    {music.title}
+                  </h4>
+                  <p className="text-gray-400 text-xs truncate">
+                    {music.artist}
+                  </p>
+                </div>
+                
+                {/* 재생 버튼 */}
+                <a
+                  href={music.youtubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-shrink-0 w-8 h-8 bg-purple-600 hover:bg-purple-700 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+                  title="YouTube에서 재생"
+                >
+                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* 새로고침 버튼 */}
+      {!isPreviewOnly && recommendations.length > 0 && (
+        <button
+          onClick={handleRefresh}
+          className="w-full py-2 text-purple-400 hover:text-purple-300 text-sm transition-colors cursor-pointer"
+        >
+          🔄 다른 음악 추천받기
+        </button>
       )}
     </div>
   )

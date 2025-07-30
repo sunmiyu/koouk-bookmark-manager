@@ -3,13 +3,14 @@
 import { useState, useEffect, useCallback } from 'react'
 import { AlarmData } from '@/types/miniFunctions'
 import { alarmsService } from '@/lib/supabase-services'
-import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface AlarmFunctionProps {
   isPreviewOnly?: boolean
 }
 
 export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionProps) {
+  const { user } = useAuth()
   const [alarms, setAlarms] = useState<AlarmData[]>([])
   const [nextAlarm, setNextAlarm] = useState<AlarmData | null>(null)
   const [loading, setLoading] = useState(false)
@@ -43,7 +44,6 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
   const loadAlarms = useCallback(async () => {
     try {
       setLoading(true)
-      const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) {
         // Fallback to localStorage
@@ -130,7 +130,6 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
 
     try {
       setLoading(true)
-      const { data: { user } } = await supabase.auth.getUser()
       
       if (user) {
         // Save to Supabase

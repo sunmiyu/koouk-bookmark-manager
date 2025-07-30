@@ -23,33 +23,54 @@ export default function AuthButton() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Get initial session and set up auth state listener
+  // Get initial session and set up auth state listener with duplicate prevention
   useEffect(() => {
-    const getSession = async () => {
+    let isMounted = true
+    let subscription: { unsubscribe: () => void } | null = null
+
+    const initializeAuth = async () => {
       try {
+        // Prevent duplicate initialization
+        if (!isMounted) return
+
         const { data: { session }, error } = await supabase.auth.getSession()
         console.log('AuthButton - Initial session check:', { session: !!session, error })
-        setUser(session?.user ?? null)
+        
+        if (isMounted) {
+          setUser(session?.user ?? null)
+          setLoading(false)
+        }
+
+        // Only set up listener if component is still mounted
+        if (isMounted) {
+          const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log('AuthButton - Auth state change:', event, !!session)
+            if (isMounted) {
+              setUser(session?.user ?? null)
+              if (loading) {
+                setLoading(false)
+              }
+            }
+          })
+          subscription = data.subscription
+        }
       } catch (error) {
         console.error('AuthButton - Session error:', error)
-        setUser(null)
-      } finally {
-        setLoading(false)
+        if (isMounted) {
+          setUser(null)
+          setLoading(false)
+        }
       }
     }
 
-    getSession()
+    initializeAuth()
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('AuthButton - Auth state change:', event, !!session)
-      setUser(session?.user ?? null)
-      if (loading) {
-        setLoading(false)
+    return () => {
+      isMounted = false
+      if (subscription) {
+        subscription.unsubscribe()
       }
-    })
-
-    return () => subscription.unsubscribe()
+    }
   }, [])
 
   const handleSignIn = async () => {

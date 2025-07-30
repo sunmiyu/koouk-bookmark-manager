@@ -263,18 +263,13 @@ export default function MiniFunctionsArea() {
         </div>
       ) : (
         <>
-          {/* Mobile: 세로 스택 */}
-          <div className="block sm:hidden space-y-6">
-            {enabledFunctions.map((func) => (
-              <div key={func.id}>
+          {/* 모든 화면 크기에서 일관된 그리드 레이아웃 사용 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {enabledFunctions.map(func => (
+              <div key={func.id} className="min-h-0">
                 {renderMiniFunction(func, false)}
               </div>
             ))}
-          </div>
-          
-          {/* Desktop: 그리드 레이아웃 (한 줄에 최대 4개) */}
-          <div className="hidden sm:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {enabledFunctions.map(func => renderMiniFunction(func, false))}
           </div>
         </>
       )}

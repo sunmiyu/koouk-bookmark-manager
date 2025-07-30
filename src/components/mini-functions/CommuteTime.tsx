@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { CommuteRoute, CommuteData } from '@/types/miniFunctions'
 import { commuteService } from '@/lib/supabase-services'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface CommuteTimeProps {
   isPreviewOnly?: boolean
@@ -11,6 +12,7 @@ interface CommuteTimeProps {
 }
 
 export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChange }: CommuteTimeProps) {
+  const { user } = useAuth()
   const [commuteData, setCommuteData] = useState<CommuteData>({
     routes: [],
     lastUpdated: ''
@@ -48,8 +50,6 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
   // Supabase에서 경로 로드
   const loadRoutes = async (): Promise<CommuteRoute[]> => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
       if (!user) {
         // Fallback to localStorage
         const saved = localStorage.getItem('koouk_commute_routes')
@@ -84,8 +84,6 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
   // Supabase에 경로 저장
   const saveRoutes = async (routes: CommuteRoute[]) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
       if (user) {
         // For simplicity, we won't sync all routes here
         // Routes are saved individually when created/updated
@@ -254,7 +252,7 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
       }, 10 * 60 * 1000)
       return () => clearInterval(interval)
     }
-  }, [isPreviewOnly, loadCommuteData])
+  }, [isPreviewOnly, loadCommuteData, user])
 
   // Notify parent component about traffic status changes
   useEffect(() => {

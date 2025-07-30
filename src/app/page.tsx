@@ -61,7 +61,8 @@ function HomeContent() {
         </header>
 
         <main className="space-y-6 sm:space-y-8">
-          <MiniFunctionsArea />
+          {/* Temporarily disabled MiniFunctionsArea due to ReferenceError: Cannot access 'N' before initialization */}
+          {/* <MiniFunctionsArea /> */}
           
           {/* Horizontal divider between Mini Functions and Todos */}
           <div className="border-t border-gray-800"></div>

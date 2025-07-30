@@ -17,6 +17,30 @@ const MOOD_OPTIONS: { value: MoodType; label: string; emoji: string }[] = [
   { value: 'sleep', label: '잠들기 전', emoji: '😴' }
 ]
 
+// 썸네일 이미지 컴포넌트 (오류 처리용)
+function MusicThumbnail({ src, alt, title }: { src: string; alt: string; title: string }) {
+  const [imgSrc, setImgSrc] = useState(src)
+  const [hasError, setHasError] = useState(false)
+
+  const handleError = () => {
+    if (!hasError) {
+      setHasError(true)
+      setImgSrc('https://img.youtube.com/vi/default/mqdefault.jpg')
+    }
+  }
+
+  return (
+    <Image
+      src={imgSrc}
+      alt={alt}
+      fill
+      className="object-cover"
+      onError={handleError}
+      title={title}
+    />
+  )
+}
+
 export default function MusicRecommendations({ isPreviewOnly = false }: MusicRecommendationsProps) {
   const [recommendations, setRecommendations] = useState<MusicRecommendation[]>([])
   const [selectedMood, setSelectedMood] = useState<MoodType>('relax')
@@ -139,14 +163,10 @@ export default function MusicRecommendations({ isPreviewOnly = false }: MusicRec
                 {/* 썸네일 */}
                 <div className="flex-shrink-0">
                   <div className="w-12 h-9 rounded overflow-hidden relative">
-                    <Image
+                    <MusicThumbnail
                       src={music.thumbnail}
                       alt={music.title}
-                      fill
-                      className="object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://img.youtube.com/vi/default/mqdefault.jpg'
-                      }}
+                      title={music.title}
                     />
                   </div>
                 </div>
@@ -166,7 +186,7 @@ export default function MusicRecommendations({ isPreviewOnly = false }: MusicRec
                   href={music.youtubeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-shrink-0 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors cursor-pointer text-sm"
+                  className="flex-shrink-0 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white bg-gray-700/50 rounded hover:bg-gray-600/50 transition-colors cursor-pointer text-sm"
                   title="YouTube에서 재생"
                 >
                   ▶

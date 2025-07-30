@@ -282,7 +282,7 @@ export default function PricingPage() {
                 💾 <span>How does the 50-item limit work in the Free plan?</span>
               </h3>
               <p className="text-gray-600 text-sm">
-                You can store up to 50 items per content type (Links, Videos, Images, Notes). When you reach the limit, you'll need to manually delete existing items before adding new ones. The system never deletes your data automatically.
+                You can store up to 50 items per content type (Links, Videos, Images, Notes). When you reach the limit, you&apos;ll need to manually delete existing items before adding new ones. The system never deletes your data automatically.
               </p>
             </div>
 
@@ -300,7 +300,7 @@ export default function PricingPage() {
                 🔄 <span>Is my data safely backed up?</span>
               </h3>
               <p className="text-gray-600 text-sm">
-                All data is securely backed up in real-time to Supabase's cloud servers. You can access your data from any device by signing in with your Google account.
+                All data is securely backed up in real-time to Supabase&apos;s cloud servers. You can access your data from any device by signing in with your Google account.
               </p>
             </div>
 
@@ -309,7 +309,7 @@ export default function PricingPage() {
                 ↩️ <span>Can I downgrade to the Free plan?</span>
               </h3>
               <p className="text-gray-600 text-sm">
-                Yes, you can downgrade anytime. If you exceed the 50-item limit, you'll need to manually delete excess items to add new ones. All your data remains safe.
+                Yes, you can downgrade anytime. If you exceed the 50-item limit, you&apos;ll need to manually delete excess items to add new ones. All your data remains safe.
               </p>
             </div>
           </div>

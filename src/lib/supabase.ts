@@ -8,25 +8,31 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 const fallbackUrl = 'https://placeholder.supabase.co'
 const fallbackKey = 'placeholder-key'
 
-// Global singleton instance to prevent multiple clients
-let globalSupabaseInstance: SupabaseClient | null = null
-let supabaseAdminInstance: SupabaseClient | null = null
+// CRITICAL: Use window-level global to prevent React re-renders from creating multiple instances
+declare global {
+  var __supabaseInstance: SupabaseClient | undefined
+  var __supabaseAdminInstance: SupabaseClient | undefined
+}
 
-// Ensure only ONE instance is created across the entire app
-const createSupabaseInstance = () => {
-  if (globalSupabaseInstance) {
-    return globalSupabaseInstance
+// Ensure only ONE instance exists globally across all React renders
+const getSupabaseInstance = (): SupabaseClient => {
+  if (typeof window !== 'undefined' && window.__supabaseInstance) {
+    return window.__supabaseInstance
+  }
+  
+  if (typeof window === 'undefined' && global.__supabaseInstance) {
+    return global.__supabaseInstance
   }
 
   const isServer = typeof window === 'undefined'
   
-  globalSupabaseInstance = createClient(
+  const instance = createClient(
     supabaseUrl || fallbackUrl,
     supabaseAnonKey || fallbackKey,
     {
       auth: {
         storageKey: 'koouk-auth-token',
-        storage: isServer ? undefined : window.localStorage,
+        storage: isServer ? undefined : window?.localStorage,
         autoRefreshToken: !isServer,
         persistSession: !isServer,
         detectSessionInUrl: !isServer,
@@ -35,23 +41,44 @@ const createSupabaseInstance = () => {
     }
   )
   
-  return globalSupabaseInstance
+  // Store in global scope to prevent recreation
+  if (typeof window !== 'undefined') {
+    window.__supabaseInstance = instance
+  } else {
+    global.__supabaseInstance = instance
+  }
+  
+  return instance
 }
 
-export const supabase = createSupabaseInstance()
+export const supabase = getSupabaseInstance()
 
 export const supabaseAdmin = (() => {
-  if (!supabaseAdminInstance) {
-    supabaseAdminInstance = createClient(
-      supabaseUrl || fallbackUrl,
-      serviceRoleKey || fallbackKey,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      }
-    )
+  if (typeof window !== 'undefined' && window.__supabaseAdminInstance) {
+    return window.__supabaseAdminInstance
   }
-  return supabaseAdminInstance
+  
+  if (typeof window === 'undefined' && global.__supabaseAdminInstance) {
+    return global.__supabaseAdminInstance
+  }
+
+  const instance = createClient(
+    supabaseUrl || fallbackUrl,
+    serviceRoleKey || fallbackKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  )
+  
+  // Store in global scope
+  if (typeof window !== 'undefined') {
+    window.__supabaseAdminInstance = instance
+  } else {
+    global.__supabaseAdminInstance = instance
+  }
+  
+  return instance
 })()

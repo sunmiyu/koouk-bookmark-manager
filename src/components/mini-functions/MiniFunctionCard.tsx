@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MiniFunctionData } from '@/types/miniFunctions'
 
 interface MiniFunctionCardProps {
@@ -21,6 +21,29 @@ export default function MiniFunctionCard({
   isPreviewOnly = false
 }: MiniFunctionCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [isDesktop, setIsDesktop] = useState(false)
+
+  // Check if it's desktop screen size
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsDesktop(window.innerWidth >= 1024) // lg breakpoint in Tailwind
+    }
+    
+    // Check on mount
+    checkScreenSize()
+    
+    // Listen for resize events
+    window.addEventListener('resize', checkScreenSize)
+    
+    return () => window.removeEventListener('resize', checkScreenSize)
+  }, [])
+
+  // Set expanded to true by default on desktop
+  useEffect(() => {
+    if (isDesktop && !isPreviewOnly && expandedContent) {
+      setIsExpanded(true)
+    }
+  }, [isDesktop, isPreviewOnly, expandedContent])
 
   const handleToggle = () => {
     if (!isPreviewOnly && expandedContent) {

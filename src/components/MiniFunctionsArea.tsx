@@ -241,21 +241,16 @@ export default function MiniFunctionsArea() {
           <div>
             <h2 className="text-lg font-semibold text-white">{t('mini_functions')}</h2>
           </div>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <div className="px-3 py-1.5 bg-black rounded-lg">
-            <span className="text-sm font-medium text-gray-300">
-              {enabledFunctions.length}/{maxEnabled} {t('active')}
-            </span>
-          </div>
           <button 
-            className="w-9 h-9 flex items-center justify-center bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-all cursor-pointer"
+            className="text-gray-400 hover:text-white transition-all cursor-pointer"
             onClick={() => router.push('/mini-functions')}
             title="Mini Functions 관리"
           >
             ⚙️
           </button>
+        </div>
+        
+        <div className="flex items-center gap-3">
         </div>
       </div>
       

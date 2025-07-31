@@ -17,10 +17,10 @@ import Link from 'next/link'
 import { ContentProvider } from '@/contexts/ContentContext'
 import MiniFunctionsArea from '@/components/MiniFunctionsArea'
 
-type TabType = 'dashboard' | 'contents' | 'popular'
+type TabType = 'summary' | 'dashboard' | 'contents' | 'popular'
 
 function HomeContent() {
-  const [activeTab, setActiveTab] = useState<TabType>('dashboard')
+  const [activeTab, setActiveTab] = useState<TabType>('summary')
 
   return (
     <ContentProvider>
@@ -30,8 +30,9 @@ function HomeContent() {
             {/* Professional Header Container */}
             <div className="bg-black rounded-xl p-6">
               <div className="flex items-center justify-between">
-                {/* Left: Empty space */}
+                {/* Left: Logo */}
                 <div className="flex items-center">
+                  <KooukLogo />
                 </div>
                 
                 {/* Right: Weather, Time & Account */}
@@ -55,7 +56,20 @@ function HomeContent() {
           {/* Professional Tab Navigation */}
           <div className="mb-12 mt-6">
             <div className="">
-              <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+              <nav className="-mb-px flex items-center space-x-12" aria-label="Tabs">
+                <button
+                  onClick={() => setActiveTab('summary')}
+                  className={`py-4 px-1 border-b-2 font-medium text-lg whitespace-nowrap transition-colors duration-200 ${
+                    activeTab === 'summary'
+                      ? 'border-blue-500 text-blue-400'
+                      : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-600'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    Summary
+                  </div>
+                </button>
+                <div className="w-px h-6 bg-gray-600"></div>
                 <button
                   onClick={() => setActiveTab('dashboard')}
                   className={`py-4 px-1 border-b-2 font-medium text-lg whitespace-nowrap transition-colors duration-200 ${
@@ -68,6 +82,7 @@ function HomeContent() {
                     Dashboard
                   </div>
                 </button>
+                <div className="w-px h-6 bg-gray-600"></div>
                 <button
                   onClick={() => setActiveTab('contents')}
                   className={`py-4 px-1 border-b-2 font-medium text-lg whitespace-nowrap transition-colors duration-200 ${
@@ -80,6 +95,7 @@ function HomeContent() {
                     Contents Storage
                   </div>
                 </button>
+                <div className="w-px h-6 bg-gray-600"></div>
                 <button
                   onClick={() => setActiveTab('popular')}
                   className={`py-4 px-1 border-b-2 font-medium text-lg whitespace-nowrap transition-colors duration-200 ${
@@ -98,6 +114,189 @@ function HomeContent() {
 
           {/* Tab Content */}
           <main>
+            {activeTab === 'summary' && (
+              <div className="space-y-12">
+                {/* Overview Stats */}
+                <div className="bg-black rounded-xl p-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div>
+                      <h2 className="text-lg font-semibold text-white">Overview</h2>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {/* Todos Stats */}
+                    <div className="bg-gray-800/50 rounded-lg p-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center">
+                          <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <h3 className="font-medium text-white">Todos</h3>
+                      </div>
+                      <div className="text-2xl font-bold text-white mb-1">12</div>
+                      <div className="text-sm text-gray-400">3 completed today</div>
+                    </div>
+
+                    {/* Mini Functions Stats */}
+                    <div className="bg-gray-800/50 rounded-lg p-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-8 h-8 bg-purple-600/20 rounded-lg flex items-center justify-center">
+                          <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                        </div>
+                        <h3 className="font-medium text-white">Mini Functions</h3>
+                      </div>
+                      <div className="text-2xl font-bold text-white mb-1">6</div>
+                      <div className="text-sm text-gray-400">Active functions</div>
+                    </div>
+
+                    {/* Contents Stats */}
+                    <div className="bg-gray-800/50 rounded-lg p-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center">
+                          <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                          </svg>
+                        </div>
+                        <h3 className="font-medium text-white">Content Items</h3>
+                      </div>
+                      <div className="text-2xl font-bold text-white mb-1">24</div>
+                      <div className="text-sm text-gray-400">Links, videos, images, notes</div>
+                    </div>
+
+                    {/* Activity Stats */}
+                    <div className="bg-gray-800/50 rounded-lg p-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-8 h-8 bg-yellow-600/20 rounded-lg flex items-center justify-center">
+                          <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                          </svg>
+                        </div>
+                        <h3 className="font-medium text-white">This Week</h3>
+                      </div>
+                      <div className="text-2xl font-bold text-white mb-1">18</div>
+                      <div className="text-sm text-gray-400">Actions completed</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recent Activity */}
+                <div className="bg-black rounded-xl p-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div>
+                      <h2 className="text-lg font-semibold text-white">Recent Activity</h2>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4 p-3 bg-gray-800/50 rounded-lg">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <div className="flex-1">
+                        <div className="text-sm text-white">Completed todo: &quot;Review project documents&quot;</div>
+                        <div className="text-xs text-gray-400">2 hours ago</div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-4 p-3 bg-gray-800/50 rounded-lg">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                      <div className="flex-1">
+                        <div className="text-sm text-white">Added new link: &quot;React Best Practices Guide&quot;</div>
+                        <div className="text-xs text-gray-400">4 hours ago</div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-4 p-3 bg-gray-800/50 rounded-lg">
+                      <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                      <div className="flex-1">
+                        <div className="text-sm text-white">Music recommendations updated</div>
+                        <div className="text-xs text-gray-400">6 hours ago</div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-4 p-3 bg-gray-800/50 rounded-lg">
+                      <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                      <div className="flex-1">
+                        <div className="text-sm text-white">Added expense: Lunch $12.50</div>
+                        <div className="text-xs text-gray-400">Yesterday</div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-4 p-3 bg-gray-800/50 rounded-lg">
+                      <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                      <div className="flex-1">
+                        <div className="text-sm text-white">Saved YouTube video: &quot;Next.js 15 New Features&quot;</div>
+                        <div className="text-xs text-gray-400">Yesterday</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="bg-black rounded-xl p-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div>
+                      <h2 className="text-lg font-semibold text-white">Quick Actions</h2>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <button 
+                      onClick={() => setActiveTab('dashboard')}
+                      className="p-4 bg-gray-800/50 hover:bg-gray-800/70 rounded-lg transition-colors text-left"
+                    >
+                      <div className="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center mb-3">
+                        <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                      </div>
+                      <div className="font-medium text-white">Add Todo</div>
+                      <div className="text-sm text-gray-400">Create a new task</div>
+                    </button>
+                    
+                    <button 
+                      onClick={() => setActiveTab('contents')}
+                      className="p-4 bg-gray-800/50 hover:bg-gray-800/70 rounded-lg transition-colors text-left"
+                    >
+                      <div className="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center mb-3">
+                        <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                      </div>
+                      <div className="font-medium text-white">Save Content</div>
+                      <div className="text-sm text-gray-400">Add links, notes, media</div>
+                    </button>
+                    
+                    <button className="p-4 bg-gray-800/50 hover:bg-gray-800/70 rounded-lg transition-colors text-left">
+                      <div className="w-8 h-8 bg-purple-600/20 rounded-lg flex items-center justify-center mb-3">
+                        <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </div>
+                      <div className="font-medium text-white">Settings</div>
+                      <div className="text-sm text-gray-400">Customize your dashboard</div>
+                    </button>
+                    
+                    <button 
+                      onClick={() => setActiveTab('popular')}
+                      className="p-4 bg-gray-800/50 hover:bg-gray-800/70 rounded-lg transition-colors text-left"
+                    >
+                      <div className="w-8 h-8 bg-yellow-600/20 rounded-lg flex items-center justify-center mb-3">
+                        <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                      </div>
+                      <div className="font-medium text-white">AI Tools</div>
+                      <div className="text-sm text-gray-400">Explore useful AI tools</div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {activeTab === 'dashboard' && (
               <div className="space-y-12">
                 {/* Todos Section */}

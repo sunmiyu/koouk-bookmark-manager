@@ -17,7 +17,7 @@ import Link from 'next/link'
 import { ContentProvider } from '@/contexts/ContentContext'
 import MiniFunctionsArea from '@/components/MiniFunctionsArea'
 
-type TabType = 'summary' | 'dashboard' | 'contents' | 'popular'
+type TabType = 'summary' | 'today' | 'dashboard' | 'contents' | 'popular'
 
 function HomeContent() {
   const [activeTab, setActiveTab] = useState<TabType>('summary')
@@ -67,6 +67,19 @@ function HomeContent() {
                 >
                   <div className="flex items-center gap-2">
                     Summary
+                  </div>
+                </button>
+                <div className="w-px h-6 bg-gray-600"></div>
+                <button
+                  onClick={() => setActiveTab('today')}
+                  className={`py-4 px-1 border-b-2 font-medium text-lg whitespace-nowrap transition-colors duration-200 ${
+                    activeTab === 'today'
+                      ? 'border-blue-500 text-blue-400'
+                      : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-600'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    Today
                   </div>
                 </button>
                 <div className="w-px h-6 bg-gray-600"></div>
@@ -292,6 +305,194 @@ function HomeContent() {
                       <div className="font-medium text-white">AI Tools</div>
                       <div className="text-sm text-gray-400">Explore useful AI tools</div>
                     </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'today' && (
+              <div className="space-y-8">
+                {/* Today's Focus Section */}
+                <div className="bg-black rounded-xl p-6 sm:p-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h2 className="text-lg font-semibold text-white">Today&apos;s Focus</h2>
+                        <p className="text-sm text-gray-400">Your most important tasks for today</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Priority Todos - Mobile Optimized */}
+                  <div className="space-y-4 mb-6">
+                    <div className="flex items-center gap-4 p-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <input
+                        type="checkbox"
+                        className="rounded w-6 h-6 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-offset-0 flex-shrink-0"
+                      />
+                      <div className="flex-1">
+                        <div className="text-base font-medium text-white">Complete project presentation</div>
+                        <div className="text-sm text-gray-400">Due in 2 hours</div>
+                      </div>
+                      <div className="px-2 py-1 bg-red-600/20 text-red-400 text-xs rounded-md font-medium">
+                        High
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-4 p-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <input
+                        type="checkbox"
+                        className="rounded w-6 h-6 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-offset-0 flex-shrink-0"
+                      />
+                      <div className="flex-1">
+                        <div className="text-base font-medium text-white">Review team feedback</div>
+                        <div className="text-sm text-gray-400">Before 5 PM</div>
+                      </div>
+                      <div className="px-2 py-1 bg-yellow-600/20 text-yellow-400 text-xs rounded-md font-medium">
+                        Medium
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-4 p-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked
+                        className="rounded w-6 h-6 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-offset-0 flex-shrink-0"
+                      />
+                      <div className="flex-1">
+                        <div className="text-base font-medium text-gray-500 line-through">Update project documentation</div>
+                        <div className="text-sm text-gray-500">Completed at 2:30 PM</div>
+                      </div>
+                      <div className="px-2 py-1 bg-green-600/20 text-green-400 text-xs rounded-md font-medium">
+                        Done
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Quick Add Task */}
+                  <div className="border-t border-gray-700/50 pt-4">
+                    <button 
+                      onClick={() => setActiveTab('dashboard')}
+                      className="w-full flex items-center gap-3 p-4 bg-blue-600/10 hover:bg-blue-600/20 rounded-lg transition-colors border border-blue-600/20"
+                    >
+                      <div className="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center">
+                        <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                      </div>
+                      <div className="text-left">
+                        <div className="font-medium text-blue-400">Add Quick Task</div>
+                        <div className="text-sm text-gray-400">Create a new todo for today</div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Active Tools - Mobile Optimized 2x2 Grid */}
+                <div className="bg-black rounded-xl p-6 sm:p-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h2 className="text-lg font-semibold text-white">Active Tools</h2>
+                      <p className="text-sm text-gray-400">Quick access to your functions</p>
+                    </div>
+                  </div>
+                  
+                  {/* 2x2 Grid for Mobile */}
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    {/* Weather */}
+                    <div className="bg-gray-800/50 rounded-lg p-4 hover:bg-gray-800/70 transition-colors">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center">
+                          <span className="text-lg">🌤️</span>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-medium text-white text-sm">Weather</div>
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-400">22°C Partly Cloudy</div>
+                    </div>
+                    
+                    {/* Time */}
+                    <div className="bg-gray-800/50 rounded-lg p-4 hover:bg-gray-800/70 transition-colors">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-8 h-8 bg-purple-600/20 rounded-lg flex items-center justify-center">
+                          <span className="text-lg">⏰</span>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-medium text-white text-sm">Time</div>
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-400">3:45 PM</div>
+                    </div>
+                    
+                    {/* Music */}
+                    <div className="bg-gray-800/50 rounded-lg p-4 hover:bg-gray-800/70 transition-colors">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center">
+                          <span className="text-lg">🎵</span>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-medium text-white text-sm">Music</div>
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-400">Jazz playlist</div>
+                    </div>
+                    
+                    {/* News */}
+                    <div className="bg-gray-800/50 rounded-lg p-4 hover:bg-gray-800/70 transition-colors">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-8 h-8 bg-red-600/20 rounded-lg flex items-center justify-center">
+                          <span className="text-lg">📰</span>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-medium text-white text-sm">News</div>
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-400">5 new headlines</div>
+                    </div>
+                  </div>
+                  
+                  {/* View All Functions Button */}
+                  <button 
+                    onClick={() => setActiveTab('dashboard')}
+                    className="w-full flex items-center justify-center gap-2 p-3 bg-gray-800/50 hover:bg-gray-800/70 rounded-lg transition-colors border border-gray-700/50"
+                  >
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>
+                    <span className="font-medium text-gray-300">View All Functions</span>
+                  </button>
+                </div>
+
+                {/* Quick Stats Bar */}
+                <div className="bg-black rounded-xl p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wide mb-2">Quick Stats</h3>
+                      <div className="flex items-center gap-4 text-sm">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                          <span className="text-white font-medium">12</span>
+                          <span className="text-gray-400">todos</span>
+                        </div>
+                        <div className="w-px h-4 bg-gray-600"></div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                          <span className="text-white font-medium">6</span>
+                          <span className="text-gray-400">functions</span>
+                        </div>
+                        <div className="w-px h-4 bg-gray-600"></div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                          <span className="text-white font-medium">24</span>
+                          <span className="text-gray-400">items</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-green-600/10 rounded-lg">
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                      <span className="text-green-400 text-xs font-medium">Active</span>
+                    </div>
                   </div>
                 </div>
               </div>

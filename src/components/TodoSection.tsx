@@ -234,7 +234,7 @@ export default function TodoSection() {
     }
   }
 
-  const toggleTodo = async (dateStr: string, todoId: string) => {
+  const toggleDateTodo = async (dateStr: string, todoId: string) => {
     if (!user) return
 
     try {
@@ -267,7 +267,7 @@ export default function TodoSection() {
     }
   }
 
-  const deleteTodo = async (dateStr: string, todoId: string) => {
+  const deleteDateTodo = async (dateStr: string, todoId: string) => {
     if (!user) return
 
     try {
@@ -344,7 +344,7 @@ export default function TodoSection() {
                     if (todayCard) {
                       toggleTodo(todo.id) // Use context function for today's todos
                     } else {
-                      toggleTodo(card.date, todo.id) // Use original function for other dates
+                      toggleDateTodo(card.date, todo.id) // Use original function for other dates
                     }
                   }}
                   disabled={isHistoryCard}
@@ -354,13 +354,6 @@ export default function TodoSection() {
                   todo.completed ? 'line-through text-gray-500' : 'text-gray-200'
                 }`}>
                   {todo.text}
-                  {todo.repeat && todo.repeat.type !== 'none' && (
-                    <span className="ml-2 text-xs px-1.5 py-0.5 bg-purple-600/20 text-purple-400 rounded-md border border-purple-500/30">
-                      {todo.repeat.type === 'weekly' && '📅 Weekly'}
-                      {todo.repeat.type === 'monthly' && '🗓️ Monthly'}
-                      {todo.repeat.type === 'yearly' && '📆 Yearly'}
-                    </span>
-                  )}
                 </span>
                 {!isHistoryCard && (
                   <button
@@ -368,7 +361,7 @@ export default function TodoSection() {
                       if (todayCard) {
                         deleteTodo(todo.id) // Use context function for today's todos
                       } else {
-                        deleteTodo(card.date, todo.id) // Use original function for other dates
+                        deleteDateTodo(card.date, todo.id) // Use original function for other dates
                       }
                     }}
                     className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center transition-all text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded flex-shrink-0"

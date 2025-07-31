@@ -165,13 +165,13 @@ export async function GET(request: NextRequest) {
     }
     
     // Generate hourly data for temperature graph (current time ±6 hours)
-    const now = new Date()
-    const nowKST = new Date(now.getTime() + (kstOffset * 60 * 1000))
+    const currentTime = new Date()
+    const nowKST = new Date(currentTime.getTime() + (kstOffset * 60 * 1000))
     const currentHour = nowKST.getHours()
     
     // Get data points around current time (±8 hours to get good coverage)
     const hourlyData = forecastData.list
-      .map((item: any) => {
+      .map((item: {dt: number, dt_txt: string, main: {temp: number}}) => {
         const itemTime = new Date(item.dt * 1000)
         const itemTimeKST = new Date(itemTime.getTime() + (kstOffset * 60 * 1000))
         const itemHour = itemTimeKST.getHours()
@@ -184,13 +184,13 @@ export async function GET(request: NextRequest) {
           hourDiff
         }
       })
-      .filter((item: any) => {
+      .filter((item: {hourDiff: number, itemTimeKST: Date}) => {
         // Include items within ±8 hours or same day
         return item.hourDiff <= 8 || item.itemTimeKST.toDateString() === nowKST.toDateString()
       })
-      .sort((a: any, b: any) => a.itemTimeKST.getTime() - b.itemTimeKST.getTime())
+      .sort((a: {itemTimeKST: Date}, b: {itemTimeKST: Date}) => a.itemTimeKST.getTime() - b.itemTimeKST.getTime())
       .slice(0, 15) // Limit to ~15 points max
-      .map((item: any) => ({
+      .map((item: {dt_txt: string, main: {temp: number}, itemHour: number}) => ({
         time: item.dt_txt,
         temperature: Math.round(item.main.temp),
         hour: item.itemHour

@@ -17,7 +17,8 @@ export default function TodayTodoCard() {
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      handleAddTodo(e as any)
+      e.preventDefault()
+      handleAddTodo(e as unknown as React.FormEvent)
     }
   }
 

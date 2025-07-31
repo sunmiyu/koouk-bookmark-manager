@@ -15,7 +15,6 @@ import KooukLogo from '@/components/KooukLogo'
 import SearchBar from '@/components/SearchBar'
 import Link from 'next/link'
 import { ContentProvider } from '@/contexts/ContentContext'
-import MiniFunctionsArea from '@/components/MiniFunctionsArea'
 import SplashScreen from '@/components/SplashScreen'
 import { TodayTodosProvider } from '@/contexts/TodayTodosContext'
 import TodayTodoCard from '@/components/TodayTodoCard'
@@ -29,7 +28,7 @@ type TabType = 'summary' | 'today' | 'dashboard' | 'contents' | 'popular'
 function HomeContent() {
   const [activeTab, setActiveTab] = useState<TabType>('summary')
   const [isLoading, setIsLoading] = useState(true)
-  const { weatherData, loading: weatherLoading } = useWeatherData()
+  const { weatherData } = useWeatherData()
   const { availableFunctions, enabledFunctions } = useMiniFunctions()
   const { currentPlan } = useUserPlan()
 
@@ -317,7 +316,7 @@ function HomeContent() {
                     <>
                       {/* Dynamic Functions Grid */}
                       <div className="grid grid-cols-2 gap-4 mb-6">
-                        {availableFunctions.slice(0, 6).map((func, index) => {
+                        {availableFunctions.slice(0, 6).map((func) => {
                           const isEnabled = enabledFunctions.some(enabled => enabled.id === func.id)
                           const isPremiumFeature = ['news', 'stocks', 'commute', 'food'].includes(func.type)
                           const needsUpgrade = isPremiumFeature && currentPlan === 'free'
@@ -443,23 +442,23 @@ function HomeContent() {
                         <div className="w-px h-4 bg-gray-600"></div>
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                          <span className="text-white font-medium">{currentPlan === 'premium' ? '∞' : currentPlan === 'pro' ? '4' : '0'}</span>
+                          <span className="text-white font-medium">{currentPlan === 'unlimited' ? '∞' : currentPlan === 'pro' ? '4' : '0'}</span>
                           <span className="text-gray-400">limit</span>
                         </div>
                       </div>
                     </div>
                     <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg ${
-                      currentPlan === 'premium' ? 'bg-purple-600/10' :
+                      currentPlan === 'unlimited' ? 'bg-purple-600/10' :
                       currentPlan === 'pro' ? 'bg-blue-600/10' :
                       'bg-gray-600/10'
                     }`}>
                       <div className={`w-2 h-2 rounded-full animate-pulse ${
-                        currentPlan === 'premium' ? 'bg-purple-400' :
+                        currentPlan === 'unlimited' ? 'bg-purple-400' :
                         currentPlan === 'pro' ? 'bg-blue-400' :
                         'bg-gray-400'
                       }`}></div>
                       <span className={`text-xs font-medium capitalize ${
-                        currentPlan === 'premium' ? 'text-purple-400' :
+                        currentPlan === 'unlimited' ? 'text-purple-400' :
                         currentPlan === 'pro' ? 'text-blue-400' :
                         'text-gray-400'
                       }`}>{currentPlan}</span>

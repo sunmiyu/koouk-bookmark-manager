@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import WeatherOnly from '@/components/WeatherOnly'
 import TimeDisplay from '@/components/TimeDisplay'
 import FeedbackBoard from '@/components/FeedbackBoard'
@@ -16,16 +16,38 @@ import SearchBar from '@/components/SearchBar'
 import Link from 'next/link'
 import { ContentProvider } from '@/contexts/ContentContext'
 import MiniFunctionsArea from '@/components/MiniFunctionsArea'
+import SplashScreen from '@/components/SplashScreen'
 
 type TabType = 'summary' | 'today' | 'dashboard' | 'contents' | 'popular'
 
 function HomeContent() {
   const [activeTab, setActiveTab] = useState<TabType>('summary')
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Simulate app initialization
+  useEffect(() => {
+    const initializeApp = async () => {
+      // Simulate loading time for demo
+      await new Promise(resolve => setTimeout(resolve, 500))
+      // Here you would typically load:
+      // - User authentication
+      // - User preferences
+      // - Initial data
+      // - etc.
+    }
+    
+    initializeApp()
+  }, [])
+
+  // Show splash screen while loading
+  if (isLoading) {
+    return <SplashScreen onComplete={() => setIsLoading(false)} />
+  }
 
   return (
     <ContentProvider>
       <div className="min-h-screen bg-black text-white">
-        <div className="container mx-auto responsive-p-md py-4 sm:py-6 max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto py-4 max-w-md px-4">
           <header className="mb-12">
             {/* Professional Header Container */}
             <div className="bg-black rounded-xl p-6">
@@ -92,7 +114,7 @@ function HomeContent() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    Dashboard
+                    Mini
                   </div>
                 </button>
                 <div className="w-px h-6 bg-gray-600"></div>
@@ -105,7 +127,7 @@ function HomeContent() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    Contents Storage
+                    Storage
                   </div>
                 </button>
                 <div className="w-px h-6 bg-gray-600"></div>
@@ -118,7 +140,7 @@ function HomeContent() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    AI Tool Link
+                    AI Link
                   </div>
                 </button>
               </nav>
@@ -128,183 +150,107 @@ function HomeContent() {
           {/* Tab Content */}
           <main>
             {activeTab === 'summary' && (
-              <div className="space-y-12">
-                {/* Overview Stats */}
-                <div className="bg-black rounded-xl p-8">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div>
-                      <h2 className="text-lg font-semibold text-white">Overview</h2>
-                    </div>
+              <div className="space-y-6">
+                {/* Stats Overview - Table Style */}
+                <div className="bg-black rounded-xl p-6">
+                  <div className="mb-6">
+                    <h2 className="text-lg font-semibold text-white">Dashboard Summary</h2>
+                    <p className="text-sm text-gray-400">Your productivity overview</p>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {/* Todos Stats */}
-                    <div className="bg-gray-800/50 rounded-lg p-4">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center">
-                          <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        </div>
-                        <h3 className="font-medium text-white">Todos</h3>
-                      </div>
-                      <div className="text-2xl font-bold text-white mb-1">12</div>
-                      <div className="text-sm text-gray-400">3 completed today</div>
+                  {/* Stats Grid - 2x2 */}
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                      <div className="text-2xl font-bold text-blue-400 mb-1">12</div>
+                      <div className="text-sm text-gray-300">Total Todos</div>
+                      <div className="text-xs text-gray-500">3 completed today</div>
                     </div>
-
-                    {/* Mini Functions Stats */}
-                    <div className="bg-gray-800/50 rounded-lg p-4">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 bg-purple-600/20 rounded-lg flex items-center justify-center">
-                          <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                          </svg>
-                        </div>
-                        <h3 className="font-medium text-white">Mini Functions</h3>
-                      </div>
-                      <div className="text-2xl font-bold text-white mb-1">6</div>
-                      <div className="text-sm text-gray-400">Active functions</div>
+                    
+                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                      <div className="text-2xl font-bold text-purple-400 mb-1">6</div>
+                      <div className="text-sm text-gray-300">Mini Functions</div>
+                      <div className="text-xs text-gray-500">Active tools</div>
                     </div>
-
-                    {/* Contents Stats */}
-                    <div className="bg-gray-800/50 rounded-lg p-4">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center">
-                          <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                          </svg>
-                        </div>
-                        <h3 className="font-medium text-white">Content Items</h3>
-                      </div>
-                      <div className="text-2xl font-bold text-white mb-1">24</div>
-                      <div className="text-sm text-gray-400">Links, videos, images, notes</div>
+                    
+                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                      <div className="text-2xl font-bold text-green-400 mb-1">24</div>
+                      <div className="text-sm text-gray-300">Content Items</div>
+                      <div className="text-xs text-gray-500">Links, videos, notes</div>
                     </div>
-
-                    {/* Activity Stats */}
-                    <div className="bg-gray-800/50 rounded-lg p-4">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 bg-yellow-600/20 rounded-lg flex items-center justify-center">
-                          <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                          </svg>
-                        </div>
-                        <h3 className="font-medium text-white">This Week</h3>
-                      </div>
-                      <div className="text-2xl font-bold text-white mb-1">18</div>
-                      <div className="text-sm text-gray-400">Actions completed</div>
+                    
+                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                      <div className="text-2xl font-bold text-yellow-400 mb-1">18</div>
+                      <div className="text-sm text-gray-300">This Week</div>
+                      <div className="text-xs text-gray-500">Actions completed</div>
                     </div>
                   </div>
                 </div>
 
-                {/* Recent Activity */}
-                <div className="bg-black rounded-xl p-8">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div>
-                      <h2 className="text-lg font-semibold text-white">Recent Activity</h2>
-                    </div>
+                {/* Activity Table */}
+                <div className="bg-black rounded-xl p-6">
+                  <div className="mb-4">
+                    <h3 className="text-base font-semibold text-white">Recent Activity</h3>
                   </div>
                   
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-4 p-3 bg-gray-800/50 rounded-lg">
-                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                      <div className="flex-1">
-                        <div className="text-sm text-white">Completed todo: &quot;Review project documents&quot;</div>
-                        <div className="text-xs text-gray-400">2 hours ago</div>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between py-2 border-b border-gray-800">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                        <span className="text-sm text-white">Todo completed</span>
                       </div>
+                      <span className="text-xs text-gray-400">2h ago</span>
                     </div>
                     
-                    <div className="flex items-center gap-4 p-3 bg-gray-800/50 rounded-lg">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                      <div className="flex-1">
-                        <div className="text-sm text-white">Added new link: &quot;React Best Practices Guide&quot;</div>
-                        <div className="text-xs text-gray-400">4 hours ago</div>
+                    <div className="flex items-center justify-between py-2 border-b border-gray-800">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                        <span className="text-sm text-white">Link added</span>
                       </div>
+                      <span className="text-xs text-gray-400">4h ago</span>
                     </div>
                     
-                    <div className="flex items-center gap-4 p-3 bg-gray-800/50 rounded-lg">
-                      <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                      <div className="flex-1">
-                        <div className="text-sm text-white">Music recommendations updated</div>
-                        <div className="text-xs text-gray-400">6 hours ago</div>
+                    <div className="flex items-center justify-between py-2 border-b border-gray-800">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                        <span className="text-sm text-white">Music updated</span>
                       </div>
+                      <span className="text-xs text-gray-400">6h ago</span>
                     </div>
                     
-                    <div className="flex items-center gap-4 p-3 bg-gray-800/50 rounded-lg">
-                      <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                      <div className="flex-1">
-                        <div className="text-sm text-white">Added expense: Lunch $12.50</div>
-                        <div className="text-xs text-gray-400">Yesterday</div>
+                    <div className="flex items-center justify-between py-2 border-b border-gray-800">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                        <span className="text-sm text-white">Expense logged</span>
                       </div>
+                      <span className="text-xs text-gray-400">1d ago</span>
                     </div>
                     
-                    <div className="flex items-center gap-4 p-3 bg-gray-800/50 rounded-lg">
-                      <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                      <div className="flex-1">
-                        <div className="text-sm text-white">Saved YouTube video: &quot;Next.js 15 New Features&quot;</div>
-                        <div className="text-xs text-gray-400">Yesterday</div>
+                    <div className="flex items-center justify-between py-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                        <span className="text-sm text-white">Video saved</span>
                       </div>
+                      <span className="text-xs text-gray-400">1d ago</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Quick Actions */}
-                <div className="bg-black rounded-xl p-8">
-                  <div className="flex items-center gap-3 mb-6">
+                {/* Status Bar */}
+                <div className="bg-black rounded-xl p-6">
+                  <div className="flex items-center justify-between">
                     <div>
-                      <h2 className="text-lg font-semibold text-white">Quick Actions</h2>
+                      <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wide mb-2">System Status</h3>
+                      <div className="flex items-center gap-4 text-sm">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                          <span className="text-gray-300">All systems operational</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <button 
-                      onClick={() => setActiveTab('dashboard')}
-                      className="p-4 bg-gray-800/50 hover:bg-gray-800/70 rounded-lg transition-colors text-left"
-                    >
-                      <div className="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center mb-3">
-                        <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                      </div>
-                      <div className="font-medium text-white">Add Todo</div>
-                      <div className="text-sm text-gray-400">Create a new task</div>
-                    </button>
-                    
-                    <button 
-                      onClick={() => setActiveTab('contents')}
-                      className="p-4 bg-gray-800/50 hover:bg-gray-800/70 rounded-lg transition-colors text-left"
-                    >
-                      <div className="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center mb-3">
-                        <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                        </svg>
-                      </div>
-                      <div className="font-medium text-white">Save Content</div>
-                      <div className="text-sm text-gray-400">Add links, notes, media</div>
-                    </button>
-                    
-                    <button className="p-4 bg-gray-800/50 hover:bg-gray-800/70 rounded-lg transition-colors text-left">
-                      <div className="w-8 h-8 bg-purple-600/20 rounded-lg flex items-center justify-center mb-3">
-                        <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                      </div>
-                      <div className="font-medium text-white">Settings</div>
-                      <div className="text-sm text-gray-400">Customize your dashboard</div>
-                    </button>
-                    
-                    <button 
-                      onClick={() => setActiveTab('popular')}
-                      className="p-4 bg-gray-800/50 hover:bg-gray-800/70 rounded-lg transition-colors text-left"
-                    >
-                      <div className="w-8 h-8 bg-yellow-600/20 rounded-lg flex items-center justify-center mb-3">
-                        <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                        </svg>
-                      </div>
-                      <div className="font-medium text-white">AI Tools</div>
-                      <div className="text-sm text-gray-400">Explore useful AI tools</div>
-                    </button>
+                    <div className="text-right">
+                      <div className="text-xs text-gray-400">Last sync</div>
+                      <div className="text-sm text-white">2 min ago</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -312,96 +258,36 @@ function HomeContent() {
 
             {activeTab === 'today' && (
               <div className="space-y-8">
-                {/* Today's Focus Section */}
-                <div className="bg-black rounded-xl p-6 sm:p-8">
+                {/* Today's Todos Section - Mobile Optimized */}
+                <TodoSection />
+              </div>
+            )}
+
+            {activeTab === 'dashboard' && (
+              <div className="space-y-8">
+                {/* Mini Functions Section - Mobile Optimized */}
+                <div className="bg-black rounded-xl p-6">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
                       <div>
-                        <h2 className="text-lg font-semibold text-white">Today&apos;s Focus</h2>
-                        <p className="text-sm text-gray-400">Your most important tasks for today</p>
+                        <h2 className="text-lg font-semibold text-white">Mini Functions</h2>
+                        <p className="text-sm text-gray-400">Quick access to your active tools</p>
                       </div>
+                      <button 
+                        className="text-gray-400 hover:text-white transition-all cursor-pointer"
+                        onClick={() => {/* Navigate to full mini functions page */}}
+                        title="Mini Functions 관리"
+                      >
+                        ⚙️
+                      </button>
                     </div>
                   </div>
                   
-                  {/* Priority Todos - Mobile Optimized */}
-                  <div className="space-y-4 mb-6">
-                    <div className="flex items-center gap-4 p-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <input
-                        type="checkbox"
-                        className="rounded w-6 h-6 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-offset-0 flex-shrink-0"
-                      />
-                      <div className="flex-1">
-                        <div className="text-base font-medium text-white">Complete project presentation</div>
-                        <div className="text-sm text-gray-400">Due in 2 hours</div>
-                      </div>
-                      <div className="px-2 py-1 bg-red-600/20 text-red-400 text-xs rounded-md font-medium">
-                        High
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-4 p-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <input
-                        type="checkbox"
-                        className="rounded w-6 h-6 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-offset-0 flex-shrink-0"
-                      />
-                      <div className="flex-1">
-                        <div className="text-base font-medium text-white">Review team feedback</div>
-                        <div className="text-sm text-gray-400">Before 5 PM</div>
-                      </div>
-                      <div className="px-2 py-1 bg-yellow-600/20 text-yellow-400 text-xs rounded-md font-medium">
-                        Medium
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-4 p-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <input
-                        type="checkbox"
-                        checked
-                        className="rounded w-6 h-6 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-offset-0 flex-shrink-0"
-                      />
-                      <div className="flex-1">
-                        <div className="text-base font-medium text-gray-500 line-through">Update project documentation</div>
-                        <div className="text-sm text-gray-500">Completed at 2:30 PM</div>
-                      </div>
-                      <div className="px-2 py-1 bg-green-600/20 text-green-400 text-xs rounded-md font-medium">
-                        Done
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Quick Add Task */}
-                  <div className="border-t border-gray-700/50 pt-4">
-                    <button 
-                      onClick={() => setActiveTab('dashboard')}
-                      className="w-full flex items-center gap-3 p-4 bg-blue-600/10 hover:bg-blue-600/20 rounded-lg transition-colors border border-blue-600/20"
-                    >
-                      <div className="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center">
-                        <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                      </div>
-                      <div className="text-left">
-                        <div className="font-medium text-blue-400">Add Quick Task</div>
-                        <div className="text-sm text-gray-400">Create a new todo for today</div>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Active Tools - Mobile Optimized 2x2 Grid */}
-                <div className="bg-black rounded-xl p-6 sm:p-8">
-                  <div className="flex items-center justify-between mb-6">
-                    <div>
-                      <h2 className="text-lg font-semibold text-white">Active Tools</h2>
-                      <p className="text-sm text-gray-400">Quick access to your functions</p>
-                    </div>
-                  </div>
-                  
-                  {/* 2x2 Grid for Mobile */}
+                  {/* Active Functions Grid - 2x2 for Mobile */}
                   <div className="grid grid-cols-2 gap-4 mb-6">
                     {/* Weather */}
                     <div className="bg-gray-800/50 rounded-lg p-4 hover:bg-gray-800/70 transition-colors">
-                      <div className="flex items-center gap-3 mb-2">
+                      <div className="flex items-center gap-3 mb-3">
                         <div className="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center">
                           <span className="text-lg">🌤️</span>
                         </div>
@@ -409,12 +295,14 @@ function HomeContent() {
                           <div className="font-medium text-white text-sm">Weather</div>
                         </div>
                       </div>
-                      <div className="text-xs text-gray-400">22°C Partly Cloudy</div>
+                      <div className="text-xs text-gray-400 mb-2">Seoul, KR</div>
+                      <div className="text-lg font-bold text-white">22°C</div>
+                      <div className="text-xs text-gray-400">Partly Cloudy</div>
                     </div>
                     
                     {/* Time */}
                     <div className="bg-gray-800/50 rounded-lg p-4 hover:bg-gray-800/70 transition-colors">
-                      <div className="flex items-center gap-3 mb-2">
+                      <div className="flex items-center gap-3 mb-3">
                         <div className="w-8 h-8 bg-purple-600/20 rounded-lg flex items-center justify-center">
                           <span className="text-lg">⏰</span>
                         </div>
@@ -422,12 +310,13 @@ function HomeContent() {
                           <div className="font-medium text-white text-sm">Time</div>
                         </div>
                       </div>
-                      <div className="text-xs text-gray-400">3:45 PM</div>
+                      <div className="text-lg font-bold text-white">3:45 PM</div>
+                      <div className="text-xs text-gray-400">Thursday, Jan 31</div>
                     </div>
                     
                     {/* Music */}
                     <div className="bg-gray-800/50 rounded-lg p-4 hover:bg-gray-800/70 transition-colors">
-                      <div className="flex items-center gap-3 mb-2">
+                      <div className="flex items-center gap-3 mb-3">
                         <div className="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center">
                           <span className="text-lg">🎵</span>
                         </div>
@@ -435,12 +324,14 @@ function HomeContent() {
                           <div className="font-medium text-white text-sm">Music</div>
                         </div>
                       </div>
-                      <div className="text-xs text-gray-400">Jazz playlist</div>
+                      <div className="text-xs text-gray-400 mb-1">Now Playing</div>
+                      <div className="text-sm font-medium text-white truncate">Chill Jazz Playlist</div>
+                      <div className="text-xs text-gray-400">3 recommendations</div>
                     </div>
                     
                     {/* News */}
                     <div className="bg-gray-800/50 rounded-lg p-4 hover:bg-gray-800/70 transition-colors">
-                      <div className="flex items-center gap-3 mb-2">
+                      <div className="flex items-center gap-3 mb-3">
                         <div className="w-8 h-8 bg-red-600/20 rounded-lg flex items-center justify-center">
                           <span className="text-lg">📰</span>
                         </div>
@@ -448,117 +339,286 @@ function HomeContent() {
                           <div className="font-medium text-white text-sm">News</div>
                         </div>
                       </div>
-                      <div className="text-xs text-gray-400">5 new headlines</div>
+                      <div className="text-xs text-gray-400 mb-1">Headlines</div>
+                      <div className="text-sm font-medium text-white">5 new articles</div>
+                      <div className="text-xs text-gray-400">Updated 10 min ago</div>
+                    </div>
+                    
+                    {/* Expense Tracker */}
+                    <div className="bg-gray-800/50 rounded-lg p-4 hover:bg-gray-800/70 transition-colors">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-8 h-8 bg-yellow-600/20 rounded-lg flex items-center justify-center">
+                          <span className="text-lg">💰</span>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-medium text-white text-sm">Expense</div>
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-400 mb-1">Today</div>
+                      <div className="text-sm font-medium text-white">₩34,500</div>
+                      <div className="text-xs text-gray-400">5 transactions</div>
+                    </div>
+                    
+                    {/* Stocks */}
+                    <div className="bg-gray-800/50 rounded-lg p-4 hover:bg-gray-800/70 transition-colors">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-8 h-8 bg-indigo-600/20 rounded-lg flex items-center justify-center">
+                          <span className="text-lg">📈</span>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-medium text-white text-sm">Stocks</div>
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-400 mb-1">KOSPI</div>
+                      <div className="text-sm font-medium text-green-400">+1.2%</div>
+                      <div className="text-xs text-gray-400">Market open</div>
                     </div>
                   </div>
                   
                   {/* View All Functions Button */}
                   <button 
-                    onClick={() => setActiveTab('dashboard')}
                     className="w-full flex items-center justify-center gap-2 p-3 bg-gray-800/50 hover:bg-gray-800/70 rounded-lg transition-colors border border-gray-700/50"
                   >
                     <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                     </svg>
-                    <span className="font-medium text-gray-300">View All Functions</span>
+                    <span className="font-medium text-gray-300">Manage All Functions</span>
                   </button>
                 </div>
 
-                {/* Quick Stats Bar */}
+                {/* Function Stats */}
                 <div className="bg-black rounded-xl p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wide mb-2">Quick Stats</h3>
+                      <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wide mb-2">Function Stats</h3>
                       <div className="flex items-center gap-4 text-sm">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                          <span className="text-white font-medium">6</span>
+                          <span className="text-gray-400">active</span>
+                        </div>
+                        <div className="w-px h-4 bg-gray-600"></div>
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
                           <span className="text-white font-medium">12</span>
-                          <span className="text-gray-400">todos</span>
+                          <span className="text-gray-400">available</span>
                         </div>
                         <div className="w-px h-4 bg-gray-600"></div>
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                          <span className="text-white font-medium">6</span>
-                          <span className="text-gray-400">functions</span>
-                        </div>
-                        <div className="w-px h-4 bg-gray-600"></div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                           <span className="text-white font-medium">24</span>
-                          <span className="text-gray-400">items</span>
+                          <span className="text-gray-400">updates</span>
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-green-600/10 rounded-lg">
                       <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                      <span className="text-green-400 text-xs font-medium">Active</span>
+                      <span className="text-green-400 text-xs font-medium">Running</span>
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {activeTab === 'dashboard' && (
-              <div className="space-y-12">
-                {/* Todos Section */}
-                <TodoSection />
-                
-                {/* Mini Functions Section */}
-                <MiniFunctionsArea />
-              </div>
-            )}
-
             {activeTab === 'contents' && (
-              <div className="space-y-12">
-                {/* Info input section */}
-                <InfoInputSection />
+              <div className="space-y-6">
+                {/* Add Content Section */}
+                <div className="bg-black rounded-xl p-6">
+                  <div className="mb-6">
+                    <h2 className="text-lg font-semibold text-white">Add Content</h2>
+                    <p className="text-sm text-gray-400">Save links, notes, videos, and images</p>
+                  </div>
+                  <InfoInputSection />
+                </div>
                 
-                {/* Contents Section */}
-                <div className="bg-black rounded-xl p-8">
-                  {/* Professional Header */}
+                {/* Storage Overview */}
+                <div className="bg-black rounded-xl p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h2 className="text-lg font-semibold text-white">Contents Storage</h2>
-                      </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-white">Storage</h2>
+                      <p className="text-sm text-gray-400">Your saved content</p>
                     </div>
-                    
-                    <div className="w-48 sm:w-64 flex-shrink-0">
-                      <SearchBar />
-                    </div>
+                    <SearchBar />
                   </div>
                   
-                  {/* Content Sections Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    <LinkSection />
-                    <NotesSection />
-                    <VideoSection />
-                    <ImageSection />
+                  {/* Storage Stats */}
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                      <div className="text-xl font-bold text-blue-400 mb-1">8</div>
+                      <div className="text-sm text-gray-300">Links</div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                      <div className="text-xl font-bold text-green-400 mb-1">5</div>
+                      <div className="text-sm text-gray-300">Videos</div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                      <div className="text-xl font-bold text-purple-400 mb-1">12</div>
+                      <div className="text-sm text-gray-300">Notes</div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                      <div className="text-xl font-bold text-yellow-400 mb-1">7</div>
+                      <div className="text-sm text-gray-300">Images</div>
+                    </div>
                   </div>
+                </div>
+
+                {/* Content Sections */}
+                <div className="space-y-4">
+                  <LinkSection />
+                  <VideoSection />
+                  <NotesSection />
+                  <ImageSection />
                 </div>
               </div>
             )}
 
             {activeTab === 'popular' && (
-              <div className="space-y-12">
-                {/* AI Tool Link Section */}
-                <div className="bg-black rounded-xl p-8">
-                  {/* Professional Header */}
-                  <div className="flex items-center gap-3 mb-6">
-                    <div>
-                      <h2 className="text-lg font-semibold text-white">AI Tool Link</h2>
-                    </div>
+              <div className="space-y-6">
+                {/* AI Tools Overview */}
+                <div className="bg-black rounded-xl p-6">
+                  <div className="mb-6">
+                    <h2 className="text-lg font-semibold text-white">AI Tools</h2>
+                    <p className="text-sm text-gray-400">Curated collection of useful AI tools</p>
                   </div>
                   
-                  {/* Empty state for now */}
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-yellow-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                      </svg>
+                  {/* Category Stats */}
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                      <div className="text-xl font-bold text-blue-400 mb-1">8</div>
+                      <div className="text-sm text-gray-300">Writing</div>
                     </div>
-                    <h3 className="text-lg font-medium text-white mb-2">AI Tool Link Collection</h3>
-                    <p className="text-gray-400">Curated collection of useful AI tools for productivity and creativity</p>
+                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                      <div className="text-xl font-bold text-green-400 mb-1">6</div>
+                      <div className="text-sm text-gray-300">Design</div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                      <div className="text-xl font-bold text-purple-400 mb-1">5</div>
+                      <div className="text-sm text-gray-300">Code</div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                      <div className="text-xl font-bold text-yellow-400 mb-1">4</div>
+                      <div className="text-sm text-gray-300">Productivity</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Writing Tools */}
+                <div className="bg-black rounded-xl p-6">
+                  <div className="mb-4">
+                    <h3 className="text-base font-semibold text-white">✍️ Writing & Content</h3>
+                  </div>
+                  <div className="space-y-3">
+                    <a href="https://chat.openai.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">ChatGPT</div>
+                        <div className="text-xs text-gray-400">Conversational AI assistant</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Claude</div>
+                        <div className="text-xs text-gray-400">AI assistant by Anthropic</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://www.notion.so/product/ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Notion AI</div>
+                        <div className="text-xs text-gray-400">AI-powered writing assistant</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                  </div>
+                </div>
+
+                {/* Design Tools */}
+                <div className="bg-black rounded-xl p-6">
+                  <div className="mb-4">
+                    <h3 className="text-base font-semibold text-white">🎨 Design & Creative</h3>
+                  </div>
+                  <div className="space-y-3">
+                    <a href="https://www.midjourney.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Midjourney</div>
+                        <div className="text-xs text-gray-400">AI image generation</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://www.canva.com/ai-image-generator/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Canva AI</div>
+                        <div className="text-xs text-gray-400">Design with AI assistance</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://www.figma.com/ai/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Figma AI</div>
+                        <div className="text-xs text-gray-400">AI-powered design tools</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                  </div>
+                </div>
+
+                {/* Code Tools */}
+                <div className="bg-black rounded-xl p-6">
+                  <div className="mb-4">
+                    <h3 className="text-base font-semibold text-white">💻 Development & Code</h3>
+                  </div>
+                  <div className="space-y-3">
+                    <a href="https://github.com/features/copilot" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">GitHub Copilot</div>
+                        <div className="text-xs text-gray-400">AI pair programmer</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://www.cursor.sh" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Cursor</div>
+                        <div className="text-xs text-gray-400">AI-powered code editor</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://v0.dev" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">v0 by Vercel</div>
+                        <div className="text-xs text-gray-400">Generate UI with AI</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                  </div>
+                </div>
+
+                {/* Productivity Tools */}
+                <div className="bg-black rounded-xl p-6">
+                  <div className="mb-4">
+                    <h3 className="text-base font-semibold text-white">⚡ Productivity & Business</h3>
+                  </div>
+                  <div className="space-y-3">
+                    <a href="https://www.perplexity.ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Perplexity</div>
+                        <div className="text-xs text-gray-400">AI-powered search engine</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://gamma.app" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Gamma</div>
+                        <div className="text-xs text-gray-400">AI presentation maker</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://www.otter.ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Otter.ai</div>
+                        <div className="text-xs text-gray-400">AI meeting transcription</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -567,10 +627,10 @@ function HomeContent() {
 
           <footer className="mt-16">
             {/* Professional Footer Container */}
-            <div className="bg-black rounded-xl p-8">
-              <div className="flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-6">
-                {/* All content in one row for PC, stacked for mobile */}
-                <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6 w-full lg:w-auto">
+            <div className="bg-black rounded-xl p-6">
+              <div className="flex flex-col items-center justify-between gap-3">
+                {/* Mobile stacked layout */}
+                <div className="flex flex-col items-center gap-3 w-full">
                   {/* Logo & Copyright */}
                   <div className="flex items-center gap-3">
                     <div className="w-6 h-6 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
@@ -583,7 +643,7 @@ function HomeContent() {
                   
                   {/* Navigation Links */}
                   <div className="flex items-center gap-4 text-sm">
-                    <div className="w-px h-4 bg-gray-700 hidden sm:block"></div>
+                    <div className="w-px h-4 bg-gray-700"></div>
                     <Link 
                       href="/privacy-policy" 
                       className="text-gray-400 hover:text-white transition-colors font-medium whitespace-nowrap"

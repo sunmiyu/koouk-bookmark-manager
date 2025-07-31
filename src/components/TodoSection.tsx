@@ -291,8 +291,8 @@ export default function TodoSection() {
     const pastCard = isPast(card.date)
     
     return (
-      <div key={card.date} className={`bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 min-w-[280px] sm:min-w-[250px] flex-shrink-0 transition-all duration-200 hover:bg-gray-800/70 ${
-        todayCard ? 'shadow-lg shadow-blue-500/10' : ''
+      <div key={card.date} className={`bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 w-full transition-all duration-200 hover:bg-gray-800/70 ${
+        todayCard ? 'shadow-lg shadow-blue-500/10 border border-blue-500/20' : ''
       }`}>
         <div className="mb-4">
           <div className="flex items-center justify-between">
@@ -425,52 +425,22 @@ export default function TodoSection() {
   }
 
   return (
-    <div className="bg-black rounded-xl p-8">
-      {/* Professional Header */}
+    <div className="bg-black rounded-xl p-6">
+      {/* Mobile Header */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3">
-            <div>
-              <h2 className="text-lg font-semibold text-white">Todos</h2>
-            </div>
-          </div>
-          
-          <button
-            onClick={() => setShowHistory(!showHistory)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
-              showHistory 
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25' 
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-            }`}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="hidden sm:inline">{showHistory ? 'Hide History' : 'Show History'}</span>
-            <span className="sm:hidden">{showHistory ? 'Hide' : 'History'}</span>
-          </button>
+        <div>
+          <h2 className="text-lg font-semibold text-white">Todos</h2>
+          <p className="text-sm text-gray-400">Swipe up to see past dates</p>
         </div>
-        
-        <div></div>
       </div>
 
-      {/* History Section */}
-      {showHistory && (
-        <div className="mb-6">
-          <div className="mb-3">
-            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wide">History</h3>
-          </div>
-          <div className="flex overflow-x-auto responsive-gap-md pb-4">
-            {historyData.map((card) => renderDateCard(card, true))}
-          </div>
-        </div>
-      )}
-      
-      {/* Current Todos Section */}
-      <div>
-        <div className="flex overflow-x-auto responsive-gap-md pb-4">
-          {dateCards.map((card) => renderDateCard(card, false))}
-        </div>
+      {/* Mobile Vertical Scroll - Date Cards */}
+      <div className="space-y-4">
+        {/* History cards (past dates) */}
+        {historyData.slice(0, 3).reverse().map((card) => renderDateCard(card, true))}
+        
+        {/* Current and future date cards */}
+        {dateCards.map((card) => renderDateCard(card, false))}
       </div>
     </div>
   )

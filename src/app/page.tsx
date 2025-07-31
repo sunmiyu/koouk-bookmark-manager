@@ -17,12 +17,21 @@ import Link from 'next/link'
 import { ContentProvider } from '@/contexts/ContentContext'
 import MiniFunctionsArea from '@/components/MiniFunctionsArea'
 import SplashScreen from '@/components/SplashScreen'
+import { TodayTodosProvider } from '@/contexts/TodayTodosContext'
+import TodayTodoCard from '@/components/TodayTodoCard'
+import TemperatureGraph from '@/components/TemperatureGraph'
+import { useWeatherData } from '@/hooks/useWeatherData'
+import { useMiniFunctions } from '@/contexts/MiniFunctionsContext'
+import { useUserPlan } from '@/contexts/UserPlanContext'
 
 type TabType = 'summary' | 'today' | 'dashboard' | 'contents' | 'popular'
 
 function HomeContent() {
   const [activeTab, setActiveTab] = useState<TabType>('summary')
   const [isLoading, setIsLoading] = useState(true)
+  const { weatherData, loading: weatherLoading } = useWeatherData()
+  const { availableFunctions, enabledFunctions } = useMiniFunctions()
+  const { currentPlan } = useUserPlan()
 
   // Simulate app initialization
   useEffect(() => {
@@ -45,8 +54,9 @@ function HomeContent() {
   }
 
   return (
-    <ContentProvider>
-      <div className="min-h-screen bg-black text-white">
+    <TodayTodosProvider>
+      <ContentProvider>
+        <div className="min-h-screen bg-black text-white">
         <div className="container mx-auto py-4 max-w-md px-4">
           <header className="mb-12">
             {/* Professional Header Container */}
@@ -88,7 +98,7 @@ function HomeContent() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    Summary
+                    Today
                   </div>
                 </button>
                 <div className="w-px h-6 bg-gray-600"></div>
@@ -101,7 +111,7 @@ function HomeContent() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    Today
+                    Todos
                   </div>
                 </button>
                 <div className="w-px h-6 bg-gray-600"></div>
@@ -151,39 +161,29 @@ function HomeContent() {
           <main>
             {activeTab === 'summary' && (
               <div className="space-y-6">
-                {/* Stats Overview - Table Style */}
+                {/* Temperature Graph */}
+                {weatherData?.hourlyData ? (
+                  <TemperatureGraph 
+                    hourlyData={weatherData.hourlyData}
+                    currentTemp={weatherData.weather.current}
+                  />
+                ) : (
+                  <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 w-full">
+                    <div className="flex items-center justify-center h-32">
+                      <div className="text-gray-400 text-sm">Loading temperature data...</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Today's Focus from Todos */}
                 <div className="bg-black rounded-xl p-6">
                   <div className="mb-6">
-                    <h2 className="text-lg font-semibold text-white">Dashboard Summary</h2>
-                    <p className="text-sm text-gray-400">Your productivity overview</p>
+                    <h2 className="text-lg font-semibold text-white">Today&apos;s Focus</h2>
+                    <p className="text-sm text-gray-400">Your most important tasks for today</p>
                   </div>
                   
-                  {/* Stats Grid - 2x2 */}
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
-                      <div className="text-2xl font-bold text-blue-400 mb-1">12</div>
-                      <div className="text-sm text-gray-300">Total Todos</div>
-                      <div className="text-xs text-gray-500">3 completed today</div>
-                    </div>
-                    
-                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
-                      <div className="text-2xl font-bold text-purple-400 mb-1">6</div>
-                      <div className="text-sm text-gray-300">Mini Functions</div>
-                      <div className="text-xs text-gray-500">Active tools</div>
-                    </div>
-                    
-                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
-                      <div className="text-2xl font-bold text-green-400 mb-1">24</div>
-                      <div className="text-sm text-gray-300">Content Items</div>
-                      <div className="text-xs text-gray-500">Links, videos, notes</div>
-                    </div>
-                    
-                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
-                      <div className="text-2xl font-bold text-yellow-400 mb-1">18</div>
-                      <div className="text-sm text-gray-300">This Week</div>
-                      <div className="text-xs text-gray-500">Actions completed</div>
-                    </div>
-                  </div>
+                  {/* Today's Todo Card - Synchronized */}
+                  <TodayTodoCard />
                 </div>
 
                 {/* Activity Table */}
@@ -235,21 +235,40 @@ function HomeContent() {
                   </div>
                 </div>
 
-                {/* Status Bar */}
+                {/* Dashboard Stats */}
                 <div className="bg-black rounded-xl p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wide mb-2">System Status</h3>
+                      <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wide mb-2">Dashboard Stats</h3>
                       <div className="flex items-center gap-4 text-sm">
                         <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                          <span className="text-white font-medium">12</span>
+                          <span className="text-gray-400">todos</span>
+                        </div>
+                        <div className="w-px h-4 bg-gray-600"></div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                          <span className="text-white font-medium">6</span>
+                          <span className="text-gray-400">functions</span>
+                        </div>
+                        <div className="w-px h-4 bg-gray-600"></div>
+                        <div className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                          <span className="text-gray-300">All systems operational</span>
+                          <span className="text-white font-medium">24</span>
+                          <span className="text-gray-400">items</span>
+                        </div>
+                        <div className="w-px h-4 bg-gray-600"></div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                          <span className="text-white font-medium">18</span>
+                          <span className="text-gray-400">weekly</span>
                         </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-xs text-gray-400">Last sync</div>
-                      <div className="text-sm text-white">2 min ago</div>
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-green-600/10 rounded-lg">
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                      <span className="text-green-400 text-xs font-medium">Active</span>
                     </div>
                   </div>
                 </div>
@@ -273,117 +292,135 @@ function HomeContent() {
                         <h2 className="text-lg font-semibold text-white">Mini Functions</h2>
                         <p className="text-sm text-gray-400">Quick access to your active tools</p>
                       </div>
-                      <button 
-                        className="text-gray-400 hover:text-white transition-all cursor-pointer"
-                        onClick={() => {/* Navigate to full mini functions page */}}
-                        title="Mini Functions 관리"
-                      >
-                        ⚙️
-                      </button>
+                      <Link href="/settings/mini-functions">
+                        <button 
+                          className="text-gray-400 hover:text-white transition-all cursor-pointer"
+                          title="Mini Functions 관리"
+                        >
+                          ⚙️
+                        </button>
+                      </Link>
                     </div>
                   </div>
                   
-                  {/* Active Functions Grid - 2x2 for Mobile */}
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    {/* Weather */}
-                    <div className="bg-gray-800/50 rounded-lg p-4 hover:bg-gray-800/70 transition-colors">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center">
-                          <span className="text-lg">🌤️</span>
-                        </div>
-                        <div className="min-w-0">
-                          <div className="font-medium text-white text-sm">Weather</div>
-                        </div>
+                  {availableFunctions.length === 0 ? (
+                    <div className="text-center py-12">
+                      <div className="w-16 h-16 bg-blue-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
                       </div>
-                      <div className="text-xs text-gray-400 mb-2">Seoul, KR</div>
-                      <div className="text-lg font-bold text-white">22°C</div>
-                      <div className="text-xs text-gray-400">Partly Cloudy</div>
+                      <h3 className="text-lg font-medium text-white mb-2">No Mini Functions Available</h3>
+                      <p className="text-gray-400 mb-6">Configure your functions to get started</p>
                     </div>
-                    
-                    {/* Time */}
-                    <div className="bg-gray-800/50 rounded-lg p-4 hover:bg-gray-800/70 transition-colors">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-8 h-8 bg-purple-600/20 rounded-lg flex items-center justify-center">
-                          <span className="text-lg">⏰</span>
-                        </div>
-                        <div className="min-w-0">
-                          <div className="font-medium text-white text-sm">Time</div>
-                        </div>
+                  ) : (
+                    <>
+                      {/* Dynamic Functions Grid */}
+                      <div className="grid grid-cols-2 gap-4 mb-6">
+                        {availableFunctions.slice(0, 6).map((func, index) => {
+                          const isEnabled = enabledFunctions.some(enabled => enabled.id === func.id)
+                          const isPremiumFeature = ['news', 'stocks', 'commute', 'food'].includes(func.type)
+                          const needsUpgrade = isPremiumFeature && currentPlan === 'free'
+                          
+                          return (
+                            <div key={func.id} className="relative">
+                              <div className={`bg-gray-800/50 rounded-lg p-4 transition-colors ${
+                                isEnabled && !needsUpgrade ? 'hover:bg-gray-800/70' : ''
+                              }`}>
+                                <div className="flex items-center gap-3 mb-3">
+                                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                                    func.type === 'news' ? 'bg-red-600/20' :
+                                    func.type === 'music' ? 'bg-green-600/20' :
+                                    func.type === 'alarm' ? 'bg-purple-600/20' :
+                                    func.type === 'expense' ? 'bg-yellow-600/20' :
+                                    func.type === 'diary' ? 'bg-pink-600/20' :
+                                    func.type === 'stocks' ? 'bg-indigo-600/20' :
+                                    func.type === 'commute' ? 'bg-blue-600/20' :
+                                    func.type === 'food' ? 'bg-orange-600/20' :
+                                    func.type === 'dday' ? 'bg-teal-600/20' :
+                                    'bg-gray-600/20'
+                                  }`}>
+                                    <span className="text-lg">{func.icon}</span>
+                                  </div>
+                                  <div className="min-w-0">
+                                    <div className="font-medium text-white text-sm">{func.title.replace('Today\'s ', '').replace('Mini ', '')}</div>
+                                  </div>
+                                </div>
+                                
+                                {isEnabled && !needsUpgrade ? (
+                                  // Show active function content
+                                  <>
+                                    <div className="text-xs text-gray-400 mb-1">
+                                      {func.type === 'news' ? 'Headlines' :
+                                       func.type === 'music' ? 'Recommendations' :
+                                       func.type === 'alarm' ? 'Next alarm' :
+                                       func.type === 'expense' ? 'Today' :
+                                       func.type === 'diary' ? 'Recent entry' :
+                                       func.type === 'stocks' ? 'KOSPI' :
+                                       func.type === 'commute' ? 'Route status' :
+                                       func.type === 'food' ? 'Nearby' :
+                                       func.type === 'dday' ? 'Countdown' :
+                                       'Status'}
+                                    </div>
+                                    <div className="text-sm font-medium text-white">
+                                      {func.type === 'news' ? '5 new articles' :
+                                       func.type === 'music' ? 'Chill Jazz Playlist' :
+                                       func.type === 'alarm' ? '7:30 AM' :
+                                       func.type === 'expense' ? '₩34,500' :
+                                       func.type === 'diary' ? 'Good day today...' :
+                                       func.type === 'stocks' ? '+1.2%' :
+                                       func.type === 'commute' ? '35 min' :
+                                       func.type === 'food' ? '12 restaurants' :
+                                       func.type === 'dday' ? 'D-156' :
+                                       'Active'}
+                                    </div>
+                                    <div className="text-xs text-gray-400">
+                                      {func.type === 'news' ? 'Updated 10 min ago' :
+                                       func.type === 'music' ? '3 recommendations' :
+                                       func.type === 'alarm' ? 'Tomorrow' :
+                                       func.type === 'expense' ? '5 transactions' :
+                                       func.type === 'diary' ? '2 hours ago' :
+                                       func.type === 'stocks' ? 'Market open' :
+                                       func.type === 'commute' ? 'Light traffic' :
+                                       func.type === 'food' ? 'Within 1km' :
+                                       func.type === 'dday' ? 'New Year 2026' :
+                                       'Last updated'}
+                                    </div>
+                                  </>
+                                ) : (
+                                  // Show inactive function
+                                  <div className="text-xs text-gray-500 mb-1">Inactive</div>
+                                )}
+                              </div>
+                              
+                              {/* Premium Overlay */}
+                              {needsUpgrade && (
+                                <div className="absolute inset-0 bg-black/70 backdrop-blur-sm rounded-lg flex flex-col items-center justify-center">
+                                  <div className="text-yellow-400 text-lg mb-1">🔒</div>
+                                  <div className="text-xs font-medium text-yellow-400 mb-2">Pro Feature</div>
+                                  <Link href="/pricing">
+                                    <button className="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 text-white text-xs rounded-lg font-medium transition-colors">
+                                      Upgrade
+                                    </button>
+                                  </Link>
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
                       </div>
-                      <div className="text-lg font-bold text-white">3:45 PM</div>
-                      <div className="text-xs text-gray-400">Thursday, Jan 31</div>
-                    </div>
-                    
-                    {/* Music */}
-                    <div className="bg-gray-800/50 rounded-lg p-4 hover:bg-gray-800/70 transition-colors">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center">
-                          <span className="text-lg">🎵</span>
-                        </div>
-                        <div className="min-w-0">
-                          <div className="font-medium text-white text-sm">Music</div>
-                        </div>
-                      </div>
-                      <div className="text-xs text-gray-400 mb-1">Now Playing</div>
-                      <div className="text-sm font-medium text-white truncate">Chill Jazz Playlist</div>
-                      <div className="text-xs text-gray-400">3 recommendations</div>
-                    </div>
-                    
-                    {/* News */}
-                    <div className="bg-gray-800/50 rounded-lg p-4 hover:bg-gray-800/70 transition-colors">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-8 h-8 bg-red-600/20 rounded-lg flex items-center justify-center">
-                          <span className="text-lg">📰</span>
-                        </div>
-                        <div className="min-w-0">
-                          <div className="font-medium text-white text-sm">News</div>
-                        </div>
-                      </div>
-                      <div className="text-xs text-gray-400 mb-1">Headlines</div>
-                      <div className="text-sm font-medium text-white">5 new articles</div>
-                      <div className="text-xs text-gray-400">Updated 10 min ago</div>
-                    </div>
-                    
-                    {/* Expense Tracker */}
-                    <div className="bg-gray-800/50 rounded-lg p-4 hover:bg-gray-800/70 transition-colors">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-8 h-8 bg-yellow-600/20 rounded-lg flex items-center justify-center">
-                          <span className="text-lg">💰</span>
-                        </div>
-                        <div className="min-w-0">
-                          <div className="font-medium text-white text-sm">Expense</div>
-                        </div>
-                      </div>
-                      <div className="text-xs text-gray-400 mb-1">Today</div>
-                      <div className="text-sm font-medium text-white">₩34,500</div>
-                      <div className="text-xs text-gray-400">5 transactions</div>
-                    </div>
-                    
-                    {/* Stocks */}
-                    <div className="bg-gray-800/50 rounded-lg p-4 hover:bg-gray-800/70 transition-colors">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-8 h-8 bg-indigo-600/20 rounded-lg flex items-center justify-center">
-                          <span className="text-lg">📈</span>
-                        </div>
-                        <div className="min-w-0">
-                          <div className="font-medium text-white text-sm">Stocks</div>
-                        </div>
-                      </div>
-                      <div className="text-xs text-gray-400 mb-1">KOSPI</div>
-                      <div className="text-sm font-medium text-green-400">+1.2%</div>
-                      <div className="text-xs text-gray-400">Market open</div>
-                    </div>
-                  </div>
-                  
-                  {/* View All Functions Button */}
-                  <button 
-                    className="w-full flex items-center justify-center gap-2 p-3 bg-gray-800/50 hover:bg-gray-800/70 rounded-lg transition-colors border border-gray-700/50"
-                  >
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                    </svg>
-                    <span className="font-medium text-gray-300">Manage All Functions</span>
-                  </button>
+                      
+                      {/* View All Functions Button */}
+                      <Link href="/settings/mini-functions">
+                        <button className="w-full flex items-center justify-center gap-2 p-3 bg-gray-800/50 hover:bg-gray-800/70 rounded-lg transition-colors border border-gray-700/50">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                          </svg>
+                          <span className="font-medium text-gray-300">Manage All Functions</span>
+                        </button>
+                      </Link>
+                    </>
+                  )}
                 </div>
 
                 {/* Function Stats */}
@@ -394,26 +431,38 @@ function HomeContent() {
                       <div className="flex items-center gap-4 text-sm">
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                          <span className="text-white font-medium">6</span>
+                          <span className="text-white font-medium">{enabledFunctions.length}</span>
                           <span className="text-gray-400">active</span>
                         </div>
                         <div className="w-px h-4 bg-gray-600"></div>
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                          <span className="text-white font-medium">12</span>
+                          <span className="text-white font-medium">{availableFunctions.length}</span>
                           <span className="text-gray-400">available</span>
                         </div>
                         <div className="w-px h-4 bg-gray-600"></div>
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                          <span className="text-white font-medium">24</span>
-                          <span className="text-gray-400">updates</span>
+                          <span className="text-white font-medium">{currentPlan === 'premium' ? '∞' : currentPlan === 'pro' ? '4' : '0'}</span>
+                          <span className="text-gray-400">limit</span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-green-600/10 rounded-lg">
-                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                      <span className="text-green-400 text-xs font-medium">Running</span>
+                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg ${
+                      currentPlan === 'premium' ? 'bg-purple-600/10' :
+                      currentPlan === 'pro' ? 'bg-blue-600/10' :
+                      'bg-gray-600/10'
+                    }`}>
+                      <div className={`w-2 h-2 rounded-full animate-pulse ${
+                        currentPlan === 'premium' ? 'bg-purple-400' :
+                        currentPlan === 'pro' ? 'bg-blue-400' :
+                        'bg-gray-400'
+                      }`}></div>
+                      <span className={`text-xs font-medium capitalize ${
+                        currentPlan === 'premium' ? 'text-purple-400' :
+                        currentPlan === 'pro' ? 'text-blue-400' :
+                        'text-gray-400'
+                      }`}>{currentPlan}</span>
                     </div>
                   </div>
                 </div>
@@ -669,7 +718,8 @@ function HomeContent() {
           </footer>
         </div>
       </div>
-    </ContentProvider>
+      </ContentProvider>
+    </TodayTodosProvider>
   )
 }
 

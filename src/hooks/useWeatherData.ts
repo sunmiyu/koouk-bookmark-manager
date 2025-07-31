@@ -39,7 +39,7 @@ interface CachedWeatherData extends WeatherData {
 
 const CACHE_DURATION = 6 * 60 * 60 * 1000 // 6시간
 
-export default function WeatherOnly() {
+export function useWeatherData() {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -158,18 +158,17 @@ export default function WeatherOnly() {
         current: data.temperature,
         min: Math.min(data.morning, data.afternoon, data.evening),
         max: Math.max(data.morning, data.afternoon, data.evening),
-        morning: data.morning,        // 실제 아침 8시 예보
-        afternoon: data.afternoon,    // 실제 오후 1시 예보
-        evening: data.evening,        // 실제 오후 7시 예보
+        morning: data.morning,
+        afternoon: data.afternoon,
+        evening: data.evening,
         description: data.description,
         icon: data.icon
       },
-      hourlyData: data.hourlyData,   // 시간별 온도 데이터
+      hourlyData: data.hourlyData,
       lastUpdated: Date.now(),
-      debug: data.debug // 디버깅 정보 포함
+      debug: data.debug
     }
   }, [])
-
 
   // 날씨 데이터 로드 (사용자 위치 기반)  
   const loadWeatherData = useCallback(async () => {
@@ -190,7 +189,8 @@ export default function WeatherOnly() {
       
       // API 호출
       const weatherData = await fetchWeatherData()
-      console.log('Weather Debug:', weatherData.debug) // 디버깅 정보 출력
+      console.log('Weather Debug:', weatherData.debug)
+      console.log('Hourly Data:', weatherData.hourlyData)
       setWeatherData(weatherData)
       setCachedWeatherData(weatherData)
       
@@ -198,11 +198,11 @@ export default function WeatherOnly() {
       console.error('날씨 데이터 로드 실패:', error)
       setError(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다')
       
-      // 기본값 설정 (실제 예보 형식)
+      // 기본값 설정
       setWeatherData({
         location: { city: 'Seoul', country: 'KR', lat: 37.5665, lon: 126.9780 },
         weather: { current: 8, min: 6, max: 12, morning: 6, afternoon: 12, evening: 7, description: '맑음', icon: '01d' },
-        hourlyData: [], // 기본값은 빈 배열
+        hourlyData: [],
         lastUpdated: Date.now(),
         debug: {
           today: new Date().toISOString().split('T')[0],
@@ -225,32 +225,5 @@ export default function WeatherOnly() {
     return () => clearInterval(weatherInterval)
   }, [loadWeatherData])
 
-  return (
-    <div className="flex items-center gap-1">
-      {loading ? (
-        <span className="text-gray-500 text-sm">로딩</span>
-      ) : error ? (
-        <span className="text-red-400 text-sm">오류</span>
-      ) : (
-        <div className="flex items-center gap-1 text-sm">
-          <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
-            <circle cx="12" cy="12" r="5"/>
-          </svg>
-          <span>{weatherData?.weather.morning}°</span>
-          <span className="text-gray-500">|</span>
-          <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
-            <circle cx="12" cy="12" r="5"/>
-          </svg>
-          <span>{weatherData?.weather.afternoon}°</span>
-          <span className="text-gray-500">|</span>
-          <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-          </svg>
-          <span>{weatherData?.weather.evening}°</span>
-        </div>
-      )}
-    </div>
-  )
+  return { weatherData, loading, error, refetch: loadWeatherData }
 }

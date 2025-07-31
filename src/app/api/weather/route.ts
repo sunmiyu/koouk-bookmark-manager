@@ -15,6 +15,11 @@ interface WeatherResponse {
   evening: number
   description: string
   icon: string
+  hourlyData: {
+    time: string
+    temperature: number
+    hour: number
+  }[]
   debug: {
     today: string
     morningTime: string
@@ -159,7 +164,39 @@ export async function GET(request: NextRequest) {
       currentTemp = Math.round(currentWeatherData.main.temp)
     }
     
-    // Return weather data with specific time forecasts
+    // Generate hourly data for temperature graph (current time ±6 hours)
+    const now = new Date()
+    const nowKST = new Date(now.getTime() + (kstOffset * 60 * 1000))
+    const currentHour = nowKST.getHours()
+    
+    // Get data points around current time (±8 hours to get good coverage)
+    const hourlyData = forecastData.list
+      .map((item: any) => {
+        const itemTime = new Date(item.dt * 1000)
+        const itemTimeKST = new Date(itemTime.getTime() + (kstOffset * 60 * 1000))
+        const itemHour = itemTimeKST.getHours()
+        const hourDiff = Math.abs(itemHour - currentHour)
+        
+        return {
+          ...item,
+          itemTimeKST,
+          itemHour,
+          hourDiff
+        }
+      })
+      .filter((item: any) => {
+        // Include items within ±8 hours or same day
+        return item.hourDiff <= 8 || item.itemTimeKST.toDateString() === nowKST.toDateString()
+      })
+      .sort((a: any, b: any) => a.itemTimeKST.getTime() - b.itemTimeKST.getTime())
+      .slice(0, 15) // Limit to ~15 points max
+      .map((item: any) => ({
+        time: item.dt_txt,
+        temperature: Math.round(item.main.temp),
+        hour: item.itemHour
+      }))
+
+    // Return weather data with specific time forecasts and hourly data
     const responseData = {
       location: forecastData.city.name,
       temperature: currentTemp,
@@ -168,6 +205,7 @@ export async function GET(request: NextRequest) {
       evening: eveningWeather ? Math.round(eveningWeather.main.temp) : currentTemp,
       description: morningWeather ? morningWeather.weather[0].description : 'Clear',
       icon: morningWeather ? morningWeather.weather[0].icon : '01d',
+      hourlyData: hourlyData,
       debug: {
         today: today,
         morningTime: morningWeather?.dt_txt || 'not found',

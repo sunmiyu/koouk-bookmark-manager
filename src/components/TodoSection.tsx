@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { todosService } from '@/lib/supabase-services'
 import { supabase } from '@/lib/supabase'
 import { Database } from '@/types/database'
+import { useTodayTodos } from '@/contexts/TodayTodosContext'
 
 type TodoRow = Database['public']['Tables']['todo_items']['Row']
 type TodoInsert = Database['public']['Tables']['todo_items']['Insert']
@@ -32,6 +33,7 @@ export default function TodoSection() {
   const [showHistory, setShowHistory] = useState(false)
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<{ id: string } | null>(null)
+  const { todayTodos, addTodo, toggleTodo, deleteTodo } = useTodayTodos()
   
   // 현재 날짜 기준으로 미래 7일
   const getFutureDates = () => {
@@ -173,9 +175,21 @@ export default function TodoSection() {
     return { month, day, weekday }
   }
 
-  const addTodo = async (dateStr: string) => {
+  const addTodoLocal = async (dateStr: string) => {
     const text = newTodoText[dateStr]?.trim()
-    if (!text || !user) return
+    if (!text) return
+
+    // If it's today's date, use the context function for synchronization
+    if (isToday(dateStr)) {
+      addTodo(text)
+      setNewTodoText(prev => ({ ...prev, [dateStr]: '' }))
+      setRepeatSettings(prev => ({ ...prev, [dateStr]: { type: 'none' } }))
+      setShowRepeatOptions(prev => ({ ...prev, [dateStr]: false }))
+      return
+    }
+
+    // For other dates, use the original logic
+    if (!user) return
 
     try {
       const repeat = repeatSettings[dateStr] || { type: 'none' }
@@ -271,7 +285,7 @@ export default function TodoSection() {
 
   const handleKeyPress = (e: React.KeyboardEvent, dateStr: string) => {
     if (e.key === 'Enter') {
-      addTodo(dateStr)
+      addTodoLocal(dateStr)
     }
   }
 
@@ -289,6 +303,14 @@ export default function TodoSection() {
     const { month, day, weekday } = formatDate(card.date)
     const todayCard = isToday(card.date)
     const pastCard = isPast(card.date)
+    
+    // For today's card, use synchronized todos from context
+    const displayTodos = todayCard ? todayTodos.map(todo => ({
+      id: todo.id,
+      text: todo.text,
+      completed: todo.completed,
+      date: card.date
+    })) : card.todos
     
     return (
       <div key={card.date} className={`bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 w-full transition-all duration-200 hover:bg-gray-800/70 ${
@@ -308,15 +330,23 @@ export default function TodoSection() {
         </div>
         
         <div className="space-y-1 mb-2">
-          {card.todos.length === 0 ? (
-            <div></div>
+          {displayTodos.length === 0 ? (
+            <div className="text-sm text-gray-400 text-center py-2">
+              {todayCard ? 'No todos for today' : ''}
+            </div>
           ) : (
-            card.todos.map((todo) => (
+            displayTodos.map((todo) => (
               <div key={todo.id} className="flex items-center gap-3 group p-2 rounded-lg hover:bg-gray-700/30 transition-colors">
                 <input
                   type="checkbox"
                   checked={todo.completed}
-                  onChange={isHistoryCard ? undefined : () => toggleTodo(card.date, todo.id)}
+                  onChange={isHistoryCard ? undefined : () => {
+                    if (todayCard) {
+                      toggleTodo(todo.id) // Use context function for today's todos
+                    } else {
+                      toggleTodo(card.date, todo.id) // Use original function for other dates
+                    }
+                  }}
                   disabled={isHistoryCard}
                   className="rounded w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-offset-0 flex-shrink-0"
                 />
@@ -334,7 +364,13 @@ export default function TodoSection() {
                 </span>
                 {!isHistoryCard && (
                   <button
-                    onClick={() => deleteTodo(card.date, todo.id)}
+                    onClick={() => {
+                      if (todayCard) {
+                        deleteTodo(todo.id) // Use context function for today's todos
+                      } else {
+                        deleteTodo(card.date, todo.id) // Use original function for other dates
+                      }
+                    }}
                     className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center transition-all text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded flex-shrink-0"
                   >
                     ✕
@@ -375,7 +411,7 @@ export default function TodoSection() {
                 ↻
               </button>
               <button 
-                onClick={() => addTodo(card.date)}
+                onClick={() => addTodoLocal(card.date)}
                 className="w-9 h-9 flex items-center justify-center bg-blue-600/20 text-blue-400 rounded-lg hover:bg-blue-600 hover:text-white transition-all flex-shrink-0 text-sm font-medium shadow-sm"
                 title="Add todo"
               >

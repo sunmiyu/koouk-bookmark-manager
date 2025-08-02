@@ -9,6 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { MiniFunctionsProvider } from "@/contexts/MiniFunctionsContext";
 import { ContentProvider } from "@/contexts/ContentContext";
 import { TodoProvider } from "@/contexts/TodoContext";
+import { SearchProvider } from "@/contexts/SearchContext";
 import { Analytics } from '@vercel/analytics/react';
 import { GoogleAnalytics } from '@next/third-parties/google'
 
@@ -80,7 +81,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -90,9 +91,11 @@ export default function RootLayout({
               <MiniFunctionsProvider>
                 <ContentProvider>
                   <TodoProvider>
-                    <SecurityMonitor />
-                    {children}
-                    <CookieBanner />
+                    <SearchProvider>
+                      <SecurityMonitor />
+                      {children}
+                      <CookieBanner />
+                    </SearchProvider>
                   </TodoProvider>
                 </ContentProvider>
               </MiniFunctionsProvider>

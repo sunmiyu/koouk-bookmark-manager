@@ -13,6 +13,8 @@ import NotesSection from '@/components/NotesSection'
 import AuthButton from '@/components/AuthButton'
 import KooukLogo from '@/components/KooukLogo'
 import SearchBar from '@/components/SearchBar'
+import SearchResults from '@/components/SearchResults'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 import Link from 'next/link'
 import { ContentProvider } from '@/contexts/ContentContext'
 import SplashScreen from '@/components/SplashScreen'
@@ -22,6 +24,8 @@ import TemperatureGraph from '@/components/TemperatureGraph'
 import { useWeatherData } from '@/hooks/useWeatherData'
 import { useMiniFunctions } from '@/contexts/MiniFunctionsContext'
 import { useUserPlan } from '@/contexts/UserPlanContext'
+import { useSearch } from '@/contexts/SearchContext'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 type TabType = 'summary' | 'today' | 'dashboard' | 'contents' | 'popular'
 
@@ -31,6 +35,8 @@ function HomeContent() {
   const { weatherData } = useWeatherData()
   const { availableFunctions, enabledFunctions } = useMiniFunctions()
   const { currentPlan } = useUserPlan()
+  const { searchResults } = useSearch()
+  const { t } = useLanguage()
 
   // Simulate app initialization
   useEffect(() => {
@@ -78,14 +84,27 @@ function HomeContent() {
                       <TimeDisplay />
                     </div>
                   </div>
+                  <LanguageSwitcher compact={true} className="mr-3" />
                   <AuthButton />
                 </div>
               </div>
             </div>
           </header>
 
-          {/* Professional Tab Navigation */}
-          <div className="mb-12 mt-6">
+          {/* Search Bar */}
+          <div className="mb-8">
+            <SearchBar compactMode={true} className="max-w-full" />
+          </div>
+
+          {/* Search Results or Tab Content */}
+          {searchResults ? (
+            <div className="mb-8">
+              <SearchResults />
+            </div>
+          ) : (
+            <>
+              {/* Professional Tab Navigation */}
+              <div className="mb-12 mt-6">
             <div className="">
               <nav className="-mb-px flex items-center space-x-12" aria-label="Tabs">
                 <button
@@ -97,7 +116,7 @@ function HomeContent() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    Today
+                    {t('summary')}
                   </div>
                 </button>
                 <div className="w-px h-6 bg-gray-600"></div>
@@ -110,7 +129,7 @@ function HomeContent() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    Todos
+                    {t('todos')}
                   </div>
                 </button>
                 <div className="w-px h-6 bg-gray-600"></div>
@@ -123,7 +142,7 @@ function HomeContent() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    Mini
+                    {t('dashboard')}
                   </div>
                 </button>
                 <div className="w-px h-6 bg-gray-600"></div>
@@ -136,7 +155,7 @@ function HomeContent() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    Storage
+                    {t('contents')}
                   </div>
                 </button>
                 <div className="w-px h-6 bg-gray-600"></div>
@@ -149,7 +168,7 @@ function HomeContent() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    AI Link
+                    {t('popular')}
                   </div>
                 </button>
               </nav>
@@ -672,6 +691,8 @@ function HomeContent() {
               </div>
             )}
           </main>
+            </>
+          )}
 
           <footer className="mt-16">
             {/* Professional Footer Container */}

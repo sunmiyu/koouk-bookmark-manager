@@ -12,7 +12,9 @@ interface ContentItem {
   content?: string
   thumbnail?: string
   description?: string
+  tags?: string[]
   createdAt: string
+  updatedAt?: string
 }
 
 interface ContentContextType {
@@ -46,9 +48,11 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       title: dbItem.title || '',
       url: dbItem.url || undefined,
       content: dbItem.content || undefined,
-      thumbnail: dbItem.thumbnail_url || dbItem.file_path || undefined,
+      thumbnail: dbItem.thumbnail_url || dbItem.url || undefined,
       description: dbItem.description || undefined,
-      createdAt: dbItem.created_at ? new Date(dbItem.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+      tags: dbItem.tags || [],
+      createdAt: dbItem.created_at ? new Date(dbItem.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      updatedAt: dbItem.updated_at ? new Date(dbItem.updated_at).toISOString().split('T')[0] : undefined
     }
   }
 
@@ -155,6 +159,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
           break
           
         case 'image':
+          // For regular images (not file uploads), use the standard create method
           newDbItem = await imagesService.create({
             ...dbItem,
             file_path: item.url, // For now, treat URL as file path

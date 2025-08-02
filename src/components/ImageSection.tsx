@@ -9,7 +9,7 @@ import ImageModal from './ImageModal'
 import ImageUpload from './ImageUpload'
 
 export default function ImageSection() {
-  const { images, deleteItem, loading } = useContent()
+  const { images, deleteItem, loading, refreshData } = useContent()
   const { getStorageLimit } = useUserPlan()
   const { user } = useAuth()
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
@@ -52,7 +52,29 @@ export default function ImageSection() {
       </div>
 
       {/* Image Upload Component */}
-      {!isAtLimit && <ImageUpload />}
+      {user && !isAtLimit && (
+        <div className="mb-6">
+          <ImageUpload
+            multiple={true}
+            maxFiles={5}
+            onUploadComplete={(imageData) => {
+              console.log('Image uploaded:', imageData)
+              refreshData() // Refresh the images list
+              trackEvents.addContent('image')
+            }}
+            onUploadError={(error) => {
+              console.error('Upload error:', error)
+            }}
+            compressionOptions={{
+              maxWidth: 1920,
+              maxHeight: 1080,
+              quality: 0.8,
+              maxSizeInMB: 2,
+              outputFormat: 'webp'
+            }}
+          />
+        </div>
+      )}
       
       <div className="space-y-3 max-h-[600px] overflow-y-auto">
         {/* Render actual images */}

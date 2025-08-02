@@ -95,7 +95,7 @@ export const videosService = {
   }
 }
 
-// Images Services
+// Images Services with Storage support
 export const imagesService = {
   async getAll(userId: string) {
     const { data, error } = await supabase
@@ -108,6 +108,29 @@ export const imagesService = {
     return data
   },
 
+  async uploadImage(file: File, userId: string): Promise<{ url: string; path: string }> {
+    // Generate unique filename
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${userId}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+    
+    // Upload to Supabase Storage
+    const { error } = await supabase.storage
+      .from('images')
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false
+      })
+    
+    if (error) throw error
+    
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('images')
+      .getPublicUrl(fileName)
+    
+    return { url: publicUrl, path: fileName }
+  },
+
   async create(image: Tables['images']['Insert']) {
     const { data, error } = await supabase
       .from('images')
@@ -117,6 +140,28 @@ export const imagesService = {
     
     if (error) throw error
     return data
+  },
+
+  async createWithUpload(file: File, userId: string, metadata: { title?: string; description?: string; tags?: string[] }) {
+    try {
+      // Upload image to storage
+      const { url, path } = await this.uploadImage(file, userId)
+      
+      // Create database record
+      const imageData: Tables['images']['Insert'] = {
+        user_id: userId,
+        title: metadata.title || file.name,
+        url: url, // Store the public URL in the url field
+        file_path: path,
+        file_size: file.size,
+        mime_type: file.type
+      }
+      
+      return await this.create(imageData)
+    } catch (error) {
+      console.error('Failed to create image with upload:', error)
+      throw error
+    }
   },
 
   async update(id: string, updates: Tables['images']['Update']) {
@@ -132,10 +177,44 @@ export const imagesService = {
   },
 
   async delete(id: string) {
-    const { error } = await supabase
+    try {
+      // Get image data to find file path
+      const { data: image, error: fetchError } = await supabase
+        .from('images')
+        .select('file_path')
+        .eq('id', id)
+        .single()
+      
+      if (fetchError) throw fetchError
+      
+      // Delete from storage if file path exists
+      if (image?.file_path) {
+        const { error: storageError } = await supabase.storage
+          .from('images')
+          .remove([image.file_path])
+        
+        if (storageError) {
+          console.warn('Failed to delete image from storage:', storageError)
+        }
+      }
+      
+      // Delete from database
+      const { error } = await supabase
+        .from('images')
+        .delete()
+        .eq('id', id)
+      
+      if (error) throw error
+    } catch (error) {
+      console.error('Failed to delete image:', error)
+      throw error
+    }
+  },
+
+  async deleteImageFile(filePath: string) {
+    const { error } = await supabase.storage
       .from('images')
-      .delete()
-      .eq('id', id)
+      .remove([filePath])
     
     if (error) throw error
   }

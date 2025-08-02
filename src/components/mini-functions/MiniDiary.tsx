@@ -46,7 +46,7 @@ export default function MiniDiary({ isPreviewOnly = false, showHistoryOnly = fal
     }
 
     loadDiaryData()
-  }, [isPreviewOnly])
+  }, [isPreviewOnly]) // loadDiaryData는 의존성에서 제거 (함수 내부에서 정의됨)
 
   const loadDiaryData = useCallback(async () => {
     try {
@@ -228,6 +228,41 @@ export default function MiniDiary({ isPreviewOnly = false, showHistoryOnly = fal
     setIsEditing(false)
   }
 
+  const deleteDiaryEntry = async () => {
+    if (isPreviewOnly || !diaryData.todayEntry) return
+    
+    if (!confirm('오늘의 일기를 삭제하시겠습니까?')) return
+
+    try {
+      setLoading(true)
+      
+      if (user) {
+        // Delete from Supabase
+        await diaryService.delete(diaryData.todayEntry.id)
+      } else {
+        // Delete from localStorage
+        const saved = localStorage.getItem('koouk_diary')
+        if (saved) {
+          const allEntries = JSON.parse(saved) as DiaryEntry[]
+          const filteredEntries = allEntries.filter(entry => entry.id !== diaryData.todayEntry!.id)
+          localStorage.setItem('koouk_diary', JSON.stringify(filteredEntries))
+        }
+      }
+
+      // Update state
+      setDiaryData(prev => ({
+        todayEntry: undefined,
+        recentEntries: prev.recentEntries
+      }))
+      setCurrentText('')
+      setIsEditing(false)
+    } catch (error) {
+      console.error('Failed to delete diary entry:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const toggleExpanded = (entryId: string) => {
     if (isPreviewOnly) return
     setExpandedEntryId(expandedEntryId === entryId ? null : entryId)
@@ -358,9 +393,10 @@ export default function MiniDiary({ isPreviewOnly = false, showHistoryOnly = fal
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          /* Delete functionality */
+                          deleteDiaryEntry();
                         }}
-                        className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm"
+                        disabled={loading}
+                        className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm disabled:opacity-50"
                         title="Delete diary"
                       >
                         ✕

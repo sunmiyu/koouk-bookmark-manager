@@ -20,6 +20,13 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
     category: '',
     isImportant: false
   })
+  const [editingEvent, setEditingEvent] = useState<DDayEvent | null>(null)
+  const [editForm, setEditForm] = useState({
+    name: '',
+    targetDate: '',
+    category: '',
+    isImportant: false
+  })
 
   // 더미 데이터 생성
   const generateSampleData = (): DDayData => {
@@ -191,6 +198,60 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
     }
   }
 
+  const startEditEvent = (event: DDayEvent) => {
+    setEditingEvent(event)
+    setEditForm({
+      name: event.name,
+      targetDate: event.targetDate,
+      category: event.category,
+      isImportant: event.isImportant
+    })
+  }
+
+  const saveEditEvent = async () => {
+    if (!editingEvent || !editForm.name.trim() || !editForm.targetDate) return
+
+    try {
+      setLoading(true)
+      
+      if (user) {
+        await ddayService.update(editingEvent.id, {
+          name: editForm.name.trim(),
+          target_date: editForm.targetDate,
+          category: editForm.category || '기타',
+          is_important: editForm.isImportant
+        })
+      }
+
+      // 데이터 새로고침
+      await loadDDayData()
+      setEditingEvent(null)
+    } catch (error) {
+      console.error('Failed to update D-day event:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const deleteEvent = async (eventId: string) => {
+    if (!confirm('이 D-Day 이벤트를 삭제하시겠습니까?')) return
+
+    try {
+      setLoading(true)
+      
+      if (user) {
+        await ddayService.delete(eventId)
+      }
+
+      // 데이터 새로고침
+      await loadDDayData()
+    } catch (error) {
+      console.error('Failed to delete D-day event:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     loadDDayData()
     
@@ -249,7 +310,7 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
           {!isPreviewOnly && (
             <div className="flex gap-1 opacity-0 group-hover:opacity-100">
               <button
-                onClick={() => {/* Edit functionality */}}
+                onClick={() => startEditEvent(nextEvent)}
                 disabled={loading}
                 className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm disabled:opacity-50"
                 title="Edit D-day"
@@ -257,7 +318,7 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
                 ✎
               </button>
               <button
-                onClick={() => {/* Delete functionality */}}
+                onClick={() => deleteEvent(nextEvent.id)}
                 disabled={loading}
                 className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm disabled:opacity-50"
                 title="Delete D-day"
@@ -349,6 +410,76 @@ export default function DDayCounter({ isPreviewOnly = false }: DDayCounterProps)
             >
               취소
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {editingEvent && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold text-white mb-4">D-Day 이벤트 편집</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">이벤트 이름</label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="이벤트 이름"
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">목표 날짜</label>
+                <input
+                  type="date"
+                  value={editForm.targetDate}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, targetDate: e.target.value }))}
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">카테고리</label>
+                <input
+                  type="text"
+                  value={editForm.category}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, category: e.target.value }))}
+                  placeholder="카테고리 (예: 기념일, 개인 등)"
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="editImportant"
+                  checked={editForm.isImportant}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, isImportant: e.target.checked }))}
+                  className="mr-2"
+                />
+                <label htmlFor="editImportant" className="text-sm text-gray-300">중요 이벤트</label>
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => setEditingEvent(null)}
+                className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={saveEditEvent}
+                disabled={loading || !editForm.name.trim() || !editForm.targetDate}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? '저장 중...' : '저장'}
+              </button>
+            </div>
           </div>
         </div>
       )}

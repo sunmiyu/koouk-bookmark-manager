@@ -8,6 +8,7 @@ import { UserPlanProvider } from "@/contexts/UserPlanContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { MiniFunctionsProvider } from "@/contexts/MiniFunctionsContext";
 import { ContentProvider } from "@/contexts/ContentContext";
+import { TodoProvider } from "@/contexts/TodoContext";
 import { Analytics } from '@vercel/analytics/react';
 import { GoogleAnalytics } from '@next/third-parties/google'
 
@@ -88,9 +89,11 @@ export default function RootLayout({
             <UserPlanProvider>
               <MiniFunctionsProvider>
                 <ContentProvider>
-                  <SecurityMonitor />
-                  {children}
-                  <CookieBanner />
+                  <TodoProvider>
+                    <SecurityMonitor />
+                    {children}
+                    <CookieBanner />
+                  </TodoProvider>
                 </ContentProvider>
               </MiniFunctionsProvider>
             </UserPlanProvider>
@@ -102,13 +105,22 @@ export default function RootLayout({
         )}
         <script dangerouslySetInnerHTML={{
           __html: `
-            // Unregister existing Service Worker to prevent CSP issues
+            // Register Enhanced Service Worker for PWA
             if ('serviceWorker' in navigator) {
-              navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for(let registration of registrations) {
-                  registration.unregister();
-                  console.log('Service Worker unregistered');
-                }
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                  .then(function(registration) {
+                    console.log('Service Worker registered successfully:', registration.scope);
+                    
+                    // Enable background sync for alarms
+                    if ('sync' in window.ServiceWorkerRegistration.prototype) {
+                      registration.sync.register('alarm-check');
+                      console.log('Background sync registered for alarms');
+                    }
+                  })
+                  .catch(function(error) {
+                    console.log('Service Worker registration failed:', error);
+                  });
               });
             }
           `

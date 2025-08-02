@@ -24,6 +24,7 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
   const [isExpanded, setIsExpanded] = useState(false)
   const [newSymbol, setNewSymbol] = useState('')
   const [isAddingStock, setIsAddingStock] = useState(false)
+  const [apiSource, setApiSource] = useState<'yahoo' | 'mixed' | 'fallback'>('fallback')
 
   // 모의 주식 데이터 생성 (테스트 기간용)
   const generateMockStockData = (symbols: string[]): StockItem[] => {
@@ -64,14 +65,26 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
     })
   }
 
-  // 주식 데이터 가져오기 (테스트용 모의 데이터)
+  // 실제 주식 데이터 가져오기
   const fetchStockData = useCallback(async (symbols: string[]): Promise<StockItem[]> => {
-    // 실제 API 호출 대신 모의 데이터 반환
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(generateMockStockData(symbols))
-      }, 500) // 실제 API 호출처럼 딜레이 추가
-    })
+    try {
+      const symbolsQuery = symbols.join(',')
+      const response = await fetch(`/api/stocks?symbols=${encodeURIComponent(symbolsQuery)}`)
+      const data = await response.json()
+
+      if (data.success && data.data) {
+        setApiSource(data.source)
+        console.log('Stock API source:', data.source)
+        return data.data
+      } else {
+        throw new Error('Failed to fetch stock data')
+      }
+    } catch (error) {
+      console.error('Stock fetch error:', error)
+      // 폴백으로 모의 데이터 사용
+      setApiSource('fallback')
+      return generateMockStockData(symbols)
+    }
   }, [])
 
   // localStorage에서 관심 종목 로드
@@ -252,6 +265,35 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
 
   return (
     <div className="relative">
+      {/* API 상태 표시 */}
+      {!isPreviewOnly && (
+        <div className="flex items-center justify-between text-xs mb-2">
+          <div className="flex items-center gap-2">
+            <span className="text-gray-400">📈 주식 정보</span>
+            {apiSource === 'yahoo' || apiSource === 'mixed' ? (
+              <span className="text-green-400 flex items-center gap-1">
+                <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                실시간 데이터
+              </span>
+            ) : (
+              <span className="text-yellow-400 flex items-center gap-1">
+                <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>
+                샘플 데이터
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* API 키 안내 */}
+      {!isPreviewOnly && apiSource === 'fallback' && (
+        <div className="text-xs text-gray-500 bg-gray-800/50 p-2 rounded mb-3">
+          💡 <strong>실시간 주식 데이터</strong>를 위해 API 키를 설정하세요
+          <br />• 환경 변수: <code className="text-blue-400">ALPHA_VANTAGE_API_KEY</code>
+          <br />• 무료: Yahoo Finance 자동 사용 (제한적)
+        </div>
+      )}
+
       {/* 메인 화면: 5개 종목만 표시 */}
       <div className="space-y-2">
         {displayedStocks.map((stock) => (
@@ -262,7 +304,7 @@ export default function StockMarket({ isPreviewOnly = false }: StockMarketProps)
             </div>
             <div className="flex items-center gap-2">
               <span className="font-semibold text-white">
-                ₩{stock.price.toLocaleString()}
+                {formatPrice(stock.price, stock.currency)}
               </span>
               <span className={`text-sm font-medium ${stock.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                 {stock.change >= 0 ? '▲' : '▼'}

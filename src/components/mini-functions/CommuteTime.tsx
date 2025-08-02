@@ -155,7 +155,7 @@ export default function CommuteTime({ isPreviewOnly = false, onTrafficStatusChan
       console.log('CommuteTime: 로딩 완료')
       setLoading(false)
     }
-  }, [isPreviewOnly])
+  }, [isPreviewOnly, previewData])
 
   // Add new route
   const addRoute = async () => {

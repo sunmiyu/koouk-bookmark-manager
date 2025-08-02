@@ -46,6 +46,7 @@ export default function MusicRecommendations({ isPreviewOnly = false }: MusicRec
   const [selectedMood, setSelectedMood] = useState<MoodType>('relax')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [apiSource, setApiSource] = useState<'youtube' | 'fallback'>('fallback')
 
   // 음악 추천 API 호출
   const fetchRecommendations = useCallback(async (mood: MoodType) => {
@@ -79,6 +80,8 @@ export default function MusicRecommendations({ isPreviewOnly = false }: MusicRec
 
       if (data.success) {
         setRecommendations(data.recommendations)
+        setApiSource(data.source || 'fallback')
+        console.log('Music API source:', data.source)
       } else {
         throw new Error('음악 추천을 가져오는데 실패했습니다')
       }
@@ -131,22 +134,52 @@ export default function MusicRecommendations({ isPreviewOnly = false }: MusicRec
 
   return (
     <div className="space-y-3">
-      {/* Mood 선택 */}
+      {/* API 상태 및 Mood 선택 */}
       {!isPreviewOnly && (
-        <div className="flex flex-wrap gap-1">
-          {MOOD_OPTIONS.map((mood) => (
-            <button
-              key={mood.value}
-              onClick={() => handleMoodChange(mood.value)}
-              className={`px-2 py-1 rounded-full text-xs transition-colors ${
-                selectedMood === mood.value
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-            >
-              {mood.emoji} {mood.label}
-            </button>
-          ))}
+        <div className="space-y-2">
+          {/* API 상태 표시 */}
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2">
+              <span className="text-gray-400">🎵 음악 추천</span>
+              {apiSource === 'youtube' ? (
+                <span className="text-green-400 flex items-center gap-1">
+                  <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                  YouTube API 연결됨
+                </span>
+              ) : (
+                <span className="text-yellow-400 flex items-center gap-1">
+                  <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>
+                  샘플 데이터 사용 중
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* YouTube API 키 안내 */}
+          {apiSource === 'fallback' && (
+            <div className="text-xs text-gray-500 bg-gray-800/50 p-2 rounded">
+              💡 <strong>실시간 음악 추천</strong>을 위해 YouTube API 키를 설정하세요
+              <br />• 환경 변수: <code className="text-blue-400">YOUTUBE_API_KEY</code>
+              <br />• 설정 후 더 다양한 음악 추천이 가능합니다
+            </div>
+          )}
+
+          {/* Mood 선택 */}
+          <div className="flex flex-wrap gap-1">
+            {MOOD_OPTIONS.map((mood) => (
+              <button
+                key={mood.value}
+                onClick={() => handleMoodChange(mood.value)}
+                className={`px-2 py-1 rounded-full text-xs transition-colors ${
+                  selectedMood === mood.value
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                }`}
+              >
+                {mood.emoji} {mood.label}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 

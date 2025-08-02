@@ -39,7 +39,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth()
 
   // Transform database items to ContentItem format
-  const transformDbItem = (dbItem: any, type: ContentItem['type']): ContentItem => {
+  const transformDbItem = (dbItem: any, type: ContentItem['type']): ContentItem => { // eslint-disable-line @typescript-eslint/no-explicit-any
     return {
       id: dbItem.id,
       type,
@@ -96,7 +96,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   // Load content when user changes
   useEffect(() => {
     loadAllContent()
-  }, [user])
+  }, [user]) // loadAllContent는 의존성에서 제거 (함수 내부에서 정의됨)
 
   const addItem = async (item: Omit<ContentItem, 'id' | 'createdAt'>) => {
     if (!user) {

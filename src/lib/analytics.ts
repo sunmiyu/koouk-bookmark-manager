@@ -29,7 +29,7 @@ export const event = ({ action, category, label, value }: {
 // Koouk 전용 이벤트들
 export const trackEvents = {
   // 컨텐츠 추가
-  addContent: (type: 'video' | 'link' | 'image' | 'note') => {
+  addContent: (type: 'video' | 'link' | 'image' | 'note' | 'todo') => {
     event({
       action: 'add_content',
       category: 'Content',

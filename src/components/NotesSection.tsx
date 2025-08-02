@@ -7,12 +7,54 @@ import { trackEvents } from '@/lib/analytics'
 import NoteModal from './NoteModal'
 
 export default function NotesSection() {
-  const { notes, deleteItem, loading } = useContent()
+  const { notes, deleteItem, updateItem } = useContent()
   const { getStorageLimit } = useUserPlan()
   const [selectedNote, setSelectedNote] = useState<{ title: string; content: string } | null>(null)
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
+  const [bulkMode, setBulkMode] = useState(false)
 
   const limit = getStorageLimit()
   const isAtLimit = notes.length >= limit
+
+  const toggleBulkMode = () => {
+    setBulkMode(!bulkMode)
+    setSelectedItems(new Set())
+  }
+
+  const toggleSelectItem = (id: string) => {
+    const newSelected = new Set(selectedItems)
+    if (newSelected.has(id)) {
+      newSelected.delete(id)
+    } else {
+      newSelected.add(id)
+    }
+    setSelectedItems(newSelected)
+  }
+
+  const selectAll = () => {
+    setSelectedItems(new Set(notes.map(note => note.id)))
+  }
+
+  const clearSelection = () => {
+    setSelectedItems(new Set())
+  }
+
+  const bulkDelete = async () => {
+    if (selectedItems.size === 0) return
+    
+    if (confirm(`선택된 ${selectedItems.size}개의 노트를 삭제하시겠습니까?`)) {
+      try {
+        await Promise.all(
+          Array.from(selectedItems).map(id => deleteItem(id, 'note'))
+        )
+        setSelectedItems(new Set())
+        setBulkMode(false)
+      } catch (error) {
+        console.error('Bulk delete failed:', error)
+        alert('일부 항목 삭제에 실패했습니다.')
+      }
+    }
+  }
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
@@ -31,36 +73,122 @@ export default function NotesSection() {
             <span className={notes.length >= limit ? 'text-yellow-400' : ''}>{notes.length}</span>
             <span className="text-gray-500">/{limit === Infinity ? '∞' : limit}</span>
           </div>
+          {notes.length > 1 && (
+            <button
+              onClick={toggleBulkMode}
+              className={`px-2 py-1 text-xs rounded transition-colors ${
+                bulkMode 
+                  ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                  : 'bg-gray-600 hover:bg-gray-700 text-gray-300'
+              }`}
+            >
+              {bulkMode ? '완료' : '다중선택'}
+            </button>
+          )}
           <button className="px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded text-xs transition-colors">
             + New
           </button>
         </div>
       </div>
+
+      {/* Bulk operation controls */}
+      {bulkMode && (
+        <div className="mb-4 p-3 bg-gray-800 rounded-lg border border-gray-600">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-300">
+                {selectedItems.size}개 선택됨
+              </span>
+              <div className="flex gap-2">
+                <button
+                  onClick={selectAll}
+                  className="text-xs text-blue-400 hover:text-blue-300"
+                >
+                  전체선택
+                </button>
+                <button
+                  onClick={clearSelection}
+                  className="text-xs text-gray-400 hover:text-gray-300"
+                >
+                  선택해제
+                </button>
+              </div>
+            </div>
+            <button
+              onClick={bulkDelete}
+              disabled={selectedItems.size === 0}
+              className="px-3 py-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:opacity-50 text-white text-xs rounded transition-colors"
+            >
+              삭제 ({selectedItems.size})
+            </button>
+          </div>
+        </div>
+      )}
       
       <div className="space-y-3 max-h-[800px] overflow-y-auto">
         {/* Render actual notes */}
-        {notes.map((note) => (
-          <div 
-            key={note.id} 
-            className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
-            onClick={() => {
-              trackEvents.openModal('note')
-              setSelectedNote({ title: note.title, content: note.content || '' })
-            }}
-          >
-            {/* Delete button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                if (confirm('이 노트를 삭제하시겠습니까?')) {
-                  deleteItem(note.id, 'note')
+        {notes.map((note) => {
+          const isSelected = selectedItems.has(note.id)
+          return (
+            <div 
+              key={note.id} 
+              className={`bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border group relative ${
+                isSelected ? 'border-blue-500 bg-blue-900/20' : 'border-gray-700'
+              }`}
+              onClick={() => {
+                if (bulkMode) {
+                  toggleSelectItem(note.id)
+                } else {
+                  trackEvents.openModal('note')
+                  setSelectedNote({ title: note.title, content: note.content || '' })
                 }
               }}
-              className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors opacity-0 group-hover:opacity-100 text-sm z-10"
-              title="Delete note"
             >
-              ✕
-            </button>
+            {/* Bulk selection checkbox */}
+            {bulkMode && (
+              <div className="absolute top-2 left-2 z-10">
+                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                  isSelected 
+                    ? 'bg-blue-600 border-blue-600' 
+                    : 'border-gray-400 bg-gray-700'
+                }`}>
+                  {isSelected && (
+                    <span className="text-white text-xs">✓</span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Edit and Delete buttons */}
+            <div className={`absolute top-2 right-2 flex gap-1 z-10 ${
+              bulkMode ? 'hidden' : 'opacity-0 group-hover:opacity-100'
+            }`}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  const newTitle = prompt('노트 제목을 수정하세요:', note.title)
+                  if (newTitle && newTitle.trim() !== note.title) {
+                    updateItem(note.id, 'note', { title: newTitle.trim() })
+                  }
+                }}
+                className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm"
+                title="Edit note"
+              >
+                ✎
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (confirm('이 노트를 삭제하시겠습니까?')) {
+                    deleteItem(note.id, 'note')
+                  }
+                }}
+                className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm"
+                title="Delete note"
+              >
+                ✕
+              </button>
+            </div>
             <div className="flex items-start responsive-gap-sm">
               <div className="w-6 h-6 bg-purple-500 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5">
                 <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,7 +204,8 @@ export default function NotesSection() {
               </div>
             </div>
           </div>
-        ))}
+          )
+        })}
         
         {/* Add sample data if empty */}
         {notes.length === 0 && (

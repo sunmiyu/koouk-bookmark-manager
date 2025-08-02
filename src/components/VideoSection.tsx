@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useContent } from '@/contexts/ContentContext'
 import { useUserPlan } from '@/contexts/UserPlanContext'
 import { trackEvents } from '@/lib/analytics'
@@ -15,47 +16,177 @@ const getYouTubeThumbnail = (url: string): string => {
 }
 
 export default function VideoSection() {
-  const { videos, deleteItem, loading } = useContent()
+  const { videos, deleteItem, updateItem } = useContent()
   const { getStorageLimit } = useUserPlan()
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
+  const [bulkMode, setBulkMode] = useState(false)
 
   const limit = getStorageLimit()
   const isAtLimit = videos.length >= limit
-  
+
+  const toggleBulkMode = () => {
+    setBulkMode(!bulkMode)
+    setSelectedItems(new Set())
+  }
+
+  const toggleSelectItem = (id: string) => {
+    const newSelected = new Set(selectedItems)
+    if (newSelected.has(id)) {
+      newSelected.delete(id)
+    } else {
+      newSelected.add(id)
+    }
+    setSelectedItems(newSelected)
+  }
+
+  const selectAll = () => {
+    setSelectedItems(new Set(videos.map(video => video.id)))
+  }
+
+  const clearSelection = () => {
+    setSelectedItems(new Set())
+  }
+
+  const bulkDelete = async () => {
+    if (selectedItems.size === 0) return
+    
+    if (confirm(`선택된 ${selectedItems.size}개의 비디오를 삭제하시겠습니까?`)) {
+      try {
+        await Promise.all(
+          Array.from(selectedItems).map(id => deleteItem(id, 'video'))
+        )
+        setSelectedItems(new Set())
+        setBulkMode(false)
+      } catch (error) {
+        console.error('Bulk delete failed:', error)
+        alert('일부 항목 삭제에 실패했습니다.')
+      }
+    }
+  }
   return (
     <div className="h-full">
       <div className="flex items-center justify-between mb-4">
         <h3 className="responsive-text-lg font-semibold text-red-400">Videos</h3>
-        <div className="text-xs text-gray-400">
-          <span className={videos.length >= limit ? 'text-yellow-400' : ''}>{videos.length}</span>
-          <span className="text-gray-500">/{limit === Infinity ? '∞' : limit}</span>
+        <div className="flex items-center gap-3">
+          <div className="text-xs text-gray-400">
+            <span className={videos.length >= limit ? 'text-yellow-400' : ''}>{videos.length}</span>
+            <span className="text-gray-500">/{limit === Infinity ? '∞' : limit}</span>
+          </div>
+          {videos.length > 1 && (
+            <button
+              onClick={toggleBulkMode}
+              className={`px-2 py-1 text-xs rounded transition-colors ${
+                bulkMode 
+                  ? 'bg-red-600 hover:bg-red-700 text-white' 
+                  : 'bg-gray-600 hover:bg-gray-700 text-gray-300'
+              }`}
+            >
+              {bulkMode ? '완료' : '다중선택'}
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Bulk operation controls */}
+      {bulkMode && (
+        <div className="mb-4 p-3 bg-gray-800 rounded-lg border border-gray-600">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-300">
+                {selectedItems.size}개 선택됨
+              </span>
+              <div className="flex gap-2">
+                <button
+                  onClick={selectAll}
+                  className="text-xs text-blue-400 hover:text-blue-300"
+                >
+                  전체선택
+                </button>
+                <button
+                  onClick={clearSelection}
+                  className="text-xs text-gray-400 hover:text-gray-300"
+                >
+                  선택해제
+                </button>
+              </div>
+            </div>
+            <button
+              onClick={bulkDelete}
+              disabled={selectedItems.size === 0}
+              className="px-3 py-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:opacity-50 text-white text-xs rounded transition-colors"
+            >
+              삭제 ({selectedItems.size})
+            </button>
+          </div>
+        </div>
+      )}
       <div className="space-y-3 max-h-[800px] overflow-y-auto">
         {/* Render actual videos */}
         {videos.map((video) => {
           const thumbnailUrl = video.url ? getYouTubeThumbnail(video.url) : ''
+          const isSelected = selectedItems.has(video.id)
           return (
             <div 
               key={video.id} 
-              className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
+              className={`bg-gray-800 hover:bg-gray-700 transition-colors rounded-lg responsive-p-sm border group relative ${
+                bulkMode ? 'cursor-pointer' : 'cursor-pointer'
+              } ${
+                isSelected ? 'border-blue-500 bg-blue-900/20' : 'border-gray-700'
+              }`}
               onClick={() => {
-                trackEvents.clickExternalLink(video.url || '')
-                window.open(video.url, '_blank')
+                if (bulkMode) {
+                  toggleSelectItem(video.id)
+                } else {
+                  trackEvents.clickExternalLink(video.url || '')
+                  window.open(video.url, '_blank')
+                }
               }}
             >
-              {/* Delete button */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  if (confirm('이 비디오를 삭제하시겠습니까?')) {
-                    deleteItem(video.id, 'video')
-                  }
-                }}
-                className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors opacity-0 group-hover:opacity-100 text-sm z-10"
-                title="Delete video"
-              >
-                ✕
-              </button>
+              {/* Bulk selection checkbox */}
+              {bulkMode && (
+                <div className="absolute top-2 left-2 z-10">
+                  <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                    isSelected 
+                      ? 'bg-blue-600 border-blue-600' 
+                      : 'border-gray-400 bg-gray-700'
+                  }`}>
+                    {isSelected && (
+                      <span className="text-white text-xs">✓</span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Edit and Delete buttons */}
+              <div className={`absolute top-2 right-2 flex gap-1 z-10 ${
+                bulkMode ? 'hidden' : 'opacity-0 group-hover:opacity-100'
+              }`}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    const newTitle = prompt('비디오 제목을 수정하세요:', video.title)
+                    if (newTitle && newTitle.trim() !== video.title) {
+                      updateItem(video.id, 'video', { title: newTitle.trim() })
+                    }
+                  }}
+                  className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm"
+                  title="Edit video"
+                >
+                  ✎
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (confirm('이 비디오를 삭제하시겠습니까?')) {
+                      deleteItem(video.id, 'video')
+                    }
+                  }}
+                  className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm"
+                  title="Delete video"
+                >
+                  ✕
+                </button>
+              </div>
               <div className="flex items-start responsive-gap-sm">
                 <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden relative">
                   {thumbnailUrl ? (

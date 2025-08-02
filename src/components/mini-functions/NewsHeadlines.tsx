@@ -12,6 +12,9 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null)
+  const [currentRegion, setCurrentRegion] = useState<string>('kr')
+  const [availableRegions, setAvailableRegions] = useState<string[]>(['kr'])
 
   // Real news data with actual links - memoized to prevent re-renders
   const sampleNews: NewsItem[] = useMemo(() => [
@@ -80,6 +83,8 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
   useEffect(() => {
     const fetchNews = async () => {
       setLoading(true)
+      setError(null)
+      
       try {
         if (isPreviewOnly) {
           // For preview, use sample data
@@ -88,20 +93,41 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
             setLoading(false)
           }, 1000)
         } else {
-          // For real implementation, this would fetch from RSS or API
-          // For now, use sample data with longer list (10 news items)
-          setTimeout(() => {
+          // Fetch real RSS news from API
+          const response = await fetch('/api/news/rss')
+          const data = await response.json()
+          
+          if (data.success && data.items) {
+            setNews(data.items)
+            setLastUpdated(data.lastUpdated)
+            setCurrentRegion(data.region || 'kr')
+            setAvailableRegions(data.availableRegions || ['kr'])
+            console.log(`Loaded ${data.items.length} news items from RSS (region: ${data.region})`)
+          } else {
+            // Fallback to sample news if API fails
+            console.warn('RSS API failed, using sample news:', data.error)
             setNews(sampleNews)
-            setLoading(false)
-          }, 1500)
+            setLastUpdated(new Date().toISOString())
+          }
+          setLoading(false)
         }
-      } catch {
-        setError('Failed to load news')
+      } catch (fetchError) {
+        console.error('Failed to fetch news:', fetchError)
+        // Use sample data as fallback
+        setNews(sampleNews)
+        setLastUpdated(new Date().toISOString())
+        setError('Using cached news (RSS unavailable)')
         setLoading(false)
       }
     }
 
     fetchNews()
+    
+    // Refresh news every 30 minutes for real users
+    if (!isPreviewOnly) {
+      const interval = setInterval(fetchNews, 30 * 60 * 1000)
+      return () => clearInterval(interval)
+    }
   }, [isPreviewOnly, sampleNews])
 
   // Auto-rolling news headlines
@@ -132,6 +158,48 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
     return news.slice(currentIndex).concat(news.slice(0, endIndex - news.length))
   }, [news, currentIndex, isPreviewOnly])
 
+  const manualRefresh = async (region?: string) => {
+    if (loading) return
+    
+    setLoading(true)
+    setError(null)
+    
+    try {
+      const url = region ? `/api/news/rss?region=${region}` : '/api/news/rss'
+      const response = await fetch(url)
+      const data = await response.json()
+      
+      if (data.success && data.items) {
+        setNews(data.items)
+        setLastUpdated(data.lastUpdated)
+        setCurrentRegion(data.region || 'kr')
+        setAvailableRegions(data.availableRegions || ['kr'])
+        console.log('Manual refresh: Loaded', data.items.length, 'news items for region', data.region)
+      } else {
+        setError('Failed to refresh news')
+      }
+    } catch (error) {
+      console.error('Manual refresh failed:', error)
+      setError('Refresh failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const changeRegion = (region: string) => {
+    if (region !== currentRegion) {
+      manualRefresh(region)
+    }
+  }
+
+  // 지역명 매핑
+  const regionNames: Record<string, string> = {
+    kr: '🇰🇷 한국',
+    us: '🇺🇸 미국',
+    jp: '🇯🇵 일본',
+    global: '🌍 글로벌'
+  }
+
   if (loading) {
     return (
       <div className="text-gray-400">
@@ -150,6 +218,59 @@ export default function NewsHeadlines({ isPreviewOnly = false }: NewsHeadlinesPr
 
   return (
     <div className="space-y-2">
+      {/* Header with region selector and refresh button */}
+      {!isPreviewOnly && (
+        <div className="space-y-2 mb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-400">📰 실시간 뉴스</span>
+              <span className="text-xs text-blue-400">{regionNames[currentRegion] || currentRegion}</span>
+              {error && (
+                <span className="text-xs text-yellow-400">⚠️</span>
+              )}
+            </div>
+            <button
+              onClick={() => manualRefresh()}
+              disabled={loading}
+              className="text-xs text-blue-400 hover:text-blue-300 disabled:opacity-50 flex items-center gap-1"
+              title="뉴스 새로고침"
+            >
+              <span className={loading ? 'animate-spin' : ''}>↻</span>
+              {loading ? '새로고침 중...' : '새로고침'}
+            </button>
+          </div>
+
+          {/* Region selector */}
+          <div className="flex gap-1 overflow-x-auto">
+            {availableRegions.map(region => (
+              <button
+                key={region}
+                onClick={() => changeRegion(region)}
+                disabled={loading}
+                className={`px-2 py-1 text-xs rounded whitespace-nowrap transition-colors ${
+                  region === currentRegion
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                } disabled:opacity-50`}
+              >
+                {regionNames[region] || region}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Last updated info */}
+      {!isPreviewOnly && lastUpdated && (
+        <div className="text-xs text-gray-500 mb-2">
+          마지막 업데이트: {new Date(lastUpdated).toLocaleTimeString('ko-KR', {
+            hour: '2-digit',
+            minute: '2-digit'
+          })}
+        </div>
+      )}
+
+      {/* News items */}
       {displayNews.map((item, index) => (
         <div 
           key={index}

@@ -18,7 +18,7 @@ import NearbyRestaurants from './mini-functions/NearbyRestaurants'
 import DDayCounter from './mini-functions/DDayCounter'
 
 export default function MiniFunctionsArea() {
-  const { enabledFunctions, maxEnabled } = useMiniFunctions()
+  const { enabledFunctions } = useMiniFunctions()
   const { t } = useLanguage()
   const router = useRouter()
   const [isKorea, setIsKorea] = useState<boolean | null>(null)

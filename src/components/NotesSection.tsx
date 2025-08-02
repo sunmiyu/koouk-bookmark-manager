@@ -7,7 +7,7 @@ import { trackEvents } from '@/lib/analytics'
 import NoteModal from './NoteModal'
 
 export default function NotesSection() {
-  const { notes, deleteItem } = useContent()
+  const { notes, deleteItem, loading } = useContent()
   const { getStorageLimit } = useUserPlan()
   const [selectedNote, setSelectedNote] = useState<{ title: string; content: string } | null>(null)
 

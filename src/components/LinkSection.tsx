@@ -3,11 +3,35 @@ import { useUserPlan } from '@/contexts/UserPlanContext'
 import { trackEvents } from '@/lib/analytics'
 
 export default function LinkSection() {
-  const { links, deleteItem } = useContent()
+  const { links, deleteItem, loading } = useContent()
   const { getStorageLimit } = useUserPlan()
 
   const limit = getStorageLimit()
   const isAtLimit = links.length >= limit
+
+  if (loading) {
+    return (
+      <div className="h-full">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="responsive-text-lg font-semibold text-blue-400">Links</h3>
+          <div className="text-xs text-gray-400">Loading...</div>
+        </div>
+        <div className="space-y-3">
+          {Array.from({ length: 3 }, (_, i) => (
+            <div key={i} className="bg-gray-800 rounded-lg responsive-p-sm animate-pulse">
+              <div className="flex items-start responsive-gap-sm">
+                <div className="w-4 h-4 bg-gray-700 rounded flex-shrink-0"></div>
+                <div className="flex-1 min-w-0">
+                  <div className="h-4 bg-gray-700 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-700 rounded w-1/2"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
   
   return (
     <div className="h-full">

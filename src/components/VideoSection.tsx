@@ -15,7 +15,7 @@ const getYouTubeThumbnail = (url: string): string => {
 }
 
 export default function VideoSection() {
-  const { videos, deleteItem } = useContent()
+  const { videos, deleteItem, loading } = useContent()
   const { getStorageLimit } = useUserPlan()
 
   const limit = getStorageLimit()

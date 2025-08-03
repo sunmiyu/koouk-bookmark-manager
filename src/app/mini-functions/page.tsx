@@ -3,6 +3,14 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useMiniFunctions } from '@/contexts/MiniFunctionsContext'
+import AlarmControlPanel from '@/components/AlarmControlPanel'
+import DDayControlPanel from '@/components/DDayControlPanel'
+import AnniversaryControlPanel from '@/components/AnniversaryControlPanel'
+import GoalsControlPanel from '@/components/GoalsControlPanel'
+import EnglishStudyControlPanel from '@/components/EnglishStudyControlPanel'
+import UnitConverterControlPanel from '@/components/UnitConverterControlPanel'
+import WorldTimeControlPanel from '@/components/WorldTimeControlPanel'
+import MotivationQuotesControlPanel from '@/components/MotivationQuotesControlPanel'
 
 
 // Mini Function 타입 확장
@@ -186,57 +194,28 @@ export default function MiniFunctionsControlPage() {
         )
 
       case 'alarms':
-        return (
-          <div className="space-y-6">
-            <div>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">최대 알람 개수</label>
-                  <select className="px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-sm">
-                    <option value="2">2개</option>
-                    <option value="5">5개</option>
-                    <option value="10">10개</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">기본 알람음</label>
-                  <select className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-sm">
-                    <option value="bell">🔔 벨소리</option>
-                    <option value="chime">🎵 차임벨</option>
-                    <option value="buzz">📳 진동</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
+        return <AlarmControlPanel />
 
       case 'dday':
-        return (
-          <div className="space-y-6">
-            <div>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">표시할 이벤트 개수</label>
-                  <select className="px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-sm">
-                    <option value="1">1개 (다음 이벤트만)</option>
-                    <option value="3">3개</option>
-                    <option value="5">5개</option>
-                  </select>
-                </div>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    id="dday-notification"
-                    defaultChecked={true}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <label htmlFor="dday-notification" className="text-sm font-medium text-gray-700">D-Day 알림 받기</label>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
+        return <DDayControlPanel />
+
+      case 'anniversaries':
+        return <AnniversaryControlPanel />
+
+      case 'goals':
+        return <GoalsControlPanel />
+
+      case 'english-study':
+        return <EnglishStudyControlPanel />
+
+      case 'unit-converter':
+        return <UnitConverterControlPanel />
+
+      case 'world-time':
+        return <WorldTimeControlPanel />
+
+      case 'motivation-quotes':
+        return <MotivationQuotesControlPanel />
 
       case 'commute':
         return (
@@ -518,7 +497,7 @@ export default function MiniFunctionsControlPage() {
             </div>
           </div>
           <Link
-            href="/"
+            href="/?tab=dashboard"
             className="px-4 py-2.5 bg-white hover:bg-gray-50 text-gray-700 rounded-lg border border-gray-200 transition-all flex items-center gap-2 shadow-sm hover:shadow-md font-medium whitespace-nowrap"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

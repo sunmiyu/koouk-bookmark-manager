@@ -204,7 +204,7 @@ export default function TodoSection() {
     <div className="bg-black rounded-xl p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold text-blue-400">Todo List</h2>
+          <h2 className="text-base sm:text-lg font-semibold text-white mb-2">Todo List</h2>
           {lastSynced && (
             <div className="text-xs text-gray-500">
               동기화: {new Date(lastSynced).toLocaleTimeString('ko-KR', {
@@ -906,20 +906,109 @@ export default function TodoSection() {
           </div>
         )}
         
-        {/* Empty state */}
+        {/* Demo/Empty state - Show sample todos when no real data */}
         {todayTodos.length === 0 && pastTodos.length === 0 && futureTodos.length === 0 && !loading && (
-          <div className="text-center py-8 text-gray-400">
-            {todos.length === 0 ? (
-              <div>
-                <div className="text-4xl mb-2">📝</div>
-                <div>할 일을 추가해보세요</div>
+          <div className="space-y-6">
+            {/* Today's Demo Todos */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                <h4 className="text-sm font-semibold text-blue-400">오늘 (3)</h4>
               </div>
-            ) : (
-              <div>
-                <div className="text-4xl mb-2">🔍</div>
-                <div>검색 결과가 없습니다</div>
+              {[
+                { title: '프로젝트 회의 준비', priority: 'high', category: 'Work' },
+                { title: '운동하기', priority: 'medium', category: 'Health' },
+                { title: '장보기', priority: 'low', category: 'Personal' }
+              ].map((demo, index) => (
+                <div key={`today-${index}`} className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700/50 opacity-70">
+                  <div className="flex items-start gap-3">
+                    <div className="w-5 h-5 border-2 border-gray-500 rounded mt-0.5"></div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-white font-medium">{demo.title}</span>
+                        <span className={`px-2 py-0.5 text-xs rounded-full ${
+                          demo.priority === 'high' ? 'text-red-400 bg-red-900/20' :
+                          demo.priority === 'medium' ? 'text-yellow-400 bg-yellow-900/20' :
+                          'text-green-400 bg-green-900/20'
+                        }`}>
+                          {demo.priority}
+                        </span>
+                        <span className="px-2 py-0.5 text-xs bg-gray-700 text-gray-300 rounded">{demo.category}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Past Demo Todos */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                <h4 className="text-sm font-semibold text-red-400">지난 일정 (2)</h4>
               </div>
-            )}
+              {[
+                { title: '월간 보고서 작성', priority: 'high', category: 'Work', completed: true },
+                { title: '독서하기', priority: 'low', category: 'Learning', completed: false }
+              ].map((demo, index) => (
+                <div key={`past-${index}`} className="bg-red-900/10 backdrop-blur-sm rounded-lg p-4 border border-red-700/30 opacity-70">
+                  <div className="flex items-start gap-3">
+                    <div className={`w-5 h-5 border-2 rounded mt-0.5 ${demo.completed ? 'bg-red-600 border-red-600' : 'border-red-500'}`}>
+                      {demo.completed && <span className="text-white text-xs flex items-center justify-center h-full">✓</span>}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-white font-medium ${demo.completed ? 'line-through opacity-60' : ''}`}>{demo.title}</span>
+                        <span className={`px-2 py-0.5 text-xs rounded-full ${
+                          demo.priority === 'high' ? 'text-red-400 bg-red-900/20' :
+                          demo.priority === 'medium' ? 'text-yellow-400 bg-yellow-900/20' :
+                          'text-green-400 bg-green-900/20'
+                        }`}>
+                          {demo.priority}
+                        </span>
+                        <span className="px-2 py-0.5 text-xs bg-gray-700 text-gray-300 rounded">{demo.category}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Future Demo Todos */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <h4 className="text-sm font-semibold text-green-400">예정된 일정 (2)</h4>
+              </div>
+              {[
+                { title: '치과 예약', priority: 'medium', category: 'Health' },
+                { title: '친구 생일파티', priority: 'low', category: 'Personal' }
+              ].map((demo, index) => (
+                <div key={`future-${index}`} className="bg-green-900/10 backdrop-blur-sm rounded-lg p-4 border border-green-700/30 opacity-70">
+                  <div className="flex items-start gap-3">
+                    <div className="w-5 h-5 border-2 border-green-500 rounded mt-0.5"></div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-white font-medium">{demo.title}</span>
+                        <span className={`px-2 py-0.5 text-xs rounded-full ${
+                          demo.priority === 'high' ? 'text-red-400 bg-red-900/20' :
+                          demo.priority === 'medium' ? 'text-yellow-400 bg-yellow-900/20' :
+                          'text-green-400 bg-green-900/20'
+                        }`}>
+                          {demo.priority}
+                        </span>
+                        <span className="px-2 py-0.5 text-xs bg-gray-700 text-gray-300 rounded">{demo.category}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Demo notice */}
+            <div className="text-center py-4 text-gray-500 text-sm border-t border-gray-800">
+              <div className="text-xs">📝 데모 데이터입니다. 로그인하여 실제 할 일을 관리해보세요.</div>
+            </div>
           </div>
         )}
       </div>

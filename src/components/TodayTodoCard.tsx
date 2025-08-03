@@ -22,43 +22,25 @@ export default function TodayTodoCard() {
     }
   }
 
-  // Get today's date info
-  const today = new Date()
-  const month = today.getMonth() + 1
-  const day = today.getDate()
-  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-  const weekday = weekdays[today.getDay()]
-
   return (
     <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 w-full transition-all duration-200 hover:bg-gray-800/70 shadow-lg shadow-blue-500/10 border border-blue-500/20">
-      <div className="mb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="text-sm text-gray-400 font-medium">{month}/{day}</div>
-            <div className="text-sm text-gray-400 font-medium">{weekday}</div>
-          </div>
-          <div className="flex gap-1">
-            <span className="px-2 py-1 bg-blue-600/20 text-blue-400 text-xs rounded-md font-medium border border-blue-500/30">Today</span>
-          </div>
-        </div>
-      </div>
       
-      <div className="space-y-1 mb-2">
+      <div className="space-y-0 mb-4">
         {todayTodos.length === 0 ? (
           <div className="text-sm text-gray-400 text-center py-4">
             No todos for today
           </div>
         ) : (
           todayTodos.map((todo) => (
-            <div key={todo.id} className="flex items-center gap-3 group p-2 rounded-lg hover:bg-gray-700/30 transition-colors">
+            <div key={todo.id} className="flex items-center gap-3 group py-3 border-b border-gray-700/30 last:border-b-0 hover:bg-gray-700/30 transition-colors">
               <input
                 type="checkbox"
                 checked={todo.completed}
                 onChange={() => toggleTodo(todo.id)}
                 className="rounded w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-offset-0 flex-shrink-0"
               />
-              <span className={`flex-1 text-sm break-words transition-colors ${
-                todo.completed ? 'line-through text-gray-500' : 'text-gray-200'
+              <span className={`flex-1 text-base font-medium break-words transition-colors ${
+                todo.completed ? 'line-through text-gray-500' : 'text-white'
               }`}>
                 {todo.text}
               </span>

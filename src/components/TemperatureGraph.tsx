@@ -152,7 +152,7 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
         <svg
           viewBox="0 0 100 100"
           className="absolute inset-0 w-full h-full"
-          preserveAspectRatio="none"
+          preserveAspectRatio="xMidYMid meet"
         >
           {/* Gradient Definition */}
           <defs>
@@ -234,36 +234,33 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
         </svg>
       </div>
 
-      {/* 시간 라벨 - 3시간 간격으로 단순화 */}
+      {/* 시간 라벨 - 모든 데이터 포인트와 매칭 */}
       <div className="flex justify-between items-center px-1 sm:px-2 mb-3 sm:mb-4">
-        {keyTimePoints.map((data) => {
+        {hourlyData.map((data, index) => {
           const isCurrentTime = currentTimePoint && data.hour === currentTimePoint.hour
           const timeLabel = formatTime(data.hour)
           
           return (
             <div
-              key={data.hour}
+              key={index}
               className={`text-center flex flex-col items-center ${
                 isCurrentTime ? 'text-blue-400 font-bold' : 'text-gray-400 font-medium'
               }`}
+              style={{ opacity: timeLabel ? 1 : 0.3 }}
             >
-              <span className="text-xs sm:text-sm mb-0.5 sm:mb-1">
-                {getWeatherIcon(data.condition)}
-              </span>
+              {/* 주요 시간대에만 날씨 아이콘 표시 */}
+              {timeLabel && (
+                <span className="text-xs sm:text-sm mb-0.5 sm:mb-1">
+                  {getWeatherIcon(data.condition)}
+                </span>
+              )}
+              {/* 시간 라벨 표시 (주요 시간대만) */}
               <span className="text-xs">
                 {isCurrentTime ? 'Now' : timeLabel}
               </span>
             </div>
           )
         })}
-        
-        {/* 현재 시간이 주요 시간대가 아닌 경우 별도 표시 */}
-        {currentTimePoint && !keyTimePoints.some(point => point.hour === currentTimePoint.hour) && (
-          <div className="absolute left-1/2 transform -translate-x-1/2 text-center flex flex-col items-center text-blue-400 font-bold">
-            <div className="w-1 h-1 bg-blue-400 rounded-full mb-0.5 sm:mb-1" />
-            <span className="text-xs bg-gray-800 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded">Now</span>
-          </div>
-        )}
       </div>
 
       {/* Temperature Range Info */}

@@ -76,7 +76,7 @@ function HomeContent() {
     <TodayTodosProvider>
       <ContentProvider>
         <div className="min-h-screen bg-black text-white">
-        <div className="w-full mx-auto py-2 sm:py-4 px-3 sm:px-4 max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl">
+        <div className="w-full mx-auto py-2 sm:py-4 px-4 sm:px-6">
           <header className="mb-8 sm:mb-12 lg:mb-16">
             {/* Professional Header Container */}
             <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-800/50">
@@ -249,8 +249,9 @@ function HomeContent() {
                 <div className="mb-4">
                   <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-800/50">
                     <div className="mb-6 sm:mb-8">
-                      <h2 className="text-base sm:text-lg font-semibold text-white mb-2">Today&apos;s</h2>
-                      <p className="text-sm sm:text-base text-gray-300">Your most important tasks for today</p>
+                      <h2 className="text-base sm:text-lg font-semibold text-white mb-2">
+                        Today&apos;s ({new Date().getMonth() + 1}/{new Date().getDate()} {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date().getDay()]})
+                      </h2>
                     </div>
                     
                     {/* Today's Todo Card - Synchronized */}
@@ -297,35 +298,29 @@ function HomeContent() {
                 {/* Dashboard Stats Section */}
                 <div className="mb-4">
                   <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-800/50">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-base sm:text-lg font-semibold text-white mb-4">Dashboard Stats</h3>
-                        <div className="flex items-center gap-6 flex-wrap">
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
-                            <span className="text-white font-bold text-base">12</span>
-                            <span className="text-gray-300 text-sm">todos</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
-                            <span className="text-white font-bold text-base">6</span>
-                            <span className="text-gray-300 text-sm">functions</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                            <span className="text-white font-bold text-base">24</span>
-                            <span className="text-gray-300 text-sm">items</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                            <span className="text-white font-bold text-base">18</span>
-                            <span className="text-gray-300 text-sm">weekly</span>
-                          </div>
+                    <div>
+                      <h3 className="text-base sm:text-lg font-semibold text-white mb-4">Dashboard Stats</h3>
+                      <div className="flex items-center gap-3 sm:gap-4 lg:gap-6">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-2.5 h-2.5 bg-blue-400 rounded-full"></div>
+                          <span className="text-white font-bold text-sm sm:text-base">12</span>
+                          <span className="text-gray-300 text-xs sm:text-sm">todos</span>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-3 px-4 py-3 bg-green-500/20 rounded-xl border border-green-500/30">
-                        <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                        <span className="text-green-400 text-base font-bold">Active</span>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-2.5 h-2.5 bg-purple-400 rounded-full"></div>
+                          <span className="text-white font-bold text-sm sm:text-base">6</span>
+                          <span className="text-gray-300 text-xs sm:text-sm">functions</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-2.5 h-2.5 bg-green-400 rounded-full"></div>
+                          <span className="text-white font-bold text-sm sm:text-base">24</span>
+                          <span className="text-gray-300 text-xs sm:text-sm">items</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-2.5 h-2.5 bg-yellow-400 rounded-full"></div>
+                          <span className="text-white font-bold text-sm sm:text-base">18</span>
+                          <span className="text-gray-300 text-xs sm:text-sm">weekly</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -348,21 +343,13 @@ function HomeContent() {
               <div className="space-y-6">
                 {/* Add Content Section */}
                 <div className="bg-black rounded-xl p-6">
-                  <div className="mb-6">
-                    <h2 className="text-lg font-semibold text-white">Add Content</h2>
-                    <p className="text-sm text-gray-400">Save links, notes, videos, and images</p>
-                  </div>
                   <InfoInputSection />
                 </div>
                 
                 {/* Storage Overview */}
                 <div className="bg-black rounded-xl p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <div>
-                      <h2 className="text-lg font-semibold text-white">Storage</h2>
-                      <p className="text-sm text-gray-400">Your saved content</p>
-                    </div>
-                    <SearchBar />
+                  <div className="mb-6">
+                    <h2 className="text-lg font-semibold text-white">Storage</h2>
                   </div>
                   
                   {/* Storage Stats */}
@@ -402,11 +389,10 @@ function HomeContent() {
                 <div className="bg-black rounded-xl p-6">
                   <div className="mb-6">
                     <h2 className="text-lg font-semibold text-white">AI Tools</h2>
-                    <p className="text-sm text-gray-400">Curated collection of useful AI tools</p>
                   </div>
                   
                   {/* Category Stats */}
-                  <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="grid grid-cols-4 gap-3 sm:gap-4 mb-6">
                     <div className="bg-gray-800/50 rounded-lg p-4 text-center">
                       <div className="text-xl font-bold text-blue-400 mb-1">8</div>
                       <div className="text-sm text-gray-300">Writing</div>
@@ -453,6 +439,34 @@ function HomeContent() {
                       </div>
                       <div className="text-xs text-blue-400">→</div>
                     </a>
+                    <a href="https://www.grammarly.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Grammarly</div>
+                        <div className="text-xs text-gray-400">AI writing assistant & grammar checker</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://www.copy.ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Copy.ai</div>
+                        <div className="text-xs text-gray-400">AI copywriting & content generator</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://www.jasper.ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Jasper</div>
+                        <div className="text-xs text-gray-400">AI content marketing platform</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://quillbot.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">QuillBot</div>
+                        <div className="text-xs text-gray-400">AI paraphrasing & writing tool</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
                   </div>
                 </div>
 
@@ -461,7 +475,7 @@ function HomeContent() {
                   <div className="mb-6">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">🎨</span>
-                      <h3 className="text-xl font-bold text-white">Design & Creative</h3>
+                      <h3 className="text-base font-semibold text-white">Design & Creative</h3>
                     </div>
                   </div>
                   <div className="space-y-3">
@@ -486,6 +500,41 @@ function HomeContent() {
                       </div>
                       <div className="text-xs text-blue-400">→</div>
                     </a>
+                    <a href="https://openai.com/dall-e-2" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">DALL-E 2</div>
+                        <div className="text-xs text-gray-400">AI image generation by OpenAI</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://stability.ai/stable-diffusion" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Stable Diffusion</div>
+                        <div className="text-xs text-gray-400">Open-source AI art generator</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://www.adobe.com/kr/products/firefly.html" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Adobe Firefly</div>
+                        <div className="text-xs text-gray-400">Adobe's generative AI</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://leonardo.ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Leonardo.ai</div>
+                        <div className="text-xs text-gray-400">AI image & video generation</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://runwayml.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Runway</div>
+                        <div className="text-xs text-gray-400">AI video generation & editing</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
                   </div>
                 </div>
 
@@ -494,7 +543,7 @@ function HomeContent() {
                   <div className="mb-6">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">💻</span>
-                      <h3 className="text-xl font-bold text-white">Development & Code</h3>
+                      <h3 className="text-base font-semibold text-white">Development & Code</h3>
                     </div>
                   </div>
                   <div className="space-y-3">
@@ -519,6 +568,34 @@ function HomeContent() {
                       </div>
                       <div className="text-xs text-blue-400">→</div>
                     </a>
+                    <a href="https://codeium.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Codeium</div>
+                        <div className="text-xs text-gray-400">Free AI code completion</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://tabnine.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Tabnine</div>
+                        <div className="text-xs text-gray-400">AI code assistant</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://replit.com/ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Replit AI</div>
+                        <div className="text-xs text-gray-400">AI-powered coding environment</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://www.sourcegraph.com/cody" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Sourcegraph Cody</div>
+                        <div className="text-xs text-gray-400">AI coding assistant</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
                   </div>
                 </div>
 
@@ -527,7 +604,7 @@ function HomeContent() {
                   <div className="mb-6">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">⚡</span>
-                      <h3 className="text-xl font-bold text-white">Productivity & Business</h3>
+                      <h3 className="text-base font-semibold text-white">Productivity & Business</h3>
                     </div>
                   </div>
                   <div className="space-y-3">
@@ -549,6 +626,41 @@ function HomeContent() {
                       <div>
                         <div className="text-sm font-medium text-white">Otter.ai</div>
                         <div className="text-xs text-gray-400">AI meeting transcription</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://zapier.com/ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Zapier AI</div>
+                        <div className="text-xs text-gray-400">AI automation & workflows</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://monday.com/ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Monday.com AI</div>
+                        <div className="text-xs text-gray-400">AI project management</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://www.microsoft.com/en-us/microsoft-365/copilot" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Microsoft Copilot</div>
+                        <div className="text-xs text-gray-400">AI assistant for Office 365</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://www.salesforce.com/products/einstein/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Salesforce Einstein</div>
+                        <div className="text-xs text-gray-400">AI for CRM & sales</div>
+                      </div>
+                      <div className="text-xs text-blue-400">→</div>
+                    </a>
+                    <a href="https://www.loom.com/ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium text-white">Loom AI</div>
+                        <div className="text-xs text-gray-400">AI-powered video messaging</div>
                       </div>
                       <div className="text-xs text-blue-400">→</div>
                     </a>

@@ -30,7 +30,7 @@ export default function LanguageSwitcher({ className = '', compact = false }: La
         >
           {languages.map(lang => (
             <option key={lang.code} value={lang.code}>
-              {lang.flag} {lang.label}
+              {lang.label}
             </option>
           ))}
         </select>

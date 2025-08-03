@@ -159,7 +159,7 @@ export default function InfoInputSection() {
             onKeyPress={handleKeyPress}
             onPaste={handlePaste}
             placeholder="Paste URL, images (Ctrl+V), or type your note..."
-            className="w-full px-4 py-3 bg-gray-800/50 rounded-lg focus:outline-none focus:bg-gray-800 text-white placeholder-gray-400 text-sm pr-24 transition-all"
+            className="w-full px-4 py-6 bg-gray-800/50 rounded-lg focus:outline-none focus:bg-gray-800 text-white placeholder-gray-400 text-sm pr-24 transition-all"
           />
           
           {isExpanded && (

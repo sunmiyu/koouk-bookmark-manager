@@ -4,6 +4,18 @@ import { useState } from 'react'
 import { useMiniFunctions } from '@/contexts/MiniFunctionsContext'
 import { useUserPlan } from '@/contexts/UserPlanContext'
 import Link from 'next/link'
+import ExpenseFunction from './mini-functions/ExpenseFunction'
+import DiaryFunction from './mini-functions/DiaryFunction'
+import AlarmFunction from './mini-functions/AlarmFunction'
+import SongPracticeFunction from './mini-functions/SongPracticeFunction'
+import ExerciseFunction from './mini-functions/ExerciseFunction'
+import DDayFunction from './mini-functions/DDayFunction'
+import AnniversaryFunction from './mini-functions/AnniversaryFunction'
+import GoalsFunction from './mini-functions/GoalsFunction'
+import EnglishStudyFunction from './mini-functions/EnglishStudyFunction'
+import UnitConverterFunction from './mini-functions/UnitConverterFunction'
+import WorldTimeFunction from './mini-functions/WorldTimeFunction'
+import MotivationQuotesFunction from './mini-functions/MotivationQuotesFunction'
 
 type AccordionItemType = {
   id: string
@@ -409,9 +421,8 @@ export default function MiniFunctionsAccordion() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-lg font-semibold text-white">Mini Functions</h2>
-            <p className="text-sm text-gray-400">빠른 정보 확인</p>
           </div>
-          <Link href="/mini-functions">
+          <Link href="/mini-functions?from=dashboard">
             <button 
               className="w-12 h-12 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/50 rounded-xl flex items-center justify-center text-gray-400 hover:text-white transition-all cursor-pointer"
               title="Mini Functions 관리"
@@ -425,7 +436,7 @@ export default function MiniFunctionsAccordion() {
         </div>
 
         {/* Accordion List */}
-        <div className="space-y-2">
+        <div className="space-y-4">
           {accordionItems.map((item) => {
             const isExpanded = expandedItems.has(item.id)
             const showPremiumOverlay = item.needsUpgrade && !item.enabled
@@ -453,14 +464,14 @@ export default function MiniFunctionsAccordion() {
                     <span className="text-xl flex-shrink-0">{item.icon}</span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-white text-sm">{item.title}</span>
+                        <span className="text-base font-medium text-white">{item.title}</span>
                         {showPremiumOverlay && (
                           <span className="px-1.5 py-0.5 bg-yellow-600/20 text-yellow-400 text-xs rounded border border-yellow-600/30">
                             Pro
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-gray-300 truncate">
+                      <div className="text-base font-medium text-gray-300 truncate">
                         {item.summary}
                       </div>
                     </div>
@@ -485,17 +496,45 @@ export default function MiniFunctionsAccordion() {
                 {isExpanded && item.enabled && !showPremiumOverlay && (
                   <div className="px-4 pb-4">
                     <div className="border-t border-gray-700/30 pt-3">
-                      <div className="space-y-2">
-                        {item.details.map((detail, index) => (
-                          <div 
-                            key={index} 
-                            className="flex items-center gap-2 text-sm py-1.5 px-3 bg-gray-800/40 rounded border border-gray-700/20"
-                          >
-                            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full flex-shrink-0"></div>
-                            <span className="text-gray-200">{detail}</span>
-                          </div>
-                        ))}
-                      </div>
+                      {/* Render actual function components for specific functions */}
+                      {item.id === 'expenses' ? (
+                        <ExpenseFunction />
+                      ) : item.id === 'diary' ? (
+                        <DiaryFunction />
+                      ) : item.id === 'alarms' ? (
+                        <AlarmFunction />
+                      ) : item.id === 'song-practice' ? (
+                        <SongPracticeFunction />
+                      ) : item.id === 'exercise-tracker' ? (
+                        <ExerciseFunction />
+                      ) : item.id === 'dday' ? (
+                        <DDayFunction />
+                      ) : item.id === 'anniversaries' ? (
+                        <AnniversaryFunction />
+                      ) : item.id === 'goals' ? (
+                        <GoalsFunction />
+                      ) : item.id === 'english-study' ? (
+                        <EnglishStudyFunction />
+                      ) : item.id === 'unit-converter' ? (
+                        <UnitConverterFunction />
+                      ) : item.id === 'world-time' ? (
+                        <WorldTimeFunction />
+                      ) : item.id === 'motivation-quotes' ? (
+                        <MotivationQuotesFunction />
+                      ) : (
+                        /* Default view for other functions */
+                        <div className="space-y-2">
+                          {item.details.map((detail, index) => (
+                            <div 
+                              key={index} 
+                              className="flex items-center gap-2 text-sm py-1.5 px-3 bg-gray-800/40 rounded border border-gray-700/20"
+                            >
+                              <div className="w-1.5 h-1.5 bg-blue-400 rounded-full flex-shrink-0"></div>
+                              <span className="text-gray-200">{detail}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

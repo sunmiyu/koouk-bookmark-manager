@@ -44,6 +44,14 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
     )
   }
 
+  // 시간 포맷팅 함수
+  const formatTime = (hour: number) => {
+    if (hour === 0) return '12AM'
+    if (hour === 12) return '12PM'
+    if (hour < 12) return `${hour}AM`
+    return `${hour - 12}PM`
+  }
+
   // Get current hour for highlighting
   const currentHour = new Date().getHours()
   
@@ -105,14 +113,6 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
       'wind': '💨'
     }
     return iconMap[condition.toLowerCase()] || '☀️'
-  }
-
-  // 시간 포맷팅 함수
-  const formatTime = (hour: number) => {
-    if (hour === 0) return '12AM'
-    if (hour === 12) return '12PM'
-    if (hour < 12) return `${hour}AM`
-    return `${hour - 12}PM`
   }
   
   // Custom tooltip

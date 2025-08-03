@@ -1,27 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkRateLimit, getIP } from '@/lib/rateLimit'
 
-interface WeatherResponse {
-  location: string
-  temperature: number
-  morning: number
-  afternoon: number
-  evening: number
-  description: string
-  icon: string
-  hourlyData: {
-    time: string
-    temperature: number
-    hour: number
-    condition: string
-  }[]
-  debug: {
-    today: string
-    morningTime: string
-    afternoonTime: string
-    eveningTime: string
-  }
-}
+// interface WeatherResponse {
+//   location: string
+//   temperature: number
+//   morning: number
+//   afternoon: number
+//   evening: number
+//   description: string
+//   icon: string
+//   hourlyData: {
+//     time: string
+//     temperature: number
+//     hour: number
+//     condition: string
+//   }[]
+//   debug: {
+//     today: string
+//     morningTime: string
+//     afternoonTime: string
+//     eveningTime: string
+//   }
+// }
 
 export async function GET(request: NextRequest) {
   try {

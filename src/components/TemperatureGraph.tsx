@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 interface WeatherCondition {
   main: string
@@ -43,7 +43,7 @@ export default function TemperatureGraph() {
   }
 
   // 헤더와 동일한 API 호출 함수
-  const fetchWeatherData = async (): Promise<WeatherData> => {
+  const fetchWeatherData = useCallback(async (): Promise<WeatherData> => {
     const location = await getUserLocation()
     const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY
     
@@ -60,7 +60,7 @@ export default function TemperatureGraph() {
     }
 
     return await response.json()
-  }
+  }, [])
 
   useEffect(() => {
     setMounted(true)
@@ -79,7 +79,7 @@ export default function TemperatureGraph() {
     }
 
     loadWeather()
-  }, [])
+  }, [fetchWeatherData])
 
   if (!mounted || loading || !weatherData) {
     return (
@@ -107,7 +107,7 @@ export default function TemperatureGraph() {
     for (let i = 0; i < 12; i++) {
       const targetHour = (currentHour + i) % 24
       let temperature = currentTemp
-      let condition = currentCondition // 실제 현재 날씨 조건 사용
+      const condition = currentCondition // 실제 현재 날씨 조건 사용
       
       // 시간에 따른 온도 변화 시뮬레이션
       if (i > 0) {

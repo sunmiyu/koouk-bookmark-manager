@@ -33,7 +33,7 @@ type TabType = 'summary' | 'today' | 'dashboard' | 'contents' | 'popular'
 function HomeContent() {
   const [activeTab, setActiveTab] = useState<TabType>('summary')
   const [isLoading, setIsLoading] = useState(false)
-  const { weatherData } = useWeatherData()
+  // const { weatherData } = useWeatherData() // 더 이상 사용하지 않음
   // const { availableFunctions, enabledFunctions } = useMiniFunctions()
   // const { currentPlan } = useUserPlan()
   const { searchResults } = useSearch()

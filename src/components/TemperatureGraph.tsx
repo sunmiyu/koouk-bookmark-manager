@@ -30,6 +30,12 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
     // Debug: hourlyData 확인
     console.log('🌤️ Weather hourlyData:', hourlyData)
     console.log('🌡️ Current temp:', currentTemp)
+    
+    // Debug: 첫 3개 항목의 condition 확인
+    console.log('🔬 First 3 hourly conditions:')
+    hourlyData.slice(0, 3).forEach((item, i) => {
+      console.log(`  ${i}: hour=${item.hour}, condition="${item.condition}", temp=${item.temperature}`)
+    })
   }, [hourlyData, currentTemp])
 
   if (!mounted || !hourlyData || hourlyData.length === 0) {
@@ -62,6 +68,12 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
       if (existingData) {
         temperature = existingData.temperature
         condition = existingData.condition || 'clear'
+        
+        // Debug: 실제 데이터 확인
+        if (i < 3) {
+          console.log(`⏰ Hour ${targetHour}: existingData =`, existingData)
+          console.log(`   condition: "${existingData.condition}" → "${condition}"`)
+        }
       }
       
       // 시간 표시 포맷

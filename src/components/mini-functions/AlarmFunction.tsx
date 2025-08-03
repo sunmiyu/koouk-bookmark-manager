@@ -11,7 +11,11 @@ interface Alarm {
   sound: string
 }
 
-export default function AlarmFunction() {
+interface AlarmFunctionProps {
+  isPreviewOnly?: boolean
+}
+
+export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionProps) {
   const [alarms, setAlarms] = useState<Alarm[]>([])
 
   useEffect(() => {

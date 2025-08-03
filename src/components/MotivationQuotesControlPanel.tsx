@@ -71,7 +71,8 @@ export default function MotivationQuotesControlPanel() {
     } else {
       localStorage.setItem('miniFunction_quoteSettings', JSON.stringify(settings))
     }
-  }, [settings])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const saveQuotes = (newQuotes: Quote[]) => {
     localStorage.setItem('miniFunction_quotes', JSON.stringify(newQuotes))

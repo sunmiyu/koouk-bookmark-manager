@@ -23,6 +23,7 @@ interface WeatherData {
     time: string
     temperature: number
     hour: number
+    condition?: string
   }[]
   lastUpdated: number
   debug?: {
@@ -138,6 +139,9 @@ export function useWeatherData() {
     } else {
       apiUrl += `?lat=${userLocation.lat}&lon=${userLocation.lon}`
     }
+
+    console.log('🔗 Weather API URL:', apiUrl)
+    console.log('📍 User location:', userLocation)
 
     const response = await fetch(apiUrl)
 

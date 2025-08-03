@@ -23,6 +23,7 @@ interface WeatherData {
     time: string
     temperature: number
     hour: number
+    condition?: string
   }[]
   lastUpdated: number
   debug?: {

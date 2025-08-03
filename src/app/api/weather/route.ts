@@ -19,6 +19,7 @@ interface WeatherResponse {
     time: string
     temperature: number
     hour: number
+    condition: string
   }[]
   debug: {
     today: string
@@ -171,7 +172,7 @@ export async function GET(request: NextRequest) {
     
     // Get data points around current time (±8 hours to get good coverage)
     const hourlyData = forecastData.list
-      .map((item: {dt: number, dt_txt: string, main: {temp: number}}) => {
+      .map((item: {dt: number, dt_txt: string, main: {temp: number}, weather: [{main: string, description: string}]}) => {
         const itemTime = new Date(item.dt * 1000)
         const itemTimeKST = new Date(itemTime.getTime() + (kstOffset * 60 * 1000))
         const itemHour = itemTimeKST.getHours()
@@ -190,10 +191,11 @@ export async function GET(request: NextRequest) {
       })
       .sort((a: {itemTimeKST: Date}, b: {itemTimeKST: Date}) => a.itemTimeKST.getTime() - b.itemTimeKST.getTime())
       .slice(0, 15) // Limit to ~15 points max
-      .map((item: {dt_txt: string, main: {temp: number}, itemHour: number}) => ({
+      .map((item: {dt_txt: string, main: {temp: number}, itemHour: number, weather: [{main: string, description: string}]}) => ({
         time: item.dt_txt,
         temperature: Math.round(item.main.temp),
-        hour: item.itemHour
+        hour: item.itemHour,
+        condition: item.weather[0].main.toLowerCase()
       }))
 
     // Return weather data with specific time forecasts and hourly data
@@ -220,7 +222,18 @@ export async function GET(request: NextRequest) {
       timestamp: Date.now()
     })
     
-    console.log('Fresh API call for', city)
+    console.log('🔍 Weather API Debug for', city || `${lat},${lon}`)
+    console.log('📊 Raw weather conditions from OpenWeather:')
+    console.log('  - Current weather:', currentWeatherResponse.ok ? await currentWeatherResponse.clone().json().then(d => d.weather[0]) : 'failed')
+    console.log('  - Morning weather:', morningWeather?.weather[0])
+    console.log('  - Afternoon weather:', afternoonWeather?.weather[0])
+    console.log('  - Evening weather:', eveningWeather?.weather[0])
+    console.log('💾 Hourly conditions sent to frontend:')
+    hourlyData.forEach((item, i) => {
+      if (i < 5) console.log(`  ${item.time}: ${item.condition} (${item.temperature}°)`)
+    })
+    
+    console.log('Fresh API call for', city || `${lat},${lon}`)
     return NextResponse.json(responseData)
 
   } catch (error) {

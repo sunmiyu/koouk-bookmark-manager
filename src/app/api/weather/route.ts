@@ -82,12 +82,14 @@ export async function GET(request: NextRequest) {
       cacheKey = 'weather_Seoul'
     }
     
-    // 서버사이드 캐시 확인
+    // 서버사이드 캐시 확인 (임시로 비활성화해서 항상 새로운 데이터 가져오기)
     const cached = serverCache.get(cacheKey)
-    if (cached && Date.now() - cached.timestamp < SERVER_CACHE_DURATION) {
+    if (false && cached && Date.now() - cached.timestamp < SERVER_CACHE_DURATION) {
       console.log('Using server cache for', cacheKey)
       return NextResponse.json(cached.data)
     }
+    
+    console.log('🚀 Making fresh API call (cache disabled) for', cacheKey)
     
     // 5-day forecast API로 변경 (3시간 간격)
     const forecastResponse = await fetch(

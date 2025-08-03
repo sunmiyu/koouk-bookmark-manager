@@ -35,7 +35,11 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
     console.log('🔬 First 3 hourly conditions:')
     hourlyData.slice(0, 3).forEach((item, i) => {
       console.log(`  ${i}: hour=${item.hour}, condition="${item.condition}", temp=${item.temperature}`)
+      console.log(`  Full item:`, item)
     })
+    
+    // 캐시 강제 무효화를 위한 "현재 위치" 버튼 클릭
+    console.log('💡 Try clicking the "📍 현재 위치" button to refresh weather data')
   }, [hourlyData, currentTemp])
 
   if (!mounted || !hourlyData || hourlyData.length === 0) {

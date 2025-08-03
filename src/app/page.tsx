@@ -231,19 +231,7 @@ function HomeContent() {
               <div className="flex flex-col gap-8 sm:gap-10 lg:gap-12">
                 {/* Temperature Trend Section */}
                 <div className="mb-4">
-                  {weatherData?.hourlyData ? (
-                    <TemperatureGraph 
-                      hourlyData={weatherData.hourlyData}
-                      currentTemp={weatherData.weather.current}
-                      currentCondition={weatherData.weather.description}
-                    />
-                  ) : (
-                    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 sm:p-6 w-full">
-                      <div className="flex items-center justify-center h-24 sm:h-32">
-                        <div className="text-gray-400 text-sm">Loading temperature data...</div>
-                      </div>
-                    </div>
-                  )}
+                  <TemperatureGraph />
                 </div>
 
                 {/* Today's Focus Section */}

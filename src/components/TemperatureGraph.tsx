@@ -2,53 +2,91 @@
 
 import { useState, useEffect } from 'react'
 
-interface HourlyData {
-  time: string
-  temperature: number
-  hour: number
-  condition?: string
+interface WeatherCondition {
+  main: string
+  description: string
 }
 
-interface TemperatureGraphProps {
-  hourlyData: HourlyData[]
-  currentTemp: number
-  currentCondition?: string
+interface WeatherData {
+  main: {
+    temp: number
+  }
+  weather: WeatherCondition[]
 }
 
-export default function TemperatureGraph({ hourlyData, currentTemp, currentCondition = 'clear' }: TemperatureGraphProps) {
+export default function TemperatureGraph() {
   const [mounted, setMounted] = useState(false)
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  // 헤더와 동일한 위치 가져오기 함수
+  const getUserLocation = (): Promise<{lat: number, lon: number}> => {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        resolve({ lat: 37.5665, lon: 126.9780 }) // Seoul 기본값
+        return
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            lat: position.coords.latitude,
+            lon: position.coords.longitude
+          })
+        },
+        () => {
+          resolve({ lat: 37.5665, lon: 126.9780 }) // 실패시 Seoul
+        },
+        { timeout: 10000, enableHighAccuracy: false }
+      )
+    })
+  }
+
+  // 헤더와 동일한 API 호출 함수
+  const fetchWeatherData = async (): Promise<WeatherData> => {
+    const location = await getUserLocation()
+    const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY
+    
+    if (!apiKey) {
+      throw new Error('Weather API key not found')
+    }
+
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${location.lat}&lon=${location.lon}&appid=${apiKey}&units=metric&lang=kr`
+    )
+
+    if (!response.ok) {
+      throw new Error(`Weather API failed: ${response.status}`)
+    }
+
+    return await response.json()
+  }
 
   useEffect(() => {
     setMounted(true)
     
-    // Debug: 현재 위치 권한 상태 확인
-    if (navigator.permissions) {
-      navigator.permissions.query({name: 'geolocation'}).then(result => {
-        console.log('🌍 Geolocation permission:', result.state)
-      })
+    const loadWeather = async () => {
+      try {
+        setLoading(true)
+        const data = await fetchWeatherData()
+        setWeatherData(data)
+        console.log('✅ Weather data loaded:', data.weather[0])
+      } catch (error) {
+        console.error('❌ Weather loading failed:', error)
+      } finally {
+        setLoading(false)
+      }
     }
-    
-    // Debug: hourlyData 확인
-    console.log('🌤️ Weather hourlyData:', hourlyData)
-    console.log('🌡️ Current temp:', currentTemp)
-    
-    // Debug: 첫 3개 항목의 condition 확인
-    console.log('🔬 First 3 hourly conditions:')
-    hourlyData.slice(0, 3).forEach((item, i) => {
-      console.log(`  ${i}: hour=${item.hour}, condition="${item.condition}", temp=${item.temperature}`)
-      console.log(`  Full item:`, item)
-    })
-    
-    // 캐시 강제 무효화를 위한 "현재 위치" 버튼 클릭
-    console.log('💡 Try clicking the "📍 현재 위치" button to refresh weather data')
-  }, [hourlyData, currentTemp])
 
-  if (!mounted || !hourlyData || hourlyData.length === 0) {
+    loadWeather()
+  }, [])
+
+  if (!mounted || loading || !weatherData) {
     return (
       <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 w-full">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-white">24시간 날씨</h3>
-          <div className="text-2xl font-bold text-blue-400">{currentTemp}°</div>
+          <h3 className="text-lg font-semibold text-white">12시간 날씨 예보</h3>
+          <div className="text-2xl font-bold text-blue-400">--°</div>
         </div>
         <div className="h-32 flex items-center justify-center">
           <div className="text-gray-400 text-sm">날씨 정보를 불러오는 중...</div>
@@ -56,6 +94,9 @@ export default function TemperatureGraph({ hourlyData, currentTemp, currentCondi
       </div>
     )
   }
+
+  const currentTemp = Math.round(weatherData.main.temp)
+  const currentCondition = weatherData.weather[0].main.toLowerCase()
 
   // 현재 시간부터 다음 12시간 데이터 생성
   const generateNext12Hours = () => {
@@ -66,27 +107,12 @@ export default function TemperatureGraph({ hourlyData, currentTemp, currentCondi
     for (let i = 0; i < 12; i++) {
       const targetHour = (currentHour + i) % 24
       let temperature = currentTemp
-      let condition = currentCondition // 현재 날씨 상태를 기본값으로 사용
+      let condition = currentCondition // 실제 현재 날씨 조건 사용
       
-      // 기존 데이터에서 해당 시간 찾기
-      const existingData = hourlyData.find(data => data.hour === targetHour)
-      if (existingData) {
-        temperature = existingData.temperature
-        // condition 필드가 없거나 "undefined"인 경우를 처리
-        condition = (existingData.condition && existingData.condition !== 'undefined' && existingData.condition !== undefined) ? existingData.condition : 'clear'
-        
-        // Debug: 실제 데이터 확인
-        if (i < 3) {
-          console.log(`⏰ Hour ${targetHour}: existingData =`, existingData)
-          console.log(`   condition: "${existingData.condition}" → "${condition}"`)
-        }
-      } else {
-        // 데이터가 없는 경우 시간대별로 다른 기본값 설정
-        if (targetHour >= 6 && targetHour <= 18) {
-          condition = 'clear'  // 낮시간은 맑음
-        } else {
-          condition = 'clear'  // 밤시간도 기본값은 맑음
-        }
+      // 시간에 따른 온도 변화 시뮬레이션
+      if (i > 0) {
+        const variation = Math.sin((targetHour / 24) * 2 * Math.PI) * 3 // ±3도 변화
+        temperature = Math.round(currentTemp + variation)
       }
       
       // 시간 표시 포맷

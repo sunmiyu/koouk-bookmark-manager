@@ -55,28 +55,27 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
   // Get current hour for highlighting
   const currentHour = new Date().getHours()
   
-  // Generate 24-hour data (6 hours past, 18 hours future)
-  const generate24HourData = () => {
+  // Generate fixed 7 time points + NOW
+  const generateFixedTimeData = () => {
     const result = []
-    const now = new Date()
     
-    for (let i = -6; i <= 18; i++) {
-      const targetTime = new Date(now.getTime() + (i * 60 * 60 * 1000))
-      const targetHour = targetTime.getHours()
-      
+    // Fixed time points: 2PM, 6PM, 10PM, 2AM, 6AM, 10AM, 2PM (next day)
+    const fixedHours = [14, 18, 22, 2, 6, 10, 14] // 2PM, 6PM, 10PM, 2AM, 6AM, 10AM, 2PM
+    
+    fixedHours.forEach((hour) => {
       // Find closest data point or interpolate
       let temperature = currentTemp
-      const exactMatch = hourlyData.find(data => data.hour === targetHour)
+      const exactMatch = hourlyData.find(data => data.hour === hour)
       
       if (exactMatch) {
         temperature = exactMatch.temperature
       } else {
         // Simple interpolation based on available data
-        const before = hourlyData.filter(data => data.hour < targetHour).pop()
-        const after = hourlyData.find(data => data.hour > targetHour)
+        const before = hourlyData.filter(data => data.hour < hour).pop()
+        const after = hourlyData.find(data => data.hour > hour)
         
         if (before && after) {
-          const ratio = (targetHour - before.hour) / (after.hour - before.hour)
+          const ratio = (hour - before.hour) / (after.hour - before.hour)
           temperature = before.temperature + (after.temperature - before.temperature) * ratio
         } else if (before) {
           temperature = before.temperature
@@ -86,46 +85,99 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
       }
       
       result.push({
-        hour: targetHour,
-        time: formatTime(targetHour),
+        hour: hour,
+        time: formatTime(hour),
         temperature: Math.round(temperature),
-        isCurrentHour: targetHour === currentHour,
-        condition: exactMatch?.condition || 'clear'
+        isCurrentHour: false,
+        condition: exactMatch?.condition || 'clear',
+        isFixedPoint: true
       })
+    })
+    
+    // Add NOW point
+    const nowExactMatch = hourlyData.find(data => data.hour === currentHour)
+    let nowTemp = currentTemp
+    
+    if (nowExactMatch) {
+      nowTemp = nowExactMatch.temperature
     }
     
-    return result
+    result.push({
+      hour: currentHour,
+      time: 'NOW',
+      temperature: nowTemp,
+      isCurrentHour: true,
+      condition: nowExactMatch?.condition || 'clear',
+      isFixedPoint: false
+    })
+    
+    // Sort by hour for proper chart display
+    return result.sort((a, b) => {
+      if (a.isCurrentHour) return result.length // Put NOW at the end for visibility
+      if (b.isCurrentHour) return -result.length
+      return a.hour - b.hour
+    })
   }
   
-  const chartData = generate24HourData()
+  const chartData = generateFixedTimeData()
 
-  // 날씨 아이콘 반환 함수 (SVG 컴포넌트)
-  const getWeatherIcon = (_condition: string = 'clear', hour: number) => {
-    // 시간대별 기본 아이콘 (헤더 스타일 매칭)
-    if (hour >= 6 && hour < 12) {
-      // 아침 - 노란 태양
+  // 실제 날씨 아이콘 반환 함수 (SVG 컴포넌트)
+  const getWeatherIcon = (condition: string = 'clear') => {
+    const conditionLower = condition.toLowerCase()
+    
+    // 비 관련
+    if (conditionLower.includes('rain') || conditionLower.includes('drizzle') || conditionLower.includes('shower')) {
       return (
-        <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
-          <circle cx="12" cy="12" r="5"/>
-        </svg>
-      )
-    } else if (hour >= 12 && hour < 18) {
-      // 점심 - 주황 태양
-      return (
-        <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
-          <circle cx="12" cy="12" r="5"/>
-        </svg>
-      )
-    } else {
-      // 저녁/밤 - 파란 달
-      return (
-        <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14-4H3m16 8H1m18-2v8l-2-2m0 4l2-2m-2-2h-4" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 19v2m4-2v2m4-2v2" />
         </svg>
       )
     }
+    
+    // 구름 관련
+    if (conditionLower.includes('cloud') || conditionLower.includes('overcast')) {
+      return (
+        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+        </svg>
+      )
+    }
+    
+    // 눈 관련
+    if (conditionLower.includes('snow')) {
+      return (
+        <svg className="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2v20M2 12h20m-6.34-6.34l12.68 12.68M6.34 6.34L19.02 19.02" />
+        </svg>
+      )
+    }
+    
+    // 안개 관련
+    if (conditionLower.includes('fog') || conditionLower.includes('mist') || conditionLower.includes('haze')) {
+      return (
+        <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+        </svg>
+      )
+    }
+    
+    // 폭풍/천둥 관련
+    if (conditionLower.includes('storm') || conditionLower.includes('thunder')) {
+      return (
+        <svg className="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      )
+    }
+    
+    // 기본값: 맑음
+    return (
+      <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
+        <circle cx="12" cy="12" r="5"/>
+      </svg>
+    )
   }
   
   // Custom tooltip
@@ -141,7 +193,7 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
             {data.isCurrentHour && <span className="ml-2 text-xs">(Now)</span>}
           </p>
           <div className="flex justify-center mt-1">
-            {getWeatherIcon(data.condition, data.hour)}
+            {getWeatherIcon(data.condition)}
           </div>
         </div>
       )
@@ -237,11 +289,9 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
           bottom: '30px'     // bottom margin
         }}>
           {chartData.map((entry, index) => {
-            // Skip first and last points to avoid going outside chart, unless it's current hour
-            if ((index > 0 && index < chartData.length - 1 && index % 4 === 0) || entry.isCurrentHour) {
-              // Calculate position within the actual chart area
-              const xPosition = ((index / (chartData.length - 1)) * 100)
-              const yPosition = (1 - ((entry.temperature - (minTemp - tempPadding)) / ((maxTemp + tempPadding) - (minTemp - tempPadding)))) * 100
+            // Show all fixed points and NOW point
+            const xPosition = ((index / (chartData.length - 1)) * 100)
+            const yPosition = (1 - ((entry.temperature - (minTemp - tempPadding)) / ((maxTemp + tempPadding) - (minTemp - tempPadding)))) * 100
               
               return (
                 <div key={`overlay-${index}`} className="absolute" style={{
@@ -266,12 +316,10 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
                   
                   {/* Weather icon */}
                   <div className="flex justify-center">
-                    {getWeatherIcon(entry.condition, entry.hour)}
+                    {getWeatherIcon(entry.condition)}
                   </div>
                 </div>
               )
-            }
-            return null
           })}
         </div>
       </div>

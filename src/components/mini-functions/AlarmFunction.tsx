@@ -16,15 +16,39 @@ interface AlarmFunctionProps {
 }
 
 export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionProps) {
+  // isPreviewOnly를 사용하여 미리보기 모드 처리 가능
   const [alarms, setAlarms] = useState<Alarm[]>([])
 
   useEffect(() => {
+    if (isPreviewOnly) {
+      // 미리보기 모드에서는 더미 데이터 사용
+      setAlarms([
+        {
+          id: '1',
+          time: '07:30',
+          label: '기상 알람',
+          days: ['월', '화', '수', '목', '금'],
+          enabled: true,
+          sound: 'default'
+        },
+        {
+          id: '2',
+          time: '21:00',
+          label: '수면 알람',
+          days: ['매일'],
+          enabled: true,
+          sound: 'gentle'
+        }
+      ])
+      return
+    }
+
     // Load from localStorage
     const saved = localStorage.getItem('miniFunction_alarms')
     if (saved) {
       setAlarms(JSON.parse(saved))
     }
-  }, [])
+  }, [isPreviewOnly])
 
   const saveToStorage = (newAlarms: Alarm[]) => {
     localStorage.setItem('miniFunction_alarms', JSON.stringify(newAlarms))
@@ -43,12 +67,12 @@ export default function AlarmFunction({ isPreviewOnly = false }: AlarmFunctionPr
     saveToStorage(updated)
   }
 
-  const getNextAlarmTime = () => {
+  const getNextAlarmTime = (): Alarm | null => {
     const enabledAlarms = alarms.filter(alarm => alarm.enabled)
     if (enabledAlarms.length === 0) return null
 
     const now = new Date()
-    let nextAlarm = null
+    let nextAlarm: Alarm | null = null
     let minDiff = Infinity
 
     enabledAlarms.forEach(alarm => {

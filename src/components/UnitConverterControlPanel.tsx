@@ -133,8 +133,13 @@ export default function UnitConverterControlPanel() {
     } else {
       // Linear conversion
       const categoryData = unitCategories[category as keyof typeof unitCategories]
-      const fromFactor = categoryData.units[from as keyof typeof categoryData.units]?.factor || 1
-      const toFactor = categoryData.units[to as keyof typeof categoryData.units]?.factor || 1
+      if (!categoryData) return value
+      
+      const fromUnitData = categoryData.units[from as keyof typeof categoryData.units] as { name: string, factor: number } | undefined
+      const toUnitData = categoryData.units[to as keyof typeof categoryData.units] as { name: string, factor: number } | undefined
+      
+      const fromFactor = fromUnitData?.factor || 1
+      const toFactor = toUnitData?.factor || 1
       return (value * fromFactor) / toFactor
     }
   }

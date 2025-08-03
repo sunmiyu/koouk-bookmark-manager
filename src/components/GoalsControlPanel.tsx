@@ -19,7 +19,7 @@ interface Goal {
 export default function GoalsControlPanel() {
   const [goals, setGoals] = useState<Goal[]>([])
   const [showAddForm, setShowAddForm] = useState(false)
-  const [editingGoal, setEditingGoal] = useState<Goal | null>(null)
+  // const [editingGoal, setEditingGoal] = useState<Goal | null>(null)
   const [newGoal, setNewGoal] = useState({
     title: '',
     description: '',

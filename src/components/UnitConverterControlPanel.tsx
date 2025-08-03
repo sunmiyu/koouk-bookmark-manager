@@ -117,7 +117,7 @@ export default function UnitConverterControlPanel() {
     }
     setFromValue('')
     setToValue('')
-  }, [selectedCategory])
+  }, [selectedCategory, unitCategories])
 
   const convertValue = (value: number, from: string, to: string, category: string): number => {
     if (category === '온도') {

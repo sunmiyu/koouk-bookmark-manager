@@ -446,7 +446,7 @@ export default function EnglishStudyControlPanel() {
           </button>
         </div>
         <p className="text-sm text-gray-600">
-          학습을 완료하셨다면 '학습 완료' 버튼을 눌러 오늘의 학습을 기록하세요.
+          학습을 완료하셨다면 &apos;학습 완료&apos; 버튼을 눌러 오늘의 학습을 기록하세요.
         </p>
       </div>
 
@@ -477,7 +477,7 @@ export default function EnglishStudyControlPanel() {
                       <div className="text-sm text-gray-500 mb-1">{word.pronunciation}</div>
                     )}
                     {word.example && (
-                      <div className="text-sm text-blue-600 italic">"{word.example}"</div>
+                      <div className="text-sm text-blue-600 italic">&quot;{word.example}&quot;</div>
                     )}
                     <div className="flex items-center gap-2 mt-2">
                       <span className="text-xs text-gray-500">암기 수준:</span>

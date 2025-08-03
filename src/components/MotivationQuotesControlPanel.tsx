@@ -71,7 +71,7 @@ export default function MotivationQuotesControlPanel() {
     } else {
       localStorage.setItem('miniFunction_quoteSettings', JSON.stringify(settings))
     }
-  }, [])
+  }, [settings])
 
   const saveQuotes = (newQuotes: Quote[]) => {
     localStorage.setItem('miniFunction_quotes', JSON.stringify(newQuotes))
@@ -134,7 +134,7 @@ export default function MotivationQuotesControlPanel() {
     saveQuotes(updated)
   }
 
-  const updateSettings = (key: keyof QuoteSettings, value: any) => {
+  const updateSettings = (key: keyof QuoteSettings, value: string | boolean | string[]) => {
     const newSettings = { ...settings, [key]: value }
     saveSettings(newSettings)
   }
@@ -276,7 +276,7 @@ export default function MotivationQuotesControlPanel() {
           ).slice(0, 6).map((inspirational, index) => (
             <div key={index} className="bg-white border border-gray-200 rounded-lg p-3">
               <div className="text-sm text-gray-900 mb-2 leading-relaxed">
-                "{inspirational.text}"
+                &quot;{inspirational.text}&quot;
               </div>
               <div className="flex items-center justify-between">
                 <div className="text-xs text-gray-500">
@@ -311,7 +311,7 @@ export default function MotivationQuotesControlPanel() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="text-sm text-gray-900 mb-2 leading-relaxed">
-                      "{quote.text}"
+                      &quot;{quote.text}&quot;
                     </div>
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-lg">{getCategoryIcon(quote.category)}</span>

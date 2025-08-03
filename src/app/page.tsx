@@ -34,8 +34,8 @@ function HomeContent() {
   const [activeTab, setActiveTab] = useState<TabType>('summary')
   const [isLoading, setIsLoading] = useState(false)
   const { weatherData } = useWeatherData()
-  const { availableFunctions, enabledFunctions } = useMiniFunctions()
-  const { currentPlan } = useUserPlan()
+  // const { availableFunctions, enabledFunctions } = useMiniFunctions()
+  // const { currentPlan } = useUserPlan()
   const { searchResults } = useSearch()
   const { t } = useLanguage()
 
@@ -517,7 +517,7 @@ function HomeContent() {
                     <a href="https://www.adobe.com/kr/products/firefly.html" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
                       <div>
                         <div className="text-sm font-medium text-white">Adobe Firefly</div>
-                        <div className="text-xs text-gray-400">Adobe's generative AI</div>
+                        <div className="text-xs text-gray-400">Adobe&apos;s generative AI</div>
                       </div>
                       <div className="text-xs text-blue-400">→</div>
                     </a>

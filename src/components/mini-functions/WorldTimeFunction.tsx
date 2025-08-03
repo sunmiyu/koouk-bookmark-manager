@@ -59,7 +59,7 @@ export default function WorldTimeFunction() {
         isPM: localTime.getHours() >= 12,
         isNextDay: localTime.getDate() !== now.getDate()
       }
-    } catch (error) {
+    } catch {
       return {
         time: '--:--',
         date: '--',

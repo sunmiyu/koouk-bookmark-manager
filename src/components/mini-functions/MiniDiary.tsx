@@ -46,7 +46,8 @@ export default function MiniDiary({ isPreviewOnly = false, showHistoryOnly = fal
     }
 
     loadDiaryData()
-  }, [isPreviewOnly]) // loadDiaryData는 의존성에서 제거 (함수 내부에서 정의됨)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPreviewOnly])
 
   const loadDiaryData = useCallback(async () => {
     try {

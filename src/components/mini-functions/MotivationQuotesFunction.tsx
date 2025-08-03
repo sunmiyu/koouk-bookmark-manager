@@ -92,7 +92,7 @@ export default function MotivationQuotesFunction() {
             <span>오늘의 명언</span>
           </div>
           <div className="text-white text-sm font-medium mb-2 leading-relaxed">
-            "{todayQuote.text}"
+            &quot;{todayQuote.text}&quot;
           </div>
           {settings?.showAuthor && (
             <div className="text-xs text-gray-400 text-right">
@@ -145,7 +145,7 @@ export default function MotivationQuotesFunction() {
             {favoriteQuotes.map(quote => (
               <div key={quote.id} className="bg-yellow-900/20 border border-yellow-700/30 rounded-lg p-3">
                 <div className="text-sm text-white mb-1 leading-relaxed">
-                  "{quote.text}"
+                  &quot;{quote.text}&quot;
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -173,7 +173,7 @@ export default function MotivationQuotesFunction() {
             {recentQuotes.filter(quote => !quote.isFavorite).slice(0, 2).map(quote => (
               <div key={quote.id} className="bg-gray-800/20 border border-gray-700/30 rounded-lg p-3">
                 <div className="text-sm text-white mb-1 leading-relaxed">
-                  "{quote.text}"
+                  &quot;{quote.text}&quot;
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">

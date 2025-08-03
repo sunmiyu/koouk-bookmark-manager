@@ -171,8 +171,8 @@ export default function TemperatureGraph() {
     }
   }
 
-  const weatherData = generateNext12Hours()
-  const temperatures = weatherData.map(d => d.temperature)
+  const hourlyForecast = generateNext12Hours()
+  const temperatures = hourlyForecast.map(d => d.temperature)
   const minTemp = Math.min(...temperatures)
   const maxTemp = Math.max(...temperatures)
 
@@ -212,7 +212,7 @@ export default function TemperatureGraph() {
 
       {/* 날씨 카드들 */}
       <div className="grid grid-cols-6 gap-3 mb-4">
-        {weatherData.slice(0, 6).map((data, index) => (
+        {hourlyForecast.slice(0, 6).map((data, index) => (
           <div 
             key={index}
             className={`text-center p-3 rounded-lg ${
@@ -240,7 +240,7 @@ export default function TemperatureGraph() {
 
       {/* 다음 6시간 (작은 카드) */}
       <div className="grid grid-cols-6 gap-2">
-        {weatherData.slice(6, 12).map((data, index) => (
+        {hourlyForecast.slice(6, 12).map((data, index) => (
           <div key={index + 6} className="text-center p-2 rounded bg-gray-700/20">
             <div className="text-xs text-gray-500 mb-1">
               {data.time}

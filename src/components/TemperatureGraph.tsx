@@ -99,20 +99,33 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
   
   const chartData = generate24HourData()
 
-  // 날씨 아이콘 반환 함수
-  const getWeatherIcon = (condition: string = 'clear') => {
-    const iconMap: { [key: string]: string } = {
-      'clear': '☀️',
-      'sunny': '☀️',
-      'cloudy': '☁️',
-      'partly-cloudy': '⛅',
-      'rain': '🌧️',
-      'snow': '🌨️',
-      'storm': '⛈️',
-      'fog': '🌫️',
-      'wind': '💨'
+  // 날씨 아이콘 반환 함수 (SVG 컴포넌트)
+  const getWeatherIcon = (_condition: string = 'clear', hour: number) => {
+    // 시간대별 기본 아이콘 (헤더 스타일 매칭)
+    if (hour >= 6 && hour < 12) {
+      // 아침 - 노란 태양
+      return (
+        <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
+          <circle cx="12" cy="12" r="5"/>
+        </svg>
+      )
+    } else if (hour >= 12 && hour < 18) {
+      // 점심 - 주황 태양
+      return (
+        <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
+          <circle cx="12" cy="12" r="5"/>
+        </svg>
+      )
+    } else {
+      // 저녁/밤 - 파란 달
+      return (
+        <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+      )
     }
-    return iconMap[condition.toLowerCase()] || '☀️'
   }
   
   // Custom tooltip
@@ -127,8 +140,8 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
             <span className="font-bold">{data.temperature}°</span>
             {data.isCurrentHour && <span className="ml-2 text-xs">(Now)</span>}
           </p>
-          <div className="text-lg text-center mt-1">
-            {getWeatherIcon(data.condition)}
+          <div className="flex justify-center mt-1">
+            {getWeatherIcon(data.condition, data.hour)}
           </div>
         </div>
       )
@@ -217,9 +230,16 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
         </ResponsiveContainer>
         
         {/* Overlay for temperature labels and weather icons */}
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute pointer-events-none" style={{
+          left: '10px',      // left margin
+          right: '10px',     // right margin  
+          top: '30px',       // top margin
+          bottom: '30px'     // bottom margin
+        }}>
           {chartData.map((entry, index) => {
-            if (index % 4 === 0 || entry.isCurrentHour) {
+            // Skip first and last points to avoid going outside chart, unless it's current hour
+            if ((index > 0 && index < chartData.length - 1 && index % 4 === 0) || entry.isCurrentHour) {
+              // Calculate position within the actual chart area
               const xPosition = ((index / (chartData.length - 1)) * 100)
               const yPosition = (1 - ((entry.temperature - (minTemp - tempPadding)) / ((maxTemp + tempPadding) - (minTemp - tempPadding)))) * 100
               
@@ -244,9 +264,9 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
                     {entry.temperature}°
                   </div>
                   
-                  {/* Weather emoji */}
-                  <div className="text-lg text-center">
-                    {getWeatherIcon(entry.condition)}
+                  {/* Weather icon */}
+                  <div className="flex justify-center">
+                    {getWeatherIcon(entry.condition, entry.hour)}
                   </div>
                 </div>
               )

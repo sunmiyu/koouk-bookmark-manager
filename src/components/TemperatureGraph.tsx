@@ -19,7 +19,18 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
 
   useEffect(() => {
     setMounted(true)
-  }, [])
+    
+    // Debug: 현재 위치 권한 상태 확인
+    if (navigator.permissions) {
+      navigator.permissions.query({name: 'geolocation'}).then(result => {
+        console.log('🌍 Geolocation permission:', result.state)
+      })
+    }
+    
+    // Debug: hourlyData 확인
+    console.log('🌤️ Weather hourlyData:', hourlyData)
+    console.log('🌡️ Current temp:', currentTemp)
+  }, [hourlyData, currentTemp])
 
   if (!mounted || !hourlyData || hourlyData.length === 0) {
     return (
@@ -83,17 +94,28 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
   const getWeatherIcon = (condition: string) => {
     const cond = condition.toLowerCase()
     
-    if (cond.includes('rain') || cond.includes('drizzle')) {
+    console.log('🔍 Weather condition:', condition, '→', cond)
+    
+    if (cond.includes('rain') || cond.includes('drizzle') || cond.includes('shower')) {
+      console.log('🌧️ Rain detected')
       return '🌧️'
-    } else if (cond.includes('cloud')) {
+    } else if (cond.includes('cloud') || cond.includes('overcast')) {
+      console.log('☁️ Cloudy detected')
       return '☁️'
     } else if (cond.includes('snow')) {
+      console.log('❄️ Snow detected')
       return '❄️'
     } else if (cond.includes('storm') || cond.includes('thunder')) {
+      console.log('⛈️ Storm detected')
       return '⛈️'
-    } else if (cond.includes('fog') || cond.includes('mist')) {
+    } else if (cond.includes('fog') || cond.includes('mist') || cond.includes('haze')) {
+      console.log('🌫️ Fog detected')
       return '🌫️'
+    } else if (cond.includes('clear') || cond.includes('sunny')) {
+      console.log('☀️ Clear/Sunny detected')
+      return '☀️'
     } else {
+      console.log('❓ Unknown condition, defaulting to sunny')
       return '☀️'
     }
   }
@@ -107,7 +129,30 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
     <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 w-full">
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-white">12시간 날씨 예보</h3>
+        <div className="flex items-center gap-3">
+          <h3 className="text-lg font-semibold text-white">12시간 날씨 예보</h3>
+          <button 
+            onClick={() => {
+              if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                  (position) => {
+                    console.log('📍 Current location:', position.coords.latitude, position.coords.longitude)
+                    // Force refresh weather data with current location
+                    window.location.reload()
+                  },
+                  (error) => {
+                    console.error('❌ Location error:', error)
+                    alert('위치 권한을 허용해주세요. 현재 위치의 날씨를 보여드릴게요!')
+                  },
+                  { enableHighAccuracy: true, timeout: 10000 }
+                )
+              }
+            }}
+            className="px-2 py-1 bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 text-xs rounded border border-blue-500/30"
+          >
+            📍 현재 위치
+          </button>
+        </div>
         <div className="flex items-center gap-2">
           <div className="text-2xl font-bold text-blue-400">{currentTemp}°</div>
           <div className="text-sm text-gray-400">현재</div>

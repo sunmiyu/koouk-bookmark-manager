@@ -12,9 +12,10 @@ interface HourlyData {
 interface TemperatureGraphProps {
   hourlyData: HourlyData[]
   currentTemp: number
+  currentCondition?: string
 }
 
-export default function TemperatureGraph({ hourlyData, currentTemp }: TemperatureGraphProps) {
+export default function TemperatureGraph({ hourlyData, currentTemp, currentCondition = 'clear' }: TemperatureGraphProps) {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -65,19 +66,26 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
     for (let i = 0; i < 12; i++) {
       const targetHour = (currentHour + i) % 24
       let temperature = currentTemp
-      let condition = 'clear'
+      let condition = currentCondition // 현재 날씨 상태를 기본값으로 사용
       
       // 기존 데이터에서 해당 시간 찾기
       const existingData = hourlyData.find(data => data.hour === targetHour)
       if (existingData) {
         temperature = existingData.temperature
-        // "undefined" 문자열도 처리
-        condition = (existingData.condition && existingData.condition !== 'undefined') ? existingData.condition : 'clear'
+        // condition 필드가 없거나 "undefined"인 경우를 처리
+        condition = (existingData.condition && existingData.condition !== 'undefined' && existingData.condition !== undefined) ? existingData.condition : 'clear'
         
         // Debug: 실제 데이터 확인
         if (i < 3) {
           console.log(`⏰ Hour ${targetHour}: existingData =`, existingData)
           console.log(`   condition: "${existingData.condition}" → "${condition}"`)
+        }
+      } else {
+        // 데이터가 없는 경우 시간대별로 다른 기본값 설정
+        if (targetHour >= 6 && targetHour <= 18) {
+          condition = 'clear'  // 낮시간은 맑음
+        } else {
+          condition = 'clear'  // 밤시간도 기본값은 맑음
         }
       }
       

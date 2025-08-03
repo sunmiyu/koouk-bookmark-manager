@@ -235,6 +235,7 @@ function HomeContent() {
                     <TemperatureGraph 
                       hourlyData={weatherData.hourlyData}
                       currentTemp={weatherData.weather.current}
+                      currentCondition={weatherData.weather.description}
                     />
                   ) : (
                     <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 sm:p-6 w-full">

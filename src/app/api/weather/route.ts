@@ -229,7 +229,7 @@ export async function GET(request: NextRequest) {
     console.log('  - Afternoon weather:', afternoonWeather?.weather[0])
     console.log('  - Evening weather:', eveningWeather?.weather[0])
     console.log('💾 Hourly conditions sent to frontend:')
-    hourlyData.forEach((item, i) => {
+    hourlyData.forEach((item: {time: string, condition: string, temperature: number}, i: number) => {
       if (i < 5) console.log(`  ${item.time}: ${item.condition} (${item.temperature}°)`)
     })
     

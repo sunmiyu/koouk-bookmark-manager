@@ -171,7 +171,7 @@ export async function GET(request: NextRequest) {
     const currentHour = nowKST.getHours()
     
     // Get data points around current time (±8 hours to get good coverage)
-    const hourlyData = forecastData.list
+    const processedItems = forecastData.list
       .map((item: {dt: number, dt_txt: string, main: {temp: number}, weather: [{main: string, description: string}]}) => {
         const itemTime = new Date(item.dt * 1000)
         const itemTimeKST = new Date(itemTime.getTime() + (kstOffset * 60 * 1000))
@@ -191,12 +191,21 @@ export async function GET(request: NextRequest) {
       })
       .sort((a: {itemTimeKST: Date}, b: {itemTimeKST: Date}) => a.itemTimeKST.getTime() - b.itemTimeKST.getTime())
       .slice(0, 15) // Limit to ~15 points max
-      .map((item: {dt_txt: string, main: {temp: number}, itemHour: number, weather: [{main: string, description: string}]}) => ({
-        time: item.dt_txt,
-        temperature: Math.round(item.main.temp),
-        hour: item.itemHour,
-        condition: item.weather[0].main.toLowerCase()
-      }))
+    
+    const hourlyData = processedItems.map((item: {dt_txt: string, main: {temp: number}, itemHour: number, weather: [{main: string, description: string}]}, index: number) => {
+        const condition = item.weather?.[0]?.main?.toLowerCase() || 'clear'
+        // Debug first few items
+        if (index < 3) {
+          console.log(`🔍 Item ${index} weather data:`, item.weather)
+          console.log(`🔍 Raw condition: "${item.weather?.[0]?.main}" → "${condition}"`)
+        }
+        return {
+          time: item.dt_txt,
+          temperature: Math.round(item.main.temp),
+          hour: item.itemHour,
+          condition: condition
+        }
+      })
 
     // Return weather data with specific time forecasts and hourly data
     const responseData = {

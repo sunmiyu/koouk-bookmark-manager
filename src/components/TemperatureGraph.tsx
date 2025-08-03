@@ -67,7 +67,8 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
       const existingData = hourlyData.find(data => data.hour === targetHour)
       if (existingData) {
         temperature = existingData.temperature
-        condition = existingData.condition || 'clear'
+        // "undefined" 문자열도 처리
+        condition = (existingData.condition && existingData.condition !== 'undefined') ? existingData.condition : 'clear'
         
         // Debug: 실제 데이터 확인
         if (i < 3) {

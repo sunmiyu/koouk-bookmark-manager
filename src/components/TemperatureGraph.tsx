@@ -1,6 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import {
+  Area,
+  AreaChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  ReferenceDot
+} from 'recharts'
 
 interface HourlyData {
   time: string
@@ -35,19 +44,52 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
     )
   }
 
-  // Find min and max temperatures for scaling
-  const temperatures = hourlyData.map(d => d.temperature)
-  const minTemp = Math.min(...temperatures)
-  const maxTemp = Math.max(...temperatures)
-  const tempRange = maxTemp - minTemp || 10 // Minimum range of 10 degrees
-
-  // Scale temperature to chart height (0-100)
-  const scaleTemp = (temp: number) => {
-    return ((temp - minTemp) / tempRange) * 70 + 15 // 15-85 range for more padding
-  }
-
   // Get current hour for highlighting
   const currentHour = new Date().getHours()
+  
+  // Generate 24-hour data (6 hours past, 18 hours future)
+  const generate24HourData = () => {
+    const result = []
+    const now = new Date()
+    
+    for (let i = -6; i <= 18; i++) {
+      const targetTime = new Date(now.getTime() + (i * 60 * 60 * 1000))
+      const targetHour = targetTime.getHours()
+      
+      // Find closest data point or interpolate
+      let temperature = currentTemp
+      const exactMatch = hourlyData.find(data => data.hour === targetHour)
+      
+      if (exactMatch) {
+        temperature = exactMatch.temperature
+      } else {
+        // Simple interpolation based on available data
+        const before = hourlyData.filter(data => data.hour < targetHour).pop()
+        const after = hourlyData.find(data => data.hour > targetHour)
+        
+        if (before && after) {
+          const ratio = (targetHour - before.hour) / (after.hour - before.hour)
+          temperature = before.temperature + (after.temperature - before.temperature) * ratio
+        } else if (before) {
+          temperature = before.temperature
+        } else if (after) {
+          temperature = after.temperature
+        }
+      }
+      
+      result.push({
+        hour: targetHour,
+        time: formatTime(targetHour),
+        temperature: Math.round(temperature),
+        isCurrentHour: targetHour === currentHour,
+        condition: exactMatch?.condition || 'clear'
+      })
+    }
+    
+    return result
+  }
+  
+  const chartData = generate24HourData()
 
   // 날씨 아이콘 반환 함수
   const getWeatherIcon = (condition: string = 'clear') => {
@@ -65,108 +107,43 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
     return iconMap[condition.toLowerCase()] || '☀️'
   }
 
-  // 시간 포맷팅 함수 (실제 시간 기반)
-  const formatTime = (hour: number, isKeyTime = false) => {
+  // 시간 포맷팅 함수
+  const formatTime = (hour: number) => {
     if (hour === 0) return '12AM'
     if (hour === 12) return '12PM'
     if (hour < 12) return `${hour}AM`
     return `${hour - 12}PM`
   }
-
-  // 현재 시간에서 가장 가까운 주요 시간대들 계산
-  const getKeyTimePoints = () => {
-    if (hourlyData.length === 0) return []
-    
-    // 처음, 중간, 마지막 포인트를 주요 시간대로 선택
-    const keyIndices = [
-      0,
-      Math.floor(hourlyData.length / 2),
-      hourlyData.length - 1
-    ]
-    
-    return keyIndices.map(index => hourlyData[index]).filter(Boolean)
-  }
-
-  // 현재 시간에 가장 가까운 데이터 포인트 찾기
-  const getCurrentTimePoint = () => {
-    if (hourlyData.length === 0) return null
-    
-    return hourlyData.reduce((prev, curr) => {
-      const prevDiff = Math.abs(prev.hour - currentHour)
-      const currDiff = Math.abs(curr.hour - currentHour)
-      return currDiff < prevDiff ? curr : prev
-    })
-  }
-
-  // 부드러운 곡선 패스 생성 (cubic bezier)
-  const generateSmoothPath = () => {
-    if (hourlyData.length < 2) return ''
-    
-    const width = 100
-    const stepX = width / (hourlyData.length - 1)
-    
-    const points = hourlyData.map((data, i) => ({
-      x: i * stepX,
-      y: 100 - scaleTemp(data.temperature)
-    }))
-    
-    let path = `M ${points[0].x} ${points[0].y}`
-    
-    if (points.length === 2) {
-      // 2개 포인트만 있으면 직선
-      path += ` L ${points[1].x} ${points[1].y}`
-    } else {
-      // 3개 이상이면 부드러운 곡선
-      for (let i = 1; i < points.length; i++) {
-        const prev = points[i - 1]
-        const curr = points[i]
-        const next = points[i + 1]
-        
-        if (i === 1) {
-          // 첫 번째 곡선
-          const cp1x = prev.x + (curr.x - prev.x) * 0.3
-          const cp1y = prev.y
-          const cp2x = curr.x - (curr.x - prev.x) * 0.3
-          const cp2y = curr.y
-          path += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${curr.x} ${curr.y}`
-        } else if (i === points.length - 1) {
-          // 마지막 곡선
-          const cp1x = prev.x + (curr.x - prev.x) * 0.3
-          const cp1y = prev.y
-          const cp2x = curr.x - (curr.x - prev.x) * 0.3
-          const cp2y = curr.y
-          path += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${curr.x} ${curr.y}`
-        } else {
-          // 중간 곡선
-          const prevDelta = { x: curr.x - prev.x, y: curr.y - prev.y }
-          const nextDelta = { x: next.x - curr.x, y: next.y - curr.y }
-          const cp1x = prev.x + prevDelta.x * 0.7
-          const cp1y = prev.y + prevDelta.y * 0.7
-          const cp2x = curr.x - nextDelta.x * 0.3
-          const cp2y = curr.y - nextDelta.y * 0.3
-          path += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${curr.x} ${curr.y}`
-        }
-      }
+  
+  // Custom tooltip
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: any[]; label?: string }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload
+      return (
+        <div className="bg-gray-800/95 backdrop-blur-sm border border-gray-600 rounded-lg p-3 shadow-lg">
+          <p className="text-white font-medium">{data.time}</p>
+          <p className="text-blue-400 text-sm">
+            <span className="font-bold">{data.temperature}°</span>
+            {data.isCurrentHour && <span className="ml-2 text-xs">(Now)</span>}
+          </p>
+          <div className="text-lg text-center mt-1">
+            {getWeatherIcon(data.condition)}
+          </div>
+        </div>
+      )
     }
-    
-    return path
+    return null
   }
-
-  // 그래디언트 영역 패스 (부드러운 곡선 기반)
-  const generateGradientPath = () => {
-    const linePath = generateSmoothPath()
-    if (!linePath) return ''
-    
-    // 라인 패스에 하단 영역 추가
-    const width = 100
-    const stepX = width / (hourlyData.length - 1)
-    const lastX = (hourlyData.length - 1) * stepX
-    
-    return `M 0 100 L 0 ${100 - scaleTemp(hourlyData[0].temperature)} ${linePath.substring(1)} L ${lastX} 100 Z`
-  }
-
-  const keyTimePoints = getKeyTimePoints()
-  const currentTimePoint = getCurrentTimePoint()
+  
+  // Find min and max for chart scaling
+  const temperatures = chartData.map(d => d.temperature)
+  const minTemp = Math.min(...temperatures)
+  const maxTemp = Math.max(...temperatures)
+  const tempPadding = Math.max(2, (maxTemp - minTemp) * 0.1)
+  
+  // Key time points for labels (every 4 hours)
+  const keyTimePoints = chartData.filter((_, index) => index % 4 === 0)
 
   return (
     <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 w-full">
@@ -180,97 +157,78 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
       </div>
 
       {/* Graph Container */}
-      <div className="relative h-32 sm:h-40 mb-4 sm:mb-6">
-        <svg
-          viewBox="0 0 100 100"
-          className="absolute inset-0 w-full h-full"
-          preserveAspectRatio="xMidYMid meet"
-        >
-          {/* Gradient Definition */}
-          <defs>
-            <linearGradient id="tempGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="rgb(59, 130, 246)" stopOpacity="0.2" />
-              <stop offset="100%" stopColor="rgb(59, 130, 246)" stopOpacity="0.05" />
-            </linearGradient>
-          </defs>
-          
-          {/* Area under curve */}
-          <path
-            d={generateGradientPath()}
-            fill="url(#tempGradient)"
-          />
-          
-          {/* Main temperature line - smooth curve */}
-          <path
-            d={generateSmoothPath()}
-            fill="none"
-            stroke="rgb(59, 130, 246)"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            vectorEffect="non-scaling-stroke"
-          />
-          
-          {/* 모든 데이터 포인트에 온도 라벨 표시 */}
-          {hourlyData.map((data, index) => {
-            const x = (index / (hourlyData.length - 1)) * 100
-            const y = 100 - scaleTemp(data.temperature)
-            const isCurrentHour = currentTimePoint && data.hour === currentTimePoint.hour
-            
-            return (
-              <g key={index}>
-                {/* 데이터 포인트 원 */}
-                <circle
-                  cx={x}
-                  cy={y}
-                  r={isCurrentHour ? "5" : "3"}
-                  fill={isCurrentHour ? "rgb(59, 130, 246)" : "rgb(255, 255, 255)"}
-                  stroke={isCurrentHour ? "rgb(255, 255, 255)" : "rgb(59, 130, 246)"}
-                  strokeWidth="2"
-                  vectorEffect="non-scaling-stroke"
-                  className="drop-shadow-sm"
-                />
-                
-                {/* 온도 라벨 - 키 포인트와 현재 시간에만 표시 */}
-                {(keyTimePoints.some(point => point.hour === data.hour) || isCurrentHour) && (
-                  <text
-                    x={x}
-                    y={y - 12}
-                    textAnchor="middle"
-                    className={`font-bold drop-shadow-sm ${
-                      isCurrentHour 
-                        ? 'fill-blue-400 text-sm' 
-                        : 'fill-white text-xs'
-                    }`}
-                    style={{ fontSize: isCurrentHour ? '5px' : '4px' }}
-                  >
-                    {data.temperature}°
-                  </text>
-                )}
-
-                {/* 날씨 아이콘 - 키 포인트에만 표시 */}
-                {keyTimePoints.some(point => point.hour === data.hour) && (
-                  <text
-                    x={x}
-                    y={y + 18}
-                    textAnchor="middle"
-                    className="text-lg"
-                    style={{ fontSize: '6px' }}
-                  >
-                    {getWeatherIcon(data.condition)}
-                  </text>
-                )}
-              </g>
-            )
-          })}
-        </svg>
+      <div className="h-40 sm:h-48 mb-4 sm:mb-6">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart
+            data={chartData}
+            margin={{
+              top: 20,
+              right: 10,
+              left: 10,
+              bottom: 20
+            }}
+          >
+            <defs>
+              <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.05}/>
+              </linearGradient>
+            </defs>
+            <XAxis 
+              dataKey="time"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12, fill: '#9ca3af' }}
+              interval="preserveStartEnd"
+              tickFormatter={(value) => {
+                const dataIndex = chartData.findIndex(d => d.time === value)
+                return dataIndex % 4 === 0 ? value : ''
+              }}
+            />
+            <YAxis 
+              domain={[minTemp - tempPadding, maxTemp + tempPadding]}
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12, fill: '#9ca3af' }}
+              tickFormatter={(value) => `${Math.round(value)}°`}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Area
+              type="monotone"
+              dataKey="temperature"
+              stroke="#3b82f6"
+              strokeWidth={3}
+              fill="url(#colorTemp)"
+              fillOpacity={1}
+              dot={false}
+              activeDot={false}
+            />
+            {/* Current time reference dots */}
+            {chartData.map((entry, index) => {
+              if (entry.isCurrentHour) {
+                return (
+                  <ReferenceDot
+                    key={`current-${index}`}
+                    x={entry.time}
+                    y={entry.temperature}
+                    r={6}
+                    fill="#3b82f6"
+                    stroke="#ffffff"
+                    strokeWidth={3}
+                    className="drop-shadow-lg"
+                  />
+                )
+              }
+              return null
+            })}
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
 
-      {/* 시간 라벨 - 키 포인트만 표시 */}
+      {/* Time Labels with Weather Icons */}
       <div className="flex justify-between items-center px-1 sm:px-2 mb-3 sm:mb-4">
         {keyTimePoints.map((data, index) => {
-          const isCurrentTime = currentTimePoint && data.hour === currentTimePoint.hour
-          const timeLabel = formatTime(data.hour, true)
+          const isCurrentTime = data.isCurrentHour
           
           return (
             <div
@@ -285,23 +243,17 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
               </span>
               {/* 시간 라벨 */}
               <span className="text-xs">
-                {isCurrentTime ? 'Now' : timeLabel}
+                {isCurrentTime ? 'Now' : data.time}
+              </span>
+              {/* 온도 표시 */}
+              <span className={`text-xs mt-0.5 ${
+                isCurrentTime ? 'text-blue-300 font-bold' : 'text-gray-500'
+              }`}>
+                {data.temperature}°
               </span>
             </div>
           )
         })}
-        
-        {/* 현재 시간이 키 포인트에 없으면 별도 표시 */}
-        {currentTimePoint && !keyTimePoints.some(point => point.hour === currentTimePoint.hour) && (
-          <div className="absolute left-1/2 transform -translate-x-1/2 text-center flex flex-col items-center text-blue-400 font-bold">
-            <span className="text-xs sm:text-sm mb-0.5 sm:mb-1">
-              {getWeatherIcon(currentTimePoint.condition)}
-            </span>
-            <span className="text-xs bg-blue-600/20 px-2 py-0.5 rounded">
-              Now
-            </span>
-          </div>
-        )}
       </div>
 
       {/* Temperature Range Info */}

@@ -9,6 +9,13 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        'xs': '375px',
+        'sm': '640px',
+        'md': '768px',
+        'lg': '1024px',
+        'xl': '1280px',
+      },
       colors: {
         // 라이트모드 색상
         light: {

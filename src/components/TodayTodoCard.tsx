@@ -34,8 +34,8 @@ export default function TodayTodoCard() {
       <div className="mb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="text-base font-semibold text-white">{month}/{day}</div>
-            <div className="text-sm text-gray-400">{weekday}</div>
+            <div className="text-sm text-gray-400 font-medium">{month}/{day}</div>
+            <div className="text-sm text-gray-400 font-medium">{weekday}</div>
           </div>
           <div className="flex gap-1">
             <span className="px-2 py-1 bg-blue-600/20 text-blue-400 text-xs rounded-md font-medium border border-blue-500/30">Today</span>

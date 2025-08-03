@@ -163,6 +163,38 @@ export default function TodoSection() {
     }
   }
 
+  // Group todos by date category
+  const groupTodosByDate = () => {
+    const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    
+    const todayTodos: TodoItem[] = []
+    const pastTodos: TodoItem[] = []
+    const futureTodos: TodoItem[] = []
+
+    filteredTodos.forEach(todo => {
+      if (todo.dueDate) {
+        const dueDate = new Date(todo.dueDate)
+        const dueDateOnly = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate())
+        
+        if (dueDateOnly.getTime() === today.getTime()) {
+          todayTodos.push(todo)
+        } else if (dueDateOnly < today) {
+          pastTodos.push(todo)
+        } else {
+          futureTodos.push(todo)
+        }
+      } else {
+        // Todos without due date go to today by default
+        todayTodos.push(todo)
+      }
+    })
+
+    return { todayTodos, pastTodos, futureTodos }
+  }
+
+  const { todayTodos, pastTodos, futureTodos } = groupTodosByDate()
+
   const getPriorityStyle = (priority: TodoItem['priority']) => {
     const config = PRIORITIES.find(p => p.value === priority)
     return config?.color || 'text-gray-400 bg-gray-900/20'
@@ -452,143 +484,430 @@ export default function TodoSection() {
         </div>
       )}
 
-      {/* Todo Items */}
-      <div className="space-y-3 max-h-[600px] overflow-y-auto">
-        {filteredTodos.map((todo) => {
-          const isSelected = selectedItems.has(todo.id)
-          const priorityStyle = getPriorityStyle(todo.priority)
-          
-          return (
-            <div 
-              key={todo.id} 
-              className={`bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border group relative transition-all duration-200 hover:bg-gray-800/70 ${
-                isSelected ? 'border-blue-500 bg-blue-900/20' : 'border-gray-700/50'
-              } ${todo.completed ? 'opacity-60' : ''}`}
-            >
-              {/* Bulk selection checkbox */}
-              {bulkMode && (
-                <div className="absolute top-2 left-2 z-10">
-                  <button
-                    onClick={() => toggleSelectItem(todo.id)}
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                      isSelected 
-                        ? 'bg-blue-600 border-blue-600' 
-                        : 'border-gray-400 bg-gray-700'
-                    }`}
-                  >
-                    {isSelected && (
-                      <span className="text-white text-xs">✓</span>
-                    )}
-                  </button>
-                </div>
-              )}
-
-              {/* Action buttons */}
-              <div className={`absolute top-2 right-2 flex gap-1 z-10 ${
-                bulkMode ? 'hidden' : 'opacity-0 group-hover:opacity-100'
-              }`}>
-                <button
-                  onClick={() => toggleTodo(todo.id)}
-                  className={`w-7 h-7 flex items-center justify-center border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm ${
-                    todo.completed 
-                      ? 'text-green-400 hover:text-green-300 bg-green-600/20' 
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                  title={todo.completed ? '미완료로 변경' : '완료로 변경'}
+      {/* Todo Items - Grouped by Date */}
+      <div className="space-y-6 max-h-[600px] overflow-y-auto">
+        {/* Today's Todos */}
+        {todayTodos.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+              <h4 className="text-sm font-semibold text-blue-400">오늘 ({todayTodos.length})</h4>
+            </div>
+            {todayTodos.map((todo) => {
+              const isSelected = selectedItems.has(todo.id)
+              const priorityStyle = getPriorityStyle(todo.priority)
+              
+              return (
+                <div 
+                  key={todo.id} 
+                  className={`bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border group relative transition-all duration-200 hover:bg-gray-800/70 ${
+                    isSelected ? 'border-blue-500 bg-blue-900/20' : 'border-gray-700/50'
+                  } ${todo.completed ? 'opacity-60' : ''}`}
                 >
-                  {todo.completed ? '✓' : '○'}
-                </button>
-                <button
-                  onClick={async () => {
-                    const newTitle = prompt('할 일 제목을 수정하세요:', todo.title)
-                    if (newTitle && newTitle.trim() !== todo.title) {
-                      await updateTodo(todo.id, { title: newTitle.trim() })
-                    }
-                  }}
-                  className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm"
-                  title="수정"
-                >
-                  ✎
-                </button>
-                <button
-                  onClick={async () => {
-                    if (confirm('이 할 일을 삭제하시겠습니까?')) {
-                      await deleteTodo(todo.id)
-                    }
-                  }}
-                  className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm"
-                  title="삭제"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className={`w-6 h-6 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                  todo.completed ? 'bg-green-600' : 'bg-blue-500'
-                }`}>
-                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    {todo.completed ? (
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    ) : (
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    )}
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h4 className={`font-medium text-sm truncate ${
-                      todo.completed ? 'text-gray-400 line-through' : 'text-white'
-                    }`}>
-                      {todo.title}
-                    </h4>
-                    <span className={`px-2 py-0.5 text-xs rounded ${priorityStyle}`}>
-                      {PRIORITIES.find(p => p.value === todo.priority)?.label}
-                    </span>
-                  </div>
-                  
-                  {todo.description && (
-                    <p className="text-xs text-gray-400 mt-1 line-clamp-2">
-                      {todo.description}
-                    </p>
+                  {/* Bulk selection checkbox */}
+                  {bulkMode && (
+                    <div className="absolute top-2 left-2 z-10">
+                      <button
+                        onClick={() => toggleSelectItem(todo.id)}
+                        className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                          isSelected 
+                            ? 'bg-blue-600 border-blue-600' 
+                            : 'border-gray-400 bg-gray-700'
+                        }`}
+                      >
+                        {isSelected && (
+                          <span className="text-white text-xs">✓</span>
+                        )}
+                      </button>
+                    </div>
                   )}
-                  
-                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
-                    <span className="bg-gray-700 px-2 py-0.5 rounded">
-                      {todo.category}
-                    </span>
-                    
-                    {todo.tags.length > 0 && (
-                      <div className="flex gap-1">
-                        {todo.tags.slice(0, 3).map(tag => (
-                          <span key={tag} className="bg-blue-900/30 text-blue-300 px-1 py-0.5 rounded">
-                            #{tag}
+
+                  {/* Action buttons */}
+                  <div className={`absolute top-2 right-2 flex gap-1 z-10 ${
+                    bulkMode ? 'hidden' : 'opacity-0 group-hover:opacity-100'
+                  }`}>
+                    <button
+                      onClick={() => toggleTodo(todo.id)}
+                      className={`w-7 h-7 flex items-center justify-center border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm ${
+                        todo.completed 
+                          ? 'text-green-400 hover:text-green-300 bg-green-600/20' 
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                      title={todo.completed ? '미완료로 변경' : '완료로 변경'}
+                    >
+                      {todo.completed ? '✓' : '○'}
+                    </button>
+                    <button
+                      onClick={async () => {
+                        const newTitle = prompt('할 일 제목을 수정하세요:', todo.title)
+                        if (newTitle && newTitle.trim() !== todo.title) {
+                          await updateTodo(todo.id, { title: newTitle.trim() })
+                        }
+                      }}
+                      className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm"
+                      title="수정"
+                    >
+                      ✎
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (confirm('이 할 일을 삭제하시겠습니까?')) {
+                          await deleteTodo(todo.id)
+                        }
+                      }}
+                      className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm"
+                      title="삭제"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className={`w-6 h-6 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                      todo.completed ? 'bg-green-600' : 'bg-blue-500'
+                    }`}>
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {todo.completed ? (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        ) : (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        )}
+                      </svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className={`font-medium text-sm truncate ${
+                          todo.completed ? 'text-gray-400 line-through' : 'text-white'
+                        }`}>
+                          {todo.title}
+                        </h4>
+                        <span className={`px-2 py-0.5 text-xs rounded ${priorityStyle}`}>
+                          {PRIORITIES.find(p => p.value === todo.priority)?.label}
+                        </span>
+                      </div>
+                      
+                      {todo.description && (
+                        <p className="text-xs text-gray-400 mt-1 line-clamp-2">
+                          {todo.description}
+                        </p>
+                      )}
+                      
+                      <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                        <span className="bg-gray-700 px-2 py-0.5 rounded">
+                          {todo.category}
+                        </span>
+                        
+                        {todo.tags.length > 0 && (
+                          <div className="flex gap-1">
+                            {todo.tags.slice(0, 3).map(tag => (
+                              <span key={tag} className="bg-blue-900/30 text-blue-300 px-1 py-0.5 rounded">
+                                #{tag}
+                              </span>
+                            ))}
+                            {todo.tags.length > 3 && (
+                              <span className="text-gray-500">+{todo.tags.length - 3}</span>
+                            )}
+                          </div>
+                        )}
+                        
+                        <span>{formatDate(todo.createdAt)}</span>
+                        
+                        {todo.dueDate && (
+                          <span className={`${
+                            new Date(todo.dueDate) < new Date() ? 'text-red-400' : 'text-yellow-400'
+                          }`}>
+                            마감: {formatDate(todo.dueDate)}
                           </span>
-                        ))}
-                        {todo.tags.length > 3 && (
-                          <span className="text-gray-500">+{todo.tags.length - 3}</span>
                         )}
                       </div>
-                    )}
-                    
-                    <span>{formatDate(todo.createdAt)}</span>
-                    
-                    {todo.dueDate && (
-                      <span className={`${
-                        new Date(todo.dueDate) < new Date() ? 'text-red-400' : 'text-yellow-400'
-                      }`}>
-                        마감: {formatDate(todo.dueDate)}
-                      </span>
-                    )}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Past Todos */}
+        {pastTodos.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+              <h4 className="text-sm font-semibold text-red-400">지난 일정 ({pastTodos.length})</h4>
             </div>
-          )
-        })}
+            {pastTodos.map((todo) => {
+              const isSelected = selectedItems.has(todo.id)
+              const priorityStyle = getPriorityStyle(todo.priority)
+              
+              return (
+                <div 
+                  key={todo.id} 
+                  className={`bg-red-900/10 backdrop-blur-sm rounded-lg p-4 border group relative transition-all duration-200 hover:bg-red-900/20 ${
+                    isSelected ? 'border-red-500 bg-red-900/30' : 'border-red-700/30'
+                  } ${todo.completed ? 'opacity-60' : ''}`}
+                >
+                  {/* Same content structure as today's todos but with red theme */}
+                  {bulkMode && (
+                    <div className="absolute top-2 left-2 z-10">
+                      <button
+                        onClick={() => toggleSelectItem(todo.id)}
+                        className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                          isSelected 
+                            ? 'bg-red-600 border-red-600' 
+                            : 'border-gray-400 bg-gray-700'
+                        }`}
+                      >
+                        {isSelected && (
+                          <span className="text-white text-xs">✓</span>
+                        )}
+                      </button>
+                    </div>
+                  )}
+
+                  <div className={`absolute top-2 right-2 flex gap-1 z-10 ${
+                    bulkMode ? 'hidden' : 'opacity-0 group-hover:opacity-100'
+                  }`}>
+                    <button
+                      onClick={() => toggleTodo(todo.id)}
+                      className={`w-7 h-7 flex items-center justify-center border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm ${
+                        todo.completed 
+                          ? 'text-green-400 hover:text-green-300 bg-green-600/20' 
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                      title={todo.completed ? '미완료로 변경' : '완료로 변경'}
+                    >
+                      {todo.completed ? '✓' : '○'}
+                    </button>
+                    <button
+                      onClick={async () => {
+                        const newTitle = prompt('할 일 제목을 수정하세요:', todo.title)
+                        if (newTitle && newTitle.trim() !== todo.title) {
+                          await updateTodo(todo.id, { title: newTitle.trim() })
+                        }
+                      }}
+                      className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm"
+                      title="수정"
+                    >
+                      ✎
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (confirm('이 할 일을 삭제하시겠습니까?')) {
+                          await deleteTodo(todo.id)
+                        }
+                      }}
+                      className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm"
+                      title="삭제"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className={`w-6 h-6 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                      todo.completed ? 'bg-green-600' : 'bg-red-500'
+                    }`}>
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {todo.completed ? (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        ) : (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        )}
+                      </svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className={`font-medium text-sm truncate ${
+                          todo.completed ? 'text-gray-400 line-through' : 'text-white'
+                        }`}>
+                          {todo.title}
+                        </h4>
+                        <span className={`px-2 py-0.5 text-xs rounded ${priorityStyle}`}>
+                          {PRIORITIES.find(p => p.value === todo.priority)?.label}
+                        </span>
+                      </div>
+                      
+                      {todo.description && (
+                        <p className="text-xs text-gray-400 mt-1 line-clamp-2">
+                          {todo.description}
+                        </p>
+                      )}
+                      
+                      <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                        <span className="bg-gray-700 px-2 py-0.5 rounded">
+                          {todo.category}
+                        </span>
+                        
+                        {todo.tags.length > 0 && (
+                          <div className="flex gap-1">
+                            {todo.tags.slice(0, 3).map(tag => (
+                              <span key={tag} className="bg-blue-900/30 text-blue-300 px-1 py-0.5 rounded">
+                                #{tag}
+                              </span>
+                            ))}
+                            {todo.tags.length > 3 && (
+                              <span className="text-gray-500">+{todo.tags.length - 3}</span>
+                            )}
+                          </div>
+                        )}
+                        
+                        <span>{formatDate(todo.createdAt)}</span>
+                        
+                        {todo.dueDate && (
+                          <span className="text-red-400">
+                            마감: {formatDate(todo.dueDate)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Future Todos */}
+        {futureTodos.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+              <h4 className="text-sm font-semibold text-green-400">예정된 일정 ({futureTodos.length})</h4>
+            </div>
+            {futureTodos.map((todo) => {
+              const isSelected = selectedItems.has(todo.id)
+              const priorityStyle = getPriorityStyle(todo.priority)
+              
+              return (
+                <div 
+                  key={todo.id} 
+                  className={`bg-green-900/10 backdrop-blur-sm rounded-lg p-4 border group relative transition-all duration-200 hover:bg-green-900/20 ${
+                    isSelected ? 'border-green-500 bg-green-900/30' : 'border-green-700/30'
+                  } ${todo.completed ? 'opacity-60' : ''}`}
+                >
+                  {/* Same content structure as today's todos but with green theme */}
+                  {bulkMode && (
+                    <div className="absolute top-2 left-2 z-10">
+                      <button
+                        onClick={() => toggleSelectItem(todo.id)}
+                        className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                          isSelected 
+                            ? 'bg-green-600 border-green-600' 
+                            : 'border-gray-400 bg-gray-700'
+                        }`}
+                      >
+                        {isSelected && (
+                          <span className="text-white text-xs">✓</span>
+                        )}
+                      </button>
+                    </div>
+                  )}
+
+                  <div className={`absolute top-2 right-2 flex gap-1 z-10 ${
+                    bulkMode ? 'hidden' : 'opacity-0 group-hover:opacity-100'
+                  }`}>
+                    <button
+                      onClick={() => toggleTodo(todo.id)}
+                      className={`w-7 h-7 flex items-center justify-center border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm ${
+                        todo.completed 
+                          ? 'text-green-400 hover:text-green-300 bg-green-600/20' 
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                      title={todo.completed ? '미완료로 변경' : '완료로 변경'}
+                    >
+                      {todo.completed ? '✓' : '○'}
+                    </button>
+                    <button
+                      onClick={async () => {
+                        const newTitle = prompt('할 일 제목을 수정하세요:', todo.title)
+                        if (newTitle && newTitle.trim() !== todo.title) {
+                          await updateTodo(todo.id, { title: newTitle.trim() })
+                        }
+                      }}
+                      className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm"
+                      title="수정"
+                    >
+                      ✎
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (confirm('이 할 일을 삭제하시겠습니까?')) {
+                          await deleteTodo(todo.id)
+                        }
+                      }}
+                      className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors text-sm"
+                      title="삭제"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className={`w-6 h-6 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                      todo.completed ? 'bg-green-600' : 'bg-green-500'
+                    }`}>
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {todo.completed ? (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        ) : (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        )}
+                      </svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className={`font-medium text-sm truncate ${
+                          todo.completed ? 'text-gray-400 line-through' : 'text-white'
+                        }`}>
+                          {todo.title}
+                        </h4>
+                        <span className={`px-2 py-0.5 text-xs rounded ${priorityStyle}`}>
+                          {PRIORITIES.find(p => p.value === todo.priority)?.label}
+                        </span>
+                      </div>
+                      
+                      {todo.description && (
+                        <p className="text-xs text-gray-400 mt-1 line-clamp-2">
+                          {todo.description}
+                        </p>
+                      )}
+                      
+                      <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                        <span className="bg-gray-700 px-2 py-0.5 rounded">
+                          {todo.category}
+                        </span>
+                        
+                        {todo.tags.length > 0 && (
+                          <div className="flex gap-1">
+                            {todo.tags.slice(0, 3).map(tag => (
+                              <span key={tag} className="bg-blue-900/30 text-blue-300 px-1 py-0.5 rounded">
+                                #{tag}
+                              </span>
+                            ))}
+                            {todo.tags.length > 3 && (
+                              <span className="text-gray-500">+{todo.tags.length - 3}</span>
+                            )}
+                          </div>
+                        )}
+                        
+                        <span>{formatDate(todo.createdAt)}</span>
+                        
+                        {todo.dueDate && (
+                          <span className="text-green-400">
+                            마감: {formatDate(todo.dueDate)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
         
         {/* Empty state */}
-        {filteredTodos.length === 0 && !loading && (
+        {todayTodos.length === 0 && pastTodos.length === 0 && futureTodos.length === 0 && !loading && (
           <div className="text-center py-8 text-gray-400">
             {todos.length === 0 ? (
               <div>

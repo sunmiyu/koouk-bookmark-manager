@@ -12,8 +12,8 @@ export default function LanguageSwitcher({ className = '', compact = false }: La
   const { language, setLanguage } = useLanguage()
 
   const languages: { code: Language; label: string; flag: string }[] = [
-    { code: 'ko', label: '한국어', flag: '🇰🇷' },
-    { code: 'en', label: 'English', flag: '🇺🇸' }
+    { code: 'ko', label: 'KR', flag: '🇰🇷' },
+    { code: 'en', label: 'EN', flag: '🇺🇸' }
   ]
 
   const handleLanguageChange = (newLanguage: Language) => {

@@ -88,45 +88,224 @@ export default function MiniFunctionsSettings() {
     )
   }
 
+  // Pricing plans data (from pricing page)
+  const pricingPlans = [
+    {
+      id: 'free',
+      name: "Free",
+      price: "₩0",
+      priceUnit: "/월",
+      description: "개인 사용자를 위한 기본 플랜",
+      features: [
+        "12개 Basic Mini Functions",
+        "각 콘텐츠 타입별 50개 제한",
+        "Links, Videos, Images, Notes 50개씩",
+        "Todos 무제한",
+        "Gmail 로그인",
+        "실시간 날씨",
+        "웹 알림",
+        "PWA 지원"
+      ],
+      miniFunctions: [
+        "가계부", "일기", "알람", "D-Day", "노래 연습 List",
+        "기념일 등록", "목표 세팅", "영어 공부", "단위변환",
+        "세계시간", "운동기록", "동기부여 글귀"
+      ],
+      buttonText: "현재 플랜",
+      buttonStyle: "bg-gray-600 text-gray-300 cursor-not-allowed",
+      popular: false,
+      cardStyle: "border-gray-600"
+    },
+    {
+      id: 'pro',
+      name: "Pro",
+      price: "₩6,990",
+      priceUnit: "/월",
+      description: "파워 유저를 위한 프리미엄 플랜",
+      features: [
+        "All Functions + 2 API-Powered Mini Functions",
+        "각 콘텐츠 타입별 500개",
+        "모든 무료 플랜 기능",
+        "실시간 뉴스 헤드라인",
+        "기분별 음악 추천",
+        "주식 시장 정보",
+        "교통 상황 및 경로",
+        "실시간 환율 정보",
+        "24시간 주변 약국",
+        "우선순위 고객지원"
+      ],
+      miniFunctions: [
+        "모든 Free 플랜 기능", "뉴스", "음악 추천", "주식", 
+        "출근길", "환율현황", "24시간 주변약국"
+      ],
+      buttonText: "업그레이드",
+      buttonStyle: "bg-blue-600 hover:bg-blue-700 text-white",
+      popular: true,
+      cardStyle: "border-blue-500 shadow-lg shadow-blue-500/20"
+    },
+    {
+      id: 'unlimited',
+      name: "Premium",
+      price: "₩12,990",
+      priceUnit: "/월",
+      description: "무제한 기능을 원하는 사용자를 위한 최고 플랜",
+      features: [
+        "Unlimited + 4 API-Powered Mini Functions",
+        "무제한 저장",
+        "모든 Pro 플랜 기능",
+        "근처 맛집 추천",
+        "고급 API 기능",
+        "전용 고객 지원",
+        "사용량 통계 및 리포트",
+        "데이터 내보내기/가져오기",
+        "클라우드 백업",
+        "다크모드 커스터마이징"
+      ],
+      miniFunctions: [
+        "모든 Pro 플랜 기능", "맛집 추천", "고급 분석", "무제한 저장"
+      ],
+      buttonText: "문의하기",
+      buttonStyle: "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white",
+      popular: false,
+      cardStyle: "border-purple-500"
+    }
+  ]
+
   // Redirect free users to pricing
   if (currentPlan === 'free') {
     return (
       <div className="min-h-screen bg-black text-white">
         <div className="container mx-auto responsive-p-md py-8">
-          <div className="max-w-2xl mx-auto text-center">
+          <div className="max-w-6xl mx-auto">
             <button
               onClick={() => router.back()}
-              className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 mx-auto"
+              className="text-gray-400 hover:text-white mb-6 flex items-center gap-2"
             >
               ← Back
             </button>
             
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-8 rounded-2xl mb-8">
-              <h1 className="text-3xl font-bold mb-4">✨ Mini Functions</h1>
-              <p className="text-xl text-blue-100 mb-6">
+            {/* Header Section */}
+            <div className="text-center mb-12">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 011-1h1m0 0V3a2 2 0 112 0v1h1a2 2 0 011 1v1M9 7h6" />
+                </svg>
+              </div>
+              <h1 className="text-4xl font-bold mb-4">✨ Mini Functions</h1>
+              <p className="text-xl text-gray-300 mb-2">
                 Your personal dashboard widgets
               </p>
-              
-              <div className="grid grid-cols-2 gap-4 mb-8">
-                {availableFunctions.slice(0, 4).map((func) => (
-                  <div key={func.id} className="bg-white/10 backdrop-blur rounded-lg p-4">
-                    <div className="text-2xl mb-2">{func.icon}</div>
-                    <div className="text-sm font-medium">{func.title}</div>
+              <p className="text-gray-400">
+                Choose the perfect plan to unlock powerful Mini Functions
+              </p>
+            </div>
+
+            {/* Pricing Plans - 3x1 Layout */}
+            <div className="grid md:grid-cols-3 gap-6 mb-12">
+              {pricingPlans.map((plan) => (
+                <div 
+                  key={plan.id}
+                  className={`relative bg-gray-900/50 backdrop-blur-sm rounded-xl border-2 transition-all duration-300 hover:scale-105 hover:shadow-xl p-6 ${plan.cardStyle}`}
+                >
+                  {/* Popular Badge */}
+                  {plan.popular && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                      <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                        🔥 Most Popular
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Plan Header */}
+                  <div className="text-center mb-6">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {plan.id === 'free' && (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        )}
+                        {plan.id === 'pro' && (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        )}
+                        {plan.id === 'unlimited' && (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        )}
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
+                    <div className="flex items-baseline justify-center gap-1 mb-2">
+                      <span className="text-3xl font-bold text-white">{plan.price}</span>
+                      <span className="text-gray-400 text-lg">{plan.priceUnit}</span>
+                    </div>
+                    <p className="text-gray-400 text-sm">{plan.description}</p>
                   </div>
-                ))}
+
+                  {/* Mini Functions Preview */}
+                  <div className="mb-6">
+                    <h4 className="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 011-1h1m0 0V3a2 2 0 112 0v1h1a2 2 0 011 1v1M9 7h6" />
+                      </svg>
+                      Mini Functions
+                    </h4>
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      {plan.miniFunctions.slice(0, 4).map((func, index) => (
+                        <span key={index} className="px-2 py-1 bg-gray-700 text-gray-300 text-xs rounded-md font-medium">
+                          {func}
+                        </span>
+                      ))}
+                      {plan.miniFunctions.length > 4 && (
+                        <span className="px-2 py-1 bg-gray-600 text-gray-400 text-xs rounded-md font-medium">
+                          +{plan.miniFunctions.length - 4} more
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Features List - Condensed */}
+                  <ul className="space-y-2 mb-6">
+                    {plan.features.slice(0, 4).map((feature, featureIndex) => (
+                      <li key={featureIndex} className="flex items-start gap-2">
+                        <div className="w-4 h-4 bg-green-600/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <svg className="w-2.5 h-2.5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <span className="text-gray-300 text-sm">{feature}</span>
+                      </li>
+                    ))}
+                    {plan.features.length > 4 && (
+                      <li className="text-gray-400 text-xs pl-6">
+                        +{plan.features.length - 4} more features
+                      </li>
+                    )}
+                  </ul>
+
+                  {/* Action Button */}
+                  <button 
+                    onClick={() => plan.id !== 'free' ? router.push('/pricing') : undefined}
+                    className={`w-full py-3 px-4 rounded-lg font-semibold transition-all text-sm shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 ${plan.buttonStyle}`}
+                    disabled={plan.id === "free"}
+                  >
+                    {plan.buttonText}
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Call to Action */}
+            <div className="text-center">
+              <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-xl p-6 mb-6">
+                <h3 className="text-xl font-bold text-white mb-2">🔒 Unlock Mini Functions</h3>
+                <p className="text-gray-300 mb-4">
+                  Mini Functions are available in Pro and Premium plans
+                </p>
+                <button 
+                  onClick={() => router.push('/pricing')}
+                  className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-lg transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                >
+                  View Full Pricing Details
+                </button>
               </div>
-              
-              <div className="text-yellow-200 mb-6">
-                <p className="font-semibold">🔒 Premium Feature</p>
-                <p className="text-sm">Mini Functions are available in Pro and Premium plans</p>
-              </div>
-              
-              <button 
-                onClick={() => router.push('/pricing')}
-                className="px-8 py-3 bg-white text-purple-600 font-bold rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                View Pricing Plans
-              </button>
             </div>
           </div>
         </div>

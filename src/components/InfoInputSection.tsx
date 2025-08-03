@@ -115,20 +115,31 @@ export default function InfoInputSection() {
         e.preventDefault()
         const file = item.getAsFile()
         if (file) {
+          // Check storage limit before processing
+          const limit = getStorageLimit()
+          if (currentCounts.image >= limit) {
+            alert(`Image storage limit reached (${limit === Infinity ? 'unlimited' : limit}). Please delete existing images or upgrade your plan.`)
+            return
+          }
+
+          // Show immediate feedback
+          setInputValue('📷 Processing image...')
+          setInputType('image')
+          setIsExpanded(true)
+          
           // Convert to base64 data URL
           const reader = new FileReader()
           reader.onload = (event) => {
             const dataUrl = event.target?.result as string
             setInputValue(dataUrl)
-            setInputType('image')
-            setIsExpanded(true)
             // Auto submit after a short delay to ensure UI updates
             setTimeout(() => {
-              const limit = getStorageLimit()
-              if (currentCounts.image < limit) {
-                handleSubmit(e as unknown as React.FormEvent)
-              }
+              handleSubmit(e as unknown as React.FormEvent)
             }, 100)
+          }
+          reader.onerror = () => {
+            setInputValue('')
+            alert('Failed to process image. Please try again.')
           }
           reader.readAsDataURL(file)
         }
@@ -138,14 +149,7 @@ export default function InfoInputSection() {
   }
 
   return (
-    <div className="bg-black rounded-xl p-8">
-      {/* Professional Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div>
-          <h2 className="text-lg font-semibold text-white">Add Content</h2>
-        </div>
-      </div>
-
+    <div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="relative">
           <input
@@ -154,7 +158,7 @@ export default function InfoInputSection() {
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
             onPaste={handlePaste}
-            placeholder="Paste URL, image, or type your note..."
+            placeholder="Paste URL, images (Ctrl+V), or type your note..."
             className="w-full px-4 py-3 bg-gray-800/50 rounded-lg focus:outline-none focus:bg-gray-800 text-white placeholder-gray-400 text-sm pr-24 transition-all"
           />
           

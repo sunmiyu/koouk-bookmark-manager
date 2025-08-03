@@ -141,9 +141,6 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
   const minTemp = Math.min(...temperatures)
   const maxTemp = Math.max(...temperatures)
   const tempPadding = Math.max(2, (maxTemp - minTemp) * 0.1)
-  
-  // Key time points for labels (every 4 hours)
-  const keyTimePoints = chartData.filter((_, index) => index % 4 === 0)
 
   return (
     <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 w-full">
@@ -157,15 +154,15 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
       </div>
 
       {/* Graph Container */}
-      <div className="h-40 sm:h-48 mb-4 sm:mb-6">
+      <div className="relative h-40 sm:h-48 mb-4 sm:mb-6">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={chartData}
             margin={{
-              top: 20,
+              top: 30,
               right: 10,
               left: 10,
-              bottom: 20
+              bottom: 30
             }}
           >
             <defs>
@@ -179,11 +176,7 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
               axisLine={false}
               tickLine={false}
               tick={{ fontSize: 12, fill: '#9ca3af' }}
-              interval="preserveStartEnd"
-              tickFormatter={(value) => {
-                const dataIndex = chartData.findIndex(d => d.time === value)
-                return dataIndex % 4 === 0 ? value : ''
-              }}
+              interval={3}
             />
             <YAxis 
               domain={[minTemp - tempPadding, maxTemp + tempPadding]}
@@ -203,7 +196,7 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
               dot={false}
               activeDot={false}
             />
-            {/* Current time reference dots */}
+            {/* Current time reference dots with green color */}
             {chartData.map((entry, index) => {
               if (entry.isCurrentHour) {
                 return (
@@ -211,11 +204,10 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
                     key={`current-${index}`}
                     x={entry.time}
                     y={entry.temperature}
-                    r={6}
-                    fill="#3b82f6"
+                    r={8}
+                    fill="#10b981"
                     stroke="#ffffff"
                     strokeWidth={3}
-                    className="drop-shadow-lg"
                   />
                 )
               }
@@ -223,55 +215,48 @@ export default function TemperatureGraph({ hourlyData, currentTemp }: Temperatur
             })}
           </AreaChart>
         </ResponsiveContainer>
-      </div>
-
-      {/* Time Labels with Weather Icons */}
-      <div className="flex justify-between items-center px-1 sm:px-2 mb-3 sm:mb-4">
-        {keyTimePoints.map((data, index) => {
-          const isCurrentTime = data.isCurrentHour
-          
-          return (
-            <div
-              key={`key-${data.hour}-${index}`}
-              className={`text-center flex flex-col items-center ${
-                isCurrentTime ? 'text-blue-400 font-bold' : 'text-gray-400 font-medium'
-              }`}
-            >
-              {/* 날씨 아이콘 */}
-              <span className="text-xs sm:text-sm mb-0.5 sm:mb-1">
-                {getWeatherIcon(data.condition)}
-              </span>
-              {/* 시간 라벨 */}
-              <span className="text-xs">
-                {isCurrentTime ? 'Now' : data.time}
-              </span>
-              {/* 온도 표시 */}
-              <span className={`text-xs mt-0.5 ${
-                isCurrentTime ? 'text-blue-300 font-bold' : 'text-gray-500'
-              }`}>
-                {data.temperature}°
-              </span>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Temperature Range Info */}
-      <div className="flex justify-between items-center pt-3 sm:pt-4 border-t border-gray-700/30">
-        <div className="flex items-center gap-3 sm:gap-6">
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-orange-400 rounded-full"></div>
-            <span className="text-xs sm:text-sm text-gray-300 font-medium">High: {maxTemp}°</span>
-          </div>
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-blue-400 rounded-full"></div>
-            <span className="text-xs sm:text-sm text-gray-300 font-medium">Low: {minTemp}°</span>
-          </div>
-        </div>
-        <div className="text-xs text-gray-500">
-          24h forecast
+        
+        {/* Overlay for temperature labels and weather icons */}
+        <div className="absolute inset-0 pointer-events-none">
+          {chartData.map((entry, index) => {
+            if (index % 4 === 0 || entry.isCurrentHour) {
+              const xPosition = ((index / (chartData.length - 1)) * 100)
+              const yPosition = (1 - ((entry.temperature - (minTemp - tempPadding)) / ((maxTemp + tempPadding) - (minTemp - tempPadding)))) * 100
+              
+              return (
+                <div key={`overlay-${index}`} className="absolute" style={{
+                  left: `${xPosition}%`,
+                  top: `${yPosition}%`,
+                  transform: 'translate(-50%, -50%)'
+                }}>
+                  {/* Green arrow for NOW */}
+                  {entry.isCurrentHour && (
+                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
+                      <div className="w-0 h-0 border-l-4 border-r-4 border-t-6 border-l-transparent border-r-transparent border-t-green-500"></div>
+                      <div className="text-xs font-bold text-green-500 text-center mt-1">NOW</div>
+                    </div>
+                  )}
+                  
+                  {/* Temperature label */}
+                  <div className={`text-xs font-medium text-center mb-1 ${
+                    entry.isCurrentHour ? 'text-green-400 font-bold' : 'text-white'
+                  }`}>
+                    {entry.temperature}°
+                  </div>
+                  
+                  {/* Weather emoji */}
+                  <div className="text-lg text-center">
+                    {getWeatherIcon(entry.condition)}
+                  </div>
+                </div>
+              )
+            }
+            return null
+          })}
         </div>
       </div>
+
+
     </div>
   )
 }

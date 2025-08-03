@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkRateLimit, getIP } from '@/lib/rateLimit'
 
-// 서버사이드 메모리 캐시 (6시간)
-interface CacheData {
-  data: WeatherResponse
-  timestamp: number
-}
-
 interface WeatherResponse {
   location: string
   temperature: number
@@ -28,9 +22,6 @@ interface WeatherResponse {
     eveningTime: string
   }
 }
-
-const serverCache = new Map<string, CacheData>()
-const SERVER_CACHE_DURATION = 6 * 60 * 60 * 1000 // 6시간
 
 export async function GET(request: NextRequest) {
   try {
@@ -68,28 +59,17 @@ export async function GET(request: NextRequest) {
     
     // Build API query
     let weatherQuery = ''
-    let cacheKey = ''
     
     if (city) {
       weatherQuery = `q=${encodeURIComponent(city)}`
-      cacheKey = `weather_${city}`
     } else if (lat && lon) {
       weatherQuery = `lat=${lat}&lon=${lon}`
-      cacheKey = `weather_${lat}_${lon}`
     } else {
       // Default to Seoul
       weatherQuery = 'q=Seoul'
-      cacheKey = 'weather_Seoul'
     }
     
-    // 서버사이드 캐시 확인 (임시로 비활성화해서 항상 새로운 데이터 가져오기)
-    const cached = serverCache.get(cacheKey)
-    if (false && cached && Date.now() - cached.timestamp < SERVER_CACHE_DURATION) {
-      console.log('Using server cache for', cacheKey)
-      return NextResponse.json(cached.data)
-    }
-    
-    console.log('🚀 Making fresh API call (cache disabled) for', cacheKey)
+    console.log('🚀 Making API call for', weatherQuery)
     
     // 5-day forecast API로 변경 (3시간 간격)
     const forecastResponse = await fetch(
@@ -227,12 +207,6 @@ export async function GET(request: NextRequest) {
       }
     }
     
-    // 서버사이드 캐시에 저장
-    serverCache.set(cacheKey, {
-      data: responseData,
-      timestamp: Date.now()
-    })
-    
     console.log('🔍 Weather API Debug for', city || `${lat},${lon}`)
     console.log('📊 Raw weather conditions from OpenWeather:')
     console.log('  - Current weather:', currentWeatherResponse.ok ? await currentWeatherResponse.clone().json().then(d => d.weather[0]) : 'failed')
@@ -243,8 +217,6 @@ export async function GET(request: NextRequest) {
     hourlyData.forEach((item: {time: string, condition: string, temperature: number}, i: number) => {
       if (i < 5) console.log(`  ${item.time}: ${item.condition} (${item.temperature}°)`)
     })
-    
-    console.log('Fresh API call for', city || `${lat},${lon}`)
     return NextResponse.json(responseData)
 
   } catch (error) {

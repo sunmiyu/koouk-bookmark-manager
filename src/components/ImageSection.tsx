@@ -5,14 +5,14 @@ import { useContent } from '@/contexts/ContentContext'
 import { useUserPlan } from '@/contexts/UserPlanContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { trackEvents } from '@/lib/analytics'
-import ImageModal from './ImageModal'
+// ImageModal removed - using simple click handler
 import ImageUpload from './ImageUpload'
 
 export default function ImageSection() {
   const { images, deleteItem, loading, refreshData } = useContent()
   const { getStorageLimit } = useUserPlan()
   const { user } = useAuth()
-  const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null)
+  // Modal functionality removed
 
   const limit = getStorageLimit()
   const isAtLimit = images.length >= limit
@@ -84,7 +84,7 @@ export default function ImageSection() {
             className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
             onClick={() => {
               trackEvents.openModal('image')
-              setSelectedImage({ url: image.thumbnail || image.url || '', title: image.title || 'Untitled Image' })
+              window.open(image.thumbnail || image.url || '', '_blank')
             }}
           >
             {/* Delete button */}
@@ -136,7 +136,7 @@ export default function ImageSection() {
             className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
             onClick={() => {
               trackEvents.openModal('image')
-              setSelectedImage({ url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop', title: '아름다운 풍경 예시' })
+              window.open('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop', '_blank')
             }}
           >
             {/* Delete button */}
@@ -216,13 +216,7 @@ export default function ImageSection() {
         </div>
       )}
       
-      {/* Image Modal */}
-      <ImageModal
-        isOpen={!!selectedImage}
-        onClose={() => setSelectedImage(null)}
-        imageUrl={selectedImage?.url || ''}
-        imageTitle={selectedImage?.title || ''}
-      />
+      {/* Modal removed - images open in new tab */}
     </div>
   )
 }

@@ -4,12 +4,12 @@ import { useState } from 'react'
 import { useContent } from '@/contexts/ContentContext'
 import { useUserPlan } from '@/contexts/UserPlanContext'
 import { trackEvents } from '@/lib/analytics'
-import NoteModal from './NoteModal'
+// NoteModal removed - using inline editing
 
 export default function NotesSection() {
   const { notes, deleteItem, updateItem } = useContent()
   const { getStorageLimit } = useUserPlan()
-  const [selectedNote, setSelectedNote] = useState<{ title: string; content: string } | null>(null)
+  // Modal functionality removed
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [bulkMode, setBulkMode] = useState(false)
 
@@ -140,7 +140,7 @@ export default function NotesSection() {
                   toggleSelectItem(note.id)
                 } else {
                   trackEvents.openModal('note')
-                  setSelectedNote({ title: note.title, content: note.content || '' })
+                  // Note viewing removed - edit inline instead
                 }
               }}
             >
@@ -213,7 +213,7 @@ export default function NotesSection() {
             className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
             onClick={() => {
               trackEvents.openModal('note')
-              setSelectedNote({ title: '메모 예시', content: '이곳에 중요한 메모를 저장할 수 있습니다.\n로그인 후 실제 노트를 추가해보세요!' })
+              alert('로그인 후 실제 노트를 추가해보세요!')
             }}
           >
             {/* Delete button */}
@@ -279,12 +279,7 @@ export default function NotesSection() {
       )}
       
       {/* Note Modal */}
-      <NoteModal
-        isOpen={!!selectedNote}
-        onClose={() => setSelectedNote(null)}
-        noteTitle={selectedNote?.title || ''}
-        noteContent={selectedNote?.content || ''}
-      />
+      {/* Modal removed - inline editing only */}
     </div>
   )
 }

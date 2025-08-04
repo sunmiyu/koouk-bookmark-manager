@@ -1,7 +1,20 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { MusicRecommendation, MoodType } from '@/types/miniFunctions'
+// Types
+type MoodType = 'morning' | 'focus' | 'relax' | 'workout' | 'evening' | 'sleep'
+
+interface MusicRecommendation {
+  id: string
+  title: string
+  artist: string
+  thumbnail: string
+  youtubeUrl: string
+  spotifyUrl: string
+  genre?: string
+  mood?: MoodType
+  duration?: string
+}
 import Image from 'next/image'
 
 const MOOD_OPTIONS: { value: MoodType; label: string; emoji: string }[] = [

@@ -6,7 +6,6 @@ import CookieBanner from "@/components/CookieBanner";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserPlanProvider } from "@/contexts/UserPlanContext";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { MiniFunctionsProvider } from "@/contexts/MiniFunctionsContext";
 import { ContentProvider } from "@/contexts/ContentContext";
 import { TodoProvider } from "@/contexts/TodoContext";
 import { SearchProvider } from "@/contexts/SearchContext";
@@ -88,7 +87,6 @@ export default function RootLayout({
         <LanguageProvider>
           <AuthProvider>
             <UserPlanProvider>
-              <MiniFunctionsProvider>
                 <ContentProvider>
                   <TodoProvider>
                     <SearchProvider>
@@ -98,7 +96,6 @@ export default function RootLayout({
                     </SearchProvider>
                   </TodoProvider>
                 </ContentProvider>
-              </MiniFunctionsProvider>
             </UserPlanProvider>
           </AuthProvider>
         </LanguageProvider>

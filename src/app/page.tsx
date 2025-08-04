@@ -14,7 +14,6 @@ import KooukLogo from '@/components/KooukLogo'
 import SearchBar from '@/components/SearchBar'
 import SearchResults from '@/components/SearchResults'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
-import MiniFunctionsAccordion from '@/components/MiniFunctionsAccordion'
 import Link from 'next/link'
 import { ContentProvider } from '@/contexts/ContentContext'
 import SplashScreen from '@/components/SplashScreen'
@@ -25,18 +24,16 @@ import MainMusicSection from '@/components/MainMusicSection'
 import AIWorkspaceContent from '@/components/AIWorkspaceContent'
 import TemperatureGraph from '@/components/TemperatureGraph'
 // import { useWeatherData } from '@/hooks/useWeatherData' // 삭제됨
-// import { useMiniFunctions } from '@/contexts/MiniFunctionsContext'
 // import { useUserPlan } from '@/contexts/UserPlanContext'
 import { useSearch } from '@/contexts/SearchContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 
-type TabType = 'today' | 'mini' | 'storage' | 'popular'
+type TabType = 'today' | 'function' | 'storage' | 'popular'
 
 function HomeContent() {
   const [activeTab, setActiveTab] = useState<TabType>('today')
   const [isLoading, setIsLoading] = useState(false)
   // const { weatherData } = useWeatherData() // 더 이상 사용하지 않음
-  // const { availableFunctions, enabledFunctions } = useMiniFunctions()
   // const { currentPlan } = useUserPlan()
   const { searchResults } = useSearch()
   const { t } = useLanguage()
@@ -46,7 +43,7 @@ function HomeContent() {
     // Check for tab parameter in URL
     const urlParams = new URLSearchParams(window.location.search)
     const tabParam = urlParams.get('tab') as TabType
-    if (tabParam && ['today', 'mini', 'storage', 'popular'].includes(tabParam)) {
+    if (tabParam && ['today', 'function', 'storage', 'popular'].includes(tabParam)) {
       setActiveTab(tabParam)
       // Clean up URL parameter after setting the tab
       const newUrl = window.location.pathname
@@ -160,9 +157,9 @@ function HomeContent() {
                   </div>
                 </button>
                 <button
-                  onClick={() => setActiveTab('mini')}
+                  onClick={() => setActiveTab('function')}
                   className={`flex-1 py-3 sm:py-4 px-2 sm:px-3 font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
-                    activeTab === 'mini'
+                    activeTab === 'function'
                       ? 'text-white'
                       : 'text-gray-400 hover:text-gray-200'
                   }`}
@@ -172,7 +169,7 @@ function HomeContent() {
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                     </svg>
-                    <span className="hidden xs:inline">Mini</span>
+                    <span className="hidden xs:inline">Function</span>
                   </div>
                 </button>
                 <button
@@ -240,10 +237,21 @@ function HomeContent() {
               </div>
             )}
 
-            {activeTab === 'mini' && (
-              <MiniFunctionsAccordion />
-            )}
 
+
+            {activeTab === 'function' && (
+              <div className="flex items-center justify-center h-64">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gray-800/50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-2">Functions</h3>
+                  <p className="text-gray-400">Coming soon...</p>
+                </div>
+              </div>
+            )}
 
             {activeTab === 'storage' && (
               <div className="space-y-6">

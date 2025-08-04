@@ -1,7 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { NewsItem } from '@/types/miniFunctions'
+// Types
+interface NewsItem {
+  title: string
+  url: string
+  source: string
+  publishedAt: string
+}
 
 export default function MainNewsSection() {
   const [news, setNews] = useState<NewsItem[]>([])

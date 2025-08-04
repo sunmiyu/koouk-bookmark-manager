@@ -20,7 +20,7 @@ export default function PricingPage() {
         "웹 알림",
         "PWA 지원"
       ],
-      miniFunctions: [
+      features_list: [
         "가계부", "일기", "알람", "D-Day", "노래 연습 List",
         "기념일 등록", "목표 세팅", "영어 공부", "단위변환",
         "세계시간", "운동기록", "동기부여 글귀"
@@ -48,7 +48,7 @@ export default function PricingPage() {
         "24시간 주변 약국",
         "우선순위 고객지원"
       ],
-      miniFunctions: [
+      features_list: [
         "모든 Free 플랜 기능", "뉴스", "음악 추천", "주식", 
         "출근길", "환율현황", "24시간 주변약국"
       ],
@@ -75,7 +75,7 @@ export default function PricingPage() {
         "클라우드 백업",
         "다크모드 커스터마이징"
       ],
-      miniFunctions: [
+      features_list: [
         "모든 Pro 플랜 기능", "맛집 추천", "고급 분석", "무제한 저장"
       ],
       buttonText: "문의하기",
@@ -101,15 +101,6 @@ export default function PricingPage() {
               <p className="text-gray-600">Choose the perfect plan for your lifestyle management needs</p>
             </div>
           </div>
-          <Link
-            href="/mini-functions"
-            className="px-4 py-2.5 bg-white hover:bg-gray-50 text-gray-700 rounded-lg border border-gray-200 transition-all flex items-center gap-2 shadow-sm hover:shadow-md font-medium whitespace-nowrap"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
-            </svg>
-            View Mini Functions
-          </Link>
         </div>
 
         {/* Plan Selection Cards */}
@@ -160,14 +151,14 @@ export default function PricingPage() {
                   Mini Functions
                 </h4>
                 <div className="flex flex-wrap gap-1 mb-4">
-                  {plan.miniFunctions.slice(0, 6).map((func, index) => (
+                  {plan.features_list.slice(0, 6).map((func, index) => (
                     <span key={index} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md font-medium">
                       {func}
                     </span>
                   ))}
-                  {plan.miniFunctions.length > 6 && (
+                  {plan.features_list.length > 6 && (
                     <span className="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-md font-medium">
-                      +{plan.miniFunctions.length - 6} more
+                      +{plan.features_list.length - 6} more
                     </span>
                   )}
                 </div>
@@ -328,12 +319,6 @@ export default function PricingPage() {
                 className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-all shadow-lg"
               >
                 Start Free
-              </Link>
-              <Link
-                href="/mini-functions"
-                className="bg-blue-800 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-900 transition-all border border-blue-400 shadow-lg"
-              >
-                Explore Functions
               </Link>
             </div>
           </div>

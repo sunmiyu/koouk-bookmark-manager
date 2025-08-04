@@ -54,39 +54,6 @@ const INTERNATIONAL_NEWS_LINKS: NewsItem[] = [
   }
 ]
 
-// 폴백 뉴스 (한국)
-const FALLBACK_KOREAN_NEWS: NewsItem[] = [
-  {
-    title: "테크 기업들의 AI 투자 급증, 새로운 혁신 동력 확보",
-    url: "https://www.hankyung.com/",
-    source: "한국경제",
-    publishedAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString()
-  },
-  {
-    title: "글로벌 공급망 안정화 조짐, 반도체 산업 회복세",
-    url: "https://www.yna.co.kr/",
-    source: "연합뉴스",
-    publishedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString()
-  },
-  {
-    title: "친환경 에너지 전환 가속화, 정부 지원 정책 확대",
-    url: "https://www.joongang.co.kr/",
-    source: "중앙일보",
-    publishedAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString()
-  },
-  {
-    title: "스타트업 생태계 활성화, 벤처 투자 증가세",
-    url: "https://www.mk.co.kr/",
-    source: "매일경제",
-    publishedAt: new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString()
-  },
-  {
-    title: "디지털 헬스케어 시장 확대, 원격의료 서비스 성장",
-    url: "https://www.chosun.com/",
-    source: "조선일보",
-    publishedAt: new Date(Date.now() - 9 * 60 * 60 * 1000).toISOString()
-  }
-]
 
 // IP 기반 지역 감지
 function detectRegionFromIP(request: NextRequest): string {
@@ -221,15 +188,15 @@ export async function GET(request: NextRequest) {
           source = 'naver'
           console.log(`✅ Fetched ${newsItems.length} items from Naver News API`)
         } else {
-          // 네이버 API 실패시 한국 폴백 뉴스 사용
-          newsItems = FALLBACK_KOREAN_NEWS
-          source = 'fallback_kr'
-          console.log('⚠️ Naver API failed, using Korean fallback news')
+          // 네이버 API 실패시 빈 배열 반환
+          console.log('⚠️ Naver API failed, no news available')
+          newsItems = []
+          source = 'api_failed'
         }
       } catch (error) {
         console.error('Error fetching Naver news:', error)
-        newsItems = FALLBACK_KOREAN_NEWS
-        source = 'fallback_kr'
+        newsItems = []
+        source = 'api_error'
       }
     } else {
       // 해외 사용자: 주요 뉴스 사이트 링크 제공
@@ -255,12 +222,12 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json({
       success: false,
-      items: FALLBACK_KOREAN_NEWS,
-      count: FALLBACK_KOREAN_NEWS.length,
-      region: 'kr',
+      items: [],
+      count: 0,
+      region: 'unknown',
       lastUpdated: new Date().toISOString(),
-      source: 'error_fallback',
-      error: 'API error, using fallback news'
+      source: 'critical_error',
+      error: 'Critical API error, no news available'
     })
   }
 }

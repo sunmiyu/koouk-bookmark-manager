@@ -16,11 +16,15 @@ import SearchResults from '@/components/SearchResults'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import Link from 'next/link'
 import { ContentProvider } from '@/contexts/ContentContext'
+import { SectionVisibilityProvider } from '@/contexts/SectionVisibilityContext'
 import SplashScreen from '@/components/SplashScreen'
 import { TodayTodosProvider } from '@/contexts/TodayTodosContext'
+import CollapsibleSection from '@/components/CollapsibleSection'
+import SectionControls from '@/components/SectionControls'
 import EnhancedDailyCards from '@/components/EnhancedDailyCards'
 import MainNewsSection from '@/components/MainNewsSection'
 import MainMusicSection from '@/components/MainMusicSection'
+import MarketOverview from '@/components/MarketOverview'
 import AIWorkspaceContent from '@/components/AIWorkspaceContent'
 import TemperatureGraph from '@/components/TemperatureGraph'
 // import { useWeatherData } from '@/hooks/useWeatherData' // 삭제됨
@@ -72,8 +76,9 @@ function HomeContent() {
   }
 
   return (
-    <TodayTodosProvider>
-      <ContentProvider>
+    <SectionVisibilityProvider>
+      <TodayTodosProvider>
+        <ContentProvider>
         <div className="min-h-screen bg-black text-white flex justify-center">
         <div className="w-full max-w-[1200px] py-2 sm:py-4 px-4 sm:px-6">
           <header className="mb-8 sm:mb-12 lg:mb-16 relative z-50">
@@ -212,28 +217,79 @@ function HomeContent() {
           <main>
             {activeTab === 'today' && (
               <div className="flex flex-col gap-8 sm:gap-10 lg:gap-12">
-                {/* Temperature Trend Section */}
-                <div className="mb-4">
+                {/* Section Controls */}
+                <SectionControls />
+
+                {/* Weather Section */}
+                <CollapsibleSection 
+                  sectionKey="weather" 
+                  title="Weather Forecast"
+                  icon={
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                    </svg>
+                  }
+                >
                   <TemperatureGraph />
+                </CollapsibleSection>
+
+                {/* Daily Cards Section */}
+                <CollapsibleSection 
+                  sectionKey="dailyCards" 
+                  title="Daily Cards"
+                  icon={
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  }
+                >
+                  <EnhancedDailyCards />
+                </CollapsibleSection>
+
+                {/* Information Sections */}
+                <div className="space-y-8">
+                  {/* News and Music Section - Side by side on desktop */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+                    <CollapsibleSection 
+                      sectionKey="news" 
+                      title="Today's News"
+                      className="h-fit"
+                      icon={
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                        </svg>
+                      }
+                    >
+                      <MainNewsSection />
+                    </CollapsibleSection>
+
+                    <CollapsibleSection 
+                      sectionKey="music" 
+                      title="Music Recommendations"
+                      className="h-fit"
+                      icon={
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                        </svg>
+                      }
+                    >
+                      <MainMusicSection />
+                    </CollapsibleSection>
+                  </div>
+
+                  {/* Market Overview Section */}
+                  <CollapsibleSection 
+                    sectionKey="market" 
+                    title="Market Overview"
+                    icon={
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    }
+                  >
+                    <MarketOverview />
+                  </CollapsibleSection>
                 </div>
-
-                {/* Enhanced Daily Cards */}
-                <EnhancedDailyCards />
-
-                {/* News and Music Section - Side by side on desktop */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-                  {/* Today's News Section */}
-                  <MainNewsSection />
-
-                  {/* Music Recommendations Section */}
-                  <MainMusicSection />
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'today' && (
-              <div className="space-y-8">
-                {/* Today tab content is now handled in the main today section above */}
               </div>
             )}
 
@@ -347,9 +403,10 @@ function HomeContent() {
             </div>
           </footer>
         </div>
-      </div>
-      </ContentProvider>
-    </TodayTodosProvider>
+        </div>
+        </ContentProvider>
+      </TodayTodosProvider>
+    </SectionVisibilityProvider>
   )
 }
 

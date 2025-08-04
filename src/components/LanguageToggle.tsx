@@ -7,7 +7,6 @@ export default function LanguageToggle() {
 
   const toggleLanguage = () => {
     const newLang = language === 'ko' ? 'en' : 'ko'
-    console.log('Language toggle:', language, '→', newLang) // Debug log
     setLanguage(newLang)
   }
 

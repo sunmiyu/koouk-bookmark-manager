@@ -17,8 +17,7 @@ interface UserPlanContextType {
 const UserPlanContext = createContext<UserPlanContextType | undefined>(undefined)
 
 export function UserPlanProvider({ children }: { children: ReactNode }) {
-  // TEMPORARY: Set to 'pro' for testing Mini Functions without login
-  const [currentPlan, setCurrentPlan] = useState<UserPlan>('pro')
+  const [currentPlan, setCurrentPlan] = useState<UserPlan>('free')
 
   // Load plan from localStorage on mount
   useEffect(() => {
@@ -58,18 +57,15 @@ export function UserPlanProvider({ children }: { children: ReactNode }) {
   const upgradeToProPlan = () => {
     setCurrentPlan('pro')
     // Here you would typically integrate with payment system
-    console.log('Upgraded to Pro plan! 🎉')
   }
 
   const upgradeToUnlimitedPlan = () => {
     setCurrentPlan('unlimited')
     // Here you would typically integrate with payment system
-    console.log('Upgraded to Unlimited plan! 🚀')
   }
 
   const downgradeToFreePlan = () => {
     setCurrentPlan('free')
-    console.log('Downgraded to Free plan')
   }
 
   return (

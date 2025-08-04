@@ -67,12 +67,10 @@ export default function MainMusicSection() {
       if (data.success && data.recommendations) {
         // 메인 페이지에서는 4개만 표시
         setRecommendations(data.recommendations.slice(0, 4))
-        console.log('Music API loaded:', data.recommendations.length, 'tracks')
       } else {
         throw new Error('Failed to fetch music recommendations')
       }
     } catch (err) {
-      console.error('Music recommendations error:', err)
       setError('Using sample music (API unavailable)')
       // 폴백 데이터
       setRecommendations([

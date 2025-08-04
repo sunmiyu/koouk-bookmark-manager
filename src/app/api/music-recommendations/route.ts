@@ -10,7 +10,6 @@ interface MusicRecommendation {
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('Music API called')
     const { searchParams } = new URL(request.url)
     const mood = searchParams.get('mood') || 'relax'
     
@@ -25,8 +24,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Music recommendations API error:', error)
-    
     const mood = new URL(request.url).searchParams.get('mood') || 'relax'
     return NextResponse.json({
       success: false,

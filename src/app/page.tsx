@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import WeatherOnly from '@/components/WeatherOnly'
+// import WeatherOnly from '@/components/WeatherOnly' // 삭제됨
 import TimeDisplay from '@/components/TimeDisplay'
 import FeedbackBoard from '@/components/FeedbackBoard'
 import InfoInputSection from '@/components/InfoInputSection'
@@ -22,16 +22,16 @@ import SplashScreen from '@/components/SplashScreen'
 import { TodayTodosProvider } from '@/contexts/TodayTodosContext'
 import TodayTodoCard from '@/components/TodayTodoCard'
 import TemperatureGraph from '@/components/TemperatureGraph'
-import { useWeatherData } from '@/hooks/useWeatherData'
+// import { useWeatherData } from '@/hooks/useWeatherData' // 삭제됨
 // import { useMiniFunctions } from '@/contexts/MiniFunctionsContext'
 // import { useUserPlan } from '@/contexts/UserPlanContext'
 import { useSearch } from '@/contexts/SearchContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 
-type TabType = 'summary' | 'today' | 'dashboard' | 'contents' | 'popular'
+type TabType = 'today' | 'dashboard' | 'contents' | 'popular'
 
 function HomeContent() {
-  const [activeTab, setActiveTab] = useState<TabType>('summary')
+  const [activeTab, setActiveTab] = useState<TabType>('today')
   const [isLoading, setIsLoading] = useState(false)
   // const { weatherData } = useWeatherData() // 더 이상 사용하지 않음
   // const { availableFunctions, enabledFunctions } = useMiniFunctions()
@@ -44,7 +44,7 @@ function HomeContent() {
     // Check for tab parameter in URL
     const urlParams = new URLSearchParams(window.location.search)
     const tabParam = urlParams.get('tab') as TabType
-    if (tabParam && ['summary', 'today', 'dashboard', 'contents', 'popular'].includes(tabParam)) {
+    if (tabParam && ['today', 'dashboard', 'contents', 'popular'].includes(tabParam)) {
       setActiveTab(tabParam)
       // Clean up URL parameter after setting the tab
       const newUrl = window.location.pathname
@@ -76,7 +76,7 @@ function HomeContent() {
     <TodayTodosProvider>
       <ContentProvider>
         <div className="min-h-screen bg-black text-white">
-        <div className="w-full mx-auto py-2 sm:py-4 px-4 sm:px-6">
+        <div className="w-full max-w-[1000px] mx-auto py-2 sm:py-4 px-4 sm:px-6">
           <header className="mb-8 sm:mb-12 lg:mb-16">
             {/* Professional Header Container */}
             <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-800/50">
@@ -86,17 +86,22 @@ function HomeContent() {
                   <KooukLogo />
                 </div>
                 
-                {/* Right: Weather, Time & Account - Responsive Stack */}
-                <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
-                  {/* Weather & Time - Hide on very small screens, show abbreviated */}
-                  <div className="hidden xs:flex items-center gap-2 sm:gap-3 lg:gap-4">
-                    <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 bg-gray-800/50 rounded-lg sm:rounded-xl border border-gray-700/30">
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.005 4.005 0 003 15z" />
+                {/* Center: Search Bar - Hidden on very small screens */}
+                <div className="hidden sm:flex flex-1 justify-center px-4 lg:px-8">
+                  <div className="relative w-full max-w-md">
+                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                       </svg>
-                      <WeatherOnly />
                     </div>
-                    <div className="w-px h-6 sm:h-8 bg-gray-600 hidden sm:block"></div>
+                    <SearchBar compactMode={true} className="w-full pl-9 pr-4 py-2 text-sm" />
+                  </div>
+                </div>
+
+                {/* Right: Time & Account - Responsive Stack */}
+                <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
+                  {/* Time - Hide on very small screens, show abbreviated */}
+                  <div className="hidden xs:flex items-center gap-2 sm:gap-3 lg:gap-4">
                     <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 bg-gray-800/50 rounded-lg sm:rounded-xl border border-gray-700/30">
                       <TimeDisplay />
                     </div>
@@ -108,32 +113,29 @@ function HomeContent() {
                 </div>
               </div>
               
-              {/* Mobile Weather & Time Row - Show on very small screens */}
-              <div className="xs:hidden mt-4 flex items-center justify-center gap-4">
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/50 rounded-lg border border-gray-700/30">
-                  <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.005 4.005 0 003 15z" />
-                  </svg>
-                  <WeatherOnly />
+              {/* Mobile Time & Search Row - Show on very small screens */}
+              <div className="sm:hidden mt-4 space-y-3">
+                <div className="flex items-center justify-center">
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/50 rounded-lg border border-gray-700/30">
+                    <TimeDisplay />
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/50 rounded-lg border border-gray-700/30">
-                  <TimeDisplay />
+                
+                {/* Mobile Search Bar */}
+                <div className="px-4">
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                    <SearchBar compactMode={true} className="w-full pl-9 pr-4 py-2 text-sm" />
+                  </div>
                 </div>
               </div>
             </div>
           </header>
 
-          {/* Search Bar */}
-          <div className="mb-8 sm:mb-10 lg:mb-12">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-3 sm:left-4 flex items-center pointer-events-none">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <SearchBar compactMode={true} className="max-w-full pl-10 sm:pl-12" />
-            </div>
-          </div>
 
           {/* Search Results or Tab Content */}
           {searchResults ? (
@@ -147,21 +149,6 @@ function HomeContent() {
             <div className="bg-gray-900/30 rounded-xl sm:rounded-2xl p-1.5 sm:p-2 border border-gray-800/50">
               <nav className="flex items-center justify-between" aria-label="Tabs">
                 <button
-                  onClick={() => setActiveTab('summary')}
-                  className={`flex-1 py-3 sm:py-4 px-2 sm:px-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
-                    activeTab === 'summary'
-                      ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
-                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
-                  }`}
-                >
-                  <div className="flex items-center justify-center gap-1 sm:gap-2">
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                    <span className="hidden xs:inline">{t('summary')}</span>
-                  </div>
-                </button>
-                <button
                   onClick={() => setActiveTab('today')}
                   className={`flex-1 py-3 sm:py-4 px-2 sm:px-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
                     activeTab === 'today'
@@ -171,9 +158,24 @@ function HomeContent() {
                 >
                   <div className="flex items-center justify-center gap-1 sm:gap-2">
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span className="hidden xs:inline">{t('today')}</span>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setActiveTab('dashboard')}
+                  className={`flex-1 py-3 sm:py-4 px-2 sm:px-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
+                    activeTab === 'dashboard'
+                      ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
+                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-1 sm:gap-2">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                     </svg>
-                    <span className="hidden xs:inline">{t('todos')}</span>
+                    <span className="hidden xs:inline">{t('dashboard')}</span>
                   </div>
                 </button>
                 <button
@@ -227,7 +229,7 @@ function HomeContent() {
 
           {/* Tab Content */}
           <main>
-            {activeTab === 'summary' && (
+            {activeTab === 'today' && (
               <div className="flex flex-col gap-8 sm:gap-10 lg:gap-12">
                 {/* Temperature Trend Section */}
                 <div className="mb-4">

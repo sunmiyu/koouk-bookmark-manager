@@ -7,11 +7,17 @@ interface WeatherCondition {
   description: string
 }
 
-interface WeatherData {
+interface ForecastItem {
+  dt: number
+  dt_txt: string
   main: {
     temp: number
   }
   weather: WeatherCondition[]
+}
+
+interface WeatherData {
+  list: ForecastItem[]
 }
 
 export default function TemperatureGraph() {
@@ -42,8 +48,9 @@ export default function TemperatureGraph() {
     })
   }
 
-  // 헤더와 동일한 API 호출 함수
-  const fetchWeatherData = useCallback(async (): Promise<WeatherData> => {
+  // 5일 예보 API 호출 (3시간 간격 실제 데이터)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const fetchWeatherData = useCallback(async (): Promise<any> => {
     const location = await getUserLocation()
     const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY
     
@@ -51,8 +58,9 @@ export default function TemperatureGraph() {
       throw new Error('Weather API key not found')
     }
 
+    // 5일 예보 API 사용 (3시간 간격)
     const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${location.lat}&lon=${location.lon}&appid=${apiKey}&units=metric&lang=kr`
+      `https://api.openweathermap.org/data/2.5/forecast?lat=${location.lat}&lon=${location.lon}&appid=${apiKey}&units=metric&lang=kr`
     )
 
     if (!response.ok) {
@@ -70,7 +78,7 @@ export default function TemperatureGraph() {
         setLoading(true)
         const data = await fetchWeatherData()
         setWeatherData(data)
-        console.log('✅ Weather data loaded:', data.weather[0])
+        console.log('✅ Weather forecast loaded:', data.list.length, 'items')
       } catch (error) {
         console.error('❌ Weather loading failed:', error)
       } finally {
@@ -95,49 +103,48 @@ export default function TemperatureGraph() {
     )
   }
 
-  const currentTemp = Math.round(weatherData.main.temp)
-  const currentCondition = weatherData.weather[0].main.toLowerCase()
+  // 첫 번째 예보 항목을 현재 날씨로 사용
+  const currentItem = weatherData.list[0]
+  const currentTemp = Math.round(currentItem.main.temp)
+  // const currentCondition = currentItem.weather[0].main.toLowerCase()
 
-  // 현재 시간부터 다음 12시간 데이터 생성
+  // 실제 예보 데이터를 사용해서 다음 12시간(4개 예보) 생성
   const generateNext12Hours = () => {
     const result = []
-    const now = new Date()
-    const currentHour = now.getHours()
     
-    for (let i = 0; i < 12; i++) {
-      const targetHour = (currentHour + i) % 24
-      let temperature = currentTemp
-      const condition = currentCondition // 실제 현재 날씨 조건 사용
-      
-      // 시간에 따른 온도 변화 시뮬레이션
-      if (i > 0) {
-        const variation = Math.sin((targetHour / 24) * 2 * Math.PI) * 3 // ±3도 변화
-        temperature = Math.round(currentTemp + variation)
-      }
+    // 최대 12개 예보 아이템 사용 (3시간 간격이므로 36시간)
+    const forecastItems = weatherData.list.slice(0, 12)
+    
+    for (let i = 0; i < forecastItems.length; i++) {
+      const item = forecastItems[i]
+      const itemDate = new Date(item.dt * 1000)
+      const itemHour = itemDate.getHours()
       
       // 시간 표시 포맷
       let timeLabel = ''
       if (i === 0) {
         timeLabel = '지금'
-      } else if (targetHour === 0) {
+      } else if (itemHour === 0) {
         timeLabel = '12AM'
-      } else if (targetHour === 12) {
+      } else if (itemHour === 12) {
         timeLabel = '12PM'
-      } else if (targetHour < 12) {
-        timeLabel = `${targetHour}AM`
+      } else if (itemHour < 12) {
+        timeLabel = `${itemHour}AM`
       } else {
-        timeLabel = `${targetHour - 12}PM`
+        timeLabel = `${itemHour - 12}PM`
       }
       
       result.push({
-        hour: targetHour,
+        hour: itemHour,
         time: timeLabel,
-        temperature: Math.round(temperature),
-        condition,
-        isNow: i === 0
+        temperature: Math.round(item.main.temp),
+        condition: item.weather[0].main.toLowerCase(),
+        isNow: i === 0,
+        dt_txt: item.dt_txt
       })
     }
     
+    console.log('🌡️ Real forecast data:', result.slice(0, 3))
     return result
   }
 

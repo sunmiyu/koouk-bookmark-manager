@@ -63,7 +63,7 @@ export default function AuthButton() {
 
   if (user) {
     return (
-      <div className="relative" ref={dropdownRef}>
+      <div className="relative z-[99999]" ref={dropdownRef}>
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="w-8 h-8 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all duration-200 flex items-center justify-center cursor-pointer"
@@ -75,7 +75,7 @@ export default function AuthButton() {
         </button>
         
         {isDropdownOpen && (
-          <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 z-[9999]">
+          <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 z-[99999]">
             <div className="p-3 border-b border-gray-700 text-center">
               <div className="text-sm text-white font-medium">{user.user_metadata?.full_name || user.email}</div>
               <div className="text-xs text-gray-400">{user.email}</div>
@@ -111,7 +111,7 @@ export default function AuthButton() {
       </button>
       
       {isDropdownOpen && (
-        <div className="absolute right-0 mt-3 w-80 bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 z-[9999] overflow-hidden">
+        <div className="absolute right-0 mt-3 w-80 bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 z-[99999] overflow-hidden">
           {/* Header */}
           <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white text-center">

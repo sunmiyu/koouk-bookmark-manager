@@ -6,9 +6,21 @@ import { useUserPlan } from '@/contexts/UserPlanContext'
 import { trackEvents } from '@/lib/analytics'
 // NoteModal removed - using inline editing
 
-export default function NotesSection() {
+interface NotesSectionProps {
+  fullWidth?: boolean
+  searchQuery?: string
+}
+
+export default function NotesSection({ fullWidth = false, searchQuery = '' }: NotesSectionProps) {
   const { notes, deleteItem, updateItem } = useContent()
   const { getStorageLimit } = useUserPlan()
+  
+  // Filter notes based on search query
+  const filteredNotes = notes.filter(note => 
+    searchQuery === '' || 
+    note.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    note.content?.toLowerCase().includes(searchQuery.toLowerCase())
+  )
   // Modal functionality removed
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [bulkMode, setBulkMode] = useState(false)
@@ -125,14 +137,16 @@ export default function NotesSection() {
         </div>
       )}
       
-      <div className="space-y-3 max-h-[800px] overflow-y-auto">
+      <div className={fullWidth ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 max-h-[800px] overflow-y-auto" : "space-y-3 max-h-[800px] overflow-y-auto"}>
         {/* Render actual notes */}
         {notes.map((note) => {
           const isSelected = selectedItems.has(note.id)
           return (
             <div 
               key={note.id} 
-              className={`bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border group relative ${
+              className={`bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg border group relative ${
+                fullWidth ? 'aspect-square p-3 flex flex-col' : 'responsive-p-sm'
+              } ${
                 isSelected ? 'border-blue-500 bg-blue-900/20' : 'border-gray-700'
               }`}
               onClick={() => {
@@ -189,20 +203,43 @@ export default function NotesSection() {
                 ✕
               </button>
             </div>
-            <div className="flex items-start responsive-gap-sm">
-              <div className="w-6 h-6 bg-purple-500 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
+            {fullWidth ? (
+              // Full width layout - square memo card
+              <>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-5 h-5 bg-purple-500 rounded flex items-center justify-center flex-shrink-0">
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <h4 className="font-semibold text-white text-sm truncate flex-1">{note.title}</h4>
+                </div>
+                <div className="flex-1 min-h-0">
+                  <p className="text-xs text-gray-300 line-clamp-6 leading-relaxed">
+                    {note.content || 'No content'}
+                  </p>
+                </div>
+                <div className="mt-auto pt-2">
+                  <p className="text-xs text-purple-400">{formatDate(note.createdAt)}</p>
+                </div>
+              </>
+            ) : (
+              // Default compact layout
+              <div className="flex items-start responsive-gap-sm">
+                <div className="w-6 h-6 bg-purple-500 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-white responsive-text-sm truncate">{note.title}</h4>
+                  <p className="text-xs text-gray-400 mt-1 line-clamp-2">
+                    {note.content?.split('\n')[0] || 'No content'}
+                  </p>
+                  <p className="text-xs text-purple-400 mt-2">{formatDate(note.createdAt)}</p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-white responsive-text-sm truncate">{note.title}</h4>
-                <p className="text-xs text-gray-400 mt-1 line-clamp-2">
-                  {note.content?.split('\n')[0] || 'No content'}
-                </p>
-                <p className="text-xs text-purple-400 mt-2">{formatDate(note.createdAt)}</p>
-              </div>
-            </div>
+            )}
           </div>
           )
         })}

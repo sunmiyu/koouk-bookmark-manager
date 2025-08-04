@@ -15,7 +15,12 @@ const getYouTubeThumbnail = (url: string): string => {
   return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : ''
 }
 
-export default function VideoSection() {
+interface VideoSectionProps {
+  fullWidth?: boolean
+  searchQuery?: string
+}
+
+export default function VideoSection({ fullWidth = false, searchQuery = '' }: VideoSectionProps) {
   const { videos, deleteItem, updateItem } = useContent()
   const { getStorageLimit } = useUserPlan()
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
@@ -23,6 +28,13 @@ export default function VideoSection() {
 
   const limit = getStorageLimit()
   const isAtLimit = videos.length >= limit
+  
+  // Filter videos based on search query
+  const filteredVideos = videos.filter(video => 
+    searchQuery === '' || 
+    video.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    video.url?.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   const toggleBulkMode = () => {
     setBulkMode(!bulkMode)
@@ -120,7 +132,7 @@ export default function VideoSection() {
           </div>
         </div>
       )}
-      <div className="space-y-3 max-h-[800px] overflow-y-auto">
+      <div className={fullWidth ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 max-h-[800px] overflow-y-auto" : "space-y-3 max-h-[800px] overflow-y-auto"}>
         {/* Render actual videos */}
         {videos.map((video) => {
           const thumbnailUrl = video.url ? getYouTubeThumbnail(video.url) : ''
@@ -128,8 +140,8 @@ export default function VideoSection() {
           return (
             <div 
               key={video.id} 
-              className={`bg-gray-800 hover:bg-gray-700 transition-colors rounded-lg responsive-p-sm border group relative ${
-                bulkMode ? 'cursor-pointer' : 'cursor-pointer'
+              className={`bg-gray-800 hover:bg-gray-700 transition-colors rounded-lg border group relative cursor-pointer ${
+                fullWidth ? 'aspect-video p-0' : 'responsive-p-sm'
               } ${
                 isSelected ? 'border-blue-500 bg-blue-900/20' : 'border-gray-700'
               }`}
@@ -187,38 +199,74 @@ export default function VideoSection() {
                   ✕
                 </button>
               </div>
-              <div className="flex items-start responsive-gap-sm">
-                <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden relative">
-                  {thumbnailUrl ? (
-                    <>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img 
-                        src={thumbnailUrl}
-                        alt={video.title}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none'
-                        }}
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white bg-red-600 rounded-full p-0.5 sm:p-1 bg-opacity-80" fill="currentColor" viewBox="0 0 20 20">
+              {fullWidth ? (
+                // Full width layout - video card grid
+                <div className="relative w-full h-full">
+                  <div className="w-full h-full bg-gray-700 rounded-lg overflow-hidden relative">
+                    {thumbnailUrl ? (
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                          src={thumbnailUrl}
+                          alt={video.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none'
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <svg className="w-8 h-8 text-white bg-red-600 rounded-full p-2 bg-opacity-80" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <svg className="w-8 h-8 text-red-400" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
                         </svg>
                       </div>
-                    </>
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                  )}
+                    )}
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-3">
+                    <h4 className="font-medium text-white text-sm line-clamp-2">{video.title}</h4>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-white responsive-text-sm line-clamp-2">{video.title}</h4>
-                  <p className="text-xs text-gray-400 mt-1">Video • YouTube</p>
+              ) : (
+                // Default compact layout
+                <div className="flex items-start responsive-gap-sm">
+                  <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden relative">
+                    {thumbnailUrl ? (
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                          src={thumbnailUrl}
+                          alt={video.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none'
+                          }}
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white bg-red-600 rounded-full p-0.5 sm:p-1 bg-opacity-80" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <svg className="w-5 h-5 sm:w-6 sm:h-6 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-white responsive-text-sm line-clamp-2">{video.title}</h4>
+                    <p className="text-xs text-gray-400 mt-1">Video • YouTube</p>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )
         })}

@@ -212,15 +212,15 @@ export async function GET(request: NextRequest) {
           source = 'naver'
           console.log(`✅ Fetched ${newsItems.length} items from Naver News API`)
         } else {
-          // 네이버 API 실패시 빈 배열 반환
-          console.log('⚠️ Naver API failed, no news available')
-          newsItems = []
-          source = 'api_failed'
+          // 네이버 API 실패시 국제 뉴스 링크 제공
+          console.log('⚠️ Naver API failed, providing international news links')
+          newsItems = INTERNATIONAL_NEWS_LINKS
+          source = 'fallback_international'
         }
       } catch (error) {
         console.error('Error fetching Naver news:', error)
-        newsItems = []
-        source = 'api_error'
+        newsItems = INTERNATIONAL_NEWS_LINKS
+        source = 'fallback_error'
       }
     } else {
       // 해외 사용자: 주요 뉴스 사이트 링크 제공
@@ -237,7 +237,7 @@ export async function GET(request: NextRequest) {
       lastUpdated: new Date().toISOString(),
       source,
       message: region === 'kr' 
-        ? (source === 'naver' ? 'Real-time Naver news' : 'Korean fallback news')
+        ? (source === 'naver' ? 'Real-time Naver news' : 'Fallback international news')
         : 'International news links'
     })
     

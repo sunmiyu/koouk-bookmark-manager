@@ -140,9 +140,6 @@ export default function MarketOverview() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h3 className="text-base sm:text-lg font-semibold text-white">
-            Market Overview
-          </h3>
           <div className="flex items-center gap-2">
             <span className={`text-xs px-2 py-1 rounded ${
               isLoading 
@@ -252,7 +249,7 @@ export default function MarketOverview() {
                   {region}
                 </h4>
                 
-                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-3 gap-2 sm:gap-3">
                   {indices.map((index) => (
                     <button
                       key={index.symbol}

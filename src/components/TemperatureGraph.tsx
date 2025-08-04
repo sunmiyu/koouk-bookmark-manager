@@ -93,7 +93,6 @@ export default function TemperatureGraph() {
     return (
       <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 w-full">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-white">12시간 날씨 예보</h3>
           <div className="text-2xl font-bold text-blue-400">--°</div>
         </div>
         <div className="h-32 flex items-center justify-center">
@@ -206,7 +205,6 @@ export default function TemperatureGraph() {
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h3 className="text-base sm:text-lg font-semibold text-white">Weather forecast</h3>
           <button 
             onClick={() => {
               if (navigator.geolocation) {

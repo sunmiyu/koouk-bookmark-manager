@@ -20,17 +20,19 @@ import { SectionVisibilityProvider } from '@/contexts/SectionVisibilityContext'
 import SplashScreen from '@/components/SplashScreen'
 import { TodayTodosProvider } from '@/contexts/TodayTodosContext'
 import CollapsibleSection from '@/components/CollapsibleSection'
-import SectionControls from '@/components/SectionControls'
 import EnhancedDailyCards from '@/components/EnhancedDailyCards'
 import MainNewsSection from '@/components/MainNewsSection'
 import MainMusicSection from '@/components/MainMusicSection'
 import MarketOverview from '@/components/MarketOverview'
 import AIWorkspaceContent from '@/components/AIWorkspaceContent'
+import StorageContent from '@/components/StorageContent'
 import TemperatureGraph from '@/components/TemperatureGraph'
+import WeatherWidget from '@/components/WeatherWidget'
 // import { useWeatherData } from '@/hooks/useWeatherData' // 삭제됨
 // import { useUserPlan } from '@/contexts/UserPlanContext'
 import { useSearch } from '@/contexts/SearchContext'
 import { useLanguage } from '@/contexts/LanguageContext'
+// import { useSectionVisibility } from '@/contexts/SectionVisibilityContext'
 
 type TabType = 'today' | 'function' | 'storage' | 'popular'
 
@@ -41,6 +43,7 @@ function HomeContent() {
   // const { currentPlan } = useUserPlan()
   const { searchResults } = useSearch()
   const { t } = useLanguage()
+  // const { applySmartCollapse } = useSectionVisibility()
 
   // Handle URL parameters and splash screen logic
   useEffect(() => {
@@ -69,6 +72,8 @@ function HomeContent() {
       initializeApp()
     }
   }, [])
+
+  // Smart auto-collapse will be handled by CollapsibleSection components
 
   // Show splash screen while loading (only on first visit)
   if (isLoading) {
@@ -102,8 +107,11 @@ function HomeContent() {
                   </div>
                 </div>
 
-                {/* Right: Time & Account - Responsive Stack */}
+                {/* Right: Weather, Time & Account - Responsive Stack */}
                 <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
+                  {/* Weather Widget - Always visible */}
+                  <WeatherWidget />
+                  
                   {/* Time - Always visible now */}
                   <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
                     <div className="flex items-center gap-1 sm:gap-3 px-1.5 sm:px-3 lg:px-4 py-1 sm:py-2" style={{ background: 'transparent', border: 'none' }}>
@@ -217,78 +225,79 @@ function HomeContent() {
           <main>
             {activeTab === 'today' && (
               <div className="flex flex-col gap-8 sm:gap-10 lg:gap-12">
-                {/* Section Controls */}
-                <SectionControls />
-
-                {/* Weather Section */}
-                <CollapsibleSection 
-                  sectionKey="weather" 
-                  title="Weather Forecast"
-                  icon={
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-                    </svg>
-                  }
-                >
-                  <TemperatureGraph />
-                </CollapsibleSection>
-
-                {/* Daily Cards Section */}
-                <CollapsibleSection 
-                  sectionKey="dailyCards" 
-                  title="Daily Cards"
-                  icon={
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                  }
-                >
-                  <EnhancedDailyCards />
-                </CollapsibleSection>
-
-                {/* Information Sections */}
-                <div className="space-y-8">
-                  {/* News and Music Section - Side by side on desktop */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-                    <CollapsibleSection 
-                      sectionKey="news" 
-                      title="Today's News"
-                      className="h-fit"
-                      icon={
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                        </svg>
-                      }
-                    >
-                      <MainNewsSection />
-                    </CollapsibleSection>
-
-                    <CollapsibleSection 
-                      sectionKey="music" 
-                      title="Music Recommendations"
-                      className="h-fit"
-                      icon={
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-                        </svg>
-                      }
-                    >
-                      <MainMusicSection />
-                    </CollapsibleSection>
-                  </div>
-
-                  {/* Market Overview Section */}
+                {/* Daily Cards Section - 핵심 기능 강조 */}
+                <div className="bg-gradient-to-br from-blue-600/5 to-purple-600/5 border border-blue-500/10 rounded-xl p-1 mb-2">
                   <CollapsibleSection 
-                    sectionKey="market" 
-                    title="Market Overview"
+                    sectionKey="dailyCards" 
+                    title="Daily Cards"
+                    showGlobalControls={true}
+                    className="bg-gray-900/40 backdrop-blur-sm rounded-lg"
+                    headerClassName="border-b border-blue-500/20"
                     icon={
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                       </svg>
                     }
                   >
-                    <MarketOverview />
+                    <EnhancedDailyCards />
                   </CollapsibleSection>
+                </div>
+
+                {/* Information Sections */}
+                <div className="space-y-8">
+                  {/* News Section - 핵심 기능 강조, Music Section - 부가 기능 축소 */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+                    {/* News - 2/3 width for emphasis */}
+                    <div className="lg:col-span-2">
+                      <div className="bg-gradient-to-br from-green-600/5 to-blue-600/5 border border-green-500/10 rounded-xl p-1">
+                        <CollapsibleSection 
+                          sectionKey="news" 
+                          title="Today's News"
+                          className="bg-gray-900/40 backdrop-blur-sm rounded-lg h-fit"
+                          headerClassName="border-b border-green-500/20"
+                          icon={
+                            <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                            </svg>
+                          }
+                        >
+                          <MainNewsSection />
+                        </CollapsibleSection>
+                      </div>
+                    </div>
+
+                    {/* Music - 1/3 width, reduced prominence */}
+                    <div className="lg:col-span-1">
+                      <CollapsibleSection 
+                        sectionKey="music" 
+                        title="Music"
+                        className="h-fit opacity-75 hover:opacity-100 transition-opacity duration-200"
+                        icon={
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                          </svg>
+                        }
+                      >
+                        <MainMusicSection />
+                      </CollapsibleSection>
+                    </div>
+                  </div>
+
+                  {/* Market Overview Section - 부가 기능 축소 */}
+                  <div className="mt-12">
+                    <CollapsibleSection 
+                      sectionKey="market" 
+                      title="Market Overview"
+                      className="opacity-75 hover:opacity-100 transition-opacity duration-200"
+                      icon={
+                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 0 01-2-2z" />
+                        </svg>
+                      }
+                    >
+                      <MarketOverview />
+                    </CollapsibleSection>
+                  </div>
                 </div>
               </div>
             )}
@@ -310,48 +319,7 @@ function HomeContent() {
             )}
 
             {activeTab === 'storage' && (
-              <div className="space-y-6">
-                {/* Storage Header & Add Content */}
-                <div className="bg-black rounded-xl p-4 sm:p-6">
-                  <div className="mb-6">
-                    <h2 className="text-lg font-semibold text-white mb-4">Storage</h2>
-                    
-                    {/* Storage Stats */}
-                    <div className="grid grid-cols-4 gap-2 sm:gap-4 mb-6">
-                      <div className="bg-gray-800/50 rounded-lg p-2 sm:p-4 text-center">
-                        <div className="text-base sm:text-xl font-bold text-blue-400 mb-1">8</div>
-                        <div className="text-xs text-gray-300">Links</div>
-                      </div>
-                      <div className="bg-gray-800/50 rounded-lg p-2 sm:p-4 text-center">
-                        <div className="text-base sm:text-xl font-bold text-green-400 mb-1">5</div>
-                        <div className="text-xs text-gray-300">Videos</div>
-                      </div>
-                      <div className="bg-gray-800/50 rounded-lg p-2 sm:p-4 text-center">
-                        <div className="text-base sm:text-xl font-bold text-purple-400 mb-1">12</div>
-                        <div className="text-xs text-gray-300">Notes</div>
-                      </div>
-                      <div className="bg-gray-800/50 rounded-lg p-2 sm:p-4 text-center">
-                        <div className="text-base sm:text-xl font-bold text-yellow-400 mb-1">7</div>
-                        <div className="text-xs text-gray-300">Images</div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Add Content Section - Compact */}
-                  <InfoInputSection />
-                </div>
-
-                {/* Content Sections Grid Layout */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                  <LinkSection />
-                  <VideoSection />
-                </div>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                  <NotesSection />
-                  <ImageSection />
-                </div>
-              </div>
+              <StorageContent />
             )}
 
             {activeTab === 'popular' && (

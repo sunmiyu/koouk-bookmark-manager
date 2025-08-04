@@ -159,7 +159,7 @@ export default function InfoInputSection() {
             onKeyPress={handleKeyPress}
             onPaste={handlePaste}
             placeholder="Paste URL, images (Ctrl+V), or type your note..."
-            className="w-full px-4 py-6 bg-gray-800/50 rounded-lg focus:outline-none focus:bg-gray-800 text-white placeholder-gray-400 text-sm pr-24 transition-all"
+            className="w-full px-4 py-4 bg-gray-800/30 hover:bg-gray-800/50 border-2 border-gray-600/30 hover:border-gray-500/50 focus:border-blue-500/70 focus:bg-gray-800/60 rounded-xl text-white placeholder-gray-400 text-base font-medium pr-24 transition-all duration-300 shadow-sm focus:shadow-lg focus:shadow-blue-500/10"
           />
           
           {isExpanded && (
@@ -173,7 +173,7 @@ export default function InfoInputSection() {
               </span>
               <button
                 type="submit"
-                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-medium transition-all shadow-sm"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-all duration-200 shadow-md hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               >
                 Add
               </button>
@@ -182,7 +182,7 @@ export default function InfoInputSection() {
         </div>
 
         {isExpanded && (
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4">
+          <div className="bg-gray-800/40 hover:bg-gray-800/50 backdrop-blur-sm rounded-xl p-5 border border-gray-700/30 shadow-lg transition-all duration-200">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
               <span className="text-sm font-medium text-gray-400">Content Type:</span>
               <div className="flex flex-wrap gap-2">

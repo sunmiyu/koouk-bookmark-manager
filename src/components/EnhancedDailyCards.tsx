@@ -278,55 +278,54 @@ export default function EnhancedDailyCards() {
 
   return (
     <div className={`transition-all duration-300 ${isAnimating ? 'opacity-75' : 'opacity-100'}`}>
-      {/* Header with Actions */}
-      <div className="flex items-center justify-between mb-6">
+      {/* Header with Actions - 더 컴팩트 */}
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-semibold text-white">Daily Cards</h2>
-          <span className="text-sm text-gray-400">
+          <span className="text-xs text-gray-400">
             {viewMode === 'main' ? 'Today + Next 7 days' : 
              viewMode === 'specific' ? 'Selected Date ±2 days' : 'History View'}
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* Go to Date Button */}
+        <div className="flex items-center gap-1.5">
+          {/* Go to Date Button - 더 컴팩트 */}
           <div className="relative">
             <button
               onClick={() => setShowCalendar(!showCalendar)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/50 hover:bg-gray-700/50 rounded-lg text-gray-300 hover:text-white transition-all duration-200"
+              className="flex items-center gap-1.5 px-2 py-1 bg-gray-800/50 hover:bg-gray-700/50 rounded-md text-gray-300 hover:text-white transition-all duration-200"
               title="Go to specific date"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span className="hidden sm:inline">Go to Date</span>
+              <span className="hidden sm:inline text-xs">Date</span>
             </button>
             {showCalendar && <CalendarPopup />}
           </div>
 
-          {/* View History Button */}
+          {/* View History Button - 더 컴팩트 */}
           <button
             onClick={showHistory}
-            className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/50 hover:bg-gray-700/50 rounded-lg text-gray-300 hover:text-white transition-all duration-200"
+            className="flex items-center gap-1.5 px-2 py-1 bg-gray-800/50 hover:bg-gray-700/50 rounded-md text-gray-300 hover:text-white transition-all duration-200"
             title="View history"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="hidden sm:inline">History</span>
+            <span className="hidden sm:inline text-xs">History</span>
           </button>
 
-          {/* Back to Today Button (only show when not in main view) */}
+          {/* Back to Today Button (only show when not in main view) - 더 컴팩트 */}
           {viewMode !== 'main' && (
             <button
               onClick={goToToday}
-              className="flex items-center gap-2 px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-600/30 rounded-lg text-blue-400 hover:text-blue-300 transition-all duration-200"
+              className="flex items-center gap-1.5 px-2 py-1 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-600/30 rounded-md text-blue-400 hover:text-blue-300 transition-all duration-200"
               title="Back to today"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
-              <span className="hidden sm:inline">Today</span>
+              <span className="hidden sm:inline text-xs">Today</span>
             </button>
           )}
         </div>
@@ -336,7 +335,7 @@ export default function EnhancedDailyCards() {
       <div className="relative">
         <div
           ref={cardContainerRef}
-          className="flex gap-4 overflow-x-auto scrollbar-hide pb-4"
+          className="flex gap-3 overflow-x-auto scrollbar-hide pb-3"
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none'
@@ -345,7 +344,7 @@ export default function EnhancedDailyCards() {
           {displayDays.map((day, index) => (
             <div
               key={day.dateStr}
-              className={`flex-shrink-0 w-80 h-96 bg-gray-900/50 backdrop-blur-sm rounded-xl border transition-all duration-200 ${
+              className={`flex-shrink-0 bg-gray-900/50 backdrop-blur-sm rounded-lg border transition-all duration-200 ${
                 selectedIndex === index
                   ? 'border-blue-500/50 shadow-lg shadow-blue-500/20'
                   : day.isToday
@@ -355,59 +354,50 @@ export default function EnhancedDailyCards() {
                   : 'border-gray-700/50'
               }`}
               onClick={() => setSelectedIndex(index)}
+              style={{ width: '280px', height: '320px' }}
             >
-              {/* Card Header */}
-              <div className="p-4 border-b border-gray-800/50">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className={`font-semibold ${
+              {/* Card Header - 더 컴팩트 */}
+              <div className="p-3 border-b border-gray-800/50">
+                <div className="flex items-center justify-between">
+                  <h3 className={`text-sm font-semibold ${
                     day.isToday ? 'text-green-400' : 
                     day.isFuture ? 'text-blue-400' : 
                     'text-white'
                   }`}>
                     {day.label}
                   </h3>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     {day.isToday && (
-                      <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
+                      <span className="px-1.5 py-0.5 bg-green-500/20 text-green-400 text-xs rounded">
                         Today
                       </span>
                     )}
                     {day.isFuture && (
-                      <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">
+                      <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded">
                         Future
                       </span>
                     )}
-                    <span className="text-xs text-gray-500">
-                      {charCount[index] || 0}/500
-                    </span>
                   </div>
                 </div>
-                <p className="text-sm text-gray-400">
-                  {day.date.toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}
-                </p>
               </div>
 
-              {/* Card Content */}
-              <div className="p-4 h-80 flex flex-col">
-                {/* Todo Section */}
-                <div className="mb-4 flex-shrink-0">
-                  <div className="flex items-center justify-between mb-2">
+              {/* Card Content - 더 컴팩트 */}
+              <div className="p-3 flex-1 flex flex-col">
+                {/* Todo Section - 더 컴팩트 */}
+                <div className="mb-3 flex-shrink-0">
+                  <div className="flex items-center justify-between mb-1.5">
                     <h4 className="text-xs font-medium text-gray-400 flex items-center gap-1">
-                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                      <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
                       Todos
                     </h4>
                   </div>
                   
-                  <div className="space-y-2 max-h-24 overflow-y-auto">
+                  <div className="space-y-1.5 max-h-20 overflow-y-auto">
                     {/* Add Todo Form */}
                     {!showAddForm[index] ? (
                       <button
                         onClick={() => setShowAddForm(prev => ({ ...prev, [index]: true }))}
-                        className="w-full py-1.5 border border-dashed border-gray-600 rounded text-xs text-gray-400 hover:border-gray-500 hover:text-gray-300 transition-colors"
+                        className="w-full py-1 border border-dashed border-gray-600 rounded text-xs text-gray-400 hover:border-gray-500 hover:text-gray-300 transition-colors"
                       >
                         + Add todo
                       </button>
@@ -425,7 +415,7 @@ export default function EnhancedDailyCards() {
                         <div className="flex gap-1">
                           <button
                             onClick={() => handleAddTodo(index)}
-                            className="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
+                            className="px-2 py-0.5 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
                           >
                             Add
                           </button>
@@ -434,7 +424,7 @@ export default function EnhancedDailyCards() {
                               setShowAddForm(prev => ({ ...prev, [index]: false }))
                               setNewTodo(prev => ({ ...prev, [index]: '' }))
                             }}
-                            className="px-2 py-1 bg-gray-600 text-white rounded text-xs hover:bg-gray-700"
+                            className="px-2 py-0.5 bg-gray-600 text-white rounded text-xs hover:bg-gray-700"
                           >
                             Cancel
                           </button>
@@ -442,13 +432,13 @@ export default function EnhancedDailyCards() {
                       </div>
                     )}
 
-                    {/* Todo List */}
+                    {/* Todo List - 더 컴팩트 */}
                     {(() => {
                       const dayTodos = getDateTodos(day.date)
-                      return dayTodos.slice(0, 3).map((todo) => (
+                      return dayTodos.slice(0, 2).map((todo) => (
                         <div
                           key={todo.id}
-                          className={`flex items-center gap-2 p-1.5 rounded transition-all text-xs ${
+                          className={`flex items-center gap-1.5 p-1 rounded transition-all text-xs ${
                             todo.completed 
                               ? 'bg-gray-800/30 opacity-60' 
                               : 'bg-gray-800/50'
@@ -456,32 +446,32 @@ export default function EnhancedDailyCards() {
                         >
                           <button
                             onClick={() => toggleTodo(todo.id)}
-                            className={`w-3 h-3 rounded border flex items-center justify-center transition-colors ${
+                            className={`w-2.5 h-2.5 rounded border flex items-center justify-center transition-colors ${
                               todo.completed
                                 ? 'bg-green-600 border-green-600'
                                 : 'border-gray-400'
                             }`}
                           >
                             {todo.completed && (
-                              <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-1.5 h-1.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                               </svg>
                             )}
                           </button>
                           
-                          <span className={`flex-1 ${
+                          <span className={`flex-1 text-xs ${
                             todo.completed 
                               ? 'text-gray-400 line-through' 
                               : 'text-white'
                           }`}>
-                            {todo.text}
+                            {todo.text.length > 25 ? todo.text.substring(0, 25) + '...' : todo.text}
                           </span>
                           
                           <button
                             onClick={() => deleteTodo(todo.id)}
                             className="text-gray-400 hover:text-red-400 transition-colors"
                           >
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                           </button>
@@ -491,15 +481,15 @@ export default function EnhancedDailyCards() {
                   </div>
                 </div>
 
-                {/* Diary Section */}
-                <div className="flex-1 border-t border-gray-800/50 pt-3">
-                  <div className="flex items-center justify-between mb-2">
+                {/* Diary Section - 더 컴팩트 */}
+                <div className="flex-1 border-t border-gray-800/50 pt-2">
+                  <div className="flex items-center justify-between mb-1.5">
                     <h4 className="text-xs font-medium text-gray-400 flex items-center gap-1">
-                      <div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
+                      <div className="w-1 h-1 bg-purple-500 rounded-full"></div>
                       Diary
                     </h4>
                     <span className="text-xs text-gray-500">
-                      {charCount[index] || 0}/500
+                      {charCount[index] || 0}/300
                     </span>
                   </div>
                   <textarea
@@ -507,17 +497,17 @@ export default function EnhancedDailyCards() {
                     onChange={(e) => handleTextChange(index, e.target.value)}
                     placeholder={
                       day.isToday 
-                        ? "How was your day? Write your thoughts..."
+                        ? "How was your day?"
                         : day.isFuture 
                         ? "Plan for this day..."
-                        : "What happened on this day..."
+                        : "What happened?"
                     }
-                    className={`w-full h-full bg-transparent border-none outline-none resize-none text-sm leading-relaxed placeholder-gray-500 ${
+                    className={`w-full h-full bg-transparent border-none outline-none resize-none text-xs leading-relaxed placeholder-gray-500 ${
                       day.isToday ? 'text-white' : 
                       day.isFuture ? 'text-blue-200' : 
                       'text-gray-300'
                     }`}
-                    maxLength={500}
+                    maxLength={300}
                   />
                 </div>
               </div>

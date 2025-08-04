@@ -180,7 +180,6 @@ export default function MainMusicSection() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <h3 className="text-base sm:text-lg font-semibold text-white">Music for You</h3>
             <div className="flex items-center gap-2">
               <span className="text-xs text-purple-400 bg-purple-400/10 px-2 py-1 rounded">
                 {MOOD_OPTIONS.find(m => m.value === selectedMood)?.emoji} {MOOD_OPTIONS.find(m => m.value === selectedMood)?.label}

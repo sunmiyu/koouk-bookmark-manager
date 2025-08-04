@@ -117,16 +117,13 @@ export default function MainNewsSection() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h3 className="text-base sm:text-lg font-semibold text-white">
-            {region === 'international' ? 'International News' : "Today's News"}
-          </h3>
           <div className="flex items-center gap-2">
             <span className={`text-xs px-2 py-1 rounded ${
               loading 
                 ? 'text-yellow-400 bg-yellow-400/10'
                 : source === 'naver'
                 ? 'text-green-400 bg-green-400/10'
-                : source === 'international_links' || source === 'fallback_links'
+                : source === 'international_links' || source === 'fallback_links' || source === 'fallback_international' || source === 'fallback_error'
                 ? 'text-blue-400 bg-blue-400/10'
                 : error
                 ? 'text-red-400 bg-red-400/10'
@@ -136,7 +133,7 @@ export default function MainNewsSection() {
                 ? 'Loading...'
                 : source === 'naver' 
                 ? '실시간' 
-                : source === 'international_links' || source === 'fallback_links'
+                : source === 'international_links' || source === 'fallback_links' || source === 'fallback_international' || source === 'fallback_error'
                 ? 'Global Links'
                 : error
                 ? 'Fallback'

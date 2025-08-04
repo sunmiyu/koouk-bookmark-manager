@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { useContent } from '@/contexts/ContentContext'
 import { useUserPlan } from '@/contexts/UserPlanContext'
 import { useAuth } from '@/contexts/AuthContext'
@@ -8,13 +7,25 @@ import { trackEvents } from '@/lib/analytics'
 // ImageModal removed - using simple click handler
 import ImageUpload from './ImageUpload'
 
-export default function ImageSection() {
+interface ImageSectionProps {
+  fullWidth?: boolean
+  searchQuery?: string
+}
+
+export default function ImageSection({ fullWidth = false, searchQuery = '' }: ImageSectionProps) {
   const { images, deleteItem, loading, refreshData } = useContent()
   const { getStorageLimit } = useUserPlan()
   const { user } = useAuth()
   // Modal functionality removed
 
   const limit = getStorageLimit()
+  
+  // Filter images based on search query
+  const filteredImages = images.filter(image => 
+    searchQuery === '' || 
+    image.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    image.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  )
   const isAtLimit = images.length >= limit
   
   if (loading) {
@@ -46,8 +57,14 @@ export default function ImageSection() {
       <div className="flex items-center justify-between mb-4">
         <h3 className="responsive-text-lg font-semibold text-green-400">Images</h3>
         <div className="text-xs text-gray-400">
-          <span className={images.length >= limit ? 'text-yellow-400' : ''}>{images.length}</span>
-          <span className="text-gray-500">/{limit === Infinity ? '∞' : limit}</span>
+          {searchQuery ? (
+            <span className="text-green-400">{filteredImages.length} found</span>
+          ) : (
+            <>
+              <span className={images.length >= limit ? 'text-yellow-400' : ''}>{images.length}</span>
+              <span className="text-gray-500">/{limit === Infinity ? '∞' : limit}</span>
+            </>
+          )}
         </div>
       </div>
 
@@ -76,12 +93,14 @@ export default function ImageSection() {
         </div>
       )}
       
-      <div className="space-y-3 max-h-[600px] overflow-y-auto">
-        {/* Render actual images */}
-        {images.map((image) => (
+      <div className={fullWidth ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 max-h-[800px] overflow-y-auto" : "space-y-3 max-h-[600px] overflow-y-auto"}>
+        {/* Render filtered images */}
+        {filteredImages.map((image) => (
           <div 
             key={image.id} 
-            className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
+            className={`bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg border border-gray-700 group relative ${
+              fullWidth ? 'aspect-square p-0 overflow-hidden' : 'responsive-p-sm'
+            }`}
             onClick={() => {
               trackEvents.openModal('image')
               window.open(image.thumbnail || image.url || '', '_blank')
@@ -100,38 +119,67 @@ export default function ImageSection() {
             >
               ✕
             </button>
-            <div className="flex items-start responsive-gap-sm">
-              <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden">
+            {fullWidth ? (
+              // Full width layout - gallery grid
+              <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
                   src={image.thumbnail || image.url}
                   alt={image.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                   onError={(e) => {
                     e.currentTarget.parentElement!.innerHTML = `
-                      <div class="w-full h-full flex items-center justify-center">
-                        <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div class="w-full h-full flex items-center justify-center bg-gray-700">
+                        <svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z" />
                         </svg>
                       </div>
                     `
                   }}
                 />
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-end">
+                  <div className="p-2 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <h4 className="font-medium text-sm line-clamp-1">
+                      {image.title || 'Untitled'}
+                    </h4>
+                  </div>
+                </div>
+              </>
+            ) : (
+              // Default compact layout
+              <div className="flex items-start responsive-gap-sm">
+                <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img 
+                    src={image.thumbnail || image.url}
+                    alt={image.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.parentElement!.innerHTML = `
+                        <div class="w-full h-full flex items-center justify-center">
+                          <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                      `
+                    }}
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-white responsive-text-sm line-clamp-2">
+                    {image.title || 'Untitled Image'}
+                  </h4>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {image.description || 'Image • Uploaded'}
+                  </p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-white responsive-text-sm line-clamp-2">
-                  {image.title || 'Untitled Image'}
-                </h4>
-                <p className="text-xs text-gray-400 mt-1">
-                  {image.description || 'Image • Uploaded'}
-                </p>
-              </div>
-            </div>
+            )}
           </div>
         ))}
         
         {/* Add sample data if empty and not logged in */}
-        {images.length === 0 && !user && (
+        {images.length === 0 && !user && !searchQuery && (
           <div 
             className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
             onClick={() => {
@@ -167,19 +215,33 @@ export default function ImageSection() {
           </div>
         )}
 
-        {/* Empty state for logged in users */}
-        {images.length === 0 && user && (
+        {/* Empty state */}
+        {filteredImages.length === 0 && (
           <div className="text-center py-8">
-            <svg className="w-12 h-12 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z" />
-            </svg>
-            <h4 className="text-gray-400 font-medium mb-2">이미지가 없습니다</h4>
-            <p className="text-gray-500 text-sm">위의 업로드 영역을 사용해서 첫 번째 이미지를 추가해보세요</p>
+            {searchQuery ? (
+              <>
+                <div className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <p className="text-gray-400 text-sm">No images found for &quot;{searchQuery}&quot;</p>
+                <p className="text-gray-500 text-xs mt-1">Try a different search term</p>
+              </>
+            ) : user ? (
+              <>
+                <svg className="w-12 h-12 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z" />
+                </svg>
+                <h4 className="text-gray-400 font-medium mb-2">이미지가 없습니다</h4>
+                <p className="text-gray-500 text-sm">위의 업로드 영역을 사용해서 첫 번째 이미지를 추가해보세요</p>
+              </>
+            ) : null}
           </div>
         )}
         
-        {/* Show empty slots to fill visual space */}
-        {Array.from({ length: Math.max(0, 5 - Math.max(images.length, user ? 0 : 1)) }, (_, index) => (
+        {/* Show empty slots to fill visual space - only when not searching */}
+        {!searchQuery && Array.from({ length: Math.max(0, 5 - Math.max(images.length, user ? 0 : 1)) }, (_, index) => (
           <div 
             key={`empty-${index}`}
             className="bg-gray-900 border-2 border-dashed border-gray-700 rounded-lg responsive-p-sm opacity-30"

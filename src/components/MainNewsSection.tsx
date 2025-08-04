@@ -55,8 +55,19 @@ export default function MainNewsSection() {
       setError(null)
       
       try {
-        // Try to fetch real RSS news from API
-        const response = await fetch('/api/news/rss')
+        // Try to fetch real RSS news from API with timeout
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+        
+        const response = await fetch('/api/news/rss', {
+          signal: controller.signal
+        })
+        clearTimeout(timeoutId)
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`)
+        }
+        
         const data = await response.json()
         
         if (data.success && data.items) {
@@ -69,13 +80,13 @@ export default function MainNewsSection() {
           setNews(sampleNews)
           setLastUpdated(new Date().toISOString())
         }
-        setLoading(false)
       } catch (fetchError) {
         console.error('Failed to fetch news:', fetchError)
         // Use sample data as fallback
         setNews(sampleNews)
         setLastUpdated(new Date().toISOString())
         setError('Using cached news (RSS unavailable)')
+      } finally {
         setLoading(false)
       }
     }
@@ -94,7 +105,18 @@ export default function MainNewsSection() {
     setError(null)
     
     try {
-      const response = await fetch('/api/news/rss')
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 8000) // 8 second timeout for manual refresh
+      
+      const response = await fetch('/api/news/rss', {
+        signal: controller.signal
+      })
+      clearTimeout(timeoutId)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+      
       const data = await response.json()
       
       if (data.success && data.items) {
@@ -103,10 +125,16 @@ export default function MainNewsSection() {
         console.log('Manual refresh: Loaded', data.items.length, 'news items')
       } else {
         setError('Failed to refresh news')
+        // Use sample news as fallback for manual refresh too
+        setNews(sampleNews)
+        setLastUpdated(new Date().toISOString())
       }
     } catch (error) {
       console.error('Manual refresh failed:', error)
-      setError('Refresh failed')
+      setError('Refresh failed - using sample news')
+      // Always provide sample news as fallback
+      setNews(sampleNews)
+      setLastUpdated(new Date().toISOString())
     } finally {
       setLoading(false)
     }

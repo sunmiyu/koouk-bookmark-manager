@@ -258,37 +258,19 @@ const FALLBACK_NEWS: NewsItem[] = [
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const manualRegion = searchParams.get('region') // 수동 지역 설정 지원
+    console.log('RSS API called')
     
-    // 지역 감지
-    const detectedRegion = detectRegionFromHeaders(request)
-    const region = manualRegion || detectedRegion
-    
-    console.log(`Fetching RSS news for region: ${region}`)
-    
-    let news: NewsItem[] = []
-    
-    try {
-      news = await fetchNewsByRegion(region)
-      console.log(`Successfully fetched ${news.length} news items for ${region}`)
-    } catch (error) {
-      console.error('RSS fetch failed, using fallback:', error)
-      news = FALLBACK_NEWS
-    }
-    
-    // 빈 결과면 폴백 사용
-    if (news.length === 0) {
-      news = FALLBACK_NEWS
-    }
+    // 항상 fallback news를 반환하도록 단순화 (안정성 우선)
+    const news = FALLBACK_NEWS
     
     return NextResponse.json({
       success: true,
       items: news,
       count: news.length,
-      region: region,
+      region: 'kr',
       lastUpdated: new Date().toISOString(),
-      availableRegions: Object.keys(RSS_FEEDS_BY_REGION)
+      source: 'fallback',
+      message: 'Using curated news for stability'
     })
     
   } catch (error) {
@@ -300,7 +282,7 @@ export async function GET(request: NextRequest) {
       count: FALLBACK_NEWS.length,
       region: 'kr',
       lastUpdated: new Date().toISOString(),
-      error: 'Failed to fetch RSS feeds, using fallback news'
+      error: 'API error, using fallback news'
     })
   }
 }

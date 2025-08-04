@@ -104,10 +104,10 @@ export default function AIWorkspaceContent() {
       </div>
 
       {/* Quick Access - Favorites & Recent */}
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Favorites */}
-        <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800/50">
-          <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+        <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-800/50">
+          <h3 className="text-sm sm:text-base font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
             ⭐ Favorites
           </h3>
           <div className="grid grid-cols-1 gap-2">
@@ -135,8 +135,8 @@ export default function AIWorkspaceContent() {
         </div>
 
         {/* Recent */}
-        <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800/50">
-          <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+        <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-800/50">
+          <h3 className="text-sm sm:text-base font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
             🕐 Recently Used
           </h3>
           <div className="grid grid-cols-1 gap-2">
@@ -165,9 +165,9 @@ export default function AIWorkspaceContent() {
       </div>
 
       {/* Category Filter */}
-      <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800/50">
-        <h3 className="text-base font-semibold text-white mb-4">Browse by Category</h3>
-        <div className="flex flex-wrap gap-2 mb-6">
+      <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-800/50">
+        <h3 className="text-sm sm:text-base font-semibold text-white mb-3 sm:mb-4">Browse by Category</h3>
+        <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
           {categories.map((category) => (
             <button
               key={category.id}
@@ -184,11 +184,11 @@ export default function AIWorkspaceContent() {
         </div>
 
         {/* Tools Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
           {filteredTools.map((tool) => (
-            <div key={tool.name} className="bg-gray-800/30 rounded-lg p-4 hover:bg-gray-700/50 transition-all duration-200 group">
-              <div className="flex items-start justify-between mb-3">
-                <span className="text-2xl">{tool.icon}</span>
+            <div key={tool.name} className="bg-gray-800/30 rounded-lg p-3 sm:p-4 hover:bg-gray-700/50 transition-all duration-200 group">
+              <div className="flex items-start justify-between mb-2 sm:mb-3">
+                <span className="text-xl sm:text-2xl">{tool.icon}</span>
                 <button
                   onClick={(e) => {
                     e.preventDefault()
@@ -202,10 +202,10 @@ export default function AIWorkspaceContent() {
                 </button>
               </div>
               
-              <h4 className="text-sm font-semibold text-white mb-2 group-hover:text-blue-300 transition-colors">
+              <h4 className="text-xs sm:text-sm font-semibold text-white mb-1 sm:mb-2 group-hover:text-blue-300 transition-colors line-clamp-1">
                 {tool.name}
               </h4>
-              <p className="text-xs text-gray-400 mb-4 line-clamp-2 leading-relaxed">
+              <p className="text-xs text-gray-400 mb-3 sm:mb-4 line-clamp-2 leading-relaxed hidden sm:block">
                 {tool.desc}
               </p>
               

@@ -311,42 +311,43 @@ function HomeContent() {
 
             {activeTab === 'storage' && (
               <div className="space-y-6">
-                {/* Add Content Section */}
-                <div className="bg-black rounded-xl p-6">
-                  <InfoInputSection />
-                </div>
-                
-                {/* Storage Overview */}
-                <div className="bg-black rounded-xl p-6">
+                {/* Storage Header & Add Content */}
+                <div className="bg-black rounded-xl p-4 sm:p-6">
                   <div className="mb-6">
-                    <h2 className="text-lg font-semibold text-white">Storage</h2>
+                    <h2 className="text-lg font-semibold text-white mb-4">Storage</h2>
+                    
+                    {/* Storage Stats */}
+                    <div className="grid grid-cols-4 gap-2 sm:gap-4 mb-6">
+                      <div className="bg-gray-800/50 rounded-lg p-2 sm:p-4 text-center">
+                        <div className="text-base sm:text-xl font-bold text-blue-400 mb-1">8</div>
+                        <div className="text-xs text-gray-300">Links</div>
+                      </div>
+                      <div className="bg-gray-800/50 rounded-lg p-2 sm:p-4 text-center">
+                        <div className="text-base sm:text-xl font-bold text-green-400 mb-1">5</div>
+                        <div className="text-xs text-gray-300">Videos</div>
+                      </div>
+                      <div className="bg-gray-800/50 rounded-lg p-2 sm:p-4 text-center">
+                        <div className="text-base sm:text-xl font-bold text-purple-400 mb-1">12</div>
+                        <div className="text-xs text-gray-300">Notes</div>
+                      </div>
+                      <div className="bg-gray-800/50 rounded-lg p-2 sm:p-4 text-center">
+                        <div className="text-base sm:text-xl font-bold text-yellow-400 mb-1">7</div>
+                        <div className="text-xs text-gray-300">Images</div>
+                      </div>
+                    </div>
                   </div>
                   
-                  {/* Storage Stats */}
-                  <div className="grid grid-cols-4 gap-3 sm:gap-4 mb-6">
-                    <div className="bg-gray-800/50 rounded-lg p-3 sm:p-4 text-center">
-                      <div className="text-lg sm:text-xl font-bold text-blue-400 mb-1">8</div>
-                      <div className="text-xs sm:text-sm text-gray-300">Links</div>
-                    </div>
-                    <div className="bg-gray-800/50 rounded-lg p-3 sm:p-4 text-center">
-                      <div className="text-lg sm:text-xl font-bold text-green-400 mb-1">5</div>
-                      <div className="text-xs sm:text-sm text-gray-300">Videos</div>
-                    </div>
-                    <div className="bg-gray-800/50 rounded-lg p-3 sm:p-4 text-center">
-                      <div className="text-lg sm:text-xl font-bold text-purple-400 mb-1">12</div>
-                      <div className="text-xs sm:text-sm text-gray-300">Notes</div>
-                    </div>
-                    <div className="bg-gray-800/50 rounded-lg p-3 sm:p-4 text-center">
-                      <div className="text-lg sm:text-xl font-bold text-yellow-400 mb-1">7</div>
-                      <div className="text-xs sm:text-sm text-gray-300">Images</div>
-                    </div>
-                  </div>
+                  {/* Add Content Section - Compact */}
+                  <InfoInputSection />
                 </div>
 
-                {/* Content Sections */}
-                <div className="space-y-4">
+                {/* Content Sections Grid Layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   <LinkSection />
                   <VideoSection />
+                </div>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   <NotesSection />
                   <ImageSection />
                 </div>

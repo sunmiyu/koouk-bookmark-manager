@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { linksService, videosService, imagesService, notesService } from '@/lib/supabase-services'
 
@@ -57,7 +57,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   }
 
   // Load all content for authenticated user
-  const loadAllContent = async () => {
+  const loadAllContent = useCallback(async () => {
     if (!user) {
       // Clear data for non-authenticated users
       setVideos([])
@@ -95,7 +95,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user])
 
   // Load content when user changes
   useEffect(() => {

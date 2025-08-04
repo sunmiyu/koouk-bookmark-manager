@@ -55,7 +55,7 @@ export default function ImageUpload({
     ))
   }, [])
 
-  const processFile = async (file: File, index: number) => {
+  const processFile = useCallback(async (file: File, index: number) => {
     try {
       // Validate file
       const validation = validateImageFile(file)
@@ -108,7 +108,7 @@ export default function ImageUpload({
       updateUploadProgress(index, { status: 'error', error: errorMessage })
       onUploadError?.(errorMessage)
     }
-  }
+  }, [user, compressionOptions, onUploadComplete, onUploadError, updateUploadProgress])
 
   const handleFileSelect = useCallback(async (files: FileList) => {
     if (!user) {

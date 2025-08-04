@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 interface DiaryEntry {
   id: string
@@ -76,10 +76,10 @@ export default function ScrollableDiaryCards() {
   }
 
   // 선택된 날짜의 일기 가져오기
-  const getSelectedDateEntry = (): DiaryEntry | null => {
+  const getSelectedDateEntry = useCallback((): DiaryEntry | null => {
     const selectedDateStr = selectedDate.toDateString()
     return diaryEntries.find(entry => entry.date === selectedDateStr) || null
-  }
+  }, [selectedDate, diaryEntries])
 
   // 일기 저장
   const saveDiary = () => {

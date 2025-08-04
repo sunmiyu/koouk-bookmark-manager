@@ -104,7 +104,7 @@ export default function TemperatureGraph() {
   }
 
   // 첫 번째 예보 항목을 현재 날씨로 사용
-  const currentItem = weatherData.list[0]
+  // const currentItem = weatherData.list[0]
   // const currentTemp = Math.round(currentItem.main.temp)
   // const currentCondition = currentItem.weather[0].main.toLowerCase()
 

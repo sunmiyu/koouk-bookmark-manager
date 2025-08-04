@@ -2,15 +2,15 @@
 
 // import { useState, useEffect, useCallback } from 'react'
 
-interface WeatherData {
-  location: {
-    city: string
-    country: string
-    lat: number
-    lon: number
-  }
-  weather: {
-    current: number
+// interface WeatherData {
+//   location: {
+//     city: string
+//     country: string
+//     lat: number
+//     lon: number
+//   }
+//   weather: {
+//     current: number
     min: number
     max: number
     morning: number
@@ -34,11 +34,11 @@ interface WeatherData {
   }
 }
 
-interface CachedWeatherData extends WeatherData {
-  cacheTime: number
-}
-
-const CACHE_DURATION = 6 * 60 * 60 * 1000 // 6시간
+// 사용하지 않는 인터페이스와 상수 주석 처리
+// interface CachedWeatherData extends WeatherData {
+//   cacheTime: number
+// }
+// const CACHE_DURATION = 6 * 60 * 60 * 1000 // 6시간
 
 export default function WeatherOnly() {
   // const [weatherData, setWeatherData] = useState<WeatherData | null>(null)
@@ -77,57 +77,25 @@ export default function WeatherOnly() {
   //   }
   // }
 
-  // 사용자 위치 가져오기
-  const getUserLocation = (): Promise<{lat: number, lon: number, city?: string}> => {
-    return new Promise((resolve) => {
-      // 캐시된 위치 확인 (1시간)
-      const cached = localStorage.getItem('user_geo_location')
-      if (cached) {
-        try {
-          const data = JSON.parse(cached)
-          if (Date.now() - data.timestamp < 60 * 60 * 1000) { // 1시간 캐시
-            resolve(data.location)
-            return
-          }
-        } catch (error) {
-          console.error('캐시된 위치 데이터 오류:', error)
-        }
-      }
-
-      if (!navigator.geolocation) {
-        // 브라우저가 지원하지 않으면 서울로 기본값
-        resolve({ lat: 37.5665, lon: 126.9780, city: 'Seoul' })
-        return
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const location = {
-            lat: position.coords.latitude,
-            lon: position.coords.longitude
-          }
-          
-          // 위치 캐시
-          localStorage.setItem('user_geo_location', JSON.stringify({
-            location,
-            timestamp: Date.now()
-          }))
-          
-          resolve(location)
-        },
-        (error) => {
-          console.warn('위치 정보 가져오기 실패:', error.message)
-          // GPS 실패시 서울로 기본값
-          resolve({ lat: 37.5665, lon: 126.9780, city: 'Seoul' })
-        },
-        {
-          timeout: 10000,
-          maximumAge: 3600000, // 1시간
-          enableHighAccuracy: false
-        }
-      )
-    })
-  }
+  // 사용자 위치 가져오기 - 사용하지 않으므로 주석 처리
+  // const getUserLocation = (): Promise<{lat: number, lon: number, city?: string}> => {
+  //   return new Promise((resolve) => {
+  //     // 캐시된 위치 확인 (1시간)
+  //     const cached = localStorage.getItem('user_geo_location')
+  //     if (cached) {
+  //       try {
+  //         const data = JSON.parse(cached)
+  //         if (Date.now() - data.timestamp < 60 * 60 * 1000) { // 1시간 캐시
+  //           resolve(data.location)
+  //           return
+  //         }
+  //       } catch (error) {
+  //         console.error('캐시된 위치 데이터 오류:', error)
+  //       }
+  //     }
+  //     ...
+  //   })
+  // }
 
   // 내부 API 호출 (사용자 위치 기반)
   // const fetchWeatherData = useCallback(async (): Promise<WeatherData> => {

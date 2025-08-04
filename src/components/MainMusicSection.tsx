@@ -296,23 +296,6 @@ export default function MainMusicSection() {
           </div>
         )}
 
-        {/* View More Link */}
-        {!loading && recommendations.length > 0 && (
-          <div className="mt-6 pt-4 border-t border-gray-600/30">
-            <button
-              onClick={() => {
-                // Navigate to mini-functions music page
-                window.location.href = '/mini-functions?function=music'
-              }}
-              className="text-sm text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1"
-            >
-              Discover more music
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-        )}
       </div>
     </div>
   )

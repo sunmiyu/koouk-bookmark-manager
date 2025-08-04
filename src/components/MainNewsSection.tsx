@@ -249,23 +249,6 @@ export default function MainNewsSection() {
           </div>
         )}
 
-        {/* View More Link */}
-        {!loading && news.length > 0 && (
-          <div className="mt-6 pt-4 border-t border-gray-600/30">
-            <button
-              onClick={() => {
-                // Navigate to mini-functions news page
-                window.location.href = '/mini-functions?function=news'
-              }}
-              className="text-sm text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
-            >
-              View all news
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-        )}
       </div>
     </div>
   )

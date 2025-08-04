@@ -38,7 +38,7 @@ export default function SynchronizedTodayCards() {
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
 
-  // 오늘을 첫번째로, 과거 3일, 미래 3일 순서로 배치
+  // 오늘을 첫번째로, 과거 30일, 미래 3일 순서로 배치
   const generateDays = (): DayData[] => {
     const days: DayData[] = []
     const today = new Date()
@@ -52,8 +52,8 @@ export default function SynchronizedTodayCards() {
       dateStr: today.toDateString()
     })
     
-    // 과거 3일 (어제부터 3일 전까지)
-    for (let i = -1; i >= -3; i--) {
+    // 과거 30일 (어제부터 30일 전까지)
+    for (let i = -1; i >= -30; i--) {
       const date = new Date(today)
       date.setDate(today.getDate() + i)
       
@@ -248,52 +248,6 @@ export default function SynchronizedTodayCards() {
 
   return (
     <div className="mb-4">
-      {/* Date Navigation Header */}
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-xl font-semibold text-white">Today&apos;s</h2>
-          <div className="text-sm text-gray-400">
-            {selectedDate.toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
-          </div>
-        </div>
-        
-        {/* Horizontal Date Scroll */}
-        <div 
-          ref={containerRef}
-          className="flex gap-2 overflow-x-auto pb-2 scroll-smooth"
-          style={{ 
-            scrollbarWidth: 'none', 
-            msOverflowStyle: 'none',
-            scrollSnapType: 'x mandatory'
-          }}
-        >
-          <style jsx>{`
-            div::-webkit-scrollbar {
-              display: none;
-            }
-          `}</style>
-          
-          {days.map((day, index) => (
-            <button
-              key={index}
-              onClick={() => scrollToCard(index)}
-              className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                selectedIndex === index
-                  ? 'bg-blue-500 text-white shadow-lg'
-                  : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50'
-              }`}
-              style={{ scrollSnapAlign: 'center' }}
-            >
-              {day.label}
-            </button>
-          ))}
-        </div>
-      </div>
 
       {/* Synchronized Card Container */}
       <div 

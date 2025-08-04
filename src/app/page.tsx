@@ -81,7 +81,7 @@ function HomeContent() {
         <div className="w-full max-w-[1200px] py-2 sm:py-4 px-4 sm:px-6">
           <header className="mb-8 sm:mb-12 lg:mb-16 relative z-50">
             {/* Professional Header Container */}
-            <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-800/50">
+            <div className="p-4 sm:p-6 lg:p-8" style={{ background: 'transparent', border: 'none' }}>
               <div className="flex items-center justify-between">
                 {/* Left: Logo */}
                 <div className="flex items-center">

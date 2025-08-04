@@ -19,8 +19,7 @@ import Link from 'next/link'
 import { ContentProvider } from '@/contexts/ContentContext'
 import SplashScreen from '@/components/SplashScreen'
 import { TodayTodosProvider } from '@/contexts/TodayTodosContext'
-import ScrollableTodoCards from '@/components/ScrollableTodoCards'
-import ScrollableDiaryCards from '@/components/ScrollableDiaryCards'
+import SynchronizedTodayCards from '@/components/SynchronizedTodayCards'
 import MainNewsSection from '@/components/MainNewsSection'
 import MainMusicSection from '@/components/MainMusicSection'
 import AIWorkspaceContent from '@/components/AIWorkspaceContent'
@@ -224,11 +223,8 @@ function HomeContent() {
                   <TemperatureGraph />
                 </div>
 
-                {/* Scrollable Todo Cards */}
-                <ScrollableTodoCards />
-
-                {/* Scrollable Diary Cards */}
-                <ScrollableDiaryCards />
+                {/* Synchronized Today Cards */}
+                <SynchronizedTodayCards />
 
                 {/* Today's News Section */}
                 <MainNewsSection />

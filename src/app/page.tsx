@@ -77,7 +77,7 @@ function HomeContent() {
   return (
     <TodayTodosProvider>
       <ContentProvider>
-        <div className="min-h-screen bg-black text-white flex justify-center items-center">
+        <div className="min-h-screen bg-black text-white flex justify-center">
         <div className="w-full max-w-[1200px] py-2 sm:py-4 px-4 sm:px-6">
           <header className="mb-8 sm:mb-12 lg:mb-16 relative z-50">
             {/* Professional Header Container */}

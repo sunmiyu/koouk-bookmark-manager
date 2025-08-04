@@ -123,7 +123,7 @@ export default function MainNewsSection() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <h3 className="text-base sm:text-lg font-semibold text-white">
-              {region === 'international' ? 'International News' : 'Today&apos;s News'}
+{region === 'international' ? 'International News' : "Today's News"}
             </h3>
             <div className="flex items-center gap-2">
               <span className={`text-xs px-2 py-1 rounded ${
@@ -133,11 +133,13 @@ export default function MainNewsSection() {
                   ? 'text-blue-400 bg-blue-400/10'
                   : 'text-gray-400 bg-gray-400/10'
               }`}>
-                {source === 'naver' 
-                  ? '네이버 실시간' 
+{source === 'naver' 
+                  ? '실시간' 
                   : source === 'international_links'
                   ? 'Global Links'
-                  : 'Cached'}
+                  : source === 'api_failed' || source === 'api_error'
+                  ? 'API 오류'
+                  : source || 'Loading...'}
               </span>
               {error && (
                 <span className="text-xs text-yellow-400" title={error}>⚠️</span>

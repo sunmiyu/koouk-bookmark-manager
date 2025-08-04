@@ -18,7 +18,7 @@ import Link from 'next/link'
 import { ContentProvider } from '@/contexts/ContentContext'
 import SplashScreen from '@/components/SplashScreen'
 import { TodayTodosProvider } from '@/contexts/TodayTodosContext'
-import SynchronizedTodayCards from '@/components/SynchronizedTodayCards'
+import EnhancedDailyCards from '@/components/EnhancedDailyCards'
 import MainNewsSection from '@/components/MainNewsSection'
 import MainMusicSection from '@/components/MainMusicSection'
 import AIWorkspaceContent from '@/components/AIWorkspaceContent'
@@ -217,8 +217,8 @@ function HomeContent() {
                   <TemperatureGraph />
                 </div>
 
-                {/* Synchronized Today Cards */}
-                <SynchronizedTodayCards />
+                {/* Enhanced Daily Cards */}
+                <EnhancedDailyCards />
 
                 {/* News and Music Section - Side by side on desktop */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">

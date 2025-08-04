@@ -55,6 +55,7 @@ const INTERNATIONAL_NEWS_LINKS: NewsItem[] = [
 ]
 
 
+
 // IP 기반 지역 감지
 function detectRegionFromIP(request: NextRequest): string {
   // Vercel/Cloudflare headers에서 국가 정보 확인
@@ -72,6 +73,12 @@ async function fetchNaverNews(): Promise<NewsItem[]> {
   const clientId = process.env.NAVER_CLIENT_ID
   const clientSecret = process.env.NAVER_CLIENT_SECRET
 
+  console.log('Naver API credentials check:', {
+    clientId: clientId ? `Present (${clientId.substring(0, 5)}...)` : 'Missing',
+    clientSecret: clientSecret ? `Present (${clientSecret.substring(0, 5)}...)` : 'Missing',
+    envKeys: Object.keys(process.env).filter(key => key.includes('NAVER'))
+  })
+
   if (!clientId || !clientSecret) {
     console.warn('Naver API credentials not found')
     return []
@@ -87,6 +94,8 @@ async function fetchNaverNews(): Promise<NewsItem[]> {
         const query = encodeURIComponent(keyword)
         const url = `https://openapi.naver.com/v1/search/news.json?query=${query}&display=5&start=1&sort=date`
 
+        console.log(`Fetching news for keyword: ${keyword} from URL: ${url}`)
+        
         const response = await fetch(url, {
           headers: {
             'X-Naver-Client-Id': clientId,
@@ -95,11 +104,23 @@ async function fetchNaverNews(): Promise<NewsItem[]> {
           }
         })
 
+        console.log(`Response status for ${keyword}:`, response.status)
+        
         if (response.ok) {
           const data = await response.json()
+          console.log(`Data received for ${keyword}:`, {
+            total: data.total || 0,
+            start: data.start || 0,
+            display: data.display || 0,
+            itemsCount: data.items ? data.items.length : 0
+          })
+          
           if (data.items && data.items.length > 0) {
             allNews.push(...data.items)
           }
+        } else {
+          const errorText = await response.text()
+          console.error(`API Error for ${keyword}:`, response.status, errorText)
         }
         
         // API 호출 간격을 두어 rate limit 방지
@@ -110,8 +131,11 @@ async function fetchNaverNews(): Promise<NewsItem[]> {
     }
 
     if (allNews.length === 0) {
+      console.log('⚠️ No news items fetched from any keyword')
       return []
     }
+    
+    console.log(`✅ Total news items fetched: ${allNews.length}`)
 
     // 중복 제거 (같은 URL 기준)
     const uniqueNews = allNews.filter((item, index, self) => 

@@ -60,9 +60,45 @@ export default function MainNewsSection() {
     } catch (err) {
       console.error('❌ News fetch error:', err)
       const errorMessage = err instanceof Error ? err.message : 'Unknown error'
-      setError(errorMessage)
-      setNews([])
-      setSource('error')
+      
+      // Try to provide fallback international news links
+      const fallbackNews = [
+        {
+          title: "BBC News - Latest World News",
+          url: "https://www.bbc.com/news",
+          source: "BBC",
+          publishedAt: new Date().toISOString()
+        },
+        {
+          title: "CNN - Breaking News and Latest Updates",
+          url: "https://www.cnn.com",
+          source: "CNN", 
+          publishedAt: new Date().toISOString()
+        },
+        {
+          title: "Reuters - Business and Financial News",
+          url: "https://www.reuters.com",
+          source: "Reuters",
+          publishedAt: new Date().toISOString()
+        },
+        {
+          title: "Associated Press - Latest News",
+          url: "https://apnews.com",
+          source: "AP News",
+          publishedAt: new Date().toISOString()
+        },
+        {
+          title: "The Guardian - International Edition",
+          url: "https://www.theguardian.com/international",
+          source: "The Guardian",
+          publishedAt: new Date().toISOString()
+        }
+      ]
+      
+      setNews(fallbackNews)
+      setError(`API Error: ${errorMessage}`)
+      setSource('fallback_links')
+      setRegion('international')
     } finally {
       setLoading(false)
     }
@@ -90,18 +126,20 @@ export default function MainNewsSection() {
                 ? 'text-yellow-400 bg-yellow-400/10'
                 : source === 'naver'
                 ? 'text-green-400 bg-green-400/10'
-                : source === 'international_links'
+                : source === 'international_links' || source === 'fallback_links'
                 ? 'text-blue-400 bg-blue-400/10'
+                : error
+                ? 'text-red-400 bg-red-400/10'
                 : 'text-gray-400 bg-gray-400/10'
             }`}>
-              {source === 'naver' 
-                ? '실시간' 
-                : source === 'international_links'
-                ? 'Global Links'
-                : source === 'api_failed' || source === 'api_error'
-                ? 'API 오류'
-                : loading
+              {loading
                 ? 'Loading...'
+                : source === 'naver' 
+                ? '실시간' 
+                : source === 'international_links' || source === 'fallback_links'
+                ? 'Global Links'
+                : error
+                ? 'Fallback'
                 : source || 'Cached'}
             </span>
             {error && (

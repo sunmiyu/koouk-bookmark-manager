@@ -16,7 +16,7 @@ interface DayData {
 type ViewMode = 'main' | 'history' | 'specific'
 
 export default function EnhancedDailyCards() {
-  const { diaryEntries, updateDiaryEntry, getSelectedDateEntry } = useTodayTodos()
+  const { diaryEntries, updateDiaryEntry, getSelectedDateEntry, todayTodos, addTodo, toggleTodo, deleteTodo } = useTodayTodos()
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [currentEntry, setCurrentEntry] = useState<string[]>([])
   const [charCount, setCharCount] = useState<number[]>([])
@@ -25,6 +25,10 @@ export default function EnhancedDailyCards() {
   const [showCalendar, setShowCalendar] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
   const cardContainerRef = useRef<HTMLDivElement>(null)
+  
+  // Todo states
+  const [newTodo, setNewTodo] = useState<Record<number, string>>({})
+  const [showAddForm, setShowAddForm] = useState<Record<number, boolean>>({})
 
   // 메인 화면: 오늘 + 미래 7일 (총 8개)
   const generateMainDays = (): DayData[] => {
@@ -114,6 +118,25 @@ export default function EnhancedDailyCards() {
     if (cardIndex >= 0 && cardIndex < displayDays.length) {
       const targetDate = displayDays[cardIndex].date
       updateDiaryEntry(targetDate, value)
+    }
+  }
+
+  // Todo 관련 함수들
+  const getDateTodos = (date: Date) => {
+    const dateStr = date.toDateString()
+    return todayTodos.filter(todo => {
+      const todoDate = new Date(todo.createdAt).toDateString()
+      return todoDate === dateStr
+    })
+  }
+
+  const handleAddTodo = (cardIndex: number) => {
+    const todoText = newTodo[cardIndex]?.trim()
+    if (todoText && cardIndex >= 0 && cardIndex < displayDays.length) {
+      const cardDate = displayDays[cardIndex].date
+      addTodo(todoText, cardDate)
+      setNewTodo(prev => ({ ...prev, [cardIndex]: '' }))
+      setShowAddForm(prev => ({ ...prev, [cardIndex]: false }))
     }
   }
 
@@ -369,24 +392,134 @@ export default function EnhancedDailyCards() {
               </div>
 
               {/* Card Content */}
-              <div className="p-4 h-80">
-                <textarea
-                  value={currentEntry[index] || ''}
-                  onChange={(e) => handleTextChange(index, e.target.value)}
-                  placeholder={
-                    day.isToday 
-                      ? "How was your day? Write your thoughts..."
-                      : day.isFuture 
-                      ? "Plan for this day..."
-                      : "What happened on this day..."
-                  }
-                  className={`w-full h-full bg-transparent border-none outline-none resize-none text-sm leading-relaxed placeholder-gray-500 ${
-                    day.isToday ? 'text-white' : 
-                    day.isFuture ? 'text-blue-200' : 
-                    'text-gray-300'
-                  }`}
-                  maxLength={500}
-                />
+              <div className="p-4 h-80 flex flex-col">
+                {/* Todo Section */}
+                <div className="mb-4 flex-shrink-0">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-xs font-medium text-gray-400 flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                      Todos
+                    </h4>
+                  </div>
+                  
+                  <div className="space-y-2 max-h-24 overflow-y-auto">
+                    {/* Add Todo Form */}
+                    {!showAddForm[index] ? (
+                      <button
+                        onClick={() => setShowAddForm(prev => ({ ...prev, [index]: true }))}
+                        className="w-full py-1.5 border border-dashed border-gray-600 rounded text-xs text-gray-400 hover:border-gray-500 hover:text-gray-300 transition-colors"
+                      >
+                        + Add todo
+                      </button>
+                    ) : (
+                      <div className="space-y-1">
+                        <input
+                          type="text"
+                          value={newTodo[index] || ''}
+                          onChange={(e) => setNewTodo(prev => ({ ...prev, [index]: e.target.value }))}
+                          onKeyPress={(e) => e.key === 'Enter' && handleAddTodo(index)}
+                          className="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1 text-white text-xs placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                          placeholder="What needs to be done?"
+                          autoFocus
+                        />
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => handleAddTodo(index)}
+                            className="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
+                          >
+                            Add
+                          </button>
+                          <button
+                            onClick={() => {
+                              setShowAddForm(prev => ({ ...prev, [index]: false }))
+                              setNewTodo(prev => ({ ...prev, [index]: '' }))
+                            }}
+                            className="px-2 py-1 bg-gray-600 text-white rounded text-xs hover:bg-gray-700"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Todo List */}
+                    {(() => {
+                      const dayTodos = getDateTodos(day.date)
+                      return dayTodos.slice(0, 3).map((todo) => (
+                        <div
+                          key={todo.id}
+                          className={`flex items-center gap-2 p-1.5 rounded transition-all text-xs ${
+                            todo.completed 
+                              ? 'bg-gray-800/30 opacity-60' 
+                              : 'bg-gray-800/50'
+                          }`}
+                        >
+                          <button
+                            onClick={() => toggleTodo(todo.id)}
+                            className={`w-3 h-3 rounded border flex items-center justify-center transition-colors ${
+                              todo.completed
+                                ? 'bg-green-600 border-green-600'
+                                : 'border-gray-400'
+                            }`}
+                          >
+                            {todo.completed && (
+                              <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            )}
+                          </button>
+                          
+                          <span className={`flex-1 ${
+                            todo.completed 
+                              ? 'text-gray-400 line-through' 
+                              : 'text-white'
+                          }`}>
+                            {todo.text}
+                          </span>
+                          
+                          <button
+                            onClick={() => deleteTodo(todo.id)}
+                            className="text-gray-400 hover:text-red-400 transition-colors"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      ))
+                    })()}
+                  </div>
+                </div>
+
+                {/* Diary Section */}
+                <div className="flex-1 border-t border-gray-800/50 pt-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-xs font-medium text-gray-400 flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
+                      Diary
+                    </h4>
+                    <span className="text-xs text-gray-500">
+                      {charCount[index] || 0}/500
+                    </span>
+                  </div>
+                  <textarea
+                    value={currentEntry[index] || ''}
+                    onChange={(e) => handleTextChange(index, e.target.value)}
+                    placeholder={
+                      day.isToday 
+                        ? "How was your day? Write your thoughts..."
+                        : day.isFuture 
+                        ? "Plan for this day..."
+                        : "What happened on this day..."
+                    }
+                    className={`w-full h-full bg-transparent border-none outline-none resize-none text-sm leading-relaxed placeholder-gray-500 ${
+                      day.isToday ? 'text-white' : 
+                      day.isFuture ? 'text-blue-200' : 
+                      'text-gray-300'
+                    }`}
+                    maxLength={500}
+                  />
+                </div>
               </div>
             </div>
           ))}

@@ -252,39 +252,39 @@ export default function MarketOverview() {
                   {region}
                 </h4>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {indices.map((index) => (
                     <button
                       key={index.symbol}
-                      className="bg-gray-800/30 hover:bg-gray-800/50 rounded-lg p-4 text-left transition-all duration-200 border border-transparent hover:border-gray-600/30 group"
+                      className="bg-gray-800/30 hover:bg-gray-800/50 rounded-lg p-3 sm:p-4 text-left transition-all duration-200 border border-transparent hover:border-gray-600/30 group"
                       onClick={() => {
                         // TODO: Open detailed view or redirect to financial site
                         window.open(`https://finance.yahoo.com/quote/${index.symbol}`, '_blank')
                       }}
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <h5 className="text-sm font-medium text-white group-hover:text-blue-400 transition-colors">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
+                        <h5 className="text-xs sm:text-sm font-medium text-white group-hover:text-blue-400 transition-colors truncate">
                           {index.name}
                         </h5>
-                        <span className="text-xs text-gray-500">{index.symbol}</span>
+                        <span className="text-xs text-gray-500 mt-1 sm:mt-0">{index.symbol}</span>
                       </div>
                       
                       <div className="mb-2">
-                        <span className="text-lg font-semibold text-white">
+                        <span className="text-base sm:text-lg font-semibold text-white">
                           {formatValue(index.value)}
                         </span>
                       </div>
                       
-                      <div className="flex items-center gap-2">
-                        <span className={`text-sm font-medium flex items-center gap-1 ${
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                        <span className={`text-xs sm:text-sm font-medium flex items-center gap-1 ${
                           index.change >= 0 ? 'text-green-400' : 'text-red-400'
                         }`}>
-                          <svg className={`w-3 h-3 ${index.change >= 0 ? 'rotate-0' : 'rotate-180'}`} fill="currentColor" viewBox="0 0 20 20">
+                          <svg className={`w-2 h-2 sm:w-3 sm:h-3 ${index.change >= 0 ? 'rotate-0' : 'rotate-180'}`} fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
                           </svg>
                           {formatChange(index.change)}
                         </span>
-                        <span className={`text-sm ${
+                        <span className={`text-xs sm:text-sm ${
                           index.changePercent >= 0 ? 'text-green-400' : 'text-red-400'
                         }`}>
                           ({formatChange(index.changePercent, true)})

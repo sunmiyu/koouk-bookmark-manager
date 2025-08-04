@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { cachedFetch, cacheKeys } from '@/utils/apiCache'
 
 interface MarketIndex {
   symbol: string
@@ -63,17 +64,24 @@ export default function MarketOverview() {
   const [selectedRegions, setSelectedRegions] = useState<string[]>(['Americas', 'Europe', 'Asia-Pacific'])
   const [error, setError] = useState<string | null>(null)
 
-  // Fetch market data
-  const fetchMarketData = async () => {
+  // Fetch market data with caching
+  const fetchMarketData = async (force = false) => {
     setIsLoading(true)
     setError(null)
     
     try {
-      // TODO: Replace with real API call
-      // For now, using mock data with delay to simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const data = await cachedFetch.market(
+        cacheKeys.marketOverview(),
+        async () => {
+          // TODO: Replace with real API call
+          // For now, using mock data with delay to simulate API call
+          console.log('🔄 Fetching fresh market data...')
+          await new Promise(resolve => setTimeout(resolve, 1000))
+          return generateMockData()
+        },
+        force
+      )
       
-      const data = generateMockData()
       setMarketData(data)
       setLastRefresh(new Date())
     } catch (err) {
@@ -163,10 +171,10 @@ export default function MarketOverview() {
 
           {/* Refresh Button */}
           <button
-            onClick={fetchMarketData}
+            onClick={() => fetchMarketData(true)}
             disabled={isLoading}
             className="p-2 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg transition-colors disabled:opacity-50"
-            title="Refresh data"
+            title="Refresh data (force)"
           >
             <svg 
               className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} 

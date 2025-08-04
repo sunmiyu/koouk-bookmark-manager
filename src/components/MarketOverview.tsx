@@ -17,44 +17,41 @@ interface MarketData {
   [key: string]: MarketIndex
 }
 
-const MARKET_INDICES = {
-  // Americas
-  'SPX': { name: 'S&P 500', region: 'Americas' },
-  'IXIC': { name: 'NASDAQ', region: 'Americas' },
-  'DJI': { name: 'Dow Jones', region: 'Americas' },
-  
-  // Europe  
-  'UKX': { name: 'FTSE 100', region: 'Europe' },
-  'DAX': { name: 'DAX', region: 'Europe' },
-  'CAC': { name: 'CAC 40', region: 'Europe' },
-  
-  // Asia-Pacific
-  'NKY': { name: 'Nikkei 225', region: 'Asia-Pacific' },
-  'HSI': { name: 'Hang Seng', region: 'Asia-Pacific' },
-  'KOSPI': { name: 'KOSPI', region: 'Asia-Pacific' },
-}
+// Market indices are now fetched from API, this is kept for reference
+// const MARKET_INDICES = {
+//   // Americas
+//   'SPX': { name: 'S&P 500', region: 'Americas' },
+//   'IXIC': { name: 'NASDAQ', region: 'Americas' },
+//   'DJI': { name: 'Dow Jones', region: 'Americas' },
+//   
+//   // Europe  
+//   'UKX': { name: 'FTSE 100', region: 'Europe' },
+//   'DAX': { name: 'DAX', region: 'Europe' },
+//   'CAC': { name: 'CAC 40', region: 'Europe' },
+//   
+//   // Asia-Pacific
+//   'NKY': { name: 'Nikkei 225', region: 'Asia-Pacific' },
+//   'HSI': { name: 'Hang Seng', region: 'Asia-Pacific' },
+//   'KOSPI': { name: 'KOSPI', region: 'Asia-Pacific' },
+// }
 
-// Mock data for development - replace with real API
-const generateMockData = (): MarketData => {
-  const mockData: MarketData = {}
+// Convert API data to MarketData format
+const processMarketData = (apiData: MarketIndex[]): MarketData => {
+  const marketData: MarketData = {}
   
-  Object.entries(MARKET_INDICES).forEach(([symbol, info]) => {
-    const baseValue = Math.random() * 10000 + 20000
-    const change = (Math.random() - 0.5) * 200
-    const changePercent = (change / baseValue) * 100
-    
-    mockData[symbol] = {
-      symbol,
-      name: info.name,
-      region: info.region,
-      value: parseFloat(baseValue.toFixed(2)),
-      change: parseFloat(change.toFixed(2)),
-      changePercent: parseFloat(changePercent.toFixed(2)),
-      lastUpdated: new Date().toISOString()
+  apiData.forEach((item) => {
+    marketData[item.symbol] = {
+      symbol: item.symbol,
+      name: item.name,
+      region: item.region,
+      value: item.value,
+      change: item.change,
+      changePercent: item.changePercent,
+      lastUpdated: item.lastUpdated
     }
   })
   
-  return mockData
+  return marketData
 }
 
 export default function MarketOverview() {
@@ -63,6 +60,7 @@ export default function MarketOverview() {
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
   const [selectedRegions, setSelectedRegions] = useState<string[]>(['Americas', 'Europe', 'Asia-Pacific'])
   const [error, setError] = useState<string | null>(null)
+  const [dataSource, setDataSource] = useState<string>('loading')
 
   // Fetch market data with caching
   const fetchMarketData = async (force = false) => {
@@ -70,20 +68,30 @@ export default function MarketOverview() {
     setError(null)
     
     try {
-      const data = await cachedFetch.market(
+      const apiResponse = await cachedFetch.market(
         cacheKeys.marketOverview(),
         async () => {
-          // TODO: Replace with real API call
-          // For now, using mock data with delay to simulate API call
-          console.log('🔄 Fetching fresh market data...')
-          await new Promise(resolve => setTimeout(resolve, 1000))
-          return generateMockData()
+          console.log('🔄 Fetching fresh market data from API...')
+          const response = await fetch('/api/market')
+          
+          if (!response.ok) {
+            throw new Error(`Market API error: ${response.status}`)
+          }
+          
+          return await response.json()
         },
         force
       )
       
-      setMarketData(data)
-      setLastRefresh(new Date())
+      if (apiResponse.success && apiResponse.data) {
+        const processedData = processMarketData(apiResponse.data)
+        setMarketData(processedData)
+        setDataSource(apiResponse.source || 'unknown')
+        setLastRefresh(new Date())
+        console.log(`✅ Market data loaded from ${apiResponse.source} (${apiResponse.count} indices)`)
+      } else {
+        throw new Error(apiResponse.error || 'Invalid API response')
+      }
     } catch (err) {
       console.error('Failed to fetch market data:', err)
       setError('Failed to load market data')
@@ -136,8 +144,26 @@ export default function MarketOverview() {
             Market Overview
           </h3>
           <div className="flex items-center gap-2">
-            <span className="text-xs px-2 py-1 rounded bg-blue-400/10 text-blue-400">
-              {isLoading ? 'Loading...' : '15min delay'}
+            <span className={`text-xs px-2 py-1 rounded ${
+              isLoading 
+                ? 'text-yellow-400 bg-yellow-400/10'
+                : dataSource === 'yahoo_finance' || dataSource === 'yahoo_finance_alt'
+                ? 'text-green-400 bg-green-400/10'
+                : dataSource === 'finnhub'
+                ? 'text-blue-400 bg-blue-400/10'
+                : dataSource === 'fallback' || dataSource === 'fallback_error'
+                ? 'text-orange-400 bg-orange-400/10'
+                : 'text-gray-400 bg-gray-400/10'
+            }`}>
+              {isLoading 
+                ? 'Loading...'
+                : dataSource === 'yahoo_finance' || dataSource === 'yahoo_finance_alt'
+                ? 'Live Data'
+                : dataSource === 'finnhub'
+                ? 'Real-time'
+                : dataSource === 'fallback' || dataSource === 'fallback_error'
+                ? 'Demo Data'
+                : '15min delay'}
             </span>
             {error && (
               <span className="text-xs text-yellow-400" title={error}>⚠️</span>

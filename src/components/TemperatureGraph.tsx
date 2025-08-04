@@ -111,6 +111,8 @@ export default function TemperatureGraph() {
   // 실제 예보 데이터를 사용해서 다음 12시간(4개 예보) 생성
   const generateNext12Hours = () => {
     const result = []
+    const now = new Date()
+    const today = now.toDateString()
     
     // 최대 12개 예보 아이템 사용 (3시간 간격이므로 36시간)
     const forecastItems = weatherData.list.slice(0, 12)
@@ -119,6 +121,20 @@ export default function TemperatureGraph() {
       const item = forecastItems[i]
       const itemDate = new Date(item.dt * 1000)
       const itemHour = itemDate.getHours()
+      const itemDateString = itemDate.toDateString()
+      
+      // 날짜 변경 확인
+      const isNewDay = itemDateString !== today && i > 0
+      let dateLabel = ''
+      if (isNewDay) {
+        const tomorrow = new Date(now)
+        tomorrow.setDate(now.getDate() + 1)
+        if (itemDateString === tomorrow.toDateString()) {
+          dateLabel = '내일'
+        } else {
+          dateLabel = `${itemDate.getMonth() + 1}/${itemDate.getDate()}`
+        }
+      }
       
       // 시간 표시 포맷
       let timeLabel = ''
@@ -140,6 +156,8 @@ export default function TemperatureGraph() {
         temperature: Math.round(item.main.temp),
         condition: item.weather[0].main.toLowerCase(),
         isNow: i === 0,
+        isNewDay,
+        dateLabel,
         dt_txt: item.dt_txt
       })
     }
@@ -188,7 +206,7 @@ export default function TemperatureGraph() {
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h3 className="text-lg font-semibold text-white">12시간 날씨 예보</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-white">12시간 날씨 예보</h3>
           <button 
             onClick={() => {
               if (navigator.geolocation) {
@@ -211,10 +229,6 @@ export default function TemperatureGraph() {
             📍 현재 위치
           </button>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="text-2xl font-bold text-blue-400">{currentTemp}°</div>
-          <div className="text-sm text-gray-400">현재</div>
-        </div>
       </div>
 
       {/* 날씨 카드들 */}
@@ -231,6 +245,11 @@ export default function TemperatureGraph() {
             <div className={`text-xs mb-2 ${
               data.isNow ? 'text-blue-300 font-bold' : 'text-gray-400'
             }`}>
+              {data.isNewDay && (
+                <div className="text-xs text-green-400 font-medium mb-1">
+                  {data.dateLabel}
+                </div>
+              )}
               {data.time}
             </div>
             <div className="text-lg mb-2">
@@ -250,6 +269,11 @@ export default function TemperatureGraph() {
         {hourlyForecast.slice(6, 12).map((data, index) => (
           <div key={index + 6} className="text-center p-2 rounded bg-gray-700/20">
             <div className="text-xs text-gray-500 mb-1">
+              {data.isNewDay && (
+                <div className="text-xs text-green-400 font-medium mb-1">
+                  {data.dateLabel}
+                </div>
+              )}
               {data.time}
             </div>
             <div className="text-sm mb-1">

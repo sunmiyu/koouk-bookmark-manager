@@ -102,7 +102,7 @@ export default function AuthButton() {
   }
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative z-[99999]" ref={dropdownRef}>
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         className="w-16 py-1 bg-gray-700 text-white text-sm font-medium rounded-full hover:bg-gray-600 transition-all duration-200 h-[24px] flex items-center justify-center cursor-pointer"

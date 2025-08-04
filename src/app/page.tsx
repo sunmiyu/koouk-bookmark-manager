@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react'
 import TimeDisplay from '@/components/TimeDisplay'
 import FeedbackBoard from '@/components/FeedbackBoard'
 import InfoInputSection from '@/components/InfoInputSection'
-import TodoSection from '@/components/TodoSection'
 import LinkSection from '@/components/LinkSection'
 import VideoSection from '@/components/VideoSection'
 import ImageSection from '@/components/ImageSection'
@@ -20,7 +19,11 @@ import Link from 'next/link'
 import { ContentProvider } from '@/contexts/ContentContext'
 import SplashScreen from '@/components/SplashScreen'
 import { TodayTodosProvider } from '@/contexts/TodayTodosContext'
-import TodayTodoCard from '@/components/TodayTodoCard'
+import ScrollableTodoCards from '@/components/ScrollableTodoCards'
+import ScrollableDiaryCards from '@/components/ScrollableDiaryCards'
+import MainNewsSection from '@/components/MainNewsSection'
+import MainMusicSection from '@/components/MainMusicSection'
+import AIWorkspaceContent from '@/components/AIWorkspaceContent'
 import TemperatureGraph from '@/components/TemperatureGraph'
 // import { useWeatherData } from '@/hooks/useWeatherData' // 삭제됨
 // import { useMiniFunctions } from '@/contexts/MiniFunctionsContext'
@@ -28,7 +31,7 @@ import TemperatureGraph from '@/components/TemperatureGraph'
 import { useSearch } from '@/contexts/SearchContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 
-type TabType = 'today' | 'dashboard' | 'contents' | 'popular'
+type TabType = 'today' | 'mini' | 'storage' | 'popular'
 
 function HomeContent() {
   const [activeTab, setActiveTab] = useState<TabType>('today')
@@ -44,7 +47,7 @@ function HomeContent() {
     // Check for tab parameter in URL
     const urlParams = new URLSearchParams(window.location.search)
     const tabParam = urlParams.get('tab') as TabType
-    if (tabParam && ['today', 'dashboard', 'contents', 'popular'].includes(tabParam)) {
+    if (tabParam && ['today', 'mini', 'storage', 'popular'].includes(tabParam)) {
       setActiveTab(tabParam)
       // Clean up URL parameter after setting the tab
       const newUrl = window.location.pathname
@@ -76,8 +79,8 @@ function HomeContent() {
     <TodayTodosProvider>
       <ContentProvider>
         <div className="min-h-screen bg-black text-white">
-        <div className="w-full max-w-[1000px] mx-auto py-2 sm:py-4 px-4 sm:px-6">
-          <header className="mb-8 sm:mb-12 lg:mb-16">
+        <div className="w-full max-w-[1200px] mx-auto py-2 sm:py-4 px-4 sm:px-6">
+          <header className="mb-8 sm:mb-12 lg:mb-16 relative z-50">
             {/* Professional Header Container */}
             <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-800/50">
               <div className="flex items-center justify-between">
@@ -100,8 +103,8 @@ function HomeContent() {
 
                 {/* Right: Time & Account - Responsive Stack */}
                 <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
-                  {/* Time - Hide on very small screens, show abbreviated */}
-                  <div className="hidden xs:flex items-center gap-2 sm:gap-3 lg:gap-4">
+                  {/* Time - Hide on small screens, show on medium and up */}
+                  <div className="hidden sm:flex items-center gap-2 sm:gap-3 lg:gap-4">
                     <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 bg-gray-800/50 rounded-lg sm:rounded-xl border border-gray-700/30">
                       <TimeDisplay />
                     </div>
@@ -164,24 +167,9 @@ function HomeContent() {
                   </div>
                 </button>
                 <button
-                  onClick={() => setActiveTab('dashboard')}
+                  onClick={() => setActiveTab('mini')}
                   className={`flex-1 py-3 sm:py-4 px-2 sm:px-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
-                    activeTab === 'dashboard'
-                      ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
-                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
-                  }`}
-                >
-                  <div className="flex items-center justify-center gap-1 sm:gap-2">
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                    </svg>
-                    <span className="hidden xs:inline">{t('dashboard')}</span>
-                  </div>
-                </button>
-                <button
-                  onClick={() => setActiveTab('dashboard')}
-                  className={`flex-1 py-3 sm:py-4 px-2 sm:px-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
-                    activeTab === 'dashboard'
+                    activeTab === 'mini'
                       ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
                       : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
                   }`}
@@ -190,13 +178,13 @@ function HomeContent() {
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                     </svg>
-                    <span className="hidden xs:inline">{t('dashboard')}</span>
+                    <span className="hidden xs:inline">Mini</span>
                   </div>
                 </button>
                 <button
-                  onClick={() => setActiveTab('contents')}
+                  onClick={() => setActiveTab('storage')}
                   className={`flex-1 py-3 sm:py-4 px-2 sm:px-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
-                    activeTab === 'contents'
+                    activeTab === 'storage'
                       ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
                       : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
                   }`}
@@ -205,7 +193,7 @@ function HomeContent() {
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
-                    <span className="hidden xs:inline">{t('contents')}</span>
+                    <span className="hidden xs:inline">Storage</span>
                   </div>
                 </button>
                 <button
@@ -220,7 +208,7 @@ function HomeContent() {
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                     </svg>
-                    <span className="hidden xs:inline">{t('popular')}</span>
+                    <span className="hidden xs:inline">Workspace</span>
                   </div>
                 </button>
               </nav>
@@ -236,55 +224,18 @@ function HomeContent() {
                   <TemperatureGraph />
                 </div>
 
-                {/* Today's Focus Section */}
-                <div className="mb-4">
-                  <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-800/50">
-                    <div className="mb-6 sm:mb-8">
-                      <h2 className="text-base sm:text-lg font-semibold text-white mb-2">
-                        Today&apos;s ({new Date().getMonth() + 1}/{new Date().getDate()} {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date().getDay()]})
-                      </h2>
-                    </div>
-                    
-                    {/* Today's Todo Card - Synchronized */}
-                    <TodayTodoCard />
-                  </div>
-                </div>
+                {/* Scrollable Todo Cards */}
+                <ScrollableTodoCards />
 
-                {/* Recent Activity Section */}
-                <div className="mb-4">
-                  <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-800/50">
-                    <div className="mb-6">
-                      <h3 className="text-base sm:text-lg font-semibold text-white mb-2">Recent Activity</h3>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between py-3 border-b border-gray-700/30">
-                        <span className="text-base font-medium text-white">Todo completed</span>
-                        <span className="text-sm text-gray-400 font-medium">2h ago</span>
-                      </div>
-                      
-                      <div className="flex items-center justify-between py-3 border-b border-gray-700/30">
-                        <span className="text-base font-medium text-white">Link added</span>
-                        <span className="text-sm text-gray-400 font-medium">4h ago</span>
-                      </div>
-                      
-                      <div className="flex items-center justify-between py-3 border-b border-gray-700/30">
-                        <span className="text-base font-medium text-white">Music updated</span>
-                        <span className="text-sm text-gray-400 font-medium">6h ago</span>
-                      </div>
-                      
-                      <div className="flex items-center justify-between py-3 border-b border-gray-700/30">
-                        <span className="text-base font-medium text-white">Expense logged</span>
-                        <span className="text-sm text-gray-400 font-medium">1d ago</span>
-                      </div>
-                      
-                      <div className="flex items-center justify-between py-3">
-                        <span className="text-base font-medium text-white">Video saved</span>
-                        <span className="text-sm text-gray-400 font-medium">1d ago</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                {/* Scrollable Diary Cards */}
+                <ScrollableDiaryCards />
+
+                {/* Today's News Section */}
+                <MainNewsSection />
+
+                {/* Music Recommendations Section */}
+                <MainMusicSection />
+
 
                 {/* Dashboard Stats Section */}
                 <div className="mb-4">
@@ -321,16 +272,16 @@ function HomeContent() {
 
             {activeTab === 'today' && (
               <div className="space-y-8">
-                {/* Today's Todos Section - Mobile Optimized */}
-                <TodoSection />
+                {/* Today tab content is now handled in the main today section above */}
               </div>
             )}
 
-            {activeTab === 'dashboard' && (
+            {activeTab === 'mini' && (
               <MiniFunctionsAccordion />
             )}
 
-            {activeTab === 'contents' && (
+
+            {activeTab === 'storage' && (
               <div className="space-y-6">
                 {/* Add Content Section */}
                 <div className="bg-black rounded-xl p-6">
@@ -375,289 +326,7 @@ function HomeContent() {
             )}
 
             {activeTab === 'popular' && (
-              <div className="space-y-6">
-                {/* AI Tools Overview */}
-                <div className="bg-black rounded-xl p-6">
-                  <div className="mb-6">
-                    <h2 className="text-lg font-semibold text-white">AI Tools</h2>
-                  </div>
-                  
-                  {/* Category Stats */}
-                  <div className="grid grid-cols-4 gap-3 sm:gap-4 mb-6">
-                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
-                      <div className="text-xl font-bold text-blue-400 mb-1">8</div>
-                      <div className="text-sm text-gray-300">Writing</div>
-                    </div>
-                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
-                      <div className="text-xl font-bold text-green-400 mb-1">6</div>
-                      <div className="text-sm text-gray-300">Design</div>
-                    </div>
-                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
-                      <div className="text-xl font-bold text-purple-400 mb-1">5</div>
-                      <div className="text-sm text-gray-300">Code</div>
-                    </div>
-                    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
-                      <div className="text-xl font-bold text-yellow-400 mb-1">4</div>
-                      <div className="text-sm text-gray-300">Productivity</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Writing Tools */}
-                <div className="bg-black rounded-xl p-6">
-                  <div className="mb-4">
-                    <h3 className="text-base font-semibold text-white">✍️ Writing & Content</h3>
-                  </div>
-                  <div className="space-y-3">
-                    <a href="https://chat.openai.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">ChatGPT</div>
-                        <div className="text-xs text-gray-400">Conversational AI assistant</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Claude</div>
-                        <div className="text-xs text-gray-400">AI assistant by Anthropic</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://www.notion.so/product/ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Notion AI</div>
-                        <div className="text-xs text-gray-400">AI-powered writing assistant</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://www.grammarly.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Grammarly</div>
-                        <div className="text-xs text-gray-400">AI writing assistant & grammar checker</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://www.copy.ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Copy.ai</div>
-                        <div className="text-xs text-gray-400">AI copywriting & content generator</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://www.jasper.ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Jasper</div>
-                        <div className="text-xs text-gray-400">AI content marketing platform</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://quillbot.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">QuillBot</div>
-                        <div className="text-xs text-gray-400">AI paraphrasing & writing tool</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                  </div>
-                </div>
-
-                {/* Design Tools */}
-                <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-800/50">
-                  <div className="mb-6">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">🎨</span>
-                      <h3 className="text-base font-semibold text-white">Design & Creative</h3>
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <a href="https://www.midjourney.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Midjourney</div>
-                        <div className="text-xs text-gray-400">AI image generation</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://www.canva.com/ai-image-generator/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Canva AI</div>
-                        <div className="text-xs text-gray-400">Design with AI assistance</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://www.figma.com/ai/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Figma AI</div>
-                        <div className="text-xs text-gray-400">AI-powered design tools</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://openai.com/dall-e-2" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">DALL-E 2</div>
-                        <div className="text-xs text-gray-400">AI image generation by OpenAI</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://stability.ai/stable-diffusion" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Stable Diffusion</div>
-                        <div className="text-xs text-gray-400">Open-source AI art generator</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://www.adobe.com/kr/products/firefly.html" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Adobe Firefly</div>
-                        <div className="text-xs text-gray-400">Adobe&apos;s generative AI</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://leonardo.ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Leonardo.ai</div>
-                        <div className="text-xs text-gray-400">AI image & video generation</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://runwayml.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Runway</div>
-                        <div className="text-xs text-gray-400">AI video generation & editing</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                  </div>
-                </div>
-
-                {/* Code Tools */}
-                <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-800/50">
-                  <div className="mb-6">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">💻</span>
-                      <h3 className="text-base font-semibold text-white">Development & Code</h3>
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <a href="https://github.com/features/copilot" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">GitHub Copilot</div>
-                        <div className="text-xs text-gray-400">AI pair programmer</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://www.cursor.sh" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Cursor</div>
-                        <div className="text-xs text-gray-400">AI-powered code editor</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://v0.dev" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">v0 by Vercel</div>
-                        <div className="text-xs text-gray-400">Generate UI with AI</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://codeium.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Codeium</div>
-                        <div className="text-xs text-gray-400">Free AI code completion</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://tabnine.com" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Tabnine</div>
-                        <div className="text-xs text-gray-400">AI code assistant</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://replit.com/ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Replit AI</div>
-                        <div className="text-xs text-gray-400">AI-powered coding environment</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://www.sourcegraph.com/cody" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Sourcegraph Cody</div>
-                        <div className="text-xs text-gray-400">AI coding assistant</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                  </div>
-                </div>
-
-                {/* Productivity Tools */}
-                <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-800/50">
-                  <div className="mb-6">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">⚡</span>
-                      <h3 className="text-base font-semibold text-white">Productivity & Business</h3>
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <a href="https://www.perplexity.ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Perplexity</div>
-                        <div className="text-xs text-gray-400">AI-powered search engine</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://gamma.app" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Gamma</div>
-                        <div className="text-xs text-gray-400">AI presentation maker</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://www.otter.ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Otter.ai</div>
-                        <div className="text-xs text-gray-400">AI meeting transcription</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://zapier.com/ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Zapier AI</div>
-                        <div className="text-xs text-gray-400">AI automation & workflows</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://monday.com/ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Monday.com AI</div>
-                        <div className="text-xs text-gray-400">AI project management</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://www.microsoft.com/en-us/microsoft-365/copilot" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Microsoft Copilot</div>
-                        <div className="text-xs text-gray-400">AI assistant for Office 365</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://www.salesforce.com/products/einstein/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Salesforce Einstein</div>
-                        <div className="text-xs text-gray-400">AI for CRM & sales</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                    <a href="https://www.loom.com/ai" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 px-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
-                      <div>
-                        <div className="text-sm font-medium text-white">Loom AI</div>
-                        <div className="text-xs text-gray-400">AI-powered video messaging</div>
-                      </div>
-                      <div className="text-xs text-blue-400">→</div>
-                    </a>
-                  </div>
-                </div>
-              </div>
+              <AIWorkspaceContent />
             )}
           </main>
             </>

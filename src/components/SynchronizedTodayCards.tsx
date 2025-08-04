@@ -39,13 +39,13 @@ export default function SynchronizedTodayCards() {
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
 
-  // 오늘을 첫번째로, 과거 30일, 미래 3일 순서로 배치
+  // 무한 스크롤 형태의 날짜 생성 (Today를 첫번째로 고정)
   const generateDays = (): DayData[] => {
     const days: DayData[] = []
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     
-    // 오늘을 첫번째에 배치
+    // Today는 항상 첫 번째 (index 0)
     days.push({
       date: new Date(today),
       label: "Today",
@@ -53,47 +53,84 @@ export default function SynchronizedTodayCards() {
       dateStr: today.toDateString()
     })
     
-    // 과거 30일 (어제부터 30일 전까지)
-    for (let i = -1; i >= -30; i--) {
-      const date = new Date(today)
-      date.setDate(today.getDate() + i)
+    if (isExpanded) {
+      // 확장 시: 과거 365일 + 미래 365일 (총 731일)
       
-      const month = date.getMonth() + 1
-      const day = date.getDate()
-      const dayOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()]
+      // 과거 365일 추가 (어제부터 365일 전까지)
+      for (let i = 1; i <= 365; i++) {
+        const date = new Date(today)
+        date.setDate(today.getDate() - i)
+        
+        const month = date.getMonth() + 1
+        const day = date.getDate()
+        const dayOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()]
+        
+        days.push({
+          date: new Date(date),
+          label: `${month}/${day} ${dayOfWeek}`,
+          isToday: false,
+          dateStr: date.toDateString()
+        })
+      }
       
-      days.push({
-        date: new Date(date),
-        label: `${month}/${day} ${dayOfWeek}`,
-        isToday: false,
-        dateStr: date.toDateString()
-      })
-    }
-    
-    // 미래 3일 (내일부터 3일 후까지)
-    for (let i = 1; i <= 3; i++) {
-      const date = new Date(today)
-      date.setDate(today.getDate() + i)
+      // 미래 365일 추가 (내일부터 365일 후까지)
+      for (let i = 1; i <= 365; i++) {
+        const date = new Date(today)
+        date.setDate(today.getDate() + i)
+        
+        const month = date.getMonth() + 1
+        const day = date.getDate()
+        const dayOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()]
+        
+        days.push({
+          date: new Date(date),
+          label: `${month}/${day} ${dayOfWeek}`,
+          isToday: false,
+          dateStr: date.toDateString()
+        })
+      }
+    } else {
+      // 축소 시: 과거 5일 + 미래 4일 (총 10일)
       
-      const month = date.getMonth() + 1
-      const day = date.getDate()
-      const dayOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()]
+      // 과거 5일 추가
+      for (let i = 1; i <= 5; i++) {
+        const date = new Date(today)
+        date.setDate(today.getDate() - i)
+        
+        const month = date.getMonth() + 1
+        const day = date.getDate()
+        const dayOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()]
+        
+        days.push({
+          date: new Date(date),
+          label: `${month}/${day} ${dayOfWeek}`,
+          isToday: false,
+          dateStr: date.toDateString()
+        })
+      }
       
-      days.push({
-        date: new Date(date),
-        label: `${month}/${day} ${dayOfWeek}`,
-        isToday: false,
-        dateStr: date.toDateString()
-      })
+      // 미래 4일 추가
+      for (let i = 1; i <= 4; i++) {
+        const date = new Date(today)
+        date.setDate(today.getDate() + i)
+        
+        const month = date.getMonth() + 1
+        const day = date.getDate()
+        const dayOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()]
+        
+        days.push({
+          date: new Date(date),
+          label: `${month}/${day} ${dayOfWeek}`,
+          isToday: false,
+          dateStr: date.toDateString()
+        })
+      }
     }
     
     return days
   }
 
-  const days = generateDays()
-  
-  // Show limited cards when collapsed (Today + last 6 days + next 3 days)
-  const displayDays = isExpanded ? days : days.slice(0, 10)
+  const displayDays = generateDays()
 
   // 로컬 스토리지에서 일기 데이터 로드
   useEffect(() => {
@@ -188,7 +225,7 @@ export default function SynchronizedTodayCards() {
     
     setCurrentEntry(newEntries)
     setCharCount(newCounts)
-  }, [displayDays, diaryEntries, getSelectedDateEntry])
+  }, [displayDays, diaryEntries, getSelectedDateEntry, isExpanded])
 
   // 텍스트 변경 핸들러
   const handleTextChange = (cardIndex: number, value: string) => {
@@ -198,28 +235,14 @@ export default function SynchronizedTodayCards() {
     }
   }
 
-  // 스크롤 핸들러
+  // 스크롤 핸들러 개선 - 카드 너비와 간격 정확히 계산
   const scrollToCard = (index: number) => {
     setSelectedIndex(index)
-    if (containerRef.current) {
-      const cardWidth = 320 // Fixed card width + margin  
-      let scrollLeft = index * cardWidth
-      // Today(첫번째) 카드일 때는 왼쪽 끝에서 시작
-      if (index === 0) {
-        scrollLeft = 0
-      }
-      containerRef.current.scrollTo({
-        left: scrollLeft,
-        behavior: 'smooth'
-      })
-    }
     if (cardContainerRef.current) {
-      const cardWidth = 320 // Fixed card width + margin
-      let scrollLeft = index * cardWidth
-      // Today(첫번째) 카드일 때는 왼쪽 끝에서 시작
-      if (index === 0) {
-        scrollLeft = 0
-      }
+      const cardWidth = 320 // w-80 = 320px
+      const gap = 16 // gap-4 = 16px
+      const scrollLeft = index * (cardWidth + gap)
+      
       cardContainerRef.current.scrollTo({
         left: scrollLeft,
         behavior: 'smooth'
@@ -266,16 +289,17 @@ export default function SynchronizedTodayCards() {
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-semibold text-white">Daily Cards</h2>
           <span className="text-sm text-gray-400">
-            {isExpanded ? `${days.length} days • Full History` : `${displayDays.length} days • Recent`}
+            {isExpanded ? `${displayDays.length} days • Full History` : `${displayDays.length} days • Recent`}
           </span>
         </div>
         <button
           onClick={() => {
+            const wasExpanded = isExpanded
             setIsExpanded(!isExpanded)
             // If collapsing and current selection is beyond the collapsed range, reset to today
-            if (isExpanded && selectedIndex >= 10) {
+            if (wasExpanded && selectedIndex >= 10) {
               setSelectedIndex(0)
-              scrollToCard(0)
+              setTimeout(() => scrollToCard(0), 100)
             }
           }}
           className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/50 hover:bg-gray-700/50 rounded-lg text-gray-300 hover:text-white transition-all duration-200"
@@ -296,25 +320,27 @@ export default function SynchronizedTodayCards() {
 
       {/* Synchronized Card Container with Navigation */}
       <div className="relative">
-        {/* Left Scroll Arrow - only show when expanded and not at start */}
+        {/* Left Scroll Arrow - show when expanded and can scroll left */}
         {isExpanded && selectedIndex > 0 && (
           <button
-            onClick={() => scrollToCard(selectedIndex - 1)}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-gray-800/80 hover:bg-gray-700/90 backdrop-blur-sm rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-200"
+            onClick={() => scrollToCard(Math.max(0, selectedIndex - 1))}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gray-800/90 hover:bg-gray-700 backdrop-blur-sm rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-200 border border-gray-600 hover:border-gray-500"
+            title="Previous day"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
         )}
         
-        {/* Right Scroll Arrow - only show when expanded and not at end */}
+        {/* Right Scroll Arrow - show when expanded and can scroll right */}
         {isExpanded && selectedIndex < displayDays.length - 1 && (
           <button
-            onClick={() => scrollToCard(selectedIndex + 1)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-gray-800/80 hover:bg-gray-700/90 backdrop-blur-sm rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-200"
+            onClick={() => scrollToCard(Math.min(displayDays.length - 1, selectedIndex + 1))}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gray-800/90 hover:bg-gray-700 backdrop-blur-sm rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-200 border border-gray-600 hover:border-gray-500"
+            title="Next day"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
@@ -331,6 +357,17 @@ export default function SynchronizedTodayCards() {
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
+          onScroll={() => {
+            // 스크롤 위치 기반으로 선택된 카드 업데이트
+            if (cardContainerRef.current) {
+              const scrollLeft = cardContainerRef.current.scrollLeft
+              const cardWidth = 320 + 16 // card width + gap
+              const newIndex = Math.round(scrollLeft / cardWidth)
+              if (newIndex !== selectedIndex && newIndex >= 0 && newIndex < displayDays.length) {
+                setSelectedIndex(newIndex)
+              }
+            }
+          }}
         >
         <style jsx>{`
           div::-webkit-scrollbar {

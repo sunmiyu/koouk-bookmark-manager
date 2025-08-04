@@ -70,7 +70,6 @@ export default function EnhancedDailyCards() {
       const isToday = date.toDateString() === today.toDateString()
       const isPast = date < today
       const isFuture = date > today
-      const isSelected = i === 0
       
       days.push({
         date: new Date(date),
@@ -317,8 +316,7 @@ export default function EnhancedDailyCards() {
           className="flex gap-4 overflow-x-auto scrollbar-hide pb-4"
           style={{
             scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-            WebkitScrollbar: { display: 'none' }
+            msOverflowStyle: 'none'
           }}
         >
           {displayDays.map((day, index) => (

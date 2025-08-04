@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useTodayTodos } from '@/contexts/TodayTodosContext'
 
 interface HistoryEntry {
@@ -84,7 +84,7 @@ export default function DailyCardsHistory({ onClose, onSelectDate }: DailyCardsH
     }
     
     return months
-  }, [diaryEntries, getSelectedDateEntry])
+  }, [getSelectedDateEntry])
 
   // 월 확장/축소 토글
   const toggleMonth = (monthKey: string) => {

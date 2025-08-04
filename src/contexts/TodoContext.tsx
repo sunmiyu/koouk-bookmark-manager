@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 
 export interface TodoItem {
@@ -292,16 +292,6 @@ export function TodoProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null)
   const [lastSynced, setLastSynced] = useState<string | null>(null)
 
-  // Load todos when user changes
-  useEffect(() => {
-    if (user) {
-      syncTodos()
-    } else {
-      // Load guest todos
-      loadGuestTodos()
-    }
-  }, [user, syncTodos])
-
   const loadGuestTodos = async () => {
     try {
       setLoading(true)
@@ -314,7 +304,7 @@ export function TodoProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const syncTodos = async () => {
+  const syncTodos = useCallback(async () => {
     if (!user) return
     
     try {
@@ -332,7 +322,17 @@ export function TodoProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user])
+
+  // Load todos when user changes
+  useEffect(() => {
+    if (user) {
+      syncTodos()
+    } else {
+      // Load guest todos
+      loadGuestTodos()
+    }
+  }, [user, syncTodos])
 
   const addTodo = async (todoData: Omit<TodoItem, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {

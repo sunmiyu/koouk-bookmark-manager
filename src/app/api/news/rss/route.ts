@@ -92,8 +92,7 @@ const FALLBACK_KOREAN_NEWS: NewsItem[] = [
 function detectRegionFromIP(request: NextRequest): string {
   // Vercel/Cloudflare headers에서 국가 정보 확인
   const country = request.headers.get('cf-ipcountry') || 
-                 request.headers.get('x-vercel-ip-country') ||
-                 request.geo?.country
+                 request.headers.get('x-vercel-ip-country')
 
   console.log('Detected country:', country)
   

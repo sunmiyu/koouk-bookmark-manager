@@ -13,7 +13,6 @@ interface SearchBarProps {
 }
 
 export default function SearchBar({ 
-  placeholder, 
   showAdvancedFilters = true,
   compactMode = false,
   className

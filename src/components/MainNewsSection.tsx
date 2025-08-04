@@ -205,7 +205,7 @@ export default function MainNewsSection() {
                 className="group cursor-pointer p-3 rounded-lg hover:bg-gray-800/30 transition-all duration-200"
                 onClick={() => {
                   if (item.url && item.url !== '#') {
-                    window.open(item.url, '_blank')
+                    window.location.href = item.url
                   }
                 }}
               >
@@ -237,10 +237,10 @@ export default function MainNewsSection() {
                     </div>
                   </div>
                   
-                  {/* External Link Icon */}
+                  {/* Navigate Icon */}
                   <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                     <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </div>
                 </div>

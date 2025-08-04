@@ -1,28 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-// Mood별 검색 키워드 매핑
-const MOOD_KEYWORDS = {
-  morning: ['아침 음악', 'morning playlist', '상쾌한 음악', 'wake up songs'],
-  focus: ['집중 음악', 'study music', '카페 음악', 'concentration music'], 
-  relax: ['휴식 음악', 'chill music', '잔잔한 음악', 'relaxing playlist'],
-  workout: ['운동 음악', 'workout music', '신나는 음악', 'energetic music'],
-  evening: ['저녁 음악', 'evening playlist', '감성 음악', 'mood music'],
-  sleep: ['잠잘 때 듣는 음악', 'sleep music', '자장가', 'bedtime music']
-}
-
-interface YouTubeVideo {
-  id: { videoId: string }
-  snippet: {
-    title: string
-    channelTitle: string
-    thumbnails: {
-      default: { url: string }
-      medium: { url: string }
-      high: { url: string }
-    }
-  }
-}
-
 interface MusicRecommendation {
   id: string
   title: string
@@ -38,7 +15,7 @@ export async function GET(request: NextRequest) {
     const mood = searchParams.get('mood') || 'relax'
     
     // 안정성을 위해 항상 목업 데이터 반환
-    const recommendations = getMockRecommendations(mood as keyof typeof MOOD_KEYWORDS)
+    const recommendations = getMockRecommendations(mood as 'morning' | 'focus' | 'relax' | 'workout' | 'evening' | 'sleep')
     
     return NextResponse.json({
       success: true,
@@ -53,14 +30,14 @@ export async function GET(request: NextRequest) {
     const mood = new URL(request.url).searchParams.get('mood') || 'relax'
     return NextResponse.json({
       success: false,
-      recommendations: getMockRecommendations(mood as keyof typeof MOOD_KEYWORDS),
+      recommendations: getMockRecommendations(mood as 'morning' | 'focus' | 'relax' | 'workout' | 'evening' | 'sleep'),
       error: 'API error, using fallback music'
     })
   }
 }
 
 // 목업 데이터 (API 키가 없거나 에러 시 사용)
-function getMockRecommendations(mood: keyof typeof MOOD_KEYWORDS): MusicRecommendation[] {
+function getMockRecommendations(mood: 'morning' | 'focus' | 'relax' | 'workout' | 'evening' | 'sleep'): MusicRecommendation[] {
   const mockData = {
     morning: [
       {

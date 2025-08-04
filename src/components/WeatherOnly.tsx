@@ -11,28 +11,28 @@
 //   }
 //   weather: {
 //     current: number
-    min: number
-    max: number
-    morning: number
-    afternoon: number
-    evening: number
-    description: string
-    icon: string
-  }
-  hourlyData?: {
-    time: string
-    temperature: number
-    hour: number
-    condition?: string
-  }[]
-  lastUpdated: number
-  debug?: {
-    today: string
-    morningTime: string
-    afternoonTime: string
-    eveningTime: string
-  }
-}
+//     min: number
+//     max: number
+//     morning: number
+//     afternoon: number
+//     evening: number
+//     description: string
+//     icon: string
+//   }
+//   hourlyData?: {
+//     time: string
+//     temperature: number
+//     hour: number
+//     condition?: string
+//   }[]
+//   lastUpdated: number
+//   debug?: {
+//     today: string
+//     morningTime: string
+//     afternoonTime: string
+//     eveningTime: string
+//   }
+// }
 
 // 사용하지 않는 인터페이스와 상수 주석 처리
 // interface CachedWeatherData extends WeatherData {

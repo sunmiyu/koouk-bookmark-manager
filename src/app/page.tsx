@@ -77,8 +77,8 @@ function HomeContent() {
   return (
     <TodayTodosProvider>
       <ContentProvider>
-        <div className="min-h-screen bg-black text-white">
-        <div className="w-full max-w-[1200px] mx-auto py-2 sm:py-4 px-4 sm:px-6">
+        <div className="min-h-screen bg-black text-white flex justify-center items-center">
+        <div className="w-full max-w-[1200px] py-2 sm:py-4 px-4 sm:px-6">
           <header className="mb-8 sm:mb-12 lg:mb-16 relative z-50">
             {/* Professional Header Container */}
             <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-800/50">
@@ -102,9 +102,9 @@ function HomeContent() {
 
                 {/* Right: Time & Account - Responsive Stack */}
                 <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
-                  {/* Time - Hide on small screens, show on medium and up */}
-                  <div className="hidden sm:flex items-center gap-2 sm:gap-3 lg:gap-4">
-                    <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 bg-gray-800/50 rounded-lg sm:rounded-xl border border-gray-700/30">
+                  {/* Time - Always visible now */}
+                  <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
+                    <div className="flex items-center gap-1 sm:gap-3 px-1.5 sm:px-3 lg:px-4 py-1 sm:py-2 bg-gray-800/50 rounded sm:rounded-xl border border-gray-700/30">
                       <TimeDisplay />
                     </div>
                   </div>
@@ -115,15 +115,8 @@ function HomeContent() {
                 </div>
               </div>
               
-              {/* Mobile Time & Search Row - Show on very small screens */}
-              <div className="sm:hidden mt-4 space-y-3">
-                <div className="flex items-center justify-center">
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/50 rounded-lg border border-gray-700/30">
-                    <TimeDisplay />
-                  </div>
-                </div>
-                
-                {/* Mobile Search Bar */}
+              {/* Mobile Search Row - Show on very small screens */}
+              <div className="sm:hidden mt-4">
                 <div className="px-4">
                   <div className="relative">
                     <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
@@ -148,15 +141,16 @@ function HomeContent() {
             <>
               {/* Enhanced Tab Navigation with Icons */}
               <div className="mb-8 sm:mb-12 lg:mb-16 mt-6 sm:mt-8">
-            <div className="bg-gray-900/30 rounded-xl sm:rounded-2xl p-1.5 sm:p-2 border border-gray-800/50">
+            <div className="p-1.5 sm:p-2" style={{ background: 'transparent', border: 'none' }}>
               <nav className="flex items-center justify-between" aria-label="Tabs">
                 <button
                   onClick={() => setActiveTab('today')}
-                  className={`flex-1 py-3 sm:py-4 px-2 sm:px-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
+                  className={`flex-1 py-3 sm:py-4 px-2 sm:px-3 font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
                     activeTab === 'today'
-                      ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
-                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                      ? 'text-white'
+                      : 'text-gray-400 hover:text-gray-200'
                   }`}
+                  style={{ background: 'transparent', border: 'none', boxShadow: 'none' }}
                 >
                   <div className="flex items-center justify-center gap-1 sm:gap-2">
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -167,11 +161,12 @@ function HomeContent() {
                 </button>
                 <button
                   onClick={() => setActiveTab('mini')}
-                  className={`flex-1 py-3 sm:py-4 px-2 sm:px-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
+                  className={`flex-1 py-3 sm:py-4 px-2 sm:px-3 font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
                     activeTab === 'mini'
-                      ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
-                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                      ? 'text-white'
+                      : 'text-gray-400 hover:text-gray-200'
                   }`}
+                  style={{ background: 'transparent', border: 'none', boxShadow: 'none' }}
                 >
                   <div className="flex items-center justify-center gap-1 sm:gap-2">
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,11 +177,12 @@ function HomeContent() {
                 </button>
                 <button
                   onClick={() => setActiveTab('storage')}
-                  className={`flex-1 py-3 sm:py-4 px-2 sm:px-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
+                  className={`flex-1 py-3 sm:py-4 px-2 sm:px-3 font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
                     activeTab === 'storage'
-                      ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
-                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                      ? 'text-white'
+                      : 'text-gray-400 hover:text-gray-200'
                   }`}
+                  style={{ background: 'transparent', border: 'none', boxShadow: 'none' }}
                 >
                   <div className="flex items-center justify-center gap-1 sm:gap-2">
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -197,11 +193,12 @@ function HomeContent() {
                 </button>
                 <button
                   onClick={() => setActiveTab('popular')}
-                  className={`flex-1 py-3 sm:py-4 px-2 sm:px-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
+                  className={`flex-1 py-3 sm:py-4 px-2 sm:px-3 font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
                     activeTab === 'popular'
-                      ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
-                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                      ? 'text-white'
+                      : 'text-gray-400 hover:text-gray-200'
                   }`}
+                  style={{ background: 'transparent', border: 'none', boxShadow: 'none' }}
                 >
                   <div className="flex items-center justify-center gap-1 sm:gap-2">
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -226,42 +223,13 @@ function HomeContent() {
                 {/* Synchronized Today Cards */}
                 <SynchronizedTodayCards />
 
-                {/* Today's News Section */}
-                <MainNewsSection />
+                {/* News and Music Section - Side by side on desktop */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+                  {/* Today's News Section */}
+                  <MainNewsSection />
 
-                {/* Music Recommendations Section */}
-                <MainMusicSection />
-
-
-                {/* Dashboard Stats Section */}
-                <div className="mb-4">
-                  <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-800/50">
-                    <div>
-                      <h3 className="text-base sm:text-lg font-semibold text-white mb-4">Dashboard Stats</h3>
-                      <div className="flex items-center gap-3 sm:gap-4 lg:gap-6">
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-2.5 h-2.5 bg-blue-400 rounded-full"></div>
-                          <span className="text-white font-bold text-sm sm:text-base">12</span>
-                          <span className="text-gray-300 text-xs sm:text-sm">todos</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-2.5 h-2.5 bg-purple-400 rounded-full"></div>
-                          <span className="text-white font-bold text-sm sm:text-base">6</span>
-                          <span className="text-gray-300 text-xs sm:text-sm">functions</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-2.5 h-2.5 bg-green-400 rounded-full"></div>
-                          <span className="text-white font-bold text-sm sm:text-base">24</span>
-                          <span className="text-gray-300 text-xs sm:text-sm">items</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-2.5 h-2.5 bg-yellow-400 rounded-full"></div>
-                          <span className="text-white font-bold text-sm sm:text-base">18</span>
-                          <span className="text-gray-300 text-xs sm:text-sm">weekly</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  {/* Music Recommendations Section */}
+                  <MainMusicSection />
                 </div>
               </div>
             )}

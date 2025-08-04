@@ -20,7 +20,7 @@ interface DayData {
 
 export default function SynchronizedTodayCards() {
   const { todayTodos, addTodo, toggleTodo, deleteTodo } = useTodayTodos()
-  const [selectedIndex, setSelectedIndex] = useState(3) // Today is at index 3 (center)
+  const [selectedIndex, setSelectedIndex] = useState(0) // Today is at index 0 (first)
   const [newTodo, setNewTodo] = useState('')
   const [showAddForm, setShowAddForm] = useState(false)
   
@@ -38,30 +38,50 @@ export default function SynchronizedTodayCards() {
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
 
-  // 오늘을 중심으로 ±3일 범위의 날짜 생성
+  // 오늘을 첫번째로, 과거 3일, 미래 3일 순서로 배치
   const generateDays = (): DayData[] => {
     const days: DayData[] = []
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     
-    for (let i = -3; i <= 3; i++) {
+    // 오늘을 첫번째에 배치
+    days.push({
+      date: new Date(today),
+      label: "Today",
+      isToday: true,
+      dateStr: today.toDateString()
+    })
+    
+    // 과거 3일 (어제부터 3일 전까지)
+    for (let i = -1; i >= -3; i--) {
       const date = new Date(today)
       date.setDate(today.getDate() + i)
       
-      let label = ''
-      if (i === 0) {
-        label = "Today"
-      } else {
-        const month = date.getMonth() + 1
-        const day = date.getDate()
-        const dayOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()]
-        label = `${month}/${day} ${dayOfWeek}`
-      }
+      const month = date.getMonth() + 1
+      const day = date.getDate()
+      const dayOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()]
       
       days.push({
         date: new Date(date),
-        label,
-        isToday: i === 0,
+        label: `${month}/${day} ${dayOfWeek}`,
+        isToday: false,
+        dateStr: date.toDateString()
+      })
+    }
+    
+    // 미래 3일 (내일부터 3일 후까지)
+    for (let i = 1; i <= 3; i++) {
+      const date = new Date(today)
+      date.setDate(today.getDate() + i)
+      
+      const month = date.getMonth() + 1
+      const day = date.getDate()
+      const dayOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()]
+      
+      days.push({
+        date: new Date(date),
+        label: `${month}/${day} ${dayOfWeek}`,
+        isToday: false,
         dateStr: date.toDateString()
       })
     }
@@ -167,8 +187,12 @@ export default function SynchronizedTodayCards() {
   const scrollToCard = (index: number) => {
     setSelectedIndex(index)
     if (containerRef.current) {
-      const cardWidth = 320 // Fixed card width + margin
-      const scrollLeft = index * cardWidth - (containerRef.current.clientWidth / 2) + (cardWidth / 2)
+      const cardWidth = 320 // Fixed card width + margin  
+      let scrollLeft = index * cardWidth
+      // Today(첫번째) 카드일 때는 왼쪽 끝에서 시작
+      if (index === 0) {
+        scrollLeft = 0
+      }
       containerRef.current.scrollTo({
         left: scrollLeft,
         behavior: 'smooth'
@@ -176,13 +200,22 @@ export default function SynchronizedTodayCards() {
     }
     if (cardContainerRef.current) {
       const cardWidth = 320 // Fixed card width + margin
-      const scrollLeft = index * cardWidth - (cardContainerRef.current.clientWidth / 2) + (cardWidth / 2)
+      let scrollLeft = index * cardWidth
+      // Today(첫번째) 카드일 때는 왼쪽 끝에서 시작
+      if (index === 0) {
+        scrollLeft = 0
+      }
       cardContainerRef.current.scrollTo({
         left: scrollLeft,
         behavior: 'smooth'
       })
     }
   }
+
+  // 컴포넌트 마운트 시 Today 카드로 스크롤
+  useEffect(() => {
+    scrollToCard(0)
+  }, [])
 
   // Touch handlers for swipe gesture
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -284,14 +317,14 @@ export default function SynchronizedTodayCards() {
         {days.map((day, index) => (
           <div 
             key={index}
-            className="flex-shrink-0 w-80 space-y-4"
+            className="flex-shrink-0 w-80 space-y-2"
             style={{ scrollSnapAlign: 'center' }}
           >
             {/* Todo Card */}
-            <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800/50 h-80 flex flex-col">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-white flex items-center gap-2">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+            <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-4 border border-gray-800/50 h-40 flex flex-col">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-white flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                   Todos
                 </h3>
                 <span className="text-xs text-gray-400">{day.label}</span>
@@ -404,10 +437,10 @@ export default function SynchronizedTodayCards() {
             </div>
 
             {/* Diary Card */}
-            <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800/50 h-80 flex flex-col">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-white flex items-center gap-2">
-                  <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+            <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-4 border border-gray-800/50 h-40 flex flex-col">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-white flex items-center gap-2">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                   Mini Diary
                 </h3>
                 <span className="text-xs text-gray-400">{day.label}</span>

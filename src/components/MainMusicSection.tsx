@@ -17,12 +17,34 @@ const MOOD_OPTIONS: { value: MoodType; label: string; emoji: string }[] = [
 function MusicThumbnail({ src, alt, title }: { src: string; alt: string; title: string }) {
   const [imgSrc, setImgSrc] = useState(src)
   const [hasError, setHasError] = useState(false)
+  const [showFallback, setShowFallback] = useState(false)
 
   const handleError = () => {
     if (!hasError) {
       setHasError(true)
-      setImgSrc('https://img.youtube.com/vi/default/mqdefault.jpg')
+      // Try a different YouTube thumbnail URL first
+      const videoId = src.match(/\/vi\/([^\/]+)\//)?.[1]
+      if (videoId) {
+        setImgSrc(`https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`)
+      } else {
+        setShowFallback(true)
+      }
+    } else {
+      setShowFallback(true)
     }
+  }
+
+  if (showFallback) {
+    return (
+      <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+        <div className="text-center">
+          <svg className="w-8 h-8 text-gray-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+          </svg>
+          <span className="text-xs text-gray-500">Music</span>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -33,6 +55,7 @@ function MusicThumbnail({ src, alt, title }: { src: string; alt: string; title: 
       className="object-cover"
       onError={handleError}
       title={title}
+      unoptimized // Add this to bypass Next.js optimization if needed
     />
   )
 }

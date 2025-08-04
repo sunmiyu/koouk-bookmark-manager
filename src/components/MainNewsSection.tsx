@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { NewsItem } from '@/types/miniFunctions'
 
 export default function MainNewsSection() {
@@ -11,45 +11,6 @@ export default function MainNewsSection() {
   const [region, setRegion] = useState<string>('kr')
   const [source, setSource] = useState<string>('fallback')
 
-  // Real news data with actual links - memoized to prevent re-renders
-  const sampleNews: NewsItem[] = useMemo(() => [
-    {
-      title: "삼성전자 3분기 영업이익 9조7000억원 기록, 메모리 반도체 회복세 주도",
-      url: "https://www.hankyung.com/",
-      source: "한국경제",
-      publishedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      title: "AI 혁신으로 인한 미래 일자리 변화 전망, 정부 재교육 프로그램 확대 검토",
-      url: "https://www.joongang.co.kr/",
-      source: "중앙일보",
-      publishedAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      title: "정부 부동산 정책 변화 발표 예정, 대출 규제 완화 방안 포함될 듯",
-      url: "https://www.yna.co.kr/",
-      source: "연합뉴스",
-      publishedAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      title: "K-콘텐츠 해외 수출 역대 최고 기록",
-      url: "https://www.chosun.com/",
-      source: "조선일보",
-      publishedAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      title: "신재생에너지 투자 확대 계획 발표",
-      url: "https://www.mk.co.kr/",
-      source: "매일경제",
-      publishedAt: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      title: "전기차 배터리 기술 혁신 성과",
-      url: "https://www.sedaily.com/",
-      source: "서울경제",
-      publishedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString()
-    }
-  ], [])
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -79,17 +40,19 @@ export default function MainNewsSection() {
           setSource(data.source || 'fallback')
           console.log(`Loaded ${data.items.length} news items from ${data.source} (region: ${data.region})`)
         } else {
-          // Fallback to sample news if API fails
-          console.warn('RSS API failed, using sample news:', data.error)
-          setNews(sampleNews)
-          setLastUpdated(new Date().toISOString())
+          // API failed but don't use sample news - show actual API response
+          console.warn('RSS API failed:', data.error)
+          setNews(data.items || [])
+          setLastUpdated(data.lastUpdated || new Date().toISOString())
+          setRegion(data.region || 'kr')
+          setSource(data.source || 'error')
         }
       } catch (fetchError) {
         console.error('Failed to fetch news:', fetchError)
-        // Use sample data as fallback
-        setNews(sampleNews)
+        // Show empty state on fetch error
+        setNews([])
         setLastUpdated(new Date().toISOString())
-        setError('Using cached news (RSS unavailable)')
+        setError('Failed to fetch news - check your connection')
       } finally {
         setLoading(false)
       }
@@ -100,7 +63,7 @@ export default function MainNewsSection() {
     // Refresh news every 30 minutes
     const interval = setInterval(fetchNews, 30 * 60 * 1000)
     return () => clearInterval(interval)
-  }, [sampleNews])
+  }, [])
 
   const manualRefresh = async () => {
     if (loading) return
@@ -131,15 +94,15 @@ export default function MainNewsSection() {
         console.log('Manual refresh: Loaded', data.items.length, 'news items from', data.source)
       } else {
         setError('Failed to refresh news')
-        // Use sample news as fallback for manual refresh too
-        setNews(sampleNews)
-        setLastUpdated(new Date().toISOString())
+        setNews(data.items || [])
+        setLastUpdated(data.lastUpdated || new Date().toISOString())
+        setRegion(data.region || 'kr')
+        setSource(data.source || 'error')
       }
     } catch (error) {
       console.error('Manual refresh failed:', error)
-      setError('Refresh failed - using sample news')
-      // Always provide sample news as fallback
-      setNews(sampleNews)
+      setError('Refresh failed - check your connection')
+      setNews([])
       setLastUpdated(new Date().toISOString())
     } finally {
       setLoading(false)

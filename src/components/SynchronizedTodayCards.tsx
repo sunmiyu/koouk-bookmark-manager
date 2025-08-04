@@ -21,15 +21,15 @@ interface DayData {
 export default function SynchronizedTodayCards() {
   const { todayTodos, addTodo, toggleTodo, deleteTodo } = useTodayTodos()
   const [selectedIndex, setSelectedIndex] = useState(0) // Today is at index 0 (first)
-  const [newTodo, setNewTodo] = useState('')
-  const [showAddForm, setShowAddForm] = useState(false)
+  const [newTodo, setNewTodo] = useState<Record<number, string>>({})
+  const [showAddForm, setShowAddForm] = useState<Record<number, boolean>>({})
   const [isExpanded, setIsExpanded] = useState(false)
   
   // Diary states
   const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>([])
-  const [currentEntry, setCurrentEntry] = useState('')
-  const [isEditing, setIsEditing] = useState(false)
-  const [charCount, setCharCount] = useState(0)
+  const [currentEntry, setCurrentEntry] = useState<Record<number, string>>({})
+  const [isEditing, setIsEditing] = useState<Record<number, boolean>>({})
+  const [charCount, setCharCount] = useState<Record<number, number>>({})
   
   const containerRef = useRef<HTMLDivElement>(null)
   const cardContainerRef = useRef<HTMLDivElement>(null)
@@ -91,7 +91,6 @@ export default function SynchronizedTodayCards() {
   }
 
   const days = generateDays()
-  const selectedDate = useMemo(() => days[selectedIndex]?.date || new Date(), [days, selectedIndex])
   
   // Show limited cards when collapsed (Today + last 6 days + next 3 days)
   const displayDays = isExpanded ? days : days.slice(0, 10)
@@ -114,12 +113,12 @@ export default function SynchronizedTodayCards() {
     localStorage.setItem('diaryEntries', JSON.stringify(entries))
   }
 
-  // 선택된 날짜의 todos 필터링
-  const getSelectedDateTodos = () => {
-    const selectedDateStr = selectedDate.toDateString()
+  // 특정 날짜의 todos 필터링
+  const getDateTodos = (date: Date) => {
+    const dateStr = date.toDateString()
     return todayTodos.filter(todo => {
       const todoDate = new Date(todo.createdAt).toDateString()
-      return todoDate === selectedDateStr
+      return todoDate === dateStr
     })
   }
 
@@ -130,37 +129,42 @@ export default function SynchronizedTodayCards() {
   }, [diaryEntries])
 
   // Todo 추가
-  const handleAddTodo = () => {
-    if (newTodo.trim()) {
-      addTodo(newTodo.trim(), selectedDate)
-      setNewTodo('')
-      setShowAddForm(false)
+  const handleAddTodo = (cardIndex: number) => {
+    const todoText = newTodo[cardIndex]?.trim()
+    if (todoText) {
+      const cardDate = displayDays[cardIndex]?.date || new Date()
+      addTodo(todoText, cardDate)
+      setNewTodo(prev => ({ ...prev, [cardIndex]: '' }))
+      setShowAddForm(prev => ({ ...prev, [cardIndex]: false }))
     }
   }
 
   // 일기 저장
-  const saveDiary = () => {
-    if (currentEntry.trim() === '') {
-      const selectedDateStr = selectedDate.toDateString()
-      const updatedEntries = diaryEntries.filter(entry => entry.date !== selectedDateStr)
+  const saveDiary = (cardIndex: number) => {
+    const cardDate = displayDays[cardIndex]?.date || new Date()
+    const entryContent = currentEntry[cardIndex]?.trim() || ''
+    
+    if (entryContent === '') {
+      const dateStr = cardDate.toDateString()
+      const updatedEntries = diaryEntries.filter(entry => entry.date !== dateStr)
       saveDiaryEntries(updatedEntries)
     } else {
-      const selectedDateStr = selectedDate.toDateString()
-      const existingEntryIndex = diaryEntries.findIndex(entry => entry.date === selectedDateStr)
+      const dateStr = cardDate.toDateString()
+      const existingEntryIndex = diaryEntries.findIndex(entry => entry.date === dateStr)
       
       if (existingEntryIndex >= 0) {
         const updatedEntries = [...diaryEntries]
         updatedEntries[existingEntryIndex] = {
           ...updatedEntries[existingEntryIndex],
-          content: currentEntry.trim(),
+          content: entryContent,
           updatedAt: new Date().toISOString()
         }
         saveDiaryEntries(updatedEntries)
       } else {
         const newEntry: DiaryEntry = {
           id: Date.now().toString(),
-          content: currentEntry.trim(),
-          date: selectedDateStr,
+          content: entryContent,
+          date: dateStr,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         }
@@ -168,22 +172,29 @@ export default function SynchronizedTodayCards() {
       }
     }
     
-    setIsEditing(false)
+    setIsEditing(prev => ({ ...prev, [cardIndex]: false }))
   }
 
-  // 날짜 변경 시 현재 일기 내용 로드
+  // 날짜 변경 시 각 카드의 일기 내용 로드
   useEffect(() => {
-    const entry = getSelectedDateEntry(selectedDate)
-    setCurrentEntry(entry?.content || '')
-    setCharCount(entry?.content?.length || 0)
-    setIsEditing(false)
-  }, [selectedIndex, diaryEntries, getSelectedDateEntry, selectedDate])
+    const newEntries: Record<number, string> = {}
+    const newCounts: Record<number, number> = {}
+    
+    displayDays.forEach((day, index) => {
+      const entry = getSelectedDateEntry(day.date)
+      newEntries[index] = entry?.content || ''
+      newCounts[index] = entry?.content?.length || 0
+    })
+    
+    setCurrentEntry(newEntries)
+    setCharCount(newCounts)
+  }, [displayDays, diaryEntries, getSelectedDateEntry])
 
   // 텍스트 변경 핸들러
-  const handleTextChange = (value: string) => {
+  const handleTextChange = (cardIndex: number, value: string) => {
     if (value.length <= MAX_CHARS) {
-      setCurrentEntry(value)
-      setCharCount(value.length)
+      setCurrentEntry(prev => ({ ...prev, [cardIndex]: value }))
+      setCharCount(prev => ({ ...prev, [cardIndex]: value.length }))
     }
   }
 
@@ -246,9 +257,6 @@ export default function SynchronizedTodayCards() {
     }
   }
 
-  const selectedTodos = getSelectedDateTodos()
-  const selectedEntry = getSelectedDateEntry(selectedDate)
-  const isToday = selectedDate.toDateString() === new Date().toDateString()
 
   return (
     <div className="mb-4">
@@ -348,57 +356,56 @@ export default function SynchronizedTodayCards() {
               
               <div className="flex-1 overflow-y-auto">
                 {/* Add Todo Form - now available for all dates */}
-                {index === selectedIndex && (
-                  <div className="mb-4">
-                    {!showAddForm ? (
-                      <button
-                        onClick={() => setShowAddForm(true)}
-                        className="w-full py-2 border-2 border-dashed border-gray-600 rounded-lg text-gray-400 hover:border-gray-500 hover:text-gray-300 transition-colors text-sm"
-                      >
-                        + Add todo
-                      </button>
-                    ) : (
-                      <div className="space-y-2">
-                        <input
-                          type="text"
-                          value={newTodo}
-                          onChange={(e) => setNewTodo(e.target.value)}
-                          onKeyPress={(e) => e.key === 'Enter' && handleAddTodo()}
-                          className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-blue-500"
-                          placeholder="What needs to be done?"
-                          autoFocus
-                        />
-                        <div className="flex gap-2">
-                          <button
-                            onClick={handleAddTodo}
-                            className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
-                          >
-                            Add
-                          </button>
-                          <button
-                            onClick={() => {
-                              setShowAddForm(false)
-                              setNewTodo('')
-                            }}
-                            className="px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700"
-                          >
-                            Cancel
-                          </button>
-                        </div>
+                <div className="mb-4">
+                  {!showAddForm[index] ? (
+                    <button
+                      onClick={() => setShowAddForm(prev => ({ ...prev, [index]: true }))}
+                      className="w-full py-2 border-2 border-dashed border-gray-600 rounded-lg text-gray-400 hover:border-gray-500 hover:text-gray-300 transition-colors text-sm"
+                    >
+                      + Add todo
+                    </button>
+                  ) : (
+                    <div className="space-y-2">
+                      <input
+                        type="text"
+                        value={newTodo[index] || ''}
+                        onChange={(e) => setNewTodo(prev => ({ ...prev, [index]: e.target.value }))}
+                        onKeyPress={(e) => e.key === 'Enter' && handleAddTodo(index)}
+                        className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                        placeholder="What needs to be done?"
+                        autoFocus
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleAddTodo(index)}
+                          className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+                        >
+                          Add
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowAddForm(prev => ({ ...prev, [index]: false }))
+                            setNewTodo(prev => ({ ...prev, [index]: '' }))
+                          }}
+                          className="px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700"
+                        >
+                          Cancel
+                        </button>
                       </div>
-                    )}
-                  </div>
-                )}
+                    </div>
+                  )}
+                </div>
 
                 {/* Todo List */}
-                {index === selectedIndex ? (
-                  selectedTodos.length === 0 ? (
+                {(() => {
+                  const dayTodos = getDateTodos(day.date)
+                  return dayTodos.length === 0 ? (
                     <div className="text-center py-4 text-gray-400 text-sm">
                       No todos for this date
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {selectedTodos.slice(0, 6).map((todo) => (
+                      {dayTodos.slice(0, 6).map((todo) => (
                         <div
                           key={todo.id}
                           className={`flex items-center gap-2 p-2 rounded transition-all text-sm ${
@@ -442,11 +449,7 @@ export default function SynchronizedTodayCards() {
                       ))}
                     </div>
                   )
-                ) : (
-                  <div className="text-center py-8 text-gray-500 text-sm">
-                    Swipe to view todos
-                  </div>
-                )}
+                })()}
               </div>
             </div>
 
@@ -461,88 +464,87 @@ export default function SynchronizedTodayCards() {
               </div>
               
               <div className="flex-1 overflow-y-auto">
-                {index === selectedIndex ? (
-                  <>
-                    {isEditing || !selectedEntry ? (
-                      <div className="space-y-3 h-full flex flex-col">
-                        <div className="flex-1 relative">
-                          <textarea
-                            value={currentEntry}
-                            onChange={(e) => handleTextChange(e.target.value)}
-                            className="w-full h-full bg-gray-800/50 border border-gray-600 rounded px-3 py-2 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-purple-500 resize-none"
-                            placeholder={`Write your thoughts for ${isToday ? 'today' : 'this day'}...`}
-                            autoFocus
-                          />
-                          <div className={`absolute bottom-2 right-2 text-xs ${
-                            charCount > MAX_CHARS * 0.9 ? 'text-red-400' : 'text-gray-500'
-                          }`}>
-                            {charCount}/{MAX_CHARS}
+{(() => {
+                  const dayEntry = getSelectedDateEntry(day.date)
+                  return (
+                    <>
+                      {isEditing[index] || !dayEntry ? (
+                        <div className="space-y-3 h-full flex flex-col">
+                          <div className="flex-1 relative">
+                            <textarea
+                              value={currentEntry[index] || ''}
+                              onChange={(e) => handleTextChange(index, e.target.value)}
+                              className="w-full h-full bg-gray-800/50 border border-gray-600 rounded px-3 py-2 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-purple-500 resize-none"
+                              placeholder={`Write your thoughts for this day...`}
+                              autoFocus
+                            />
+                            <div className={`absolute bottom-2 right-2 text-xs ${
+                              (charCount[index] || 0) > MAX_CHARS * 0.9 ? 'text-red-400' : 'text-gray-500'
+                            }`}>
+                              {charCount[index] || 0}/{MAX_CHARS}
+                            </div>
+                          </div>
+                          
+                          <div className="flex gap-2 justify-end">
+                            <button
+                              onClick={() => {
+                                setIsEditing(prev => ({ ...prev, [index]: false }))
+                                const entry = getSelectedDateEntry(day.date)
+                                setCurrentEntry(prev => ({ ...prev, [index]: entry?.content || '' }))
+                                setCharCount(prev => ({ ...prev, [index]: entry?.content?.length || 0 }))
+                              }}
+                              className="px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => saveDiary(index)}
+                              className="px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700"
+                            >
+                              Save
+                            </button>
                           </div>
                         </div>
-                        
-                        <div className="flex gap-2 justify-end">
-                          <button
-                            onClick={() => {
-                              setIsEditing(false)
-                              const entry = getSelectedDateEntry(selectedDate)
-                              setCurrentEntry(entry?.content || '')
-                              setCharCount(entry?.content?.length || 0)
-                            }}
-                            className="px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            onClick={saveDiary}
-                            className="px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700"
-                          >
-                            Save
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        {selectedEntry ? (
-                          <div className="space-y-3 h-full flex flex-col">
-                            <div className="flex-1 bg-gray-800/30 rounded p-3 overflow-y-auto">
-                              <div className="text-white text-sm whitespace-pre-wrap leading-relaxed">
-                                {selectedEntry.content}
+                      ) : (
+                        <>
+                          {dayEntry ? (
+                            <div className="space-y-3 h-full flex flex-col">
+                              <div className="flex-1 bg-gray-800/30 rounded p-3 overflow-y-auto">
+                                <div className="text-white text-sm whitespace-pre-wrap leading-relaxed">
+                                  {dayEntry.content}
+                                </div>
+                              </div>
+                              <div className="flex justify-between items-center text-xs">
+                                <div className="text-gray-500">
+                                  {dayEntry.updatedAt !== dayEntry.createdAt ? 'Updated' : 'Created'}: {' '}
+                                  {new Date(dayEntry.updatedAt).toLocaleDateString()}
+                                </div>
+                                <button
+                                  onClick={() => setIsEditing(prev => ({ ...prev, [index]: true }))}
+                                  className="text-purple-400 hover:text-purple-300 transition-colors"
+                                >
+                                  Edit
+                                </button>
                               </div>
                             </div>
-                            <div className="flex justify-between items-center text-xs">
-                              <div className="text-gray-500">
-                                {selectedEntry.updatedAt !== selectedEntry.createdAt ? 'Updated' : 'Created'}: {' '}
-                                {new Date(selectedEntry.updatedAt).toLocaleDateString()}
+                          ) : (
+                            <div className="text-center py-8 text-gray-400 text-sm">
+                              <div className="space-y-3">
+                                <div>No diary entry yet</div>
+                                <button
+                                  onClick={() => setIsEditing(prev => ({ ...prev, [index]: true }))}
+                                  className="px-4 py-2 bg-purple-600/20 text-purple-400 rounded hover:bg-purple-600/30 transition-colors text-sm"
+                                >
+                                  Start Writing
+                                </button>
                               </div>
-                              <button
-                                onClick={() => setIsEditing(true)}
-                                className="text-purple-400 hover:text-purple-300 transition-colors"
-                              >
-                                Edit
-                              </button>
                             </div>
-                          </div>
-                        ) : (
-                          <div className="text-center py-8 text-gray-400 text-sm">
-                            <div className="space-y-3">
-                              <div>No diary entry yet</div>
-                              <button
-                                onClick={() => setIsEditing(true)}
-                                className="px-4 py-2 bg-purple-600/20 text-purple-400 rounded hover:bg-purple-600/30 transition-colors text-sm"
-                              >
-                                Start Writing
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <div className="text-center py-8 text-gray-500 text-sm">
-                    Swipe to view diary
-                  </div>
-                )}
+                          )}
+                        </>
+                      )}
+                    </>
+                  )
+                })()}
               </div>
             </div>
           </div>

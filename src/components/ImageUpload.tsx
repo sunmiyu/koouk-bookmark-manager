@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
+import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { imagesService } from '@/lib/supabase-services'
@@ -109,7 +110,7 @@ export default function ImageUpload({
     }
   }
 
-  const handleFileSelect = async (files: FileList) => {
+  const handleFileSelect = useCallback(async (files: FileList) => {
     if (!user) {
       onUploadError?.(t('must_be_logged_in'))
       return
@@ -135,7 +136,7 @@ export default function ImageUpload({
     } finally {
       setIsUploading(false)
     }
-  }
+  }, [user, maxFiles, onUploadError, processFile, t])
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -257,9 +258,11 @@ export default function ImageUpload({
                   {/* Thumbnail */}
                   <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
                     {upload.thumbnail ? (
-                      <img 
+                      <Image 
                         src={upload.thumbnail} 
                         alt="Thumbnail" 
+                        width={48}
+                        height={48}
                         className="w-full h-full object-cover"
                       />
                     ) : (

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+// import { useState, useEffect, useCallback } from 'react'
 
 interface WeatherData {
   location: {
@@ -46,36 +46,36 @@ export default function WeatherOnly() {
   // const [error, setError] = useState<string | null>(null)
 
   // 로컬스토리지에서 캐시된 데이터 가져오기
-  const getCachedWeatherData = (lat: number, lon: number): CachedWeatherData | null => {
-    try {
-      const cached = localStorage.getItem(`weather_${lat.toFixed(2)}_${lon.toFixed(2)}`)
-      if (cached) {
-        const data: CachedWeatherData = JSON.parse(cached)
-        if (Date.now() - data.cacheTime < CACHE_DURATION) {
-          return data
-        }
-      }
-    } catch (error) {
-      console.error('캐시 데이터 읽기 실패:', error)
-    }
-    return null
-  }
+  // const getCachedWeatherData = (lat: number, lon: number): CachedWeatherData | null => {
+  //   try {
+  //     const cached = localStorage.getItem(`weather_${lat.toFixed(2)}_${lon.toFixed(2)}`)
+  //     if (cached) {
+  //       const data: CachedWeatherData = JSON.parse(cached)
+  //       if (Date.now() - data.cacheTime < CACHE_DURATION) {
+  //         return data
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error('캐시 데이터 읽기 실패:', error)
+  //   }
+  //   return null
+  // }
 
   // 날씨 데이터를 로컬스토리지에 캐시
-  const setCachedWeatherData = (data: WeatherData) => {
-    try {
-      const cachedData: CachedWeatherData = {
-        ...data,
-        cacheTime: Date.now()
-      }
-      localStorage.setItem(
-        `weather_${data.location.lat.toFixed(2)}_${data.location.lon.toFixed(2)}`,
-        JSON.stringify(cachedData)
-      )
-    } catch (error) {
-      console.error('캐시 데이터 저장 실패:', error)
-    }
-  }
+  // const setCachedWeatherData = (data: WeatherData) => {
+  //   try {
+  //     const cachedData: CachedWeatherData = {
+  //       ...data,
+  //       cacheTime: Date.now()
+  //     }
+  //     localStorage.setItem(
+  //       `weather_${data.location.lat.toFixed(2)}_${data.location.lon.toFixed(2)}`,
+  //       JSON.stringify(cachedData)
+  //     )
+  //   } catch (error) {
+  //     console.error('캐시 데이터 저장 실패:', error)
+  //   }
+  // }
 
   // 사용자 위치 가져오기
   const getUserLocation = (): Promise<{lat: number, lon: number, city?: string}> => {
@@ -130,46 +130,46 @@ export default function WeatherOnly() {
   }
 
   // 내부 API 호출 (사용자 위치 기반)
-  const fetchWeatherData = useCallback(async (): Promise<WeatherData> => {
-    const userLocation = await getUserLocation()
-    
-    let apiUrl = '/api/weather'
-    if (userLocation.city) {
-      apiUrl += `?city=${encodeURIComponent(userLocation.city)}`
-    } else {
-      apiUrl += `?lat=${userLocation.lat}&lon=${userLocation.lon}`
-    }
+  // const fetchWeatherData = useCallback(async (): Promise<WeatherData> => {
+  //   const userLocation = await getUserLocation()
+  //   
+  //   let apiUrl = '/api/weather'
+  //   if (userLocation.city) {
+  //     apiUrl += `?city=${encodeURIComponent(userLocation.city)}`
+  //   } else {
+  //     apiUrl += `?lat=${userLocation.lat}&lon=${userLocation.lon}`
+  //   }
 
-    const response = await fetch(apiUrl)
+  //   const response = await fetch(apiUrl)
 
-    if (!response.ok) {
-      throw new Error(`날씨 데이터를 가져올 수 없습니다: ${response.status}`)
-    }
+  //   if (!response.ok) {
+  //     throw new Error(`날씨 데이터를 가져올 수 없습니다: ${response.status}`)
+  //   }
 
-    const data = await response.json()
-    
-    return {
-      location: {
-        city: data.location,
-        country: 'KR',
-        lat: userLocation.lat,
-        lon: userLocation.lon
-      },
-      weather: {
-        current: data.temperature,
-        min: Math.min(data.morning, data.afternoon, data.evening),
-        max: Math.max(data.morning, data.afternoon, data.evening),
-        morning: data.morning,        // 실제 아침 8시 예보
-        afternoon: data.afternoon,    // 실제 오후 1시 예보
-        evening: data.evening,        // 실제 오후 7시 예보
-        description: data.description,
-        icon: data.icon
-      },
-      hourlyData: data.hourlyData,   // 시간별 온도 데이터
-      lastUpdated: Date.now(),
-      debug: data.debug // 디버깅 정보 포함
-    }
-  }, [])
+  //   const data = await response.json()
+  //   
+  //   return {
+  //     location: {
+  //       city: data.location,
+  //       country: 'KR',
+  //       lat: userLocation.lat,
+  //       lon: userLocation.lon
+  //     },
+  //     weather: {
+  //       current: data.temperature,
+  //       min: Math.min(data.morning, data.afternoon, data.evening),
+  //       max: Math.max(data.morning, data.afternoon, data.evening),
+  //       morning: data.morning,        // 실제 아침 8시 예보
+  //       afternoon: data.afternoon,    // 실제 오후 1시 예보
+  //       evening: data.evening,        // 실제 오후 7시 예보
+  //       description: data.description,
+  //       icon: data.icon
+  //     },
+  //     hourlyData: data.hourlyData,   // 시간별 온도 데이터
+  //     lastUpdated: Date.now(),
+  //     debug: data.debug // 디버깅 정보 포함
+  //   }
+  // }, [])
 
 
   // 날씨 데이터 로드 (사용자 위치 기반) - 컴포넌트 비활성화로 주석 처리

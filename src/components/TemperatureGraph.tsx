@@ -105,7 +105,7 @@ export default function TemperatureGraph() {
 
   // 첫 번째 예보 항목을 현재 날씨로 사용
   const currentItem = weatherData.list[0]
-  const currentTemp = Math.round(currentItem.main.temp)
+  // const currentTemp = Math.round(currentItem.main.temp)
   // const currentCondition = currentItem.weather[0].main.toLowerCase()
 
   // 실제 예보 데이터를 사용해서 다음 12시간(4개 예보) 생성

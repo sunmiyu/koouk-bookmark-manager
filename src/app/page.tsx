@@ -56,7 +56,7 @@ function HomeContent() {
 
     // Check if splash has been shown in this session or if coming from internal navigation
     const hasShownSplash = sessionStorage.getItem('splashShown')
-    const isInternalNavigation = tabParam === 'dashboard' // Coming back from mini-functions
+    const isInternalNavigation = tabParam !== null // Coming back from internal navigation
     
     if (!hasShownSplash && !isInternalNavigation) {
       setIsLoading(true)

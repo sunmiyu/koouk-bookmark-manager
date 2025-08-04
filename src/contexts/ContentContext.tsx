@@ -100,7 +100,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   // Load content when user changes
   useEffect(() => {
     loadAllContent()
-  }, [user]) // loadAllContent는 의존성에서 제거 (함수 내부에서 정의됨)
+  }, [user, loadAllContent])
 
   const addItem = async (item: Omit<ContentItem, 'id' | 'createdAt'>) => {
     if (!user) {

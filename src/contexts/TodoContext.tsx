@@ -300,7 +300,7 @@ export function TodoProvider({ children }: { children: ReactNode }) {
       // Load guest todos
       loadGuestTodos()
     }
-  }, [user]) // syncTodos는 의존성에서 제거 (함수 내부에서 정의됨)
+  }, [user])
 
   const loadGuestTodos = async () => {
     try {
@@ -433,7 +433,7 @@ export function TodoProvider({ children }: { children: ReactNode }) {
     
     const interval = setInterval(syncTodos, 5 * 60 * 1000)
     return () => clearInterval(interval)
-  }, [user]) // syncTodos는 의존성에서 제거 (함수 내부에서 정의됨)
+  }, [user])
 
   const value: TodoContextType = {
     todos,

@@ -21,6 +21,7 @@ export interface MusicRecommendation {
   artist: string
   thumbnail: string
   youtubeUrl: string
+  spotifyUrl?: string
 }
 
 export type MoodType = 'morning' | 'focus' | 'relax' | 'workout' | 'evening' | 'sleep'

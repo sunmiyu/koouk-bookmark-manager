@@ -6,6 +6,7 @@ interface Todo {
   id: string
   text: string
   completed: boolean
+  createdAt: string
 }
 
 interface TodayTodosContextType {
@@ -19,9 +20,9 @@ const TodayTodosContext = createContext<TodayTodosContextType | undefined>(undef
 
 export function TodayTodosProvider({ children }: { children: ReactNode }) {
   const [todayTodos, setTodayTodos] = useState<Todo[]>([
-    { id: '1', text: 'Complete project presentation', completed: false },
-    { id: '2', text: 'Review team feedback', completed: false },
-    { id: '3', text: 'Update project documentation', completed: true },
+    { id: '1', text: 'Complete project presentation', completed: false, createdAt: new Date().toISOString() },
+    { id: '2', text: 'Review team feedback', completed: false, createdAt: new Date().toISOString() },
+    { id: '3', text: 'Update project documentation', completed: true, createdAt: new Date().toISOString() },
   ])
 
   const addTodo = (text: string) => {
@@ -30,7 +31,8 @@ export function TodayTodosProvider({ children }: { children: ReactNode }) {
     const newTodo: Todo = {
       id: Date.now().toString(),
       text: text.trim(),
-      completed: false
+      completed: false,
+      createdAt: new Date().toISOString()
     }
     
     setTodayTodos(prev => [...prev, newTodo])

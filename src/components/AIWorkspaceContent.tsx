@@ -171,7 +171,7 @@ export default function AIWorkspaceContent() {
           {categories.map((category) => (
             <button
               key={category.id}
-              onClick={() => setActiveCategory(category.id as any)}
+              onClick={() => setActiveCategory(category.id as 'all' | 'popular' | 'creative' | 'development' | 'business')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 activeCategory === category.id
                   ? 'bg-blue-500 text-white shadow-lg'

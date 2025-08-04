@@ -119,7 +119,7 @@ export default function MainNewsSection() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <h3 className="text-base sm:text-lg font-semibold text-white">Today's News</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-white">Today&apos;s News</h3>
             <div className="flex items-center gap-2">
               <span className="text-xs text-green-400 bg-green-400/10 px-2 py-1 rounded">Live</span>
               {error && (

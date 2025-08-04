@@ -123,7 +123,7 @@ export default function ScrollableDiaryCards() {
     setCurrentEntry(entry?.content || '')
     setCharCount(entry?.content?.length || 0)
     setIsEditing(false)
-  }, [selectedDate, diaryEntries])
+  }, [selectedDate, diaryEntries, getSelectedDateEntry])
 
   // 텍스트 변경 핸들러
   const handleTextChange = (value: string) => {

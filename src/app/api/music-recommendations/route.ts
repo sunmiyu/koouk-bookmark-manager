@@ -33,71 +33,28 @@ interface MusicRecommendation {
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('Music API called')
     const { searchParams } = new URL(request.url)
     const mood = searchParams.get('mood') || 'relax'
     
-    if (!process.env.YOUTUBE_API_KEY) {
-      console.log('YouTube API key not found, returning mock data')
-      return NextResponse.json({
-        success: true,
-        recommendations: getMockRecommendations(mood as keyof typeof MOOD_KEYWORDS)
-      })
-    }
-
-    // 해당 mood의 키워드 중 랜덤 선택
-    const keywords = MOOD_KEYWORDS[mood as keyof typeof MOOD_KEYWORDS] || MOOD_KEYWORDS.relax
-    const randomKeyword = keywords[Math.floor(Math.random() * keywords.length)]
-
-    // YouTube API 호출
-    const response = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?` +
-      `part=snippet&` +
-      `q=${encodeURIComponent(randomKeyword)}&` +
-      `type=video&` +
-      `videoCategoryId=10&` + // Music category
-      `maxResults=20&` +
-      `order=relevance&` +
-      `key=${process.env.YOUTUBE_API_KEY}`
-    )
-
-    if (!response.ok) {
-      throw new Error(`YouTube API error: ${response.status}`)
-    }
-
-    const data = await response.json()
+    // 안정성을 위해 항상 목업 데이터 반환
+    const recommendations = getMockRecommendations(mood as keyof typeof MOOD_KEYWORDS)
     
-    if (!data.items || data.items.length === 0) {
-      return NextResponse.json({
-        success: true,
-        recommendations: getMockRecommendations(mood as keyof typeof MOOD_KEYWORDS)
-      })
-    }
-
-    // 랜덤으로 2개 선택
-    const shuffled = data.items.sort(() => 0.5 - Math.random())
-    const selectedVideos = shuffled.slice(0, 2)
-
-    const recommendations: MusicRecommendation[] = selectedVideos.map((video: YouTubeVideo) => ({
-      id: video.id.videoId,
-      title: video.snippet.title,
-      artist: video.snippet.channelTitle,
-      thumbnail: video.snippet.thumbnails.medium?.url || video.snippet.thumbnails.default.url,
-      youtubeUrl: `https://www.youtube.com/watch?v=${video.id.videoId}`
-    }))
-
     return NextResponse.json({
       success: true,
-      recommendations
+      recommendations,
+      source: 'mock',
+      message: 'Using curated music for stability'
     })
 
   } catch (error) {
     console.error('Music recommendations API error:', error)
     
-    // 에러 시 목업 데이터 반환
     const mood = new URL(request.url).searchParams.get('mood') || 'relax'
     return NextResponse.json({
-      success: true,
-      recommendations: getMockRecommendations(mood as keyof typeof MOOD_KEYWORDS)
+      success: false,
+      recommendations: getMockRecommendations(mood as keyof typeof MOOD_KEYWORDS),
+      error: 'API error, using fallback music'
     })
   }
 }

@@ -49,10 +49,22 @@ export default function MainMusicSection() {
     setError(null)
 
     try {
-      const response = await fetch(`/api/music-recommendations?mood=${mood}`)
+      // 타임아웃 추가
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 8000) // 8초 타임아웃
+      
+      const response = await fetch(`/api/music-recommendations?mood=${mood}`, {
+        signal: controller.signal
+      })
+      clearTimeout(timeoutId)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+      
       const data = await response.json()
 
-      if (data.success) {
+      if (data.success && data.recommendations) {
         // 메인 페이지에서는 4개만 표시
         setRecommendations(data.recommendations.slice(0, 4))
         console.log('Music API loaded:', data.recommendations.length, 'tracks')
@@ -61,7 +73,7 @@ export default function MainMusicSection() {
       }
     } catch (err) {
       console.error('Music recommendations error:', err)
-      setError('Unable to load music recommendations')
+      setError('Using sample music (API unavailable)')
       // 폴백 데이터
       setRecommendations([
         {

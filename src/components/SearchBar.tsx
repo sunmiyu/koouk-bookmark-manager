@@ -128,10 +128,10 @@ export default function SearchBar({
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             onFocus={() => setShowSuggestions(true)}
-            placeholder={defaultPlaceholder}
+            placeholder="Search everything"
             className={`w-full ${
               compactMode ? 'px-4 py-2 text-sm' : 'px-6 py-3 text-base'
-            } bg-gray-800 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 pr-20`}
+            } bg-gray-800 border border-gray-600 rounded-xl text-white placeholder-gray-400 text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 pr-20`}
           />
           
           {/* 검색/로딩 아이콘 */}

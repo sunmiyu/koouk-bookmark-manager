@@ -23,6 +23,7 @@ export default function SynchronizedTodayCards() {
   const [selectedIndex, setSelectedIndex] = useState(0) // Today is at index 0 (first)
   const [newTodo, setNewTodo] = useState('')
   const [showAddForm, setShowAddForm] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false)
   
   // Diary states
   const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>([])
@@ -91,6 +92,9 @@ export default function SynchronizedTodayCards() {
 
   const days = generateDays()
   const selectedDate = days[selectedIndex]?.date || new Date()
+  
+  // Show limited cards when collapsed (Today + last 6 days + next 3 days)
+  const displayDays = isExpanded ? days : days.slice(0, 10)
 
   // 로컬 스토리지에서 일기 데이터 로드
   useEffect(() => {
@@ -128,7 +132,7 @@ export default function SynchronizedTodayCards() {
   // Todo 추가
   const handleAddTodo = () => {
     if (newTodo.trim()) {
-      addTodo(newTodo.trim())
+      addTodo(newTodo.trim(), selectedDate)
       setNewTodo('')
       setShowAddForm(false)
     }
@@ -234,7 +238,7 @@ export default function SynchronizedTodayCards() {
     const isLeftSwipe = distance > 50
     const isRightSwipe = distance < -50
 
-    if (isLeftSwipe && selectedIndex < days.length - 1) {
+    if (isLeftSwipe && selectedIndex < displayDays.length - 1) {
       scrollToCard(selectedIndex + 1)
     }
     if (isRightSwipe && selectedIndex > 0) {
@@ -249,26 +253,84 @@ export default function SynchronizedTodayCards() {
   return (
     <div className="mb-4">
 
-      {/* Synchronized Card Container */}
-      <div 
-        ref={cardContainerRef}
-        className="flex gap-4 overflow-x-auto scroll-smooth pb-4"
-        style={{ 
-          scrollbarWidth: 'none', 
-          msOverflowStyle: 'none',
-          scrollSnapType: 'x mandatory'
-        }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
+      {/* History Header with Expand/Collapse */}
+      <div className="flex items-center justify-between mb-4 px-2">
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-white">Daily Cards</h2>
+          <span className="text-sm text-gray-400">
+            {isExpanded ? `${days.length} days • Full History` : `${displayDays.length} days • Recent`}
+          </span>
+        </div>
+        <button
+          onClick={() => {
+            setIsExpanded(!isExpanded)
+            // If collapsing and current selection is beyond the collapsed range, reset to today
+            if (isExpanded && selectedIndex >= 10) {
+              setSelectedIndex(0)
+              scrollToCard(0)
+            }
+          }}
+          className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/50 hover:bg-gray-700/50 rounded-lg text-gray-300 hover:text-white transition-all duration-200"
+        >
+          <span className="text-sm">
+            {isExpanded ? 'Show Less' : 'View History'}
+          </span>
+          <svg 
+            className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Synchronized Card Container with Navigation */}
+      <div className="relative">
+        {/* Left Scroll Arrow - only show when expanded and not at start */}
+        {isExpanded && selectedIndex > 0 && (
+          <button
+            onClick={() => scrollToCard(selectedIndex - 1)}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-gray-800/80 hover:bg-gray-700/90 backdrop-blur-sm rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-200"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        )}
+        
+        {/* Right Scroll Arrow - only show when expanded and not at end */}
+        {isExpanded && selectedIndex < displayDays.length - 1 && (
+          <button
+            onClick={() => scrollToCard(selectedIndex + 1)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-gray-800/80 hover:bg-gray-700/90 backdrop-blur-sm rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-200"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        )}
+
+        <div 
+          ref={cardContainerRef}
+          className="flex gap-4 overflow-x-auto scroll-smooth pb-4"
+          style={{ 
+            scrollbarWidth: 'none', 
+            msOverflowStyle: 'none',
+            scrollSnapType: 'x mandatory'
+          }}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
         <style jsx>{`
           div::-webkit-scrollbar {
             display: none;
           }
         `}</style>
         
-        {days.map((day, index) => (
+        {displayDays.map((day, index) => (
           <div 
             key={index}
             className="flex-shrink-0 w-80 space-y-2"
@@ -285,8 +347,8 @@ export default function SynchronizedTodayCards() {
               </div>
               
               <div className="flex-1 overflow-y-auto">
-                {/* Add Todo Form - only for today */}
-                {index === selectedIndex && isToday && (
+                {/* Add Todo Form - now available for all dates */}
+                {index === selectedIndex && (
                   <div className="mb-4">
                     {!showAddForm ? (
                       <button
@@ -332,7 +394,7 @@ export default function SynchronizedTodayCards() {
                 {index === selectedIndex ? (
                   selectedTodos.length === 0 ? (
                     <div className="text-center py-4 text-gray-400 text-sm">
-                      {isToday ? "No todos yet" : "No todos for this date"}
+                      No todos for this date
                     </div>
                   ) : (
                     <div className="space-y-2">
@@ -368,16 +430,14 @@ export default function SynchronizedTodayCards() {
                             {todo.text}
                           </span>
                           
-                          {isToday && (
-                            <button
-                              onClick={() => deleteTodo(todo.id)}
-                              className="text-gray-400 hover:text-red-400 transition-colors"
-                            >
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
-                            </button>
-                          )}
+                          <button
+                            onClick={() => deleteTodo(todo.id)}
+                            className="text-gray-400 hover:text-red-400 transition-colors"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -403,7 +463,7 @@ export default function SynchronizedTodayCards() {
               <div className="flex-1 overflow-y-auto">
                 {index === selectedIndex ? (
                   <>
-                    {isEditing || (!selectedEntry && isToday) ? (
+                    {isEditing || !selectedEntry ? (
                       <div className="space-y-3 h-full flex flex-col">
                         <div className="flex-1 relative">
                           <textarea
@@ -454,31 +514,25 @@ export default function SynchronizedTodayCards() {
                                 {selectedEntry.updatedAt !== selectedEntry.createdAt ? 'Updated' : 'Created'}: {' '}
                                 {new Date(selectedEntry.updatedAt).toLocaleDateString()}
                               </div>
-                              {isToday && (
-                                <button
-                                  onClick={() => setIsEditing(true)}
-                                  className="text-purple-400 hover:text-purple-300 transition-colors"
-                                >
-                                  Edit
-                                </button>
-                              )}
+                              <button
+                                onClick={() => setIsEditing(true)}
+                                className="text-purple-400 hover:text-purple-300 transition-colors"
+                              >
+                                Edit
+                              </button>
                             </div>
                           </div>
                         ) : (
                           <div className="text-center py-8 text-gray-400 text-sm">
-                            {isToday ? (
-                              <div className="space-y-3">
-                                <div>No diary entry yet</div>
-                                <button
-                                  onClick={() => setIsEditing(true)}
-                                  className="px-4 py-2 bg-purple-600/20 text-purple-400 rounded hover:bg-purple-600/30 transition-colors text-sm"
-                                >
-                                  Start Writing
-                                </button>
-                              </div>
-                            ) : (
-                              <div>No diary entry</div>
-                            )}
+                            <div className="space-y-3">
+                              <div>No diary entry yet</div>
+                              <button
+                                onClick={() => setIsEditing(true)}
+                                className="px-4 py-2 bg-purple-600/20 text-purple-400 rounded hover:bg-purple-600/30 transition-colors text-sm"
+                              >
+                                Start Writing
+                              </button>
+                            </div>
                           </div>
                         )}
                       </>
@@ -493,6 +547,7 @@ export default function SynchronizedTodayCards() {
             </div>
           </div>
         ))}
+        </div>
       </div>
     </div>
   )

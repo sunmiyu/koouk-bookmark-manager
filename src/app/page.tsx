@@ -104,7 +104,7 @@ function HomeContent() {
                 <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
                   {/* Time - Always visible now */}
                   <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
-                    <div className="flex items-center gap-1 sm:gap-3 px-1.5 sm:px-3 lg:px-4 py-1 sm:py-2 bg-gray-800/50 rounded sm:rounded-xl border border-gray-700/30">
+                    <div className="flex items-center gap-1 sm:gap-3 px-1.5 sm:px-3 lg:px-4 py-1 sm:py-2" style={{ background: 'transparent', border: 'none' }}>
                       <TimeDisplay />
                     </div>
                   </div>

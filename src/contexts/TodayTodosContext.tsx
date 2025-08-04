@@ -11,7 +11,7 @@ interface Todo {
 
 interface TodayTodosContextType {
   todayTodos: Todo[]
-  addTodo: (text: string) => void
+  addTodo: (text: string, date?: Date) => void
   toggleTodo: (id: string) => void
   deleteTodo: (id: string) => void
 }
@@ -25,14 +25,15 @@ export function TodayTodosProvider({ children }: { children: ReactNode }) {
     { id: '3', text: 'Update project documentation', completed: true, createdAt: new Date().toISOString() },
   ])
 
-  const addTodo = (text: string) => {
+  const addTodo = (text: string, date?: Date) => {
     if (!text.trim()) return
     
+    const targetDate = date || new Date()
     const newTodo: Todo = {
       id: Date.now().toString(),
       text: text.trim(),
       completed: false,
-      createdAt: new Date().toISOString()
+      createdAt: targetDate.toISOString()
     }
     
     setTodayTodos(prev => [...prev, newTodo])

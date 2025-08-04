@@ -8,6 +8,8 @@ export default function MainNewsSection() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
+  const [region, setRegion] = useState<string>('kr')
+  const [source, setSource] = useState<string>('fallback')
 
   // Real news data with actual links - memoized to prevent re-renders
   const sampleNews: NewsItem[] = useMemo(() => [
@@ -71,9 +73,11 @@ export default function MainNewsSection() {
         const data = await response.json()
         
         if (data.success && data.items) {
-          setNews(data.items.slice(0, 6)) // Main page shows only 6 news items
+          setNews(data.items.slice(0, 10)) // Main page shows top 10 latest news
           setLastUpdated(data.lastUpdated)
-          console.log(`Loaded ${data.items.length} news items from RSS`)
+          setRegion(data.region || 'kr')
+          setSource(data.source || 'fallback')
+          console.log(`Loaded ${data.items.length} news items from ${data.source} (region: ${data.region})`)
         } else {
           // Fallback to sample news if API fails
           console.warn('RSS API failed, using sample news:', data.error)
@@ -120,9 +124,11 @@ export default function MainNewsSection() {
       const data = await response.json()
       
       if (data.success && data.items) {
-        setNews(data.items.slice(0, 6))
+        setNews(data.items.slice(0, 10))
         setLastUpdated(data.lastUpdated)
-        console.log('Manual refresh: Loaded', data.items.length, 'news items')
+        setRegion(data.region || 'kr')
+        setSource(data.source || 'fallback')
+        console.log('Manual refresh: Loaded', data.items.length, 'news items from', data.source)
       } else {
         setError('Failed to refresh news')
         // Use sample news as fallback for manual refresh too
@@ -147,9 +153,23 @@ export default function MainNewsSection() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <h3 className="text-base sm:text-lg font-semibold text-white">Today&apos;s News</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-white">
+              {region === 'international' ? 'International News' : 'Today&apos;s News'}
+            </h3>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-green-400 bg-green-400/10 px-2 py-1 rounded">Live</span>
+              <span className={`text-xs px-2 py-1 rounded ${
+                source === 'naver' 
+                  ? 'text-green-400 bg-green-400/10' 
+                  : source === 'international_links'
+                  ? 'text-blue-400 bg-blue-400/10'
+                  : 'text-gray-400 bg-gray-400/10'
+              }`}>
+                {source === 'naver' 
+                  ? '네이버 실시간' 
+                  : source === 'international_links'
+                  ? 'Global Links'
+                  : 'Cached'}
+              </span>
               {error && (
                 <span className="text-xs text-yellow-400" title={error}>⚠️</span>
               )}
@@ -205,14 +225,26 @@ export default function MainNewsSection() {
                 className="group cursor-pointer p-3 rounded-lg hover:bg-gray-800/30 transition-all duration-200"
                 onClick={() => {
                   if (item.url && item.url !== '#') {
-                    window.location.href = item.url
+                    if (region === 'international') {
+                      // 해외 사용자는 새 탭에서 링크 열기
+                      window.open(item.url, '_blank', 'noopener,noreferrer')
+                    } else {
+                      // 한국 사용자는 같은 탭에서 뉴스 읽기 (뒤로가기 가능)
+                      window.location.href = item.url
+                    }
                   }
                 }}
               >
                 <div className="flex items-start gap-3">
-                  {/* News Icon */}
+                  {/* News Icon or Flag */}
                   <div className="flex-shrink-0 mt-1">
-                    <div className="w-2 h-2 bg-blue-400 rounded-full group-hover:bg-blue-300 transition-colors"></div>
+                    {region === 'international' ? (
+                      <div className="w-6 h-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-sm flex items-center justify-center">
+                        <span className="text-xs text-white font-bold">🌍</span>
+                      </div>
+                    ) : (
+                      <div className="w-2 h-2 bg-blue-400 rounded-full group-hover:bg-blue-300 transition-colors"></div>
+                    )}
                   </div>
                   
                   {/* News Content */}
@@ -223,24 +255,34 @@ export default function MainNewsSection() {
                     
                     <div className="flex items-center gap-2 text-xs text-gray-400">
                       <span className="font-medium">{item.source}</span>
-                      <span>•</span>
-                      <span>
-                        {new Date(item.publishedAt).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric'
-                        })} {new Date(item.publishedAt).toLocaleTimeString('en-US', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          hour12: false
-                        })}
-                      </span>
+                      {region !== 'international' && (
+                        <>
+                          <span>•</span>
+                          <span>
+                            {new Date(item.publishedAt).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric'
+                            })} {new Date(item.publishedAt).toLocaleTimeString('en-US', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12: false
+                            })}
+                          </span>
+                        </>
+                      )}
+                      {region === 'international' && (
+                        <>
+                          <span>•</span>
+                          <span>Click to visit</span>
+                        </>
+                      )}
                     </div>
                   </div>
                   
                   {/* Navigate Icon */}
                   <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                     <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
                   </div>
                 </div>

@@ -82,8 +82,14 @@ export default function NotesSection({ fullWidth = false, searchQuery = '' }: No
         <h3 className="responsive-text-lg font-semibold text-purple-400">Notes</h3>
         <div className="flex items-center gap-3">
           <div className="text-xs text-gray-400">
-            <span className={notes.length >= limit ? 'text-yellow-400' : ''}>{notes.length}</span>
-            <span className="text-gray-500">/{limit === Infinity ? '∞' : limit}</span>
+            {searchQuery ? (
+              <span className="text-purple-400">{filteredNotes.length} found</span>
+            ) : (
+              <>
+                <span className={notes.length >= limit ? 'text-yellow-400' : ''}>{notes.length}</span>
+                <span className="text-gray-500">/{limit === Infinity ? '∞' : limit}</span>
+              </>
+            )}
           </div>
           {notes.length > 1 && (
             <button
@@ -138,8 +144,8 @@ export default function NotesSection({ fullWidth = false, searchQuery = '' }: No
       )}
       
       <div className={fullWidth ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 max-h-[800px] overflow-y-auto" : "space-y-3 max-h-[800px] overflow-y-auto"}>
-        {/* Render actual notes */}
-        {notes.map((note) => {
+        {/* Render filtered notes */}
+        {filteredNotes.map((note) => {
           const isSelected = selectedItems.has(note.id)
           return (
             <div 
@@ -280,7 +286,7 @@ export default function NotesSection({ fullWidth = false, searchQuery = '' }: No
         )}
         
         {/* Show empty slots to fill 10 total */}
-        {Array.from({ length: Math.max(0, 10 - Math.max(notes.length, 1)) }, (_, index) => (
+        {Array.from({ length: Math.max(0, 10 - Math.max(filteredNotes.length, 1)) }, (_, index) => (
           <div 
             key={`empty-${index}`}
             className="bg-gray-900 border-2 border-dashed border-gray-700 rounded-lg responsive-p-sm opacity-50"
@@ -298,6 +304,86 @@ export default function NotesSection({ fullWidth = false, searchQuery = '' }: No
             </div>
           </div>
         ))}
+        
+        {/* Empty state message */}
+        {filteredNotes.length === 0 && (
+          <div className="text-center py-8">
+            {searchQuery ? (
+              <>
+                <div className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <p className="text-gray-400 text-sm">No notes found for &quot;{searchQuery}&quot;</p>
+                <p className="text-gray-500 text-xs mt-1">Try a different search term</p>
+              </>
+            ) : (
+              <>
+                <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-white text-base font-semibold mb-2">Create Your First Note</h3>
+                <p className="text-gray-400 text-sm mb-4">Save important thoughts, ideas, and reminders in one place</p>
+                
+                {/* CTA Buttons */}
+                <div className="space-y-2">
+                  <button
+                    onClick={() => {
+                      // Focus on the input section
+                      const input = document.querySelector('input[placeholder*="Paste URL"]') as HTMLInputElement
+                      if (input) {
+                        input.focus()
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                      }
+                    }}
+                    className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add Note
+                  </button>
+                  
+                  {/* Quick example buttons */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => {
+                        const input = document.querySelector('input[placeholder*="Paste URL"]') as HTMLInputElement
+                        if (input) {
+                          input.value = 'Great idea for tomorrow\'s meeting: Implement user feedback system'
+                          input.focus()
+                          input.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                          // Trigger change event
+                          input.dispatchEvent(new Event('input', { bubbles: true }))
+                        }
+                      }}
+                      className="px-3 py-1.5 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-white rounded-md text-xs transition-all duration-200"
+                    >
+                      💡 Idea
+                    </button>
+                    <button
+                      onClick={() => {
+                        const input = document.querySelector('input[placeholder*="Paste URL"]') as HTMLInputElement
+                        if (input) {
+                          input.value = 'Todo: Review project documentation and update API endpoints'
+                          input.focus()
+                          input.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                          input.dispatchEvent(new Event('input', { bubbles: true }))
+                        }
+                      }}
+                      className="px-3 py-1.5 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-white rounded-md text-xs transition-all duration-200"
+                    >
+                      📝 Todo
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
       
       

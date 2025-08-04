@@ -300,7 +300,7 @@ export function TodoProvider({ children }: { children: ReactNode }) {
       // Load guest todos
       loadGuestTodos()
     }
-  }, [user])
+  }, [user, syncTodos])
 
   const loadGuestTodos = async () => {
     try {
@@ -433,7 +433,7 @@ export function TodoProvider({ children }: { children: ReactNode }) {
     
     const interval = setInterval(syncTodos, 5 * 60 * 1000)
     return () => clearInterval(interval)
-  }, [user])
+  }, [user, syncTodos])
 
   const value: TodoContextType = {
     todos,

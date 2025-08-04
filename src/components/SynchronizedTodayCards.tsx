@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useTodayTodos } from '@/contexts/TodayTodosContext'
 
 interface DiaryEntry {
@@ -91,7 +91,7 @@ export default function SynchronizedTodayCards() {
   }
 
   const days = generateDays()
-  const selectedDate = days[selectedIndex]?.date || new Date()
+  const selectedDate = useMemo(() => days[selectedIndex]?.date || new Date(), [days, selectedIndex])
   
   // Show limited cards when collapsed (Today + last 6 days + next 3 days)
   const displayDays = isExpanded ? days : days.slice(0, 10)

@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       message: 'Using curated music for stability'
     })
 
-  } catch (error) {
+  } catch {
     const mood = new URL(request.url).searchParams.get('mood') || 'relax'
     return NextResponse.json({
       success: false,

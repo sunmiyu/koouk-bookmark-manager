@@ -31,8 +31,6 @@ export default function SearchBar({
     getSearchStats
   } = useSearch()
   
-  const defaultPlaceholder = placeholder || t('search_everything')
-  
   const [query, setQuery] = useState(searchFilter.query || '')
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [showFilters, setShowFilters] = useState(false)

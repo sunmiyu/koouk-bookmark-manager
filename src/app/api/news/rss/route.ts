@@ -7,6 +7,13 @@ interface NewsItem {
   publishedAt: string
 }
 
+interface NaverNewsItem {
+  title: string
+  originallink: string
+  link: string
+  pubDate: string
+}
+
 // 해외 사용자를 위한 주요 뉴스 사이트 링크
 const INTERNATIONAL_NEWS_LINKS: NewsItem[] = [
   {
@@ -107,7 +114,7 @@ async function fetchNaverNews(): Promise<NewsItem[]> {
   try {
     // 여러 키워드로 최신 뉴스를 가져와서 합치기
     const keywords = ['속보', '뉴스', '오늘', '최신']
-    const allNews: any[] = []
+    const allNews: NaverNewsItem[] = []
 
     for (const keyword of keywords) {
       try {
@@ -131,7 +138,7 @@ async function fetchNaverNews(): Promise<NewsItem[]> {
         
         // API 호출 간격을 두어 rate limit 방지
         await new Promise(resolve => setTimeout(resolve, 100))
-      } catch (err) {
+      } catch {
         console.warn(`Failed to fetch news for keyword: ${keyword}`)
       }
     }
@@ -151,7 +158,7 @@ async function fetchNaverNews(): Promise<NewsItem[]> {
       .slice(0, 10)
 
     // NewsItem 형식으로 변환
-    return sortedNews.map((item: any): NewsItem => ({
+    return sortedNews.map((item: NaverNewsItem): NewsItem => ({
       title: item.title.replace(/<[^>]*>/g, ''), // HTML 태그 제거
       url: item.originallink || item.link,
       source: extractSource(item.originallink || item.link) || '네이버뉴스',

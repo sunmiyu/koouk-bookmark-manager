@@ -93,7 +93,7 @@ export default function MainMusicSection() {
       } else {
         throw new Error('Failed to fetch music recommendations')
       }
-    } catch (err) {
+    } catch {
       setError('Using sample music (API unavailable)')
       // 폴백 데이터
       setRecommendations([

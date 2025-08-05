@@ -63,10 +63,10 @@ body:not(.dark) {
   padding: 0 1rem;
 }
 
-/* 모바일에서 좌우 여백 16px 확보 */
+/* 모바일에서 좌우 여백 50% 줄임 */
 @media (max-width: 640px) {
   .container {
-    padding: 0 1rem; /* 16px 여백 유지 */
+    padding: 0 0.5rem; /* 16px → 8px */
   }
 }
 
@@ -199,66 +199,173 @@ body:not(.dark) {
   animation: error-pulse 0.8s ease-in-out infinite;
 }
 
-/* 모바일 전용 스타일 - 터치 영역 확보 및 글씨 크기 */
+/* 모바일 전용 스타일 - Koouk 로고 기준 통일된 디자인 */
 @media (max-width: 640px) {
-  /* 메인 컨테이너에 추가 패딩 */
+  /* 메인 컨테이너 패딩 50% 줄임 */
   .main-container {
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-left: 8px; /* 16px → 8px */
+    padding-right: 8px; /* 16px → 8px */
   }
   
-  /* 입력 필드 스타일 개선 */
+  /* Koouk 로고 기준 텍스트 크기 (text-2xl = 1.5rem 기준) */
+  /* 모든 텍스트를 로고와 비슷한 크기로 통일 */
+  
+  /* 입력 필드 - 로고 크기에 맞춤 */
   input[type="text"], 
   input[type="email"], 
   input[type="password"], 
   textarea {
-    font-size: 1rem !important; /* 1.125rem → 1rem (조금 줄임) */
-    padding: 0.875rem !important; /* 1rem → 0.875rem */
-    min-height: 48px; /* 52px → 48px */
+    font-size: 1rem !important; /* 로고보다 약간 작게 */
+    padding: 0.75rem !important; /* 적당한 패딩 */
+    min-height: 44px; /* 적당한 터치 영역 */
   }
   
-  /* 버튼 스타일 개선 */
+  /* 버튼 - 로고와 조화 */
   button {
-    font-size: 0.95rem !important; /* 1rem → 0.95rem */
-    padding: 0.75rem 1rem !important; /* 조금 줄임 */
-    min-height: 44px; /* 48px → 44px */
+    font-size: 0.875rem !important; /* 14px, 로고보다 작게 */
+    padding: 0.625rem 0.875rem !important; /* 적당한 패딩 */
+    min-height: 40px; /* 적당한 터치 영역 */
   }
   
-  /* 탭 네비게이션 스타일 개선 */
-  .tab-button {
-    font-size: 0.95rem !important;
-    padding: 0.875rem !important;
-    min-height: 52px; /* 56px → 52px */
+  /* 탭 네비게이션 - 로고와 비슷한 크기 */
+  .tab-button, nav button {
+    font-size: 1rem !important; /* 로고와 비슷 */
+    padding: 0.75rem !important;
+    min-height: 48px;
   }
   
   /* 카드 및 리스트 아이템 */
   .card-item, .list-item {
-    padding: 1rem !important;
-    margin-bottom: 0.75rem !important;
+    padding: 0.875rem !important; /* 적당한 패딩 */
+    margin-bottom: 0.5rem !important;
   }
   
-  /* 타이틀 및 헤딩 */
-  h1, h2, h3, h4, h5, h6 {
-    font-size: clamp(1.1rem, 5vw, 1.6rem) !important; /* 조금 줄임 */
+  /* 타이틀 및 헤딩 - 로고 크기 기준 */
+  h1 { font-size: 1.5rem !important; } /* 로고와 동일 */
+  h2 { font-size: 1.25rem !important; } /* 로고보다 약간 작게 */
+  h3 { font-size: 1.125rem !important; }
+  h4 { font-size: 1rem !important; }
+  h5, h6 { font-size: 0.875rem !important; }
+  
+  /* 일반 텍스트 - 로고보다 작게 */
+  p, span, div, .text-base {
+    font-size: 0.875rem !important; /* 14px, 읽기 좋은 크기 */
+    line-height: 1.4 !important;
   }
   
-  /* 일반 텍스트 */
-  p, span, div {
-    font-size: 0.95rem !important; /* 1rem → 0.95rem */
-    line-height: 1.5 !important; /* 1.6 → 1.5 */
-  }
-  
-  /* 작은 텍스트도 읽기 쉽게 */
+  /* 작은 텍스트 */
   .text-xs {
-    font-size: 0.8rem !important; /* 0.875rem → 0.8rem */
+    font-size: 0.75rem !important; /* 12px */
   }
   
   .text-sm {
-    font-size: 0.9rem !important; /* 1rem → 0.9rem */
+    font-size: 0.8125rem !important; /* 13px */
+  }
+  
+  /* 큰 텍스트 */
+  .text-lg {
+    font-size: 1rem !important;
+  }
+  
+  .text-xl {
+    font-size: 1.125rem !important;
+  }
+  
+  .text-2xl {
+    font-size: 1.5rem !important; /* 로고와 동일 */
+  }
+  
+  /* 아이콘 및 버튼 크기 정상화 */
+  /* 계정 아이콘 (파란색) */
+  .profile-icon, [class*="w-8 h-8"] {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+  
+  /* 체크박스 및 작은 아이콘들 */
+  input[type="checkbox"], .checkbox {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+  
+  /* SVG 아이콘 크기 조정 */
+  svg.w-4.h-4 {
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+  
+  svg.w-5.h-5 {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+  
+  svg.w-6.h-6 {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+  }
+  
+  /* 서치바 크기 조정 */
+  .search-bar input, input[placeholder*="search"] {
+    font-size: 0.875rem !important;
+    padding: 0.625rem 0.875rem !important;
+    height: 40px !important;
+  }
+  
+  /* Storage 탭 특화 스타일 */
+  /* Storage 카테고리 버튼들 */
+  .storage-category-btn {
+    font-size: 0.875rem !important;
+    padding: 0.625rem 0.875rem !important;
+    min-height: 40px !important;
+  }
+  
+  /* Storage 검색바 */
+  .storage-search input {
+    font-size: 0.875rem !important;
+    padding: 0.625rem !important;
+    height: 40px !important;
+  }
+  
+  /* Storage 컨텐츠 카드들 */
+  .storage-card {
+    padding: 0.75rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .storage-card h3, .storage-card .title {
+    font-size: 1rem !important; /* 로고보다 작게 */
+  }
+  
+  .storage-card p, .storage-card .description {
+    font-size: 0.8125rem !important; /* 13px */
+  }
+  
+  /* Storage 아이콘들 */
+  .storage-icon {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+  
+  /* Storage 드롭다운 */
+  .storage-dropdown {
+    font-size: 0.875rem !important;
+  }
+  
+  .storage-dropdown-item {
+    padding: 0.625rem 0.875rem !important;
+    font-size: 0.875rem !important;
+  }
+  
+  /* Storage 카운트 배지 */
+  .storage-count-badge {
+    font-size: 0.75rem !important;
+    padding: 0.25rem 0.5rem !important;
+    min-width: 1.5rem !important;
+    height: 1.5rem !important;
   }
   
   /* 오른쪽 스크롤바와 겹치지 않도록 여백 확보 */
   .right-element {
-    margin-right: 20px;
+    margin-right: 12px; /* 20px → 12px */
   }
 }

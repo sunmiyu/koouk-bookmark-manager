@@ -31,7 +31,8 @@ export default function MainNewsSection() {
           const controller = new AbortController()
           const timeoutId = setTimeout(() => controller.abort(), 10000)
           
-          const response = await fetch('/api/news/rss', {
+          // 테스트: 강제로 한국 뉴스 가져오기
+          const response = await fetch('/api/news/rss?force=kr', {
             signal: controller.signal
           })
           clearTimeout(timeoutId)

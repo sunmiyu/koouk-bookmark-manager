@@ -56,16 +56,38 @@ const INTERNATIONAL_NEWS_LINKS: NewsItem[] = [
 
 
 
-// IP 기반 지역 감지
+// IP 기반 지역 감지 - 개선된 버전
 function detectRegionFromIP(request: NextRequest): string {
-  // Vercel/Cloudflare headers에서 국가 정보 확인
+  // 다양한 헤더에서 국가 정보 확인
   const country = request.headers.get('cf-ipcountry') || 
-                 request.headers.get('x-vercel-ip-country')
+                 request.headers.get('x-vercel-ip-country') ||
+                 request.headers.get('x-country-code') ||
+                 request.headers.get('cloudfront-viewer-country')
 
-  console.log('Detected country:', country)
+  // Accept-Language 헤더에서 언어 정보 확인 (fallback)
+  const acceptLanguage = request.headers.get('accept-language') || ''
+  const hasKorean = acceptLanguage.includes('ko') || acceptLanguage.includes('kr')
+
+  // IP 주소 확인 (추가 fallback)
+  const ip = request.headers.get('x-forwarded-for') || 
+            request.headers.get('x-real-ip') ||
+            request.headers.get('cf-connecting-ip')
+
+  console.log('Region detection:', {
+    country,
+    acceptLanguage,
+    hasKorean,
+    ip: ip ? ip.substring(0, 8) + '...' : 'unknown'
+  })
   
-  // 한국인 경우 'kr', 그외는 'international'
-  return country === 'KR' ? 'kr' : 'international'
+  // 한국 감지 로직
+  if (country === 'KR' || country === 'Korea' || hasKorean) {
+    console.log('✅ Korean user detected')
+    return 'kr'
+  }
+  
+  console.log('🌍 International user detected')
+  return 'international'
 }
 
 // 네이버 뉴스 API 호출 - 최신 뉴스 Top 10
@@ -194,9 +216,20 @@ export async function GET(request: NextRequest) {
   try {
     console.log('News API called')
     
+    // URL 파라미터로 강제 한국 모드 설정 (테스트용)
+    const { searchParams } = new URL(request.url)
+    const forceKr = searchParams.get('force') === 'kr'
+    
     // 지역 감지
-    const region = detectRegionFromIP(request)
-    console.log('Detected region:', region)
+    let region = detectRegionFromIP(request)
+    
+    // 강제 한국 모드 (테스트/개발용)
+    if (forceKr) {
+      region = 'kr'
+      console.log('🔧 Force Korean mode enabled')
+    }
+    
+    console.log('Final region:', region)
 
     let newsItems: NewsItem[] = []
     let source = 'fallback'

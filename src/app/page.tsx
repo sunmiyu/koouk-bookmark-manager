@@ -27,7 +27,7 @@ import MainNewsSection from '@/components/MainNewsSection'
 import MainMusicSection from '@/components/MainMusicSection'
 import MarketOverview from '@/components/MarketOverview'
 import AIWorkspaceContent from '@/components/AIWorkspaceContent'
-import StorageContent from '@/components/StorageContent'
+import SimpleStorageContent from '@/components/SimpleStorageContent'
 import TemperatureGraph from '@/components/TemperatureGraph'
 import WeatherWidget from '@/components/WeatherWidget'
 import OnboardingFlow from '@/components/OnboardingFlow'
@@ -45,7 +45,7 @@ import { useSearch } from '@/contexts/SearchContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 // import { useSectionVisibility } from '@/contexts/SectionVisibilityContext'
 
-type TabType = 'dashboard' | 'storage' | 'tools' | 'settings'
+type TabType = 'dashboard' | 'storage'
 
 function HomeContent() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard')
@@ -76,7 +76,7 @@ function HomeContent() {
   }
 
   // Tab navigation helpers
-  const tabs: TabType[] = ['dashboard', 'storage', 'tools', 'settings']
+  const tabs: TabType[] = ['dashboard', 'storage']
   const currentTabIndex = tabs.indexOf(activeTab)
 
   const goToNextTab = () => {
@@ -126,7 +126,7 @@ function HomeContent() {
     // Check for tab parameter in URL
     const urlParams = new URLSearchParams(window.location.search)
     const tabParam = urlParams.get('tab') as TabType
-    if (tabParam && ['dashboard', 'storage', 'tools', 'settings'].includes(tabParam)) {
+    if (tabParam && ['dashboard', 'storage'].includes(tabParam)) {
       setActiveTab(tabParam)
       // Clean up URL parameter after setting the tab
       const newUrl = window.location.pathname
@@ -281,39 +281,6 @@ function HomeContent() {
                     <span className="hidden xs:inline">Storage</span>
                   </div>
                 </button>
-                <button
-                  onClick={() => setActiveTab('tools')}
-                  className={`flex-1 py-3 sm:py-4 px-2 sm:px-3 font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
-                    activeTab === 'tools'
-                      ? 'text-white'
-                      : 'text-gray-400 hover:text-gray-200'
-                  }`}
-                  style={{ background: 'transparent', border: 'none', boxShadow: 'none' }}
-                >
-                  <div className="flex items-center justify-center gap-1 sm:gap-2">
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <span className="hidden xs:inline">Tools</span>
-                  </div>
-                </button>
-                <button
-                  onClick={() => setActiveTab('settings')}
-                  className={`flex-1 py-3 sm:py-4 px-2 sm:px-3 font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
-                    activeTab === 'settings'
-                      ? 'text-white'
-                      : 'text-gray-400 hover:text-gray-200'
-                  }`}
-                  style={{ background: 'transparent', border: 'none', boxShadow: 'none' }}
-                >
-                  <div className="flex items-center justify-center gap-1 sm:gap-2">
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
-                    </svg>
-                    <span className="hidden xs:inline">Settings</span>
-                  </div>
-                </button>
               </nav>
             </div>
           </div>
@@ -402,128 +369,8 @@ function HomeContent() {
 
 
 
-            {activeTab === 'tools' && (
-              <BetaFeaturesPreview />
-            )}
-
             {activeTab === 'storage' && (
-              <StorageContent />
-            )}
-
-            {activeTab === 'settings' && (
-              <div className="space-y-8">
-                {/* Settings Header */}
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gray-800/50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
-                    </svg>
-                  </div>
-                  <h3 className="text-2xl font-semibold text-white mb-2">Settings & Preferences</h3>
-                  <p className="text-gray-400">Customize your dashboard experience</p>
-                </div>
-
-                {/* Settings Options */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Help & Support */}
-                  <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-700">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center">
-                        <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                      <h4 className="text-lg font-semibold text-white">Help & Support</h4>
-                    </div>
-                    <div className="space-y-3">
-                      <button
-                        onClick={triggerOnboarding}
-                        className="w-full text-left px-4 py-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg transition-colors group"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="text-white font-medium">Take Tour Again</div>
-                            <div className="text-sm text-gray-400">Replay the welcome tutorial</div>
-                          </div>
-                          <svg className="w-4 h-4 text-gray-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </div>
-                      </button>
-                      <div className="px-4 py-3 bg-gray-800/30 rounded-lg">
-                        <div className="text-white font-medium">Documentation</div>
-                        <div className="text-sm text-gray-400">Comprehensive guides coming soon</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Account Settings */}
-                  <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-700">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 bg-purple-600/20 rounded-lg flex items-center justify-center">
-                        <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                      </div>
-                      <h4 className="text-lg font-semibold text-white">Account</h4>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="px-4 py-3 bg-gray-800/30 rounded-lg">
-                        <div className="text-white font-medium">Profile Settings</div>
-                        <div className="text-sm text-gray-400">Manage your account details</div>
-                      </div>
-                      <div className="px-4 py-3 bg-gray-800/30 rounded-lg">
-                        <div className="text-white font-medium">Privacy & Security</div>
-                        <div className="text-sm text-gray-400">Control your data and privacy</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Preferences */}
-                  <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-700">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 bg-green-600/20 rounded-lg flex items-center justify-center">
-                        <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
-                        </svg>
-                      </div>
-                      <h4 className="text-lg font-semibold text-white">Preferences</h4>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="px-4 py-3 bg-gray-800/30 rounded-lg">
-                        <div className="text-white font-medium">Notifications</div>
-                        <div className="text-sm text-gray-400">Customize alerts and reminders</div>
-                      </div>
-                      <div className="px-4 py-3 bg-gray-800/30 rounded-lg">
-                        <div className="text-white font-medium">Theme & Display</div>
-                        <div className="text-sm text-gray-400">Appearance customization</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Integrations */}
-                  <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-700">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 bg-orange-600/20 rounded-lg flex items-center justify-center">
-                        <svg className="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a1 1 0 01-1-1V9a1 1 0 011-1h1a2 2 0 100-4H4a1 1 0 01-1-1V5a1 1 0 011-1h3a1 1 0 001-1V4z" />
-                        </svg>
-                      </div>
-                      <h4 className="text-lg font-semibold text-white">Integrations</h4>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="px-4 py-3 bg-gray-800/30 rounded-lg">
-                        <div className="text-white font-medium">Connected Apps</div>
-                        <div className="text-sm text-gray-400">Spotify, Google, and more</div>
-                      </div>
-                      <div className="px-4 py-3 bg-gray-800/30 rounded-lg">
-                        <div className="text-white font-medium">API Access</div>
-                        <div className="text-sm text-gray-400">Developer tools and webhooks</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <SimpleStorageContent />
             )}
             </div>
           </main>
@@ -578,7 +425,7 @@ function HomeContent() {
         {/* Swipe Indicator for Mobile */}
         <SwipeIndicator 
           currentTab={activeTab}
-          totalTabs={4}
+          totalTabs={2}
         />
         
         {/* Onboarding Flow */}

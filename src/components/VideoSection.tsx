@@ -81,8 +81,14 @@ export default function VideoSection({ fullWidth = false, searchQuery = '' }: Vi
         <h3 className="responsive-text-lg font-semibold text-red-400">Videos</h3>
         <div className="flex items-center gap-3">
           <div className="text-xs text-gray-400">
-            <span className={videos.length >= limit ? 'text-yellow-400' : ''}>{videos.length}</span>
-            <span className="text-gray-500">/{limit === Infinity ? '∞' : limit}</span>
+            {searchQuery ? (
+              <span className="text-red-400">{filteredVideos.length} found</span>
+            ) : (
+              <>
+                <span className={videos.length >= limit ? 'text-yellow-400' : ''}>{videos.length}</span>
+                <span className="text-gray-500">/{limit === Infinity ? '∞' : limit}</span>
+              </>
+            )}
           </div>
           {videos.length > 1 && (
             <button
@@ -133,8 +139,8 @@ export default function VideoSection({ fullWidth = false, searchQuery = '' }: Vi
         </div>
       )}
       <div className={fullWidth ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 max-h-[800px] overflow-y-auto" : "space-y-3 max-h-[800px] overflow-y-auto"}>
-        {/* Render actual videos */}
-        {videos.map((video) => {
+        {/* Render filtered videos */}
+        {filteredVideos.map((video) => {
           const thumbnailUrl = video.url ? getYouTubeThumbnail(video.url) : ''
           const isSelected = selectedItems.has(video.id)
           return (
@@ -271,45 +277,170 @@ export default function VideoSection({ fullWidth = false, searchQuery = '' }: Vi
           )
         })}
         
-        {/* Add sample data if empty */}
-        {videos.length === 0 && (
-          <div 
-            className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
-            onClick={() => {
-              trackEvents.clickExternalLink('https://youtube.com/watch?v=dQw4w9WgXcQ')
-              window.open('https://youtube.com/watch?v=dQw4w9WgXcQ', '_blank')
-            }}
-          >
-            {/* Delete button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                alert('이것은 샘플 데이터입니다. 로그인 후 실제 비디오를 추가해보세요!')
+        {/* Add useful default videos if empty and not logged in */}
+        {videos.length === 0 && !searchQuery && (
+          <>
+            <div 
+              className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
+              onClick={() => {
+                trackEvents.clickExternalLink('https://www.youtube.com/watch?v=bMknfKXIFA8')
+                window.open('https://www.youtube.com/watch?v=bMknfKXIFA8', '_blank')
               }}
-              className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors opacity-0 group-hover:opacity-100 text-sm z-10"
-              title="Delete video"
             >
-              ✕
-            </button>
-            <div className="flex items-start responsive-gap-sm">
-              <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden relative">
-                <Image 
-                  src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg"
-                  alt="Sample Video"
-                  fill
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white bg-red-600 rounded-full p-0.5 sm:p-1 bg-opacity-80" fill="currentColor" viewBox="0 0 20 20">
+              <div className="flex items-start responsive-gap-sm">
+                <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden relative">
+                  <Image 
+                    src="https://img.youtube.com/vi/bMknfKXIFA8/maxresdefault.jpg"
+                    alt="React Tutorial"
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white bg-red-600 rounded-full p-0.5 sm:p-1 bg-opacity-80" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-white responsive-text-sm line-clamp-2">React Tutorial - Modern Web Development</h4>
+                  <p className="text-xs text-gray-400 mt-1">Educational • Programming</p>
+                </div>
+              </div>
+            </div>
+            <div 
+              className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
+              onClick={() => {
+                trackEvents.clickExternalLink('https://www.youtube.com/watch?v=SzJ46YA_RaA')
+                window.open('https://www.youtube.com/watch?v=SzJ46YA_RaA', '_blank')
+              }}
+            >
+              <div className="flex items-start responsive-gap-sm">
+                <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden relative">
+                  <Image 
+                    src="https://img.youtube.com/vi/SzJ46YA_RaA/maxresdefault.jpg"
+                    alt="Design Systems"
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white bg-red-600 rounded-full p-0.5 sm:p-1 bg-opacity-80" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-white responsive-text-sm line-clamp-2">Design Systems & Component Libraries</h4>
+                  <p className="text-xs text-gray-400 mt-1">Design • UI/UX</p>
+                </div>
+              </div>
+            </div>
+            <div 
+              className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
+              onClick={() => {
+                trackEvents.clickExternalLink('https://www.youtube.com/watch?v=F2Mx-u7auUs')
+                window.open('https://www.youtube.com/watch?v=F2Mx-u7auUs', '_blank')
+              }}
+            >
+              <div className="flex items-start responsive-gap-sm">
+                <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden relative">
+                  <Image 
+                    src="https://img.youtube.com/vi/F2Mx-u7auUs/maxresdefault.jpg"
+                    alt="Productivity Tips"
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white bg-red-600 rounded-full p-0.5 sm:p-1 bg-opacity-80" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-white responsive-text-sm line-clamp-2">Developer Productivity & Tools</h4>
+                  <p className="text-xs text-gray-400 mt-1">Productivity • Workflow</p>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+        
+        {/* Enhanced empty state message */}
+        {filteredVideos.length === 0 && (
+          <div className="text-center py-8">
+            {searchQuery ? (
+              <>
+                <div className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <p className="text-gray-400 text-sm">No videos found for &quot;{searchQuery}&quot;</p>
+                <p className="text-gray-500 text-xs mt-1">Try a different search term</p>
+              </>
+            ) : (
+              <>
+                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-red-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
                   </svg>
                 </div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-white responsive-text-sm line-clamp-2">추천 영상 예시</h4>
-                <p className="text-xs text-gray-400 mt-1">Video • YouTube</p>
-              </div>
-            </div>
+                <h3 className="text-white text-base font-semibold mb-2">Add Your First Video</h3>
+                <p className="text-gray-400 text-sm mb-4">Save YouTube videos to watch later or reference</p>
+                
+                {/* CTA Buttons */}
+                <div className="space-y-2">
+                  <button
+                    onClick={() => {
+                      // Focus on the input section
+                      const input = document.querySelector('input[placeholder*="YouTube URL"]') as HTMLInputElement
+                      if (input) {
+                        input.focus()
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                      }
+                    }}
+                    className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add Video
+                  </button>
+                  
+                  {/* Quick example buttons */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => {
+                        const input = document.querySelector('input[placeholder*="YouTube URL"]') as HTMLInputElement
+                        if (input) {
+                          input.value = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+                          input.focus()
+                          input.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                          // Trigger change event
+                          input.dispatchEvent(new Event('input', { bubbles: true }))
+                        }
+                      }}
+                      className="px-3 py-1.5 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-white rounded-md text-xs transition-all duration-200"
+                    >
+                      🎬 Tutorial
+                    </button>
+                    <button
+                      onClick={() => {
+                        const input = document.querySelector('input[placeholder*="YouTube URL"]') as HTMLInputElement
+                        if (input) {
+                          input.value = 'https://www.youtube.com/watch?v=jNQXAC9IVRw'
+                          input.focus()
+                          input.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                          input.dispatchEvent(new Event('input', { bubbles: true }))
+                        }
+                      }}
+                      className="px-3 py-1.5 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-white rounded-md text-xs transition-all duration-200"
+                    >
+                      🎵 Music
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )}
         

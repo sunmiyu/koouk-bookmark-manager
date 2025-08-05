@@ -134,44 +134,74 @@ export default function LinkSection({ fullWidth = false, searchQuery = '' }: Lin
           </div>
         ))}
         
-        {/* Add sample data if empty */}
-        {links.length === 0 && (
-          <div 
-            className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
-            onClick={() => {
-              trackEvents.clickExternalLink('https://example.com')
-              window.open('https://example.com', '_blank')
-            }}
-          >
-            {/* Delete button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                // Sample data can't be deleted, just show alert
-                alert('이것은 샘플 데이터입니다. 로그인 후 실제 링크를 추가해보세요!')
+        {/* Add useful default links if empty and not logged in */}
+        {links.length === 0 && !searchQuery && (
+          <>
+            <div 
+              className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
+              onClick={() => {
+                trackEvents.clickExternalLink('https://github.com')
+                window.open('https://github.com', '_blank')
               }}
-              className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors opacity-0 group-hover:opacity-100 text-sm z-10"
-              title="Delete link"
             >
-              ✕
-            </button>
-            <div className="flex items-start responsive-gap-sm">
-              <div className="w-6 h-6 bg-blue-500 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.102m0 0l.708-.708M9.708 14.292l4-4m0 0l2.586-2.586M13.414 7.414l.708-.708" />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-white responsive-text-sm truncate">유용한 웹사이트 예시</h4>
-                <p className="text-xs text-gray-400 mt-1">로그인 후 실제 링크를 추가해보세요</p>
-                <p className="text-xs text-blue-400 mt-1 truncate">https://example.com</p>
+              <div className="flex items-start responsive-gap-sm">
+                <div className="w-6 h-6 bg-blue-500 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.102m0 0l.708-.708M9.708 14.292l4-4m0 0l2.586-2.586M13.414 7.414l.708-.708" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-white responsive-text-sm truncate">GitHub - Developer Platform</h4>
+                  <p className="text-xs text-gray-400 mt-1">Code repositories, collaboration tools, and project management</p>
+                  <p className="text-xs text-blue-400 mt-1 truncate">https://github.com</p>
+                </div>
               </div>
             </div>
-          </div>
+            <div 
+              className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
+              onClick={() => {
+                trackEvents.clickExternalLink('https://stackoverflow.com')
+                window.open('https://stackoverflow.com', '_blank')
+              }}
+            >
+              <div className="flex items-start responsive-gap-sm">
+                <div className="w-6 h-6 bg-blue-500 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.102m0 0l.708-.708M9.708 14.292l4-4m0 0l2.586-2.586M13.414 7.414l.708-.708" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-white responsive-text-sm truncate">Stack Overflow - Q&amp;A Platform</h4>
+                  <p className="text-xs text-gray-400 mt-1">Programming questions, answers, and community knowledge</p>
+                  <p className="text-xs text-blue-400 mt-1 truncate">https://stackoverflow.com</p>
+                </div>
+              </div>
+            </div>
+            <div 
+              className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
+              onClick={() => {
+                trackEvents.clickExternalLink('https://developer.mozilla.org')
+                window.open('https://developer.mozilla.org', '_blank')
+              }}
+            >
+              <div className="flex items-start responsive-gap-sm">
+                <div className="w-6 h-6 bg-blue-500 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.102m0 0l.708-.708M9.708 14.292l4-4m0 0l2.586-2.586M13.414 7.414l.708-.708" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-white responsive-text-sm truncate">MDN Web Docs</h4>
+                  <p className="text-xs text-gray-400 mt-1">Web development documentation and learning resources</p>
+                  <p className="text-xs text-blue-400 mt-1 truncate">https://developer.mozilla.org</p>
+                </div>
+              </div>
+            </div>
+          </>
         )}
         
-        {/* Show empty slots to fill 10 total */}
-        {Array.from({ length: Math.max(0, 10 - Math.max(links.length, 1)) }, (_, index) => (
+        {/* Show empty slots to fill remaining space */}
+        {!searchQuery && Array.from({ length: Math.max(0, 7 - Math.max(links.length, 3)) }, (_, index) => (
           <div 
             key={`empty-${index}`}
             className="bg-gray-900 border-2 border-dashed border-gray-700 rounded-lg responsive-p-sm opacity-50"
@@ -205,13 +235,80 @@ export default function LinkSection({ fullWidth = false, searchQuery = '' }: Lin
               </>
             ) : (
               <>
-                <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.102m0 0l.708-.708M9.708 14.292l4-4m0 0l2.586-2.586M13.414 7.414l.708-.708" />
                   </svg>
                 </div>
-                <p className="text-gray-400 text-sm">No links saved yet</p>
-                <p className="text-gray-500 text-xs mt-1">Add your first link using the input above</p>
+                <h3 className="text-white text-base font-semibold mb-2">Save Your First Link</h3>
+                <p className="text-gray-400 text-sm mb-4">Keep track of interesting articles, websites, and resources</p>
+                
+                {/* CTA Buttons */}
+                <div className="space-y-2">
+                  <button
+                    onClick={() => {
+                      // Focus on the input section
+                      const input = document.querySelector('input[placeholder*="Paste URL"]') as HTMLInputElement
+                      if (input) {
+                        input.focus()
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                      }
+                    }}
+                    className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add Link
+                  </button>
+                  
+                  {/* Quick example buttons */}
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      onClick={() => {
+                        const input = document.querySelector('input[placeholder*="Paste URL"]') as HTMLInputElement
+                        if (input) {
+                          input.value = 'https://github.com'
+                          input.focus()
+                          input.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                          // Trigger change event
+                          input.dispatchEvent(new Event('input', { bubbles: true }))
+                        }
+                      }}
+                      className="px-2 py-1.5 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-white rounded-md text-xs transition-all duration-200"
+                    >
+                      💻 GitHub
+                    </button>
+                    <button
+                      onClick={() => {
+                        const input = document.querySelector('input[placeholder*="Paste URL"]') as HTMLInputElement
+                        if (input) {
+                          input.value = 'https://stackoverflow.com'
+                          input.focus()
+                          input.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                          input.dispatchEvent(new Event('input', { bubbles: true }))
+                        }
+                      }}
+                      className="px-2 py-1.5 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-white rounded-md text-xs transition-all duration-200"
+                    >
+                      ❓ Stack
+                    </button>
+                    <button
+                      onClick={() => {
+                        const input = document.querySelector('input[placeholder*="Paste URL"]') as HTMLInputElement
+                        if (input) {
+                          input.value = 'https://developer.mozilla.org'
+                          input.focus()
+                          input.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                          input.dispatchEvent(new Event('input', { bubbles: true }))
+                        }
+                      }}
+                      className="px-2 py-1.5 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-white rounded-md text-xs transition-all duration-200"
+                    >
+                      📚 MDN
+                    </button>
+                  </div>
+                </div>
               </>
             )}
           </div>

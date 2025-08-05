@@ -178,41 +178,76 @@ export default function ImageSection({ fullWidth = false, searchQuery = '' }: Im
           </div>
         ))}
         
-        {/* Add sample data if empty and not logged in */}
+        {/* Add useful default images if empty and not logged in */}
         {images.length === 0 && !user && !searchQuery && (
-          <div 
-            className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
-            onClick={() => {
-              trackEvents.openModal('image')
-              window.open('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop', '_blank')
-            }}
-          >
-            {/* Delete button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                alert('이것은 샘플 데이터입니다. 로그인 후 실제 이미지를 추가해보세요!')
+          <>
+            <div 
+              className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
+              onClick={() => {
+                trackEvents.openModal('image')
+                window.open('https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=600&fit=crop', '_blank')
               }}
-              className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors opacity-0 group-hover:opacity-100 text-sm z-10"
-              title="Delete image"
             >
-              ✕
-            </button>
-            <div className="flex items-start responsive-gap-sm">
-              <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                  src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop"
-                  alt="아름다운 풍경 예시"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-white responsive-text-sm line-clamp-2">아름다운 풍경 예시</h4>
-                <p className="text-xs text-gray-400 mt-1">Sample Image • Design</p>
+              <div className="flex items-start responsive-gap-sm">
+                <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img 
+                    src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=300&h=200&fit=crop"
+                    alt="Code editor workspace"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-white responsive-text-sm line-clamp-2">Development Workspace</h4>
+                  <p className="text-xs text-gray-400 mt-1">Screenshot • Programming</p>
+                </div>
               </div>
             </div>
-          </div>
+            <div 
+              className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
+              onClick={() => {
+                trackEvents.openModal('image')
+                window.open('https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=600&fit=crop', '_blank')
+              }}
+            >
+              <div className="flex items-start responsive-gap-sm">
+                <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img 
+                    src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=300&h=200&fit=crop"
+                    alt="UI Design mockups"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-white responsive-text-sm line-clamp-2">UI Design Mockups</h4>
+                  <p className="text-xs text-gray-400 mt-1">Design • Interface</p>
+                </div>
+              </div>
+            </div>
+            <div 
+              className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
+              onClick={() => {
+                trackEvents.openModal('image')
+                window.open('https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=800&h=600&fit=crop', '_blank')
+              }}
+            >
+              <div className="flex items-start responsive-gap-sm">
+                <div className="w-14 h-10 sm:w-16 sm:h-12 bg-gray-700 rounded flex-shrink-0 overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img 
+                    src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=300&h=200&fit=crop"
+                    alt="Data visualization charts"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-white responsive-text-sm line-clamp-2">Data Analytics</h4>
+                  <p className="text-xs text-gray-400 mt-1">Chart • Visualization</p>
+                </div>
+              </div>
+            </div>
+          </>
         )}
 
         {/* Empty state */}
@@ -230,18 +265,84 @@ export default function ImageSection({ fullWidth = false, searchQuery = '' }: Im
               </>
             ) : user ? (
               <>
-                <svg className="w-12 h-12 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z" />
-                </svg>
-                <h4 className="text-gray-400 font-medium mb-2">이미지가 없습니다</h4>
-                <p className="text-gray-500 text-sm">위의 업로드 영역을 사용해서 첫 번째 이미지를 추가해보세요</p>
+                <div className="w-16 h-16 bg-green-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-white text-base font-semibold mb-2">Upload Your First Image</h3>
+                <p className="text-gray-400 text-sm mb-4">Save screenshots, photos, and visual content for easy access</p>
+                
+                {/* CTA Buttons */}
+                <div className="space-y-2">
+                  <button
+                    onClick={() => {
+                      // Focus on the upload area and scroll to it
+                      const uploadArea = document.querySelector('[class*="border-dashed"]') as HTMLElement
+                      if (uploadArea) {
+                        uploadArea.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                        // Try to trigger the file input if available
+                        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
+                        if (fileInput) {
+                          fileInput.click()
+                        }
+                      }
+                    }}
+                    className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Upload Image
+                  </button>
+                  
+                  {/* Quick example buttons */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => {
+                        // Show instructions about pasting images
+                        const uploadArea = document.querySelector('[class*="border-dashed"]') as HTMLElement
+                        if (uploadArea) {
+                          uploadArea.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                        }
+                        // Show a tooltip or alert about Ctrl+V
+                        const tooltip = document.createElement('div')
+                        tooltip.textContent = 'Press Ctrl+V to paste images from clipboard'
+                        tooltip.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm z-50'
+                        document.body.appendChild(tooltip)
+                        setTimeout(() => tooltip.remove(), 3000)
+                      }}
+                      className="px-3 py-1.5 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-white rounded-md text-xs transition-all duration-200"
+                    >
+                      📸 Photo
+                    </button>
+                    <button
+                      onClick={() => {
+                        // Show instructions about drag and drop
+                        const uploadArea = document.querySelector('[class*="border-dashed"]') as HTMLElement
+                        if (uploadArea) {
+                          uploadArea.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                        }
+                        // Show a tooltip about drag and drop
+                        const tooltip = document.createElement('div')
+                        tooltip.textContent = 'Drag & drop images directly into the upload area'
+                        tooltip.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm z-50'
+                        document.body.appendChild(tooltip)
+                        setTimeout(() => tooltip.remove(), 3000)
+                      }}
+                      className="px-3 py-1.5 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-white rounded-md text-xs transition-all duration-200"
+                    >
+                      🖼️ Art
+                    </button>
+                  </div>
+                </div>
               </>
             ) : null}
           </div>
         )}
         
         {/* Show empty slots to fill visual space - only when not searching */}
-        {!searchQuery && Array.from({ length: Math.max(0, 5 - Math.max(images.length, user ? 0 : 1)) }, (_, index) => (
+        {!searchQuery && Array.from({ length: Math.max(0, 5 - Math.max(images.length, user ? 0 : 3)) }, (_, index) => (
           <div 
             key={`empty-${index}`}
             className="bg-gray-900 border-2 border-dashed border-gray-700 rounded-lg responsive-p-sm opacity-30"

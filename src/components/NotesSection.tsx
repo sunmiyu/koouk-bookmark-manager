@@ -250,43 +250,89 @@ export default function NotesSection({ fullWidth = false, searchQuery = '' }: No
           )
         })}
         
-        {/* Add sample data if empty */}
-        {notes.length === 0 && (
-          <div 
-            className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
-            onClick={() => {
-              trackEvents.openModal('note')
-              alert('로그인 후 실제 노트를 추가해보세요!')
-            }}
-          >
-            {/* Delete button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                alert('이것은 샘플 데이터입니다. 로그인 후 실제 노트를 추가해보세요!')
+        {/* Add useful default notes if empty and not logged in */}
+        {notes.length === 0 && !searchQuery && (
+          <>
+            <div 
+              className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
+              onClick={() => {
+                trackEvents.openModal('note')
+                const input = document.querySelector('input[placeholder*="Paste URL"]') as HTMLInputElement
+                if (input) {
+                  input.value = 'Meeting Notes: Discuss project timeline and resource allocation for Q1 deliverables'
+                  input.focus()
+                  input.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                }
               }}
-              className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white border border-gray-600 rounded hover:border-gray-400 transition-colors opacity-0 group-hover:opacity-100 text-sm z-10"
-              title="Delete note"
             >
-              ✕
-            </button>
-            <div className="flex items-start responsive-gap-sm">
-              <div className="w-6 h-6 bg-purple-500 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-white responsive-text-sm truncate">메모 예시</h4>
-                <p className="text-xs text-gray-400 mt-1 line-clamp-2">이곳에 중요한 메모를 저장할 수 있습니다.</p>
-                <p className="text-xs text-purple-400 mt-2">{formatDate('2025-01-29')}</p>
+              <div className="flex items-start responsive-gap-sm">
+                <div className="w-6 h-6 bg-purple-500 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-white responsive-text-sm truncate">Meeting Notes Template</h4>
+                  <p className="text-xs text-gray-400 mt-1 line-clamp-2">Keep track of important discussions and action items</p>
+                  <p className="text-xs text-purple-400 mt-2">{formatDate(new Date().toISOString())}</p>
+                </div>
               </div>
             </div>
-          </div>
+            <div 
+              className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
+              onClick={() => {
+                trackEvents.openModal('note')
+                const input = document.querySelector('input[placeholder*="Paste URL"]') as HTMLInputElement
+                if (input) {
+                  input.value = 'Project Ideas: Implement dark mode toggle, add keyboard shortcuts, optimize loading performance'
+                  input.focus()
+                  input.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                }
+              }}
+            >
+              <div className="flex items-start responsive-gap-sm">
+                <div className="w-6 h-6 bg-purple-500 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-white responsive-text-sm truncate">Project Ideas</h4>
+                  <p className="text-xs text-gray-400 mt-1 line-clamp-2">Brainstorm and organize your next big ideas</p>
+                  <p className="text-xs text-purple-400 mt-2">{formatDate(new Date().toISOString())}</p>
+                </div>
+              </div>
+            </div>
+            <div 
+              className="bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer rounded-lg responsive-p-sm border border-gray-700 group relative"
+              onClick={() => {
+                trackEvents.openModal('note')
+                const input = document.querySelector('input[placeholder*="Paste URL"]') as HTMLInputElement
+                if (input) {
+                  input.value = 'Daily Reflection: What went well today? What can I improve tomorrow? Key learnings and insights.'
+                  input.focus()
+                  input.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                }
+              }}
+            >
+              <div className="flex items-start responsive-gap-sm">
+                <div className="w-6 h-6 bg-purple-500 rounded-sm flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-white responsive-text-sm truncate">Daily Reflection</h4>
+                  <p className="text-xs text-gray-400 mt-1 line-clamp-2">Track progress and personal growth insights</p>
+                  <p className="text-xs text-purple-400 mt-2">{formatDate(new Date().toISOString())}</p>
+                </div>
+              </div>
+            </div>
+          </>
         )}
         
-        {/* Show empty slots to fill 10 total */}
-        {Array.from({ length: Math.max(0, 10 - Math.max(filteredNotes.length, 1)) }, (_, index) => (
+        {/* Show empty slots to fill remaining space */}
+        {!searchQuery && Array.from({ length: Math.max(0, 7 - Math.max(filteredNotes.length, 3)) }, (_, index) => (
           <div 
             key={`empty-${index}`}
             className="bg-gray-900 border-2 border-dashed border-gray-700 rounded-lg responsive-p-sm opacity-50"
@@ -348,35 +394,49 @@ export default function NotesSection({ fullWidth = false, searchQuery = '' }: No
                   </button>
                   
                   {/* Quick example buttons */}
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
                     <button
                       onClick={() => {
                         const input = document.querySelector('input[placeholder*="Paste URL"]') as HTMLInputElement
                         if (input) {
-                          input.value = 'Great idea for tomorrow\'s meeting: Implement user feedback system'
+                          input.value = 'Meeting: Discussed Q1 roadmap, decided on React migration timeline. Action items: update docs, schedule training'
                           input.focus()
                           input.scrollIntoView({ behavior: 'smooth', block: 'center' })
                           // Trigger change event
                           input.dispatchEvent(new Event('input', { bubbles: true }))
                         }
                       }}
-                      className="px-3 py-1.5 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-white rounded-md text-xs transition-all duration-200"
+                      className="px-2 py-1.5 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-white rounded-md text-xs transition-all duration-200"
                     >
-                      💡 Idea
+                      💼 Meeting
                     </button>
                     <button
                       onClick={() => {
                         const input = document.querySelector('input[placeholder*="Paste URL"]') as HTMLInputElement
                         if (input) {
-                          input.value = 'Todo: Review project documentation and update API endpoints'
+                          input.value = 'Project Idea: Create a productivity dashboard with habit tracking, goal setting, and progress visualization'
                           input.focus()
                           input.scrollIntoView({ behavior: 'smooth', block: 'center' })
                           input.dispatchEvent(new Event('input', { bubbles: true }))
                         }
                       }}
-                      className="px-3 py-1.5 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-white rounded-md text-xs transition-all duration-200"
+                      className="px-2 py-1.5 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-white rounded-md text-xs transition-all duration-200"
                     >
-                      📝 Todo
+                      💡 Ideas
+                    </button>
+                    <button
+                      onClick={() => {
+                        const input = document.querySelector('input[placeholder*="Paste URL"]') as HTMLInputElement
+                        if (input) {
+                          input.value = 'Daily Reflection: Completed 3 major tasks today. Learned about React Server Components. Tomorrow: focus on testing'
+                          input.focus()
+                          input.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                          input.dispatchEvent(new Event('input', { bubbles: true }))
+                        }
+                      }}
+                      className="px-2 py-1.5 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-white rounded-md text-xs transition-all duration-200"
+                    >
+                      🌱 Daily
                     </button>
                   </div>
                 </div>

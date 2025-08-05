@@ -3,12 +3,25 @@
 import { useState } from 'react'
 import { useContent } from '@/contexts/ContentContext'
 import { useUserPlan } from '@/contexts/UserPlanContext'
+import { useToastActions } from '@/contexts/ToastContext'
+import { useLoadingActions } from '@/contexts/LoadingContext'
+import { useFeedbackSystem, FeedbackContainer } from '@/components/FeedbackSystem'
+import LoadingButton from '@/components/LoadingButton'
 import { trackEvents } from '@/lib/analytics'
 
 
 export default function InfoInputSection() {
   const { videos, links, images, notes, addItem } = useContent()
   const { getStorageLimit, canAddItem, currentPlan } = useUserPlan()
+  const { success, error, warning, info } = useToastActions()
+  const { showProgress, hideLoading, updateLoading } = useLoadingActions()
+  const {
+    inlineFeedbacks,
+    showSuccess: showInlineSuccess,
+    showError: showInlineError,
+    processWithFeedback,
+    clearInlineFeedback
+  } = useFeedbackSystem()
   
   // Get current counts from context
   const currentCounts = {
@@ -21,6 +34,7 @@ export default function InfoInputSection() {
   const [inputValue, setInputValue] = useState('')
   const [isExpanded, setIsExpanded] = useState(false)
   const [inputType, setInputType] = useState<'video' | 'link' | 'image' | 'note'>('link')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const detectInputType = (value: string): 'video' | 'link' | 'image' | 'note' => {
     if (value.includes('youtube.com') || value.includes('youtu.be')) return 'video'
@@ -57,27 +71,43 @@ export default function InfoInputSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!inputValue.trim()) return
+    if (!inputValue.trim() || isSubmitting) return
 
+    setIsSubmitting(true)
+    
     // Check if at limit for this content type
     const limit = getStorageLimit()
     if (!canAddItem(currentCounts[inputType])) {
       const planName = currentPlan === 'free' ? 'Free' : currentPlan === 'pro' ? 'Pro' : 'Unlimited'
-      alert(`${planName} plan limit reached for ${inputType}s (${limit === Infinity ? 'unlimited' : limit}). Delete existing items${currentPlan === 'free' ? ' or upgrade to Pro' : ''}.`)
+      error(
+        'Storage Limit Reached',
+        `${planName} plan limit reached for ${inputType}s (${limit === Infinity ? 'unlimited' : limit}). Delete existing items${currentPlan === 'free' ? ' or upgrade to Pro' : ''}.`,
+        { duration: 8000 }
+      )
+      setIsSubmitting(false)
       return
     }
-
-    const isUrl = inputValue.includes('http')
-    let title = ''
     
-    // Get title based on type
-    if (inputType === 'image') {
-      title = ''
-    } else if (inputType === 'video' && isUrl) {
-      title = await fetchYouTubeTitle(inputValue.trim())
-    } else {
-      title = isUrl ? `${inputType.charAt(0).toUpperCase() + inputType.slice(1)} from URL` : inputValue.trim()
-    }
+    // Show loading for content processing
+    showProgress('content-processing', 'Processing content...', 10)
+
+    try {
+      const isUrl = inputValue.includes('http')
+      let title = ''
+      
+      updateLoading('content-processing', { progress: 30, message: 'Analyzing content...' })
+      
+      // Get title based on type
+      if (inputType === 'image') {
+        title = ''
+      } else if (inputType === 'video' && isUrl) {
+        updateLoading('content-processing', { progress: 60, message: 'Fetching video information...' })
+        title = await fetchYouTubeTitle(inputValue.trim())
+      } else {
+        title = isUrl ? `${inputType.charAt(0).toUpperCase() + inputType.slice(1)} from URL` : inputValue.trim()
+      }
+      
+      updateLoading('content-processing', { progress: 80, message: 'Saving content...' })
     
     // Create the new item and add it to context
     const newItem = {
@@ -88,13 +118,62 @@ export default function InfoInputSection() {
       thumbnail: inputType === 'image' && isUrl ? inputValue.trim() : undefined
     }
 
-    addItem(newItem)
-    
-    // Track analytics event
-    trackEvents.addContent(inputType)
-    
-    setInputValue('')
-    setIsExpanded(false)
+      addItem(newItem)
+      
+      // Track analytics event
+      trackEvents.addContent(inputType)
+      
+      updateLoading('content-processing', { progress: 100, message: 'Content saved!' })
+      
+      // Hide loading after a brief delay
+      setTimeout(() => {
+        hideLoading('content-processing')
+      }, 500)
+      
+      // Show success feedback (both toast and inline)
+      const typeLabels = {
+        video: 'Video',
+        link: 'Link', 
+        image: 'Image',
+        note: 'Note'
+      }
+      
+      // Show animated inline success
+      showInlineSuccess(
+        `${typeLabels[inputType]} Added Successfully`,
+        isUrl ? `Saved ${inputType} from URL` : `Created new ${inputType}`,
+        { showToast: true, showInline: true, duration: 4000 }
+      )
+      
+      // Also show regular toast with action
+      success(
+        `${typeLabels[inputType]} Added Successfully`,
+        isUrl ? `Saved ${inputType} from URL` : `Created new ${inputType}`,
+        { 
+          duration: 4000,
+          action: {
+            label: 'View',
+            onClick: () => {
+              info('Navigate to Storage', `View your ${inputType} in the Storage tab`, { duration: 3000 })
+            }
+          }
+        }
+      )
+      
+      setInputValue('')
+      setIsExpanded(false)
+    } catch (err) {
+      hideLoading('content-processing')
+      
+      // Show animated inline error
+      showInlineError(
+        'Failed to Add Content',
+        'An error occurred while processing your content. Please try again.',
+        { showToast: true, showInline: true, duration: 5000 }
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -118,7 +197,11 @@ export default function InfoInputSection() {
           // Check storage limit before processing
           const limit = getStorageLimit()
           if (currentCounts.image >= limit) {
-            alert(`Image storage limit reached (${limit === Infinity ? 'unlimited' : limit}). Please delete existing images or upgrade your plan.`)
+            error(
+              'Image Storage Limit Reached',
+              `Image storage limit reached (${limit === Infinity ? 'unlimited' : limit}). Please delete existing images or upgrade your plan.`,
+              { duration: 8000 }
+            )
             return
           }
 
@@ -127,19 +210,34 @@ export default function InfoInputSection() {
           setInputType('image')
           setIsExpanded(true)
           
+          // Show processing toast and loading
+          showProgress('image-processing', 'Converting pasted image...', 20)
+          info(
+            'Processing Image',
+            'Converting pasted image for storage...',
+            { duration: 2000 }
+          )
+          
           // Convert to base64 data URL
           const reader = new FileReader()
           reader.onload = (event) => {
+            updateLoading('image-processing', { progress: 80, message: 'Image converted, saving...' })
             const dataUrl = event.target?.result as string
             setInputValue(dataUrl)
             // Auto submit after a short delay to ensure UI updates
             setTimeout(() => {
+              hideLoading('image-processing')
               handleSubmit(e as unknown as React.FormEvent)
             }, 100)
           }
           reader.onerror = () => {
+            hideLoading('image-processing')
             setInputValue('')
-            alert('Failed to process image. Please try again.')
+            error(
+              'Image Processing Failed',
+              'Failed to process the pasted image. Please try again.',
+              { duration: 5000 }
+            )
           }
           reader.readAsDataURL(file)
         }
@@ -150,6 +248,13 @@ export default function InfoInputSection() {
 
   return (
     <div>
+      {/* Inline Feedback Container */}
+      <FeedbackContainer
+        inlineFeedbacks={inlineFeedbacks}
+        onClearFeedback={clearInlineFeedback}
+        position="top"
+        className="mb-4"
+      />
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="relative">
           <input
@@ -158,7 +263,11 @@ export default function InfoInputSection() {
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
             onPaste={handlePaste}
-            placeholder="Paste URL, images (Ctrl+V), or type your note..."
+            placeholder={inputType === 'link' ? 'Paste URL: https://github.com/user/repo or https://stackoverflow.com/questions/123...' :
+              inputType === 'video' ? 'Paste YouTube URL: https://youtube.com/watch?v=dQw4w9WgXcQ...' :
+              inputType === 'image' ? 'Paste image or press Ctrl+V to paste from clipboard...' :
+              'Write a note: Meeting notes, project ideas, daily reflections...'
+            }
             className="w-full px-4 py-4 bg-gray-800/30 hover:bg-gray-800/50 border-2 border-gray-600/30 hover:border-gray-500/50 focus:border-blue-500/70 focus:bg-gray-800/60 rounded-xl text-white placeholder-gray-400 text-base font-medium pr-24 transition-all duration-300 shadow-sm focus:shadow-lg focus:shadow-blue-500/10"
           />
           
@@ -171,12 +280,16 @@ export default function InfoInputSection() {
               }`}>
                 {inputType}
               </span>
-              <button
+              <LoadingButton
                 type="submit"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-all duration-200 shadow-md hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                loading={isSubmitting}
+                variant="primary"
+                size="sm"
+                loadingText="Adding..."
+                className="text-sm font-semibold"
               >
                 Add
-              </button>
+              </LoadingButton>
             </div>
           )}
         </div>

@@ -8,7 +8,7 @@ import VideoSection from '@/components/VideoSection'
 import NotesSection from '@/components/NotesSection'
 import ImageSection from '@/components/ImageSection'
 
-type CategoryType = 'links' | 'images' | 'videos' | 'notes'
+type CategoryType = 'links' | 'images' | 'videos' | 'notes' | 'restaurants' | 'travel' | 'ai-tools'
 
 export default function SimpleStorageContent() {
   const [activeCategory, setActiveCategory] = useState<CategoryType>('links')
@@ -42,6 +42,27 @@ export default function SimpleStorageContent() {
       icon: '📝', 
       count: notes.length,
       color: 'text-purple-400 border-purple-400/30 bg-purple-600/10'
+    },
+    { 
+      id: 'restaurants' as CategoryType, 
+      label: '맛집', 
+      icon: '🍽️', 
+      count: 0, // TODO: 맛집 데이터 연결 필요
+      color: 'text-orange-400 border-orange-400/30 bg-orange-600/10'
+    },
+    { 
+      id: 'travel' as CategoryType, 
+      label: '여행지', 
+      icon: '✈️', 
+      count: 0, // TODO: 여행지 데이터 연결 필요
+      color: 'text-cyan-400 border-cyan-400/30 bg-cyan-600/10'
+    },
+    { 
+      id: 'ai-tools' as CategoryType, 
+      label: 'AI 도구', 
+      icon: '🤖', 
+      count: 0, // TODO: AI 도구 데이터 연결 필요
+      color: 'text-pink-400 border-pink-400/30 bg-pink-600/10'
     }
   ]
 
@@ -55,6 +76,54 @@ export default function SimpleStorageContent() {
         return <VideoSection />
       case 'notes':
         return <NotesSection />
+      case 'restaurants':
+        return (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">🍽️</div>
+            <h3 className="text-xl font-semibold text-white mb-2">맛집 모음</h3>
+            <p className="text-gray-400 mb-6">좋아하는 맛집들을 저장하고 관리하세요</p>
+            <div className="bg-gray-800/50 rounded-lg p-4 max-w-md mx-auto">
+              <p className="text-sm text-gray-300 mb-3">예시 맛집:</p>
+              <div className="space-y-2 text-left">
+                <div className="text-orange-400">🍕 이태원 피자집</div>
+                <div className="text-orange-400">🍜 명동 칼국수</div>
+                <div className="text-orange-400">🥘 강남 인도 요리</div>
+              </div>
+            </div>
+          </div>
+        )
+      case 'travel':
+        return (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">✈️</div>
+            <h3 className="text-xl font-semibold text-white mb-2">여행지 모음</h3>
+            <p className="text-gray-400 mb-6">가고 싶은 여행지와 추억을 저장하세요</p>
+            <div className="bg-gray-800/50 rounded-lg p-4 max-w-md mx-auto">
+              <p className="text-sm text-gray-300 mb-3">예시 여행지:</p>
+              <div className="space-y-2 text-left">
+                <div className="text-cyan-400">🏔️ 제주도 한라산</div>
+                <div className="text-cyan-400">🏖️ 부산 해운대</div>
+                <div className="text-cyan-400">🏯 경주 불국사</div>
+              </div>
+            </div>
+          </div>
+        )
+      case 'ai-tools':
+        return (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">🤖</div>
+            <h3 className="text-xl font-semibold text-white mb-2">AI 도구 모음</h3>
+            <p className="text-gray-400 mb-6">유용한 AI 도구들을 모아서 관리하세요</p>
+            <div className="bg-gray-800/50 rounded-lg p-4 max-w-md mx-auto">
+              <p className="text-sm text-gray-300 mb-3">예시 AI 도구:</p>
+              <div className="space-y-2 text-left">
+                <div className="text-pink-400">💬 ChatGPT</div>
+                <div className="text-pink-400">🎨 Midjourney</div>
+                <div className="text-pink-400">📝 Claude</div>
+              </div>
+            </div>
+          </div>
+        )
       default:
         return <LinkSection />
     }

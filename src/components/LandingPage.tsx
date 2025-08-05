@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useAuth } from '@/hooks/useAuth'
+import { supabase } from '@/lib/supabase'
 import { useToastActions } from '@/contexts/ToastContext'
 import LoadingButton from '@/components/LoadingButton'
 import KooukLogo from '@/components/KooukLogo'
@@ -13,7 +13,6 @@ export default function LandingPage() {
   const [name, setName] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   
-  const { login, signup } = useAuth()
   const { success, error } = useToastActions()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,22 +22,45 @@ export default function LandingPage() {
     setIsSubmitting(true)
     
     try {
-      const result = isLogin 
-        ? await login(email, password)
-        : await signup(email, password, name)
-      
-      if (result.success) {
-        success(
-          isLogin ? 'Welcome back!' : 'Account created successfully!',
-          `Welcome to Koouk Dashboard, ${isLogin ? email.split('@')[0] : name}`,
-          { duration: 3000 }
-        )
+      if (isLogin) {
+        // 로그인
+        const { data, error: authError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
+        
+        if (authError) {
+          error('Login Failed', authError.message, { duration: 5000 })
+        } else if (data.user) {
+          success(
+            'Welcome back!',
+            `Welcome to Koouk Dashboard, ${data.user.email?.split('@')[0]}`,
+            { duration: 3000 }
+          )
+        }
       } else {
-        error(
-          isLogin ? 'Login Failed' : 'Signup Failed',
-          result.error || 'Something went wrong. Please try again.',
-          { duration: 5000 }
-        )
+        // 회원가입
+        const { data, error: authError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: name,
+            }
+          }
+        })
+        
+        if (authError) {
+          error('Signup Failed', authError.message, { duration: 5000 })
+        } else if (data.user) {
+          success(
+            'Account created successfully!',
+            data.user.email_confirmed_at 
+              ? `Welcome to Koouk Dashboard, ${name}!`
+              : 'Please check your email to verify your account',
+            { duration: 5000 }
+          )
+        }
       }
     } catch (err) {
       error(
@@ -51,20 +73,66 @@ export default function LandingPage() {
     }
   }
 
-  const handleGoogleAuth = () => {
-    error(
-      'Coming Soon',
-      'Google authentication will be available soon!',
-      { duration: 3000 }
-    )
+  const handleGoogleAuth = async () => {
+    try {
+      // 실제 Supabase 구글 OAuth 로그인
+      const { data, error: authError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
+        }
+      })
+      
+      if (authError) {
+        console.error('Google auth error:', authError)
+        error(
+          'Google Login Failed',
+          authError.message,
+          { duration: 5000 }
+        )
+      }
+      // 성공시 리다이렉트가 자동으로 발생함
+    } catch (err) {
+      console.error('Google auth error:', err)
+      error(
+        'Connection Error',
+        'Unable to connect to Google. Please try again.',
+        { duration: 5000 }
+      )
+    }
   }
 
-  const handleGitHubAuth = () => {
-    error(
-      'Coming Soon', 
-      'GitHub authentication will be available soon!',
-      { duration: 3000 }
-    )
+  const handleGitHubAuth = async () => {
+    try {
+      // 실제 Supabase GitHub OAuth 로그인
+      const { data, error: authError } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      })
+      
+      if (authError) {
+        console.error('GitHub auth error:', authError)
+        error(
+          'GitHub Login Failed',
+          authError.message,
+          { duration: 5000 }
+        )
+      }
+      // 성공시 리다이렉트가 자동으로 발생함
+    } catch (err) {
+      console.error('GitHub auth error:', err)
+      error(
+        'Connection Error',
+        'Unable to connect to GitHub. Please try again.',
+        { duration: 5000 }
+      )
+    }
   }
 
   return (

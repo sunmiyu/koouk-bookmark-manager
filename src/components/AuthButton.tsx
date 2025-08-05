@@ -2,11 +2,11 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function AuthButton() {
   const { t } = useLanguage()
-  const { user, isLoading, logout } = useAuth()
+  const { user, loading, signOut } = useAuth()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -27,11 +27,11 @@ export default function AuthButton() {
   }
 
   const handleSignOut = async () => {
-    logout()
+    signOut()
     setIsDropdownOpen(false)
   }
   
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="text-sm text-gray-400">
         {t('loading')}
@@ -45,7 +45,7 @@ export default function AuthButton() {
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="w-8 h-8 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all duration-200 flex items-center justify-center cursor-pointer"
-          title={user.name || user.email || 'User'}
+          title={user.user_metadata?.full_name || user.email || 'User'}
         >
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
@@ -55,7 +55,7 @@ export default function AuthButton() {
         {isDropdownOpen && (
           <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 z-[99999]">
             <div className="p-3 border-b border-gray-700 text-center">
-              <div className="text-sm text-white font-medium">{user.name || user.email}</div>
+              <div className="text-sm text-white font-medium">{user.user_metadata?.full_name || user.email}</div>
               <div className="text-xs text-gray-400">{user.email}</div>
             </div>
             <div className="py-1">

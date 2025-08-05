@@ -38,7 +38,7 @@ import ToastContainer from '@/components/ToastContainer'
 import LoadingOverlay from '@/components/LoadingOverlay'
 import LandingPage from '@/components/LandingPage'
 import { useSwipeGesture } from '@/hooks/useSwipeGesture'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/contexts/AuthContext'
 // import { useWeatherData } from '@/hooks/useWeatherData' // 삭제됨
 // import { useUserPlan } from '@/contexts/UserPlanContext'
 import { useSearch } from '@/contexts/SearchContext'
@@ -61,7 +61,8 @@ function HomeContent() {
   } | null>(null)
   
   // Authentication
-  const { user, isAuthenticated, isLoading: authLoading } = useAuth()
+  const { user, loading: authLoading } = useAuth()
+  const isAuthenticated = !!user
   
   // const { weatherData } = useWeatherData() // 더 이상 사용하지 않음
   // const { currentPlan } = useUserPlan()

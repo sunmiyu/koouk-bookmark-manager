@@ -132,49 +132,92 @@ export default function SimpleStorageContent() {
   return (
     <div className="space-y-6">
       {/* Add Content Section */}
-      <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50">
-        <h2 className="text-xl font-semibold text-white mb-4">Add Content</h2>
+      <div style={{ 
+        background: 'var(--color-surface)', 
+        border: '1px solid var(--color-border)', 
+        borderRadius: 'var(--radius-lg)', 
+        padding: 'var(--space-lg)' 
+      }}>
+        <h2 style={{ 
+          fontSize: 'var(--text-lg)', 
+          fontWeight: '600', 
+          color: 'var(--color-text-primary)', 
+          marginBottom: 'var(--space-md)' 
+        }}>Add Content</h2>
         <InfoInputSection />
       </div>
 
       {/* Category Navigation */}
-      <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div style={{ 
+        background: 'var(--color-surface)', 
+        border: '1px solid var(--color-border)', 
+        borderRadius: 'var(--radius-lg)', 
+        padding: 'var(--space-md)' 
+      }}>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
           {categories.map((category) => (
             <button
               key={category.id}
               onClick={() => setActiveCategory(category.id)}
-              className={`storage-category-btn flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 ${
-                activeCategory === category.id
-                  ? category.color
-                  : 'text-gray-400 border-gray-700/50 bg-gray-800/30 hover:bg-gray-800/50 hover:border-gray-600/50'
-              }`}
+              className="storage-category-btn flex flex-col items-center justify-center transition-all duration-200"
+              style={{
+                padding: 'var(--space-sm)',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--color-border)',
+                background: activeCategory === category.id ? 'var(--color-accent-muted)' : 'transparent',
+                color: activeCategory === category.id ? 'var(--color-accent)' : 'var(--color-text-secondary)',
+                fontSize: 'var(--text-sm)',
+                fontWeight: activeCategory === category.id ? '600' : '500',
+                minHeight: '64px',
+                aspectRatio: '1'
+              }}
             >
-              <span className="text-2xl mb-2">{category.icon}</span>
-              <span className="font-medium text-sm">{category.label}</span>
-              <span className={`storage-count-badge text-xs mt-1 px-2 py-1 rounded-full ${
-                activeCategory === category.id
-                  ? 'bg-white/20'
-                  : 'bg-gray-700/50'
-              }`}>
-                {category.count}
-              </span>
+              <span className="text-lg mb-1">{category.icon}</span>
+              <span className="text-center leading-tight">{category.label}</span>
+              {category.count > 0 && (
+                <span style={{
+                  background: activeCategory === category.id ? 'var(--color-accent)' : 'var(--color-border)',
+                  color: activeCategory === category.id ? 'var(--color-background)' : 'var(--color-text-tertiary)',
+                  padding: '0.125rem 0.375rem',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: 'var(--text-xs)',
+                  fontWeight: '500',
+                  marginTop: '0.25rem'
+                }}>
+                  {category.count}
+                </span>
+              )}
             </button>
           ))}
         </div>
       </div>
 
       {/* Content Area */}
-      <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-700/50 min-h-[400px]">
-        <div className="p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <span className="text-2xl">
+      <div style={{ 
+        background: 'var(--color-surface)', 
+        border: '1px solid var(--color-border)', 
+        borderRadius: 'var(--radius-lg)', 
+        minHeight: '300px' 
+      }}>
+        <div style={{ padding: 'var(--space-lg)' }}>
+          <div className="flex items-center gap-3" style={{ marginBottom: 'var(--space-lg)' }}>
+            <span className="text-xl">
               {categories.find(c => c.id === activeCategory)?.icon}
             </span>
-            <h2 className="text-xl font-semibold text-white">
+            <h2 style={{ 
+              fontSize: 'var(--text-lg)', 
+              fontWeight: '600', 
+              color: 'var(--color-text-primary)' 
+            }}>
               {categories.find(c => c.id === activeCategory)?.label}
             </h2>
-            <span className="storage-count-badge text-xs px-2 py-1 rounded-full bg-gray-700/50 text-gray-300">
+            <span style={{
+              fontSize: 'var(--text-xs)',
+              padding: 'var(--space-xs) var(--space-sm)',
+              borderRadius: 'var(--radius-md)',
+              background: 'var(--color-border)',
+              color: 'var(--color-text-tertiary)'
+            }}>
               {categories.find(c => c.id === activeCategory)?.count} items
             </span>
           </div>

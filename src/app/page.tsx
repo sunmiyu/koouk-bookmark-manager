@@ -247,7 +247,7 @@ function HomeContent() {
             <>
               {/* Modern Tab Navigation */}
               <div className="comfortable-spacing" style={{ marginBottom: 'var(--space-2xl)', marginTop: 'var(--space-xl)' }}>
-            <div style={{ padding: 'var(--space-sm)', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
+            <div style={{ padding: 'var(--space-xs)', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
               <nav className="flex items-center" aria-label="Navigation tabs">
                 <button
                   onClick={() => setActiveTab('dashboard')}
@@ -307,7 +307,7 @@ function HomeContent() {
                   background: 'var(--color-surface)', 
                   border: '1px solid var(--color-border)', 
                   borderRadius: 'var(--radius-xl)', 
-                  padding: 'var(--space-sm)' 
+                  padding: 'var(--space-xs)' 
                 }}>
                   <CollapsibleSection 
                     sectionKey="dailyCards" 
@@ -335,7 +335,7 @@ function HomeContent() {
                         background: 'var(--color-surface)', 
                         border: '1px solid var(--color-border)', 
                         borderRadius: 'var(--radius-xl)', 
-                        padding: 'var(--space-sm)' 
+                        padding: 'var(--space-xs)' 
                       }}>
                         <CollapsibleSection 
                           sectionKey="news" 
@@ -359,7 +359,7 @@ function HomeContent() {
                         background: 'var(--color-surface)', 
                         border: '1px solid var(--color-border)', 
                         borderRadius: 'var(--radius-xl)', 
-                        padding: 'var(--space-sm)',
+                        padding: 'var(--space-xs)',
                         opacity: '0.8'
                       }} className="hover:opacity-100 transition-opacity duration-200">
                         <CollapsibleSection 
@@ -384,7 +384,7 @@ function HomeContent() {
                       background: 'var(--color-surface)', 
                       border: '1px solid var(--color-border)', 
                       borderRadius: 'var(--radius-xl)', 
-                      padding: 'var(--space-sm)',
+                      padding: 'var(--space-xs)',
                       opacity: '0.7'
                     }} className="hover:opacity-100 transition-opacity duration-200">
                       <CollapsibleSection 

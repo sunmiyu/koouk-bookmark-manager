@@ -136,89 +136,171 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ 
+      backgroundColor: 'var(--color-background)', 
+      color: 'var(--color-text-primary)' 
+    }}>
       <div className="w-full max-w-md">
         {/* Logo and Welcome */}
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-6">
+        <div className="text-center" style={{ marginBottom: 'var(--space-2xl)' }}>
+          <div className="flex justify-center" style={{ marginBottom: 'var(--space-xl)' }}>
             <KooukLogo />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Welcome to Koouk
+          <h1 style={{ 
+            fontSize: 'var(--text-3xl)', 
+            fontWeight: '700', 
+            color: 'var(--color-text-primary)',
+            marginBottom: 'var(--space-sm)',
+            letterSpacing: '-0.03em'
+          }}>
+            Welcome home
           </h1>
-          <p className="text-gray-400 text-lg">
-            Your personal productivity dashboard
+          <p style={{ 
+            color: 'var(--color-text-secondary)', 
+            fontSize: 'var(--text-lg)',
+            lineHeight: '1.6',
+            fontWeight: '400'
+          }}>
+            Your comfortable space for everything that matters
           </p>
         </div>
 
         {/* Auth Card */}
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700/50">
+        <div style={{ 
+          background: 'var(--color-surface)', 
+          border: '1px solid var(--color-border)', 
+          borderRadius: 'var(--radius-xl)', 
+          padding: 'var(--space-2xl)' 
+        }}>
           {/* Toggle Buttons */}
-          <div className="flex bg-gray-700/50 rounded-xl p-1 mb-6">
+          <div className="flex" style={{ 
+            background: 'var(--color-background)', 
+            borderRadius: 'var(--radius-xl)', 
+            padding: 'var(--space-xs)', 
+            marginBottom: 'var(--space-xl)' 
+          }}>
             <button
               onClick={() => setIsLogin(true)}
-              className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${
-                isLogin
-                  ? 'bg-blue-600 text-white shadow-lg'
-                  : 'text-gray-400 hover:text-white'
-              }`}
+              className="flex-1 font-medium transition-all"
+              style={{
+                padding: 'var(--space-sm) var(--space-md)',
+                borderRadius: 'var(--radius-lg)',
+                background: isLogin ? 'var(--color-accent)' : 'transparent',
+                color: isLogin ? 'var(--color-background)' : 'var(--color-text-secondary)',
+                fontWeight: isLogin ? '600' : '500',
+                fontSize: 'var(--text-sm)',
+                border: 'none'
+              }}
             >
-              Sign In
+              Welcome back
             </button>
             <button
               onClick={() => setIsLogin(false)}
-              className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${
-                !isLogin
-                  ? 'bg-blue-600 text-white shadow-lg'
-                  : 'text-gray-400 hover:text-white'
-              }`}
+              className="flex-1 font-medium transition-all"
+              style={{
+                padding: 'var(--space-sm) var(--space-md)',
+                borderRadius: 'var(--radius-lg)',
+                background: !isLogin ? 'var(--color-accent)' : 'transparent',
+                color: !isLogin ? 'var(--color-background)' : 'var(--color-text-secondary)',
+                fontWeight: !isLogin ? '600' : '500',
+                fontSize: 'var(--text-sm)',
+                border: 'none'
+              }}
             >
-              Sign Up
+              Join us
             </button>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} style={{ gap: 'var(--space-lg)' }} className="space-y-4">
             {!isLogin && (
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Full Name
+                <label style={{ 
+                  display: 'block', 
+                  fontSize: 'var(--text-sm)', 
+                  fontWeight: '500', 
+                  color: 'var(--color-text-secondary)', 
+                  marginBottom: 'var(--space-sm)' 
+                }}>
+                  What should we call you?
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your full name"
-                  className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                  placeholder="Your name"
+                  style={{
+                    width: '100%',
+                    padding: 'var(--space-md)',
+                    background: 'var(--color-background)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-lg)',
+                    color: 'var(--color-text-primary)',
+                    fontSize: 'var(--text-base)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  className="focus:border-accent focus:ring-accent"
                   required={!isLogin}
                 />
               </div>
             )}
             
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Email Address
+              <label style={{ 
+                display: 'block', 
+                fontSize: 'var(--text-sm)', 
+                fontWeight: '500', 
+                color: 'var(--color-text-secondary)', 
+                marginBottom: 'var(--space-sm)' 
+              }}>
+                Email
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                placeholder="your@email.com"
+                style={{
+                  width: '100%',
+                  padding: 'var(--space-md)',
+                  background: 'var(--color-background)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-lg)',
+                  color: 'var(--color-text-primary)',
+                  fontSize: 'var(--text-base)',
+                  transition: 'all 0.2s ease'
+                }}
+                className="focus:border-accent focus:ring-accent"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label style={{ 
+                display: 'block', 
+                fontSize: 'var(--text-sm)', 
+                fontWeight: '500', 
+                color: 'var(--color-text-secondary)', 
+                marginBottom: 'var(--space-sm)' 
+              }}>
                 Password
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                placeholder="Choose a strong password"
+                style={{
+                  width: '100%',
+                  padding: 'var(--space-md)',
+                  background: 'var(--color-background)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-lg)',
+                  color: 'var(--color-text-primary)',
+                  fontSize: 'var(--text-base)',
+                  transition: 'all 0.2s ease'
+                }}
+                className="focus:border-accent focus:ring-accent"
                 required
               />
             </div>

@@ -180,11 +180,11 @@ function HomeContent() {
           <TodayTodosProvider>
             <ContentProvider>
           <LayoutOptimizer onLayoutChange={setLayoutOptimizations}>
-        <div className={`min-h-screen bg-black text-white flex justify-center layout-transition ${getOptimizedLayoutClasses()} ${shouldShowBottomNav ? 'has-bottom-nav' : ''}`}>
-        <div className="w-full max-w-[1200px] py-2 sm:py-4 px-4 sm:px-6 main-container">
-          <header className="mb-8 sm:mb-12 lg:mb-16 relative z-50">
-            {/* Professional Header Container */}
-            <div className="p-4 sm:p-6 lg:p-8" style={{ background: 'transparent', border: 'none' }}>
+        <div className={`min-h-screen flex justify-center layout-transition ${getOptimizedLayoutClasses()} ${shouldShowBottomNav ? 'has-bottom-nav' : ''}`} style={{ backgroundColor: 'var(--color-background)', color: 'var(--color-text-primary)' }}>
+        <div className="w-full max-w-[1200px] main-container" style={{ padding: 'var(--space-lg) var(--space-md)' }}>
+          <header className="comfortable-spacing relative z-50" style={{ marginBottom: 'var(--space-2xl)' }}>
+            {/* Modern, comfortable header */}
+            <div style={{ padding: 'var(--space-lg)', background: 'transparent', border: 'none' }}>
               <div className="flex items-center justify-between">
                 {/* Left: Logo */}
                 <div className="flex items-center">
@@ -245,40 +245,52 @@ function HomeContent() {
             </div>
           ) : (
             <>
-              {/* Enhanced Tab Navigation with Icons */}
-              <div className="mb-8 sm:mb-12 lg:mb-16 mt-6 sm:mt-8">
-            <div className="p-1.5 sm:p-2" style={{ background: 'transparent', border: 'none' }}>
-              <nav className="flex items-center justify-between" aria-label="Tabs">
+              {/* Modern Tab Navigation */}
+              <div className="comfortable-spacing" style={{ marginBottom: 'var(--space-2xl)', marginTop: 'var(--space-xl)' }}>
+            <div style={{ padding: 'var(--space-sm)', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
+              <nav className="flex items-center" aria-label="Navigation tabs">
                 <button
                   onClick={() => setActiveTab('dashboard')}
-                  className={`flex-1 py-3 sm:py-4 px-2 sm:px-3 font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
-                    activeTab === 'dashboard'
-                      ? 'text-white'
-                      : 'text-gray-400 hover:text-gray-200'
+                  className={`flex-1 tab-button transition-all duration-200 ${
+                    activeTab === 'dashboard' ? 'active' : ''
                   }`}
-                  style={{ background: 'transparent', border: 'none', boxShadow: 'none' }}
+                  style={{ 
+                    padding: 'var(--space-md)', 
+                    borderRadius: 'var(--radius-lg)',
+                    background: activeTab === 'dashboard' ? 'var(--color-background)' : 'transparent',
+                    border: 'none',
+                    color: activeTab === 'dashboard' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                    fontWeight: activeTab === 'dashboard' ? '600' : '500',
+                    fontSize: 'var(--text-sm)'
+                  }}
                 >
-                  <div className="flex items-center justify-center gap-1 sm:gap-2">
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center justify-center gap-2">
+                    <svg className="w-5 h-5" style={{ color: activeTab === 'dashboard' ? 'var(--color-accent)' : 'currentColor' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
-                    <span className="hidden xs:inline">Dashboard</span>
+                    <span className="hidden xs:inline">Your Dashboard</span>
                   </div>
                 </button>
                 <button
                   onClick={() => setActiveTab('storage')}
-                  className={`flex-1 py-3 sm:py-4 px-2 sm:px-3 font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 ${
-                    activeTab === 'storage'
-                      ? 'text-white'
-                      : 'text-gray-400 hover:text-gray-200'
+                  className={`flex-1 tab-button transition-all duration-200 ${
+                    activeTab === 'storage' ? 'active' : ''
                   }`}
-                  style={{ background: 'transparent', border: 'none', boxShadow: 'none' }}
+                  style={{ 
+                    padding: 'var(--space-md)', 
+                    borderRadius: 'var(--radius-lg)',
+                    background: activeTab === 'storage' ? 'var(--color-background)' : 'transparent',
+                    border: 'none',
+                    color: activeTab === 'storage' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                    fontWeight: activeTab === 'storage' ? '600' : '500',
+                    fontSize: 'var(--text-sm)'
+                  }}
                 >
-                  <div className="flex items-center justify-center gap-1 sm:gap-2">
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center justify-center gap-2">
+                    <svg className="w-5 h-5" style={{ color: activeTab === 'storage' ? 'var(--color-accent)' : 'currentColor' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
-                    <span className="hidden xs:inline">Storage</span>
+                    <span className="hidden xs:inline">Your Collection</span>
                   </div>
                 </button>
               </nav>
@@ -289,17 +301,22 @@ function HomeContent() {
           <main ref={setSwipeRef} className="relative overflow-hidden">
             <div className="transition-transform duration-300 ease-out">
             {activeTab === 'dashboard' && (
-              <div className="flex flex-col gap-8 sm:gap-10 lg:gap-12">
-                {/* Daily Cards Section - 핵심 기능 강조 */}
-                <div className="bg-gradient-to-br from-blue-600/5 to-purple-600/5 border border-blue-500/10 rounded-xl p-1 mb-2">
+              <div className="flex flex-col comfortable-spacing" style={{ gap: 'var(--space-2xl)' }}>
+                {/* Daily Cards Section - Core feature */}
+                <div style={{ 
+                  background: 'var(--color-surface)', 
+                  border: '1px solid var(--color-border)', 
+                  borderRadius: 'var(--radius-xl)', 
+                  padding: 'var(--space-sm)' 
+                }}>
                   <CollapsibleSection 
                     sectionKey="dailyCards" 
-                    title="Daily Cards"
+                    title="Today's Focus"
                     showGlobalControls={true}
-                    className="bg-gray-900/40 backdrop-blur-sm rounded-lg"
-                    headerClassName="border-b border-blue-500/20"
+                    className="modern-section"
+                    headerClassName=""
                     icon={
-                      <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5" style={{ color: 'var(--color-accent)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                       </svg>
                     }
@@ -309,19 +326,24 @@ function HomeContent() {
                 </div>
 
                 {/* Information Sections */}
-                <div className="space-y-8">
-                  {/* News Section - 핵심 기능 강조, Music Section - 부가 기능 축소 */}
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-                    {/* News - 2/3 width for emphasis */}
+                <div style={{ gap: 'var(--space-xl)' }} className="space-y-8">
+                  {/* News and Music Layout */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* News - Primary content */}
                     <div className="lg:col-span-2">
-                      <div className="bg-gradient-to-br from-green-600/5 to-blue-600/5 border border-green-500/10 rounded-xl p-1">
+                      <div style={{ 
+                        background: 'var(--color-surface)', 
+                        border: '1px solid var(--color-border)', 
+                        borderRadius: 'var(--radius-xl)', 
+                        padding: 'var(--space-sm)' 
+                      }}>
                         <CollapsibleSection 
                           sectionKey="news" 
-                          title="Today's News"
-                          className="bg-gray-900/40 backdrop-blur-sm rounded-lg h-fit"
-                          headerClassName="border-b border-green-500/20"
+                          title="What's Happening"
+                          className="h-fit modern-section"
+                          headerClassName=""
                           icon={
-                            <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5" style={{ color: 'var(--color-accent)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                             </svg>
                           }
@@ -331,37 +353,53 @@ function HomeContent() {
                       </div>
                     </div>
 
-                    {/* Music - 1/3 width, reduced prominence */}
+                    {/* Music - Secondary content */}
                     <div className="lg:col-span-1">
-                      <CollapsibleSection 
-                        sectionKey="music" 
-                        title="Music"
-                        className="h-fit opacity-75 hover:opacity-100 transition-opacity duration-200"
-                        icon={
-                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-                          </svg>
-                        }
-                      >
-                        <MainMusicSection />
-                      </CollapsibleSection>
+                      <div style={{ 
+                        background: 'var(--color-surface)', 
+                        border: '1px solid var(--color-border)', 
+                        borderRadius: 'var(--radius-xl)', 
+                        padding: 'var(--space-sm)',
+                        opacity: '0.8'
+                      }} className="hover:opacity-100 transition-opacity duration-200">
+                        <CollapsibleSection 
+                          sectionKey="music" 
+                          title="Sounds"
+                          className="h-fit modern-section"
+                          icon={
+                            <svg className="w-5 h-5" style={{ color: 'var(--color-text-secondary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                            </svg>
+                          }
+                        >
+                          <MainMusicSection />
+                        </CollapsibleSection>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Market Overview Section - 부가 기능 축소 */}
-                  <div className="mt-12">
-                    <CollapsibleSection 
-                      sectionKey="market" 
-                      title="Market Overview"
-                      className="opacity-75 hover:opacity-100 transition-opacity duration-200"
-                      icon={
-                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 0 01-2-2z" />
-                        </svg>
-                      }
-                    >
-                      <MarketOverview />
-                    </CollapsibleSection>
+                  {/* Market Overview Section - Secondary feature */}
+                  <div style={{ marginTop: 'var(--space-2xl)' }}>
+                    <div style={{ 
+                      background: 'var(--color-surface)', 
+                      border: '1px solid var(--color-border)', 
+                      borderRadius: 'var(--radius-xl)', 
+                      padding: 'var(--space-sm)',
+                      opacity: '0.7'
+                    }} className="hover:opacity-100 transition-opacity duration-200">
+                      <CollapsibleSection 
+                        sectionKey="market" 
+                        title="Market Pulse"
+                        className="modern-section"
+                        icon={
+                          <svg className="w-5 h-5" style={{ color: 'var(--color-text-tertiary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 0 01-2-2z" />
+                          </svg>
+                        }
+                      >
+                        <MarketOverview />
+                      </CollapsibleSection>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -377,44 +415,92 @@ function HomeContent() {
             </>
           )}
 
-          <footer className="mt-16">
-            {/* Professional Footer Container */}
-            <div className="bg-black rounded-xl p-6">
-              <div className="flex flex-col items-center justify-between gap-3">
-                {/* Mobile stacked layout */}
-                <div className="flex flex-col items-center gap-3 w-full">
+          <footer style={{ marginTop: 'var(--space-3xl)' }}>
+            {/* Modern, comfortable footer */}
+            <div style={{ 
+              background: 'var(--color-surface)', 
+              border: '1px solid var(--color-border)', 
+              borderRadius: 'var(--radius-xl)', 
+              padding: 'var(--space-xl)' 
+            }}>
+              <div className="flex flex-col items-center justify-between comfortable-spacing">
+                {/* Clean layout */}
+                <div className="flex flex-col items-center w-full" style={{ gap: 'var(--space-lg)' }}>
                   {/* Logo & Copyright */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center" style={{ gap: 'var(--space-md)' }}>
+                    <div style={{ 
+                      width: '1.5rem', 
+                      height: '1.5rem', 
+                      background: 'var(--color-accent)', 
+                      borderRadius: 'var(--radius-md)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <svg className="w-3 h-3" style={{ color: 'var(--color-background)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
                     </div>
-                    <span className="text-sm text-gray-400 font-medium whitespace-nowrap">Koouk Dashboard © 2025</span>
+                    <span style={{ 
+                      fontSize: 'var(--text-sm)', 
+                      color: 'var(--color-text-secondary)',
+                      fontWeight: '500'
+                    }}>Koouk — Your comfortable workspace © 2025</span>
                   </div>
                   
                   {/* Navigation Links */}
-                  <div className="flex items-center gap-4 text-sm">
-                    <div className="w-px h-4 bg-gray-700"></div>
+                  <div className="flex items-center text-sm" style={{ gap: 'var(--space-lg)' }}>
                     <Link 
                       href="/privacy-policy" 
-                      className="text-gray-400 hover:text-white transition-colors font-medium whitespace-nowrap"
+                      style={{ 
+                        color: 'var(--color-text-tertiary)',
+                        fontSize: 'var(--text-xs)',
+                        fontWeight: '500',
+                        textDecoration: 'none'
+                      }}
+                      className="hover:opacity-80 transition-opacity"
                     >
-                      Privacy Policy
+                      Privacy
                     </Link>
-                    <div className="w-px h-4 bg-gray-700"></div>
+                    <div style={{ 
+                      width: '1px', 
+                      height: '1rem', 
+                      background: 'var(--color-border)' 
+                    }}></div>
                     <FeedbackBoard />
-                    <div className="w-px h-4 bg-gray-700"></div>
-                    <span className="text-gray-400 font-medium whitespace-nowrap">
-                      Your Daily Hub
+                    <div style={{ 
+                      width: '1px', 
+                      height: '1rem', 
+                      background: 'var(--color-border)' 
+                    }}></div>
+                    <span style={{ 
+                      color: 'var(--color-text-tertiary)',
+                      fontSize: 'var(--text-xs)',
+                      fontWeight: '500'
+                    }}>
+                      Made with care
                     </span>
                   </div>
                 </div>
                 
                 {/* Status Indicator */}
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-green-600/10 rounded-lg flex-shrink-0">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span className="text-green-400 text-xs font-medium whitespace-nowrap">All Systems Operational</span>
+                <div className="flex items-center" style={{ 
+                  gap: 'var(--space-xs)', 
+                  padding: 'var(--space-sm) var(--space-md)', 
+                  background: 'rgba(34, 197, 94, 0.1)', 
+                  borderRadius: 'var(--radius-lg)' 
+                }}>
+                  <div style={{ 
+                    width: '0.5rem', 
+                    height: '0.5rem', 
+                    background: 'var(--color-success)', 
+                    borderRadius: '50%' 
+                  }} className="animate-soft-pulse"></div>
+                  <span style={{ 
+                    color: 'var(--color-success)', 
+                    fontSize: 'var(--text-xs)', 
+                    fontWeight: '500' 
+                  }}>Everything&apos;s running smoothly</span>
                 </div>
               </div>
             </div>

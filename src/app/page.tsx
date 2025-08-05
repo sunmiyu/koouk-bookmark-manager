@@ -36,7 +36,9 @@ import LayoutOptimizer from '@/components/LayoutOptimizer'
 import BetaFeaturesPreview from '@/components/BetaFeaturesPreview'
 import ToastContainer from '@/components/ToastContainer'
 import LoadingOverlay from '@/components/LoadingOverlay'
+import LandingPage from '@/components/LandingPage'
 import { useSwipeGesture } from '@/hooks/useSwipeGesture'
+import { useAuth } from '@/hooks/useAuth'
 // import { useWeatherData } from '@/hooks/useWeatherData' // 삭제됨
 // import { useUserPlan } from '@/contexts/UserPlanContext'
 import { useSearch } from '@/contexts/SearchContext'
@@ -57,6 +59,10 @@ function HomeContent() {
       reducedPadding?: boolean;
     };
   } | null>(null)
+  
+  // Authentication
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth()
+  
   // const { weatherData } = useWeatherData() // 더 이상 사용하지 않음
   // const { currentPlan } = useUserPlan()
   const { searchResults } = useSearch()
@@ -149,15 +155,32 @@ function HomeContent() {
     return <SplashScreen onComplete={() => setIsLoading(false)} />
   }
 
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading Koouk...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <LoadingProvider>
       <ToastProvider position="top-right" maxToasts={5}>
+        {/* Show Landing Page if not authenticated */}
+        {!isAuthenticated ? (
+          <LandingPage />
+        ) : (
+          /* Show Dashboard if authenticated */
         <SectionVisibilityProvider>
           <TodayTodosProvider>
             <ContentProvider>
           <LayoutOptimizer onLayoutChange={setLayoutOptimizations}>
         <div className={`min-h-screen bg-black text-white flex justify-center layout-transition ${getOptimizedLayoutClasses()} ${shouldShowBottomNav ? 'has-bottom-nav' : ''}`}>
-        <div className="w-full max-w-[1200px] py-2 sm:py-4 px-4 sm:px-6">
+        <div className="w-full max-w-[1200px] py-2 sm:py-4 px-4 sm:px-6 main-container">
           <header className="mb-8 sm:mb-12 lg:mb-16 relative z-50">
             {/* Professional Header Container */}
             <div className="p-4 sm:p-6 lg:p-8" style={{ background: 'transparent', border: 'none' }}>
@@ -571,7 +594,12 @@ function HomeContent() {
         </ContentProvider>
       </TodayTodosProvider>
     </SectionVisibilityProvider>
-    </ToastProvider>
+        )}
+        
+        {/* Global Toast and Loading - Available for both Landing and Dashboard */}
+        <ToastContainer />
+        <LoadingOverlay />
+      </ToastProvider>
     </LoadingProvider>
   )
 }

@@ -1,13 +1,12 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function AuthButton() {
   const { t } = useLanguage()
-  const { user, loading, signOut } = useAuth()
+  const { user, isLoading, logout } = useAuth()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -22,38 +21,17 @@ export default function AuthButton() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const handleSignIn = async () => {
-    try {
-      // Use current origin for redirect
-      const redirectUrl = `${window.location.origin}/auth/callback`
-      console.log('OAuth redirect URL:', redirectUrl)
-      
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: redirectUrl,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          }
-        }
-      })
-      
-      if (error) {
-        console.error('Error signing in:', error.message)
-      }
-    } catch (error) {
-      console.error('Error signing in:', error)
-    }
+  const handleSignIn = () => {
+    // Close dropdown and let parent handle auth (will show landing page)
     setIsDropdownOpen(false)
   }
 
   const handleSignOut = async () => {
-    await signOut()
+    logout()
     setIsDropdownOpen(false)
   }
   
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="text-sm text-gray-400">
         {t('loading')}
@@ -67,7 +45,7 @@ export default function AuthButton() {
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="w-8 h-8 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all duration-200 flex items-center justify-center cursor-pointer"
-          title={user.user_metadata?.full_name || user.email || 'User'}
+          title={user.name || user.email || 'User'}
         >
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
@@ -77,7 +55,7 @@ export default function AuthButton() {
         {isDropdownOpen && (
           <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 z-[99999]">
             <div className="p-3 border-b border-gray-700 text-center">
-              <div className="text-sm text-white font-medium">{user.user_metadata?.full_name || user.email}</div>
+              <div className="text-sm text-white font-medium">{user.name || user.email}</div>
               <div className="text-xs text-gray-400">{user.email}</div>
             </div>
             <div className="py-1">

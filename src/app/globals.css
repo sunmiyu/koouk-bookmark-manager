@@ -11,28 +11,28 @@
 }
 
 html {
-  font-size: 16px;
+  font-size: 17px; /* 16px → 17px (PC도 조금 키움) */
   background-color: #000000;
 }
 
-/* 모바일 기본 - 폰트 크기 대폭 증가 */
+/* 모바일 기본 - 적당히 큰 크기 */
 @media (max-width: 640px) {
   html {
-    font-size: 18px; /* 14px → 18px */
+    font-size: 16px; /* 18px → 16px (조금 줄임) */
   }
 }
 
 /* 태블릿 */
 @media (min-width: 641px) and (max-width: 1024px) {
   html {
-    font-size: 17px; /* 15px → 17px */
+    font-size: 16.5px; /* 17px → 16.5px */
   }
 }
 
 /* 데스크톱 */
 @media (min-width: 1025px) {
   html {
-    font-size: 16px;
+    font-size: 17px; /* 16px → 17px (PC도 키움) */
   }
 }
 
@@ -212,23 +212,23 @@ body:not(.dark) {
   input[type="email"], 
   input[type="password"], 
   textarea {
-    font-size: 1.125rem !important; /* 18px 기준으로 더 큰 글씨 */
-    padding: 1rem !important; /* 터치하기 쉬운 패딩 */
-    min-height: 52px; /* 최소 터치 영역 확보 */
+    font-size: 1rem !important; /* 1.125rem → 1rem (조금 줄임) */
+    padding: 0.875rem !important; /* 1rem → 0.875rem */
+    min-height: 48px; /* 52px → 48px */
   }
   
   /* 버튼 스타일 개선 */
   button {
-    font-size: 1rem !important; /* 18px 기준 */
-    padding: 0.875rem 1.25rem !important; /* 더 큰 터치 영역 */
-    min-height: 48px; /* 최소 터치 영역 */
+    font-size: 0.95rem !important; /* 1rem → 0.95rem */
+    padding: 0.75rem 1rem !important; /* 조금 줄임 */
+    min-height: 44px; /* 48px → 44px */
   }
   
   /* 탭 네비게이션 스타일 개선 */
   .tab-button {
-    font-size: 1rem !important;
-    padding: 1rem !important;
-    min-height: 56px;
+    font-size: 0.95rem !important;
+    padding: 0.875rem !important;
+    min-height: 52px; /* 56px → 52px */
   }
   
   /* 카드 및 리스트 아이템 */
@@ -239,22 +239,22 @@ body:not(.dark) {
   
   /* 타이틀 및 헤딩 */
   h1, h2, h3, h4, h5, h6 {
-    font-size: clamp(1.25rem, 6vw, 2rem) !important;
+    font-size: clamp(1.1rem, 5vw, 1.6rem) !important; /* 조금 줄임 */
   }
   
   /* 일반 텍스트 */
   p, span, div {
-    font-size: 1rem !important;
-    line-height: 1.6 !important;
+    font-size: 0.95rem !important; /* 1rem → 0.95rem */
+    line-height: 1.5 !important; /* 1.6 → 1.5 */
   }
   
   /* 작은 텍스트도 읽기 쉽게 */
   .text-xs {
-    font-size: 0.875rem !important;
+    font-size: 0.8rem !important; /* 0.875rem → 0.8rem */
   }
   
   .text-sm {
-    font-size: 1rem !important;
+    font-size: 0.9rem !important; /* 1rem → 0.9rem */
   }
   
   /* 오른쪽 스크롤바와 겹치지 않도록 여백 확보 */

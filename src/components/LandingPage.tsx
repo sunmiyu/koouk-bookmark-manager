@@ -23,7 +23,7 @@ export default function LandingPage() {
       if (authError) {
         error('로그인 실패', '다시 시도해주세요 🙏', { duration: 3000 })
       }
-    } catch (err) {
+    } catch {
       error('연결 오류', '인터넷 연결을 확인해주세요', { duration: 3000 })
     } finally {
       setIsLoading(false)
@@ -50,7 +50,7 @@ export default function LandingPage() {
       } else {
         success('환영합니다! 🎉', '로그인되었습니다', { duration: 2000 })
       }
-    } catch (err) {
+    } catch {
       error('연결 오류', '다시 시도해주세요', { duration: 3000 })
     } finally {
       setIsLoading(false)
@@ -204,7 +204,7 @@ export default function LandingPage() {
                     Daily Cards
                   </h3>
                   <p className="text-lg mb-4" style={{ color: 'var(--text-secondary)' }}>
-                    "오늘 뭐 해야 하지?"<br />
+                    &ldquo;오늘 뭐 해야 하지?&rdquo;<br />
                     할일부터 일기까지 한번에! 📋
                   </p>
                   <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full" style={{
@@ -230,7 +230,7 @@ export default function LandingPage() {
                     Storage
                   </h3>
                   <p className="text-lg mb-4" style={{ color: 'var(--text-secondary)' }}>
-                    "여기저기 저장한 링크들,"<br />
+                    &ldquo;여기저기 저장한 링크들,&rdquo;<br />
                     이제 찾기 쉽게! 🔍
                   </p>
                   <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full" style={{
@@ -256,7 +256,7 @@ export default function LandingPage() {
                     Info Hub
                   </h3>
                   <p className="text-lg mb-4" style={{ color: 'var(--text-secondary)' }}>
-                    "뉴스, 날씨, 주식까지"<br />
+                    &ldquo;뉴스, 날씨, 주식까지&rdquo;<br />
                     매일 확인하는 것들 모음! 📊
                   </p>
                   <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full" style={{

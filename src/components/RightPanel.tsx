@@ -371,7 +371,7 @@ export default function RightPanel({ activeSection }: RightPanelProps) {
                 color: '#6B7280',
                 lineHeight: '1.5'
               }}>
-                💡 Koouk은 "처음 보는 사람이 3초 안에 이해"할 수 있도록 설계되었습니다. 복잡한 기능보다는 직관적이고 간단한 사용법을 추구해요.
+                💡 Koouk은 &ldquo;처음 보는 사람이 3초 안에 이해&rdquo;할 수 있도록 설계되었습니다. 복잡한 기능보다는 직관적이고 간단한 사용법을 추구해요.
               </p>
             </div>
           </div>

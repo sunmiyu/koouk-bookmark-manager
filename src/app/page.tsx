@@ -54,7 +54,7 @@ function HomeContent() {
   const isAuthenticated = !!user
   
   // Onboarding tour
-  const { startTour, shouldShowTour, resetTour } = useOnboardingTour()
+  const { startTour, shouldShowTour } = useOnboardingTour()
   
   // 인증 완료 후 온보딩 투어 자동 시작
   useEffect(() => {

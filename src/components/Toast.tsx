@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Toast as ToastType, ToastPosition } from '@/contexts/ToastContext'
 
 interface ToastProps {
@@ -12,6 +12,13 @@ interface ToastProps {
 export default function Toast({ toast, onClose, position }: ToastProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [isExiting, setIsExiting] = useState(false)
+
+  const handleClose = useCallback(() => {
+    setIsExiting(true)
+    setTimeout(() => {
+      onClose(toast.id)
+    }, 200)
+  }, [onClose, toast.id])
 
   useEffect(() => {
     // Entry animation
@@ -25,14 +32,7 @@ export default function Toast({ toast, onClose, position }: ToastProps) {
 
       return () => clearTimeout(timer)
     }
-  }, [toast.duration])
-
-  const handleClose = () => {
-    setIsExiting(true)
-    setTimeout(() => {
-      onClose(toast.id)
-    }, 200)
-  }
+  }, [toast.duration, handleClose])
 
   const getTypeStyles = () => {
     switch (toast.type) {

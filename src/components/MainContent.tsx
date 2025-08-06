@@ -3,6 +3,13 @@
 import { SectionType, NoteType } from '@/app/page'
 import DailyCardContent from '@/components/DailyCardContent'
 import BigNoteEditor from '@/components/BigNoteEditor'
+import URLStorage from '@/components/storage/URLStorage'
+import ImageStorage from '@/components/storage/ImageStorage'
+import VideoStorage from '@/components/storage/VideoStorage'
+import RestaurantStorage from '@/components/storage/RestaurantStorage'
+import TravelStorage from '@/components/storage/TravelStorage'
+import StocksInfo from '@/components/info/StocksInfo'
+import NewsInfo from '@/components/info/NewsInfo'
 
 type MainContentProps = {
   activeSection: SectionType
@@ -20,28 +27,28 @@ export default function MainContent({ activeSection, selectedNoteId, onNoteSelec
         return <BigNoteEditor noteId={selectedNoteId} />
       
       case 'storage-url':
-        return <StoragePage type="url" title="URL Storage" icon="🔗" />
+        return <URLStorage />
       
       case 'storage-images':
-        return <StoragePage type="images" title="이미지 Storage" icon="🖼️" />
+        return <ImageStorage />
       
       case 'storage-videos':
-        return <StoragePage type="videos" title="영상(유튜브) Storage" icon="🎥" />
+        return <VideoStorage />
       
       case 'storage-restaurants':
-        return <StoragePage type="restaurants" title="맛집 Storage" icon="🍽️" />
+        return <RestaurantStorage />
       
       case 'storage-travel':
-        return <StoragePage type="travel" title="여행가고 싶은곳 Storage" icon="✈️" />
+        return <TravelStorage />
       
       case 'storage-karaoke':
         return <StoragePage type="karaoke" title="노래방List Storage" icon="🎤" />
       
       case 'info-stocks':
-        return <InfoPage type="stocks" title="주식 정보" icon="📈" />
+        return <StocksInfo />
       
       case 'info-news':
-        return <InfoPage type="news" title="뉴스" icon="📰" />
+        return <NewsInfo />
       
       case 'info-music':
         return <InfoPage type="music" title="음악추천" icon="🎵" />

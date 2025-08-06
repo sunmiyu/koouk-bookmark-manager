@@ -125,8 +125,12 @@ export function useUniversalSearch() {
     }
   ], [])
 
-  // Fuse.js 설정
+  // Fuse.js 설정 (클라이언트 사이드에서만 초기화)
   const fuse = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return null // 서버 사이드에서는 null 반환
+    }
+    
     const options = {
       keys: [
         { name: 'title', weight: 2 },
@@ -144,7 +148,7 @@ export function useUniversalSearch() {
 
   // 검색 실행
   const performSearch = useCallback((query: string) => {
-    if (!query.trim()) {
+    if (!query.trim() || !fuse) {
       setSearchResults([])
       setIsSearching(false)
       return

@@ -6,7 +6,13 @@ import { useUniversalSearch, SearchResult } from '@/hooks/useUniversalSearch'
 export default function UniversalSearch() {
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false)
   const [isDesktopSearchOpen, setIsDesktopSearchOpen] = useState(false)
+  const [isClient, setIsClient] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
+
+  // 클라이언트 사이드 체크
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
   
   const {
     searchQuery,
@@ -59,6 +65,11 @@ export default function UniversalSearch() {
     closeMobileSearch()
     setIsDesktopSearchOpen(false)
     clearSearch()
+  }
+
+  // 서버 사이드에서는 아무것도 렌더링하지 않음
+  if (!isClient) {
+    return null
   }
 
   return (

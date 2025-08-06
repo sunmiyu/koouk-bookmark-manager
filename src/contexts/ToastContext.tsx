@@ -48,6 +48,10 @@ export function ToastProvider({
     return Math.random().toString(36).substring(2) + Date.now().toString(36)
   }, [])
 
+  const hideToast = useCallback((id: string) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id))
+  }, [])
+
   const showToast = useCallback((toastData: Omit<Toast, 'id'>) => {
     const id = generateId()
     const newToast: Toast = {
@@ -71,10 +75,6 @@ export function ToastProvider({
 
     return id
   }, [generateId, maxToasts, hideToast])
-
-  const hideToast = useCallback((id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id))
-  }, [])
 
   const clearAll = useCallback(() => {
     setToasts([])

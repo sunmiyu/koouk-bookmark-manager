@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useUniversalSearch, SearchResult } from '@/hooks/useUniversalSearch'
 
 export default function UniversalSearch() {
@@ -34,10 +34,10 @@ export default function UniversalSearch() {
   }
 
   // 모바일 검색 닫기
-  const closeMobileSearch = () => {
+  const closeMobileSearch = useCallback(() => {
     setIsMobileSearchOpen(false)
     clearSearch()
-  }
+  }, [clearSearch])
 
   // ESC 키로 검색 닫기
   useEffect(() => {
@@ -53,8 +53,10 @@ export default function UniversalSearch() {
       }
     }
     
-    window.addEventListener('keydown', handleEscape)
-    return () => window.removeEventListener('keydown', handleEscape)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('keydown', handleEscape)
+      return () => window.removeEventListener('keydown', handleEscape)
+    }
   }, [isMobileSearchOpen, isDesktopSearchOpen, clearSearch, closeMobileSearch])
 
   // 검색 결과 클릭 핸들러

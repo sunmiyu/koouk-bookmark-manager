@@ -35,6 +35,8 @@ export function useLayoutAnalytics() {
 
   // Initialize analytics
   useEffect(() => {
+    if (typeof window === 'undefined') return
+    
     const storedMetrics = localStorage.getItem(STORAGE_KEY)
     const initialMetrics: LayoutMetrics = storedMetrics ? JSON.parse(storedMetrics) : {
       viewport: getViewportInfo(),
@@ -52,6 +54,8 @@ export function useLayoutAnalytics() {
 
   // Update viewport info on resize
   useEffect(() => {
+    if (typeof window === 'undefined') return
+    
     const handleResize = () => {
       setMetrics(prev => prev ? {
         ...prev,
@@ -65,6 +69,8 @@ export function useLayoutAnalytics() {
 
   // Track scroll depth
   useEffect(() => {
+    if (typeof window === 'undefined') return
+    
     const handleScroll = () => {
       const scrollHeight = document.documentElement.scrollHeight - window.innerHeight
       const scrollTop = window.pageYOffset
@@ -84,6 +90,8 @@ export function useLayoutAnalytics() {
 
   // Save metrics on page unload
   useEffect(() => {
+    if (typeof window === 'undefined') return
+    
     const handleBeforeUnload = () => {
       if (metrics) {
         const sessionEnd = Date.now()
@@ -230,6 +238,16 @@ export function useLayoutAnalytics() {
 }
 
 function getViewportInfo(): ViewportInfo {
+  if (typeof window === 'undefined') {
+    return {
+      width: 1024,
+      height: 768,
+      isMobile: false,
+      isTablet: false,
+      isDesktop: true
+    }
+  }
+  
   const width = window.innerWidth
   const height = window.innerHeight
   

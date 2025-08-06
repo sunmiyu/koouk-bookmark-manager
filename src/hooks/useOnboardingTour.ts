@@ -1,11 +1,22 @@
 'use client'
 
 import { useCallback } from 'react'
-import introJs from 'intro.js'
-import 'intro.js/introjs.css'
 
 export function useOnboardingTour() {
-  const startTour = useCallback(() => {
+  const startTour = useCallback(async () => {
+    if (typeof window === 'undefined') return
+    
+    // Dynamic import to avoid SSR issues
+    const { default: introJs } = await import('intro.js')
+    
+    // Load CSS dynamically
+    if (!document.querySelector('link[href*="introjs.css"]')) {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = 'https://unpkg.com/intro.js/introjs.css'
+      document.head.appendChild(link)
+    }
+    
     const intro = introJs()
     
     intro.setOptions({
@@ -130,14 +141,18 @@ export function useOnboardingTour() {
 
     // 투어 완료 후 로컬스토리지에 저장
     intro.oncomplete(() => {
-      localStorage.setItem('koouk-tour-completed', 'true')
-      localStorage.setItem('koouk-tour-completed-date', new Date().toISOString())
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('koouk-tour-completed', 'true')
+        localStorage.setItem('koouk-tour-completed-date', new Date().toISOString())
+      }
     })
 
     // 투어 건너뛰기 시에도 저장
     intro.onexit(() => {
-      localStorage.setItem('koouk-tour-completed', 'true')
-      localStorage.setItem('koouk-tour-completed-date', new Date().toISOString())
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('koouk-tour-completed', 'true')
+        localStorage.setItem('koouk-tour-completed-date', new Date().toISOString())
+      }
     })
 
     intro.start()
@@ -165,8 +180,10 @@ export function useOnboardingTour() {
   }, [])
 
   const resetTour = useCallback(() => {
-    localStorage.removeItem('koouk-tour-completed')
-    localStorage.removeItem('koouk-tour-completed-date')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('koouk-tour-completed')
+      localStorage.removeItem('koouk-tour-completed-date')
+    }
   }, [])
 
   return {

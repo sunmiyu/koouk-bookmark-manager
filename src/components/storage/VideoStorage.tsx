@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 
 type VideoItem = {
   id: string
@@ -265,15 +266,11 @@ export default function VideoStorage() {
           }}>
             {/* YouTube Thumbnail */}
             <div className="aspect-video bg-gray-100 relative cursor-pointer" onClick={() => openVideo(videoItem.youtubeUrl)}>
-              <img
+              <Image
                 src={`https://img.youtube.com/vi/${videoItem.videoId}/maxresdefault.jpg`}
                 alt={videoItem.title}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  // Fallback to standard quality thumbnail
-                  const target = e.target as HTMLImageElement
-                  target.src = `https://img.youtube.com/vi/${videoItem.videoId}/hqdefault.jpg`
-                }}
+                fill
+                className="object-cover"
               />
               <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                 <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">

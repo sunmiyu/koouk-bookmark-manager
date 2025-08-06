@@ -57,6 +57,11 @@ export async function compressImage(
   } = options
 
   return new Promise((resolve, reject) => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      reject(new Error('Image compression is only available in browser environment'))
+      return
+    }
+    
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
     const img = new Image()

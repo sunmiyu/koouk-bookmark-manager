@@ -14,7 +14,9 @@ export default function SecurityMonitor() {
         // 오류 상태 코드 추적
         if (response.status >= 400) {
           const url = typeof args[0] === 'string' ? args[0] : (args[0] as Request).url
-          const endpoint = new URL(url, window.location.origin).pathname
+          const endpoint = typeof window !== 'undefined' 
+            ? new URL(url, window.location.origin).pathname
+            : new URL(url).pathname
           
           if (response.status === 403) {
             trackEvents.securityEvent('cors_blocked', endpoint)

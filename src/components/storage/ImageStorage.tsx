@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 
 type ImageItem = {
   id: string
@@ -182,10 +183,12 @@ export default function ImageStorage() {
           {/* Preview */}
           {previewUrl && (
             <div className="mb-4">
-              <img
+              <Image
                 src={previewUrl}
                 alt="Preview"
-                className="max-w-xs max-h-48 rounded border"
+                width={300}
+                height={192}
+                className="max-w-xs max-h-48 rounded border object-cover"
                 style={{ borderColor: 'var(--border-light)' }}
               />
             </div>
@@ -257,11 +260,12 @@ export default function ImageStorage() {
             backgroundColor: 'var(--bg-card)',
             borderColor: 'var(--border-light)'
           }}>
-            <div className="aspect-video bg-gray-100 flex items-center justify-center">
-              <img
+            <div className="aspect-video bg-gray-100 flex items-center justify-center relative">
+              <Image
                 src={imageItem.imageUrl}
                 alt={imageItem.title}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
               />
             </div>
             

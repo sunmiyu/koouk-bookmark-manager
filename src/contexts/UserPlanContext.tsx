@@ -21,6 +21,8 @@ export function UserPlanProvider({ children }: { children: ReactNode }) {
 
   // Load plan from localStorage on mount
   useEffect(() => {
+    if (typeof window === 'undefined') return
+    
     const savedPlan = localStorage.getItem('koouk_user_plan') as UserPlan
     if (savedPlan && ['free', 'pro', 'unlimited'].includes(savedPlan)) {
       setCurrentPlan(savedPlan)
@@ -29,7 +31,9 @@ export function UserPlanProvider({ children }: { children: ReactNode }) {
 
   // Save plan to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('koouk_user_plan', currentPlan)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('koouk_user_plan', currentPlan)
+    }
   }, [currentPlan])
 
   const getStorageLimit = (): number => {

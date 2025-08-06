@@ -211,10 +211,10 @@ export default function DailyCardContent() {
                 />
 
                 {/* Budget Card (placeholder) */}
-                <BudgetCard budget={dayData.budget} />
+                <BudgetCard />
 
                 {/* Goal Tracker Card (placeholder) */}
-                <GoalCard goal={dayData.goal} />
+                <GoalCard />
               </div>
             </div>
           ))}

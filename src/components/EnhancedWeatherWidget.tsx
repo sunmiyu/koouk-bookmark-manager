@@ -20,7 +20,7 @@ export default function EnhancedWeatherWidget() {
 
   const getUserLocation = (): Promise<{lat: number, lon: number}> => {
     return new Promise((resolve) => {
-      if (!navigator.geolocation) {
+      if (typeof window === 'undefined' || !navigator.geolocation) {
         resolve({ lat: 37.5665, lon: 126.9780 })
         return
       }

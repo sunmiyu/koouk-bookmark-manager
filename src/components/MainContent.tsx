@@ -10,6 +10,9 @@ import RestaurantStorage from '@/components/storage/RestaurantStorage'
 import TravelStorage from '@/components/storage/TravelStorage'
 import StocksInfo from '@/components/info/StocksInfo'
 import NewsInfo from '@/components/info/NewsInfo'
+import MusicInfo from '@/components/info/MusicInfo'
+import AIToolsInfo from '@/components/info/AIToolsInfo'
+import TalkTalkContent from '@/components/TalkTalkContent'
 
 type MainContentProps = {
   activeSection: SectionType
@@ -51,7 +54,7 @@ export default function MainContent({ activeSection, selectedNoteId, onNoteSelec
         return <NewsInfo />
       
       case 'info-music':
-        return <InfoPage type="music" title="음악추천" icon="🎵" />
+        return <MusicInfo />
       
       case 'info-language':
         return <InfoPage type="language" title="외국어 공부" icon="🌍" />
@@ -63,7 +66,10 @@ export default function MainContent({ activeSection, selectedNoteId, onNoteSelec
         return <InfoPage type="motivation" title="동기부여" icon="💪" />
       
       case 'info-aitools':
-        return <InfoPage type="aitools" title="AI tool link 모음" icon="🤖" />
+        return <AIToolsInfo />
+      
+      case 'talkTalk':
+        return <TalkTalkContent />
       
       default:
         return <DailyCardContent />
@@ -72,7 +78,9 @@ export default function MainContent({ activeSection, selectedNoteId, onNoteSelec
 
   return (
     <div className="h-full" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      {renderContent()}
+      <div className="max-w-[1200px] mx-auto h-full">
+        {renderContent()}
+      </div>
     </div>
   )
 }
@@ -119,38 +127,152 @@ function StoragePage({ type, title, icon }: { type: string, title: string, icon:
 
 // Info Page Component
 function InfoPage({ type, title, icon }: { type: string, title: string, icon: string }) {
+  const getContent = () => {
+    switch (type) {
+      case 'language':
+        return {
+          description: '언어 학습 도구와 자료들을 관리하세요',
+          features: [
+            '📚 학습 자료 북마크',
+            '🗓️ 학습 일정 관리', 
+            '📝 단어장 만들기',
+            '🎯 학습 목표 설정',
+            '📈 진행상황 추적'
+          ]
+        }
+      case 'commute':
+        return {
+          description: '출퇴근길 정보를 한눈에 확인하세요',
+          features: [
+            '🚌 버스 실시간 정보',
+            '🚇 지하철 운행 상황',
+            '🚗 교통 상황 확인',
+            '⏰ 예상 소요시간',
+            '🗺️ 최적 경로 추천'
+          ]
+        }
+      case 'motivation':
+        return {
+          description: '매일의 동기부여와 영감을 관리하세요',
+          features: [
+            '💭 매일의 동기부여 문구',
+            '🎯 목표 설정 및 추적',
+            '📸 영감을 주는 이미지',
+            '📝 성취 기록하기',
+            '🏆 달성 현황 시각화'
+          ]
+        }
+      default:
+        return {
+          description: '곧 출시 예정인 기능입니다',
+          features: ['준비중...']
+        }
+    }
+  }
+
+  const content = getContent()
+
   return (
-    <div className="h-full" style={{ padding: 'var(--space-6)' }}>
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-4">
-          <span className="text-3xl">{icon}</span>
-          <h1 style={{ 
-            fontSize: 'var(--text-2xl)', 
-            fontWeight: '700', 
-            color: 'var(--text-primary)' 
-          }}>
-            {title}
-          </h1>
+    <div className="h-full" style={{ 
+      padding: 'var(--space-10) var(--space-8)',
+      backgroundColor: 'var(--bg-primary)'
+    }}>
+      {/* Header */}
+      <div className="mb-12">
+        <div className="flex items-center gap-4">
+          <span style={{ fontSize: '2rem' }}>{icon}</span>
+          <div>
+            <h1 style={{ 
+              fontSize: 'var(--text-3xl)',
+              fontWeight: '300',
+              color: 'var(--text-primary)',
+              letterSpacing: '-0.02em',
+              lineHeight: '1.2',
+              marginBottom: 'var(--space-2)'
+            }}>
+              {title}
+            </h1>
+            <p style={{ 
+              fontSize: 'var(--text-lg)',
+              color: 'var(--text-secondary)',
+              fontWeight: '400',
+              lineHeight: '1.5'
+            }}>
+              {content.description}
+            </p>
+          </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg border p-6 min-h-96" style={{ 
+      {/* Coming Soon Card */}
+      <div style={{ 
         backgroundColor: 'var(--bg-card)',
-        borderColor: 'var(--border-light)'
+        border: '1px solid var(--border-light)',
+        borderRadius: 'var(--radius-xl)',
+        padding: 'var(--space-12)',
+        boxShadow: 'var(--shadow-subtle)',
+        textAlign: 'center' as const
       }}>
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">{icon}</div>
-          <h3 style={{ 
-            fontSize: 'var(--text-xl)', 
-            fontWeight: '600', 
+        <div style={{ fontSize: '4rem', marginBottom: 'var(--space-6)' }}>{icon}</div>
+        
+        <h3 style={{ 
+          fontSize: 'var(--text-2xl)',
+          fontWeight: '400',
+          color: 'var(--text-primary)',
+          marginBottom: 'var(--space-4)',
+          letterSpacing: '-0.01em'
+        }}>
+          {title}
+        </h3>
+        
+        <p style={{ 
+          fontSize: 'var(--text-lg)',
+          color: 'var(--text-secondary)',
+          marginBottom: 'var(--space-8)',
+          lineHeight: '1.6'
+        }}>
+          곧 출시 예정입니다
+        </p>
+
+        {/* Features Preview */}
+        <div style={{ 
+          backgroundColor: 'var(--bg-secondary)',
+          borderRadius: 'var(--radius-lg)',
+          padding: 'var(--space-6)',
+          marginBottom: 'var(--space-6)'
+        }}>
+          <h4 style={{ 
+            fontSize: 'var(--text-lg)',
+            fontWeight: '500',
             color: 'var(--text-primary)',
-            marginBottom: 'var(--space-2)'
+            marginBottom: 'var(--space-4)',
+            letterSpacing: '-0.01em'
           }}>
-            {title}
-          </h3>
-          <p style={{ color: 'var(--text-secondary)' }}>
-            이 섹션은 아직 구현중입니다.
-          </p>
+            예정 기능
+          </h4>
+          <div className="space-y-2">
+            {content.features.map((feature, index) => (
+              <div key={index} style={{
+                fontSize: 'var(--text-md)',
+                color: 'var(--text-secondary)',
+                textAlign: 'left' as const,
+                padding: 'var(--space-2) 0'
+              }}>
+                {feature}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{
+          backgroundColor: 'var(--bg-muted)',
+          color: 'var(--text-secondary)',
+          borderRadius: 'var(--radius-lg)',
+          padding: 'var(--space-4)',
+          fontSize: 'var(--text-sm)',
+          fontWeight: '400'
+        }}>
+          💡 이 기능에 대한 아이디어나 제안이 있으시다면 언제든 알려주세요!
         </div>
       </div>
     </div>

@@ -27,6 +27,8 @@ export default function VideoStorage() {
   
   const [newVideo, setNewVideo] = useState({ title: '', url: '', description: '', tags: '' })
   const [showAddForm, setShowAddForm] = useState(false)
+  const [quickVideoURL, setQuickVideoURL] = useState('')
+  const [isQuickAdding, setIsQuickAdding] = useState(false)
 
   const extractVideoId = (url: string): string | null => {
     const patterns = [
@@ -66,6 +68,37 @@ export default function VideoStorage() {
     }
   }
 
+  const quickAddVideo = async () => {
+    if (!quickVideoURL.trim()) return
+    
+    const videoId = extractVideoId(quickVideoURL)
+    if (!videoId) {
+      alert('올바른 YouTube URL을 입력해주세요.')
+      return
+    }
+    
+    setIsQuickAdding(true)
+    try {
+      // 간단한 제목 생성 (실제로는 YouTube API로 가져올 수 있음)
+      const title = `YouTube Video ${videoId}`
+      
+      const videoItem: VideoItem = {
+        id: Date.now().toString(),
+        title,
+        youtubeUrl: quickVideoURL,
+        videoId,
+        description: '빠른 추가로 저장됨',
+        tags: [],
+        createdAt: new Date().toISOString()
+      }
+      
+      setVideos(prev => [videoItem, ...prev])
+      setQuickVideoURL('')
+    } finally {
+      setIsQuickAdding(false)
+    }
+  }
+
   const deleteVideo = (id: string) => {
     setVideos(prev => prev.filter(video => video.id !== id))
   }
@@ -89,13 +122,59 @@ export default function VideoStorage() {
               영상(유튜브) Storage
             </h1>
           </div>
-          <button
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-            style={{ backgroundColor: 'var(--accent)' }}
-          >
-            + 영상 추가
-          </button>
+          <div className="flex flex-col gap-3">
+            {/* YouTube URL 빠른 추가 */}
+            <div className="flex gap-2">
+              <input
+                type="url"
+                placeholder="YouTube URL을 붙여넣으면 바로 저장됩니다"
+                value={quickVideoURL}
+                onChange={(e) => setQuickVideoURL(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && quickAddVideo()}
+                className="flex-1"
+                style={{
+                  backgroundColor: 'var(--bg-card)',
+                  border: '2px solid var(--border-light)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: 'var(--space-3) var(--space-4)',
+                  fontSize: 'var(--text-md)',
+                  outline: 'none'
+                }}
+              />
+              <button
+                onClick={quickAddVideo}
+                disabled={!quickVideoURL.trim() || isQuickAdding}
+                className="transition-all duration-200 ease-out"
+                style={{
+                  backgroundColor: quickVideoURL.trim() ? 'var(--text-primary)' : 'var(--bg-secondary)',
+                  color: quickVideoURL.trim() ? 'var(--bg-card)' : 'var(--text-tertiary)',
+                  border: 'none',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: 'var(--space-3) var(--space-4)',
+                  fontSize: 'var(--text-sm)',
+                  fontWeight: '500',
+                  minWidth: '80px'
+                }}
+              >
+                {isQuickAdding ? '저장중...' : '저장'}
+              </button>
+            </div>
+            
+            <button
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="transition-colors duration-200"
+              style={{
+                color: 'var(--text-secondary)',
+                backgroundColor: 'transparent',
+                border: 'none',
+                fontSize: 'var(--text-xs)',
+                textDecoration: 'underline',
+                cursor: 'pointer'
+              }}
+            >
+              {showAddForm ? '간단하게 추가' : '자세한 정보 입력'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -178,7 +257,7 @@ export default function VideoStorage() {
       )}
 
       {/* Video Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 lg:gap-6">
         {videos.map(videoItem => (
           <div key={videoItem.id} className="bg-white rounded-lg border overflow-hidden hover:shadow-md transition-shadow" style={{ 
             backgroundColor: 'var(--bg-card)',

@@ -33,6 +33,8 @@ export default function URLStorage() {
   
   const [newURL, setNewURL] = useState({ title: '', url: '', description: '', category: '' })
   const [showAddForm, setShowAddForm] = useState(false)
+  const [quickURL, setQuickURL] = useState('')
+  const [isQuickAdding, setIsQuickAdding] = useState(false)
 
   const addURL = () => {
     if (newURL.title && newURL.url) {
@@ -44,6 +46,36 @@ export default function URLStorage() {
       setUrls(prev => [urlItem, ...prev])
       setNewURL({ title: '', url: '', description: '', category: '' })
       setShowAddForm(false)
+    }
+  }
+
+  const quickAddURL = async () => {
+    if (!quickURL.trim()) return
+    
+    setIsQuickAdding(true)
+    try {
+      // URL에서 도메인명을 추출해서 제목으로 사용 (간단한 방법)
+      let title = quickURL
+      try {
+        const domain = new URL(quickURL).hostname.replace('www.', '')
+        title = domain.charAt(0).toUpperCase() + domain.slice(1)
+      } catch {
+        title = quickURL.slice(0, 30) + '...'
+      }
+      
+      const urlItem: URLItem = {
+        id: Date.now().toString(),
+        title,
+        url: quickURL,
+        description: '빠른 추가로 저장됨',
+        category: '기타',
+        createdAt: new Date().toISOString()
+      }
+      
+      setUrls(prev => [urlItem, ...prev])
+      setQuickURL('')
+    } finally {
+      setIsQuickAdding(false)
     }
   }
 
@@ -59,9 +91,9 @@ export default function URLStorage() {
     <div className="h-full" style={{ padding: 'var(--space-6)' }}>
       {/* Header */}
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl">🔗</span>
+        <div className="flex items-center gap-4 mb-4">
+          <span className="text-3xl">🔗</span>
+          <div className="flex-1">
             <h1 style={{ 
               fontSize: 'var(--text-2xl)', 
               fontWeight: '700', 
@@ -70,13 +102,63 @@ export default function URLStorage() {
               URL Storage
             </h1>
           </div>
-          <button
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-            style={{ backgroundColor: 'var(--accent)' }}
-          >
-            + 링크 추가
-          </button>
+        </div>
+        
+        {/* 빠른 추가 - 메인 기능 */}
+        <div className="mb-4">
+          <div className="flex gap-2">
+            <input
+              type="url"
+              placeholder="URL을 붙여넣으면 바로 저장됩니다"
+              value={quickURL}
+              onChange={(e) => setQuickURL(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && quickAddURL()}
+              className="flex-1"
+              style={{
+                backgroundColor: 'var(--bg-card)',
+                border: '2px solid var(--border-light)',
+                borderRadius: 'var(--radius-lg)',
+                padding: 'var(--space-3) var(--space-4)',
+                fontSize: 'var(--text-md)',
+                outline: 'none'
+              }}
+            />
+            <button
+              onClick={quickAddURL}
+              disabled={!quickURL.trim() || isQuickAdding}
+              className="transition-all duration-200 ease-out"
+              style={{
+                backgroundColor: quickURL.trim() ? 'var(--text-primary)' : 'var(--bg-secondary)',
+                color: quickURL.trim() ? 'var(--bg-card)' : 'var(--text-tertiary)',
+                border: 'none',
+                borderRadius: 'var(--radius-lg)',
+                padding: 'var(--space-3) var(--space-4)',
+                fontSize: 'var(--text-sm)',
+                fontWeight: '500',
+                minWidth: '80px'
+              }}
+            >
+              {isQuickAdding ? '저장중...' : '저장'}
+            </button>
+          </div>
+          
+          {/* 고급 옵션 토글 */}
+          <div className="mt-3 text-center">
+            <button
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="transition-colors duration-200"
+              style={{
+                color: 'var(--text-secondary)',
+                backgroundColor: 'transparent',
+                border: 'none',
+                fontSize: 'var(--text-xs)',
+                textDecoration: 'underline',
+                cursor: 'pointer'
+              }}
+            >
+              {showAddForm ? '간단하게 추가' : '자세한 정보 입력'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -159,7 +241,7 @@ export default function URLStorage() {
       )}
 
       {/* URL List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
         {urls.map(urlItem => (
           <div key={urlItem.id} className="bg-white rounded-lg border p-4 hover:shadow-md transition-shadow" style={{ 
             backgroundColor: 'var(--bg-card)',

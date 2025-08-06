@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from 'react'
 
-export default function TimeDisplay() {
+interface EnhancedTimeDisplayProps {
+  showIcon?: boolean
+}
+
+export default function EnhancedTimeDisplay({ showIcon = false }: EnhancedTimeDisplayProps) {
   const [currentTime, setCurrentTime] = useState('')
 
   useEffect(() => {
@@ -24,12 +28,11 @@ export default function TimeDisplay() {
   }, [])
 
   return (
-    <div className="flex items-center gap-1 sm:gap-2">
-      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="10"/>
-        <polyline points="12,6 12,12 16,14"/>
-      </svg>
-      <span className="font-mono text-xs sm:text-sm">{currentTime}</span>
+    <div className="flex items-center text-sm font-medium text-gray-900">
+      {showIcon && (
+        <span className="mr-1">🕐</span>
+      )}
+      <span className="font-mono">{currentTime}</span>
     </div>
   )
 }

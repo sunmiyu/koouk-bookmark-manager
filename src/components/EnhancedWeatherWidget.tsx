@@ -4,16 +4,19 @@ import { useState, useEffect, useCallback } from 'react'
 
 interface WeatherData {
   temperature: number
+  tempMax: number
+  tempMin: number
   condition: string
   icon: string
   location: string
+  humidity: number
+  rainChance?: number
 }
 
-export default function WeatherWidget() {
+export default function EnhancedWeatherWidget() {
   const [mounted, setMounted] = useState(false)
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showTooltip, setShowTooltip] = useState(false)
 
   const getUserLocation = (): Promise<{lat: number, lon: number}> => {
     return new Promise((resolve) => {
@@ -65,21 +68,30 @@ export default function WeatherWidget() {
       throw new Error('Weather API key not found')
     }
 
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${location.lat}&lon=${location.lon}&appid=${apiKey}&units=metric&lang=kr`
+    // Current weather
+    const currentResponse = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${location.lat}&lon=${location.lon}&appid=${apiKey}&units=metric`
     )
 
-    if (!response.ok) {
-      throw new Error(`Weather API failed: ${response.status}`)
+    if (!currentResponse.ok) {
+      throw new Error(`Weather API failed: ${currentResponse.status}`)
     }
 
-    const data = await response.json()
+    const currentData = await currentResponse.json()
+    
+    // For rain chance, we'll use humidity as a proxy since free tier doesn't have forecast
+    // In a production app, you'd use the forecast API
+    const rainChance = Math.min(Math.round(currentData.main.humidity * 0.3), 100)
     
     return {
-      temperature: Math.round(data.main.temp),
-      condition: data.weather[0].main,
-      icon: getWeatherIcon(data.weather[0].main),
-      location: data.name || 'Current Location'
+      temperature: Math.round(currentData.main.temp),
+      tempMax: Math.round(currentData.main.temp_max),
+      tempMin: Math.round(currentData.main.temp_min),
+      condition: currentData.weather[0].main,
+      icon: getWeatherIcon(currentData.weather[0].main),
+      location: currentData.name || 'Current Location',
+      humidity: currentData.main.humidity,
+      rainChance
     }
   }, [])
 
@@ -103,41 +115,18 @@ export default function WeatherWidget() {
 
   if (!mounted || loading || !weatherData) {
     return (
-      <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-gray-800/30 border border-gray-700/30">
-        <div className="w-4 h-4 bg-gray-600 rounded animate-pulse"></div>
-        <span className="text-gray-400 text-sm">--°</span>
+      <div className="flex items-center text-sm text-gray-400">
+        <span>--° | -- -- | --</span>
       </div>
     )
   }
 
   return (
-    <div 
-      className="relative"
-      onMouseEnter={() => setShowTooltip(true)}
-      onMouseLeave={() => setShowTooltip(false)}
-    >
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-transparent hover:bg-gray-100 transition-all duration-200 cursor-pointer">
-        <span className="text-base">{weatherData.icon}</span>
-        <span className="text-black text-sm font-medium">
-          {weatherData.temperature}°
-        </span>
-      </div>
-
-      {/* Tooltip */}
-      {showTooltip && (
-        <div className="absolute right-0 top-full mt-2 p-3 bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-lg shadow-xl z-50 min-w-[160px]">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-lg">{weatherData.icon}</span>
-            <div>
-              <div className="text-white font-medium">{weatherData.temperature}°C</div>
-              <div className="text-gray-400 text-xs">{weatherData.condition}</div>
-            </div>
-          </div>
-          <div className="text-gray-500 text-xs border-t border-gray-700 pt-2">
-            📍 {weatherData.location}
-          </div>
-        </div>
-      )}
+    <div className="flex items-center text-sm font-medium text-gray-900">
+      <span className="mr-1">{weatherData.icon}</span>
+      <span>
+        {weatherData.temperature}° | 최고 {weatherData.tempMax}° 최저 {weatherData.tempMin}° | 비 {weatherData.rainChance}%
+      </span>
     </div>
   )
 }

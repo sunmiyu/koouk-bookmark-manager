@@ -1,19 +1,21 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import KooukLogo from '@/components/KooukLogo'
-import TimeDisplay from '@/components/TimeDisplay'
-import WeatherWidget from '@/components/WeatherWidget'
+import EnhancedWeatherWidget from '@/components/EnhancedWeatherWidget'
+import EnhancedTimeDisplay from '@/components/EnhancedTimeDisplay'
 import AuthButton from '@/components/AuthButton'
-import LanguageSwitcher from '@/components/LanguageSwitcher'
 import Sidebar from '@/components/Sidebar'
 import MainContent from '@/components/MainContent'
+import RightPanel from '@/components/RightPanel'
 import { useAuth } from '@/contexts/AuthContext'
 import LandingPage from '@/components/LandingPage'
+import LoadingSpinner from '@/components/LoadingSpinner'
 import { ToastProvider } from '@/contexts/ToastContext'
 import { LoadingProvider } from '@/contexts/LoadingContext'
 import ToastContainer from '@/components/ToastContainer'
 import LoadingOverlay from '@/components/LoadingOverlay'
+import { useOnboardingTour } from '@/hooks/useOnboardingTour'
 
 export type SectionType = 
   | 'dailyCard'
@@ -31,6 +33,7 @@ export type SectionType =
   | 'info-commute'
   | 'info-motivation'
   | 'info-aitools'
+  | 'talkTalk'
 
 export type NoteType = {
   id: string
@@ -49,20 +52,29 @@ function HomeContent() {
   // Authentication
   const { user, loading: authLoading } = useAuth()
   const isAuthenticated = !!user
+  
+  // Onboarding tour
+  const { startTour, shouldShowTour, resetTour } = useOnboardingTour()
+  
+  // 인증 완료 후 온보딩 투어 자동 시작
+  useEffect(() => {
+    if (isAuthenticated && shouldShowTour()) {
+      // 약간의 지연 후 투어 시작 (페이지 렌더링 완료 후)
+      const timer = setTimeout(() => {
+        startTour()
+      }, 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [isAuthenticated, shouldShowTour, startTour])
 
   // Show loading while checking authentication
   if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ 
-        backgroundColor: 'var(--bg-primary)', 
-        color: 'var(--text-primary)' 
-      }}>
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p style={{ color: 'var(--text-secondary)' }}>Loading Koouk...</p>
-        </div>
-      </div>
-    )
+    return <LoadingSpinner size="lg" text="Loading Koouk..." />
+  }
+
+  // Show landing page if not authenticated
+  if (!isAuthenticated) {
+    return <LandingPage />
   }
 
   return (
@@ -77,50 +89,120 @@ function HomeContent() {
             backgroundColor: 'var(--bg-primary)', 
             color: 'var(--text-primary)' 
           }}>
-            {/* Container with max width */}
-            <div className="w-full max-w-[1400px] mx-auto" style={{ padding: '0 20px' }}>
+            {/* Container with max width - 더 넓은 화면 */}
+            <div className="w-full max-w-[1600px] mx-auto" style={{ padding: '0 20px' }}>
               {/* Header */}
-              <header className="flex items-center justify-between w-full border-b" style={{ 
+              <header className="w-full border-b" style={{ 
                 padding: 'var(--space-4) 0',
                 backgroundColor: 'var(--bg-card)',
                 borderColor: 'var(--border-light)',
-                height: '70px'
               }}>
-                {/* Left: Logo */}
-                <div className="flex items-center gap-4">
-                  {/* Sidebar Toggle Button */}
-                  <button
-                    onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                    className="p-2 rounded-md hover:bg-gray-100 transition-colors md:hidden"
-                    style={{
-                      color: 'var(--text-secondary)',
-                      backgroundColor: sidebarCollapsed ? 'var(--bg-secondary)' : 'transparent'
-                    }}
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                  </button>
-                  
-                  <KooukLogo />
+                {/* Mobile Layout: 2 rows */}
+                <div className="md:hidden">
+                  {/* First Row: Hamburger + Logo + Account */}
+                  <div className="flex items-center justify-between w-full mb-3">
+                    <div className="flex items-center gap-4">
+                      {/* Sidebar Toggle Button */}
+                      <button
+                        onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                        className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+                        style={{
+                          color: 'var(--text-secondary)',
+                          backgroundColor: sidebarCollapsed ? 'var(--bg-secondary)' : 'transparent'
+                        }}
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                      </button>
+                      
+                      <KooukLogo />
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={startTour}
+                        className="md:hidden p-2 rounded-lg transition-colors"
+                        style={{
+                          backgroundColor: 'transparent',
+                          color: 'var(--text-secondary)',
+                          border: '1px solid var(--border-light)',
+                        }}
+                        onTouchStart={(e) => {
+                          e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'
+                        }}
+                        onTouchEnd={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent'
+                        }}
+                      >
+                        <span>🎓</span>
+                      </button>
+                      <AuthButton />
+                    </div>
+                  </div>
+
+                  {/* Second Row: Weather + Time */}
+                  <div className="flex items-center justify-between w-full">
+                    <EnhancedWeatherWidget />
+                    <EnhancedTimeDisplay />
+                  </div>
                 </div>
 
-                {/* Right: Weather, Time & Account */}
-                <div className="flex items-center gap-3">
-                  {/* Weather Widget */}
-                  <WeatherWidget />
-                  
-                  {/* Time Display */}
-                  <div className="flex items-center gap-3 px-3 py-2" style={{ 
-                    background: 'transparent', 
-                    border: 'none' 
-                  }}>
-                    <TimeDisplay />
+                {/* Desktop Layout: 1 row */}
+                <div className="hidden md:flex items-center justify-between w-full" style={{ height: '70px' }}>
+                  {/* Left: Hamburger + Logo */}
+                  <div className="flex items-center gap-4">
+                    {/* Sidebar Toggle Button */}
+                    <button
+                      onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                      className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+                      style={{
+                        color: 'var(--text-secondary)',
+                        backgroundColor: sidebarCollapsed ? 'var(--bg-secondary)' : 'transparent'
+                      }}
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                      </svg>
+                    </button>
+                    
+                    <KooukLogo />
                   </div>
-                  
-                  {/* Language Switcher & Auth */}
-                  <LanguageSwitcher compact={true} className="mr-2" />
-                  <AuthButton />
+
+                  {/* Center: Weather + Time */}
+                  <div className="flex items-center gap-6">
+                    <EnhancedWeatherWidget />
+                    <EnhancedTimeDisplay />
+                  </div>
+
+                  {/* Right: Account + Tour */}
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={startTour}
+                      className="hidden md:flex items-center gap-2 transition-all duration-200 ease-out"
+                      style={{
+                        backgroundColor: 'transparent',
+                        color: 'var(--text-secondary)',
+                        border: '1px solid var(--border-light)',
+                        borderRadius: 'var(--radius-lg)',
+                        padding: 'var(--space-2) var(--space-3)',
+                        fontSize: 'var(--text-xs)',
+                        fontWeight: '500'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'
+                        e.currentTarget.style.color = 'var(--text-primary)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent'
+                        e.currentTarget.style.color = 'var(--text-secondary)'
+                      }}
+                    >
+                      <span>\ud83c\udf93</span>
+                      <span>\ud22c\uc5b4 \ub2e4\uc2dc\ubcf4\uae30</span>
+                    </button>
+                    <AuthButton />
+                  </div>
                 </div>
               </header>
 
@@ -128,7 +210,7 @@ function HomeContent() {
               <div className="flex flex-1 overflow-hidden relative">
                 {/* Desktop Sidebar */}
                 <div 
-                  className="hidden md:block transition-all duration-300 border-r w-80"
+                  className="hidden md:block transition-all duration-300 border-r w-80 sidebar-tour-target"
                   style={{ 
                     borderColor: 'var(--border-light)',
                     backgroundColor: 'var(--bg-card)'
@@ -147,18 +229,20 @@ function HomeContent() {
                 {/* Mobile Sidebar Overlay */}
                 {!sidebarCollapsed && (
                   <>
-                    {/* Backdrop */}
+                    {/* Backdrop - 반투명 오버레이 */}
                     <div 
-                      className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+                      className="md:hidden fixed inset-0 z-40"
+                      style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
                       onClick={() => setSidebarCollapsed(true)}
                     />
                     
-                    {/* Sidebar */}
+                    {/* Sidebar - 그림자 효과 추가 */}
                     <div 
                       className="md:hidden fixed left-0 top-0 h-full w-80 z-50 transform transition-transform duration-300"
                       style={{ 
                         backgroundColor: 'var(--bg-card)',
-                        transform: sidebarCollapsed ? 'translateX(-100%)' : 'translateX(0)'
+                        transform: sidebarCollapsed ? 'translateX(-100%)' : 'translateX(0)',
+                        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1)'
                       }}
                     >
                       <div className="h-full overflow-y-auto">
@@ -189,13 +273,27 @@ function HomeContent() {
                   </>
                 )}
 
-                {/* Main Content Area */}
-                <div className="flex-1 overflow-y-auto">
-                  <MainContent 
-                    activeSection={activeSection}
-                    selectedNoteId={selectedNoteId}
-                    onNoteSelect={setSelectedNoteId}
-                  />
+                {/* Main Content Area with Right Panel */}
+                <div className="flex flex-1 overflow-hidden">
+                  {/* Main Content */}
+                  <div className="flex-1 overflow-y-auto daily-cards-tour-target storage-tour-target">
+                    <MainContent 
+                      activeSection={activeSection}
+                      selectedNoteId={selectedNoteId}
+                      onNoteSelect={setSelectedNoteId}
+                    />
+                  </div>
+
+                  {/* Right Panel - 사용자 가이드 */}
+                  <div 
+                    className="hidden xl:block w-80 border-l overflow-y-auto"
+                    style={{ 
+                      borderColor: '#F0EDE8',
+                      backgroundColor: '#FAFAF9'
+                    }}
+                  >
+                    <RightPanel activeSection={activeSection} />
+                  </div>
                 </div>
               </div>
             </div>

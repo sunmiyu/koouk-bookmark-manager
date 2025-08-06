@@ -231,7 +231,7 @@ export default function RestaurantStorage() {
       )}
 
       {/* Restaurant List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
         {restaurants.map(restaurant => (
           <div key={restaurant.id} className={`bg-white rounded-lg border p-4 hover:shadow-md transition-all ${
             restaurant.visited ? 'border-green-200 bg-green-50' : ''

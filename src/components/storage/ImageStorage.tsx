@@ -27,6 +27,7 @@ export default function ImageStorage() {
   const [showAddForm, setShowAddForm] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [dragOver, setDragOver] = useState(false)
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -56,6 +57,19 @@ export default function ImageStorage() {
     }
   }
 
+  const quickAddImage = (file: File) => {
+    const url = URL.createObjectURL(file)
+    const imageItem: ImageItem = {
+      id: Date.now().toString(),
+      title: file.name.replace(/\.[^/.]+$/, ''), // 확장자 제거
+      imageUrl: url,
+      description: '빠른 추가로 저장됨',
+      tags: [],
+      createdAt: new Date().toISOString()
+    }
+    setImages(prev => [imageItem, ...prev])
+  }
+
   const deleteImage = (id: string) => {
     setImages(prev => prev.filter(img => img.id !== id))
   }
@@ -75,13 +89,68 @@ export default function ImageStorage() {
               이미지 Storage
             </h1>
           </div>
-          <button
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-            style={{ backgroundColor: 'var(--accent)' }}
-          >
-            + 이미지 추가
-          </button>
+          <div className="flex flex-col gap-3">
+            {/* 드래그 앤 드롭 영역 */}
+            <div 
+              className={`border-2 border-dashed transition-all duration-200 ${dragOver ? 'border-blue-400 bg-blue-50' : 'border-gray-300'}`}
+              style={{
+                borderRadius: 'var(--radius-lg)',
+                padding: 'var(--space-6)',
+                textAlign: 'center' as const,
+                cursor: 'pointer'
+              }}
+              onDrop={(e) => {
+                e.preventDefault()
+                setDragOver(false)
+                const files = Array.from(e.dataTransfer.files)
+                if (files[0] && files[0].type.startsWith('image/')) {
+                  handleFileSelect({ target: { files } } as any)
+                  if (files[0]) {
+                    quickAddImage(files[0])
+                  }
+                }
+              }}
+              onDragOver={(e) => {
+                e.preventDefault()
+                setDragOver(true)
+              }}
+              onDragLeave={() => setDragOver(false)}
+              onClick={() => document.getElementById('image-input')?.click()}
+            >
+              <span style={{ fontSize: '2rem', marginBottom: 'var(--space-2)', display: 'block' }}>📸</span>
+              <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>
+                이미지를 드래그하거나 클릭해서 바로 추가
+              </p>
+            </div>
+            
+            <input
+              id="image-input"
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                handleFileSelect(e)
+                if (e.target.files?.[0]) {
+                  quickAddImage(e.target.files[0])
+                }
+              }}
+              style={{ display: 'none' }}
+            />
+            
+            <button
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="transition-colors duration-200"
+              style={{
+                color: 'var(--text-secondary)',
+                backgroundColor: 'transparent',
+                border: 'none',
+                fontSize: 'var(--text-xs)',
+                textDecoration: 'underline',
+                cursor: 'pointer'
+              }}
+            >
+              {showAddForm ? '간단하게 추가' : '자세한 정보 입력'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -185,7 +254,7 @@ export default function ImageStorage() {
       )}
 
       {/* Image Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
         {images.map(imageItem => (
           <div key={imageItem.id} className="bg-white rounded-lg border overflow-hidden hover:shadow-md transition-shadow" style={{ 
             backgroundColor: 'var(--bg-card)',

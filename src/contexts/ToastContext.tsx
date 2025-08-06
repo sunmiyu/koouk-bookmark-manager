@@ -70,7 +70,7 @@ export function ToastProvider({
     }
 
     return id
-  }, [generateId, maxToasts])
+  }, [generateId, maxToasts, hideToast])
 
   const hideToast = useCallback((id: string) => {
     setToasts(prev => prev.filter(toast => toast.id !== id))

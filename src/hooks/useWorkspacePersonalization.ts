@@ -131,7 +131,7 @@ export function useWorkspacePersonalization() {
   }, [personalization, sessionStartTime])
 
   // Track interaction (click, search, etc.)
-  const trackInteraction = useCallback((section: string, type: 'click' | 'search' | 'add' | 'delete' = 'click') => {
+  const trackInteraction = useCallback((section: string) => {
     if (!personalization) return
 
     setPersonalization(prev => {

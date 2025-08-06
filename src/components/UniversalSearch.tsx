@@ -16,7 +16,6 @@ export default function UniversalSearch() {
   
   const {
     searchQuery,
-    searchResults,
     groupedResults,
     isSearching,
     updateSearchQuery,
@@ -56,7 +55,7 @@ export default function UniversalSearch() {
     
     window.addEventListener('keydown', handleEscape)
     return () => window.removeEventListener('keydown', handleEscape)
-  }, [isMobileSearchOpen, isDesktopSearchOpen, clearSearch])
+  }, [isMobileSearchOpen, isDesktopSearchOpen, clearSearch, closeMobileSearch])
 
   // 검색 결과 클릭 핸들러
   const handleResultClick = (result: SearchResult) => {
@@ -203,7 +202,7 @@ export default function UniversalSearch() {
                 {Object.entries(groupedResults).map(([type, results]) => (
                   <div key={type}>
                     <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-secondary)' }}>
-                      {getCategoryDisplayName(type as any)}
+                      {getCategoryDisplayName(type as 'daily-card' | 'storage' | 'note')}
                     </h3>
                     <div className="space-y-2">
                       {results.map((result) => (
@@ -380,7 +379,7 @@ export default function UniversalSearch() {
                 {Object.entries(groupedResults).map(([type, results]) => (
                   <div key={type}>
                     <h3 className="text-sm font-semibold mb-4 flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
-                      {getCategoryDisplayName(type as any)}
+                      {getCategoryDisplayName(type as 'daily-card' | 'storage' | 'note')}
                       <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
                         {results.length}
                       </span>

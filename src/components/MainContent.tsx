@@ -1,6 +1,6 @@
 'use client'
 
-import { SectionType, NoteType } from '@/app/page'
+import { SectionType } from '@/app/page'
 import DailyCardContent from '@/components/DailyCardContent'
 import BigNoteEditor from '@/components/BigNoteEditor'
 import URLStorage from '@/components/storage/URLStorage'
@@ -20,7 +20,7 @@ type MainContentProps = {
   onNoteSelect: (noteId: string | null) => void
 }
 
-export default function MainContent({ activeSection, selectedNoteId, onNoteSelect }: MainContentProps) {
+export default function MainContent({ activeSection, selectedNoteId }: MainContentProps) {
   const renderContent = () => {
     switch (activeSection) {
       case 'dailyCard':
@@ -86,7 +86,7 @@ export default function MainContent({ activeSection, selectedNoteId, onNoteSelec
 }
 
 // Storage Page Component
-function StoragePage({ type, title, icon }: { type: string, title: string, icon: string }) {
+function StoragePage({ title, icon }: { type: string, title: string, icon: string }) {
   return (
     <div className="h-full" style={{ padding: 'var(--space-6)' }}>
       <div className="mb-6">

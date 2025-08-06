@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { fetchFromFinnhub } from '@/utils/finnhubApi'
 
 // Interface for Yahoo Finance response (for future use)

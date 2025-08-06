@@ -13,17 +13,17 @@ interface FinnhubQuote {
 }
 
 // Map Yahoo Finance symbols to Finnhub symbols
-const SYMBOL_MAPPING: Record<string, string> = {
-  '^GSPC': 'SPX', // S&P 500
-  '^IXIC': 'IXIC', // NASDAQ
-  '^DJI': 'DJI', // Dow Jones
-  '^FTSE': 'UKX', // FTSE 100
-  '^GDAXI': 'DAX', // DAX
-  '^FCHI': 'PX1', // CAC 40
-  '^N225': 'NKY', // Nikkei 225
-  '^HSI': 'HSI', // Hang Seng
-  '^KS11': 'KS11', // KOSPI
-}
+// const SYMBOL_MAPPING: Record<string, string> = {
+//   '^GSPC': 'SPX', // S&P 500
+//   '^IXIC': 'IXIC', // NASDAQ
+//   '^DJI': 'DJI', // Dow Jones
+//   '^FTSE': 'UKX', // FTSE 100
+//   '^GDAXI': 'DAX', // DAX
+//   '^FCHI': 'PX1', // CAC 40
+//   '^N225': 'NKY', // Nikkei 225
+//   '^HSI': 'HSI', // Hang Seng
+//   '^KS11': 'KS11', // KOSPI
+// }
 
 export async function fetchFromFinnhub(symbol: string): Promise<FinnhubQuote | null> {
   // Free tier allows 60 API calls/minute

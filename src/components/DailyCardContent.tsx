@@ -483,7 +483,7 @@ function DiaryCard({
 }
 
 // Budget Card Component - 세련된 디자인
-function BudgetCard({ budget }: { budget: BudgetEntry }) {
+function BudgetCard() {
   return (
     <div 
       className="group transition-all duration-300 ease-out"
@@ -547,7 +547,7 @@ function BudgetCard({ budget }: { budget: BudgetEntry }) {
 }
 
 // Goal Card Component - 세련된 디자인
-function GoalCard({ goal }: { goal: GoalEntry }) {
+function GoalCard() {
   return (
     <div 
       className="group transition-all duration-300 ease-out"

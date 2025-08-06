@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useCallback } from 'react'
+import { useCallback } from 'react'
 import introJs from 'intro.js'
 import 'intro.js/introjs.css'
 

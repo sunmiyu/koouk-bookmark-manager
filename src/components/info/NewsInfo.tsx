@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 type NewsArticle = {
   id: string
@@ -13,7 +13,7 @@ type NewsArticle = {
 }
 
 export default function NewsInfo() {
-  const [articles, setArticles] = useState<NewsArticle[]>([
+  const [articles] = useState<NewsArticle[]>([
     {
       id: '1',
       title: 'AI 기술의 새로운 돌파구, 차세대 언어모델 발표',

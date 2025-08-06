@@ -18,11 +18,8 @@ export default function LoadingOverlay() {
       <div className="bg-gray-900/95 border border-gray-700 rounded-2xl p-8 shadow-2xl max-w-sm mx-4">
         <div className="text-center space-y-4">
           <LoadingSpinner 
-            type={currentState.type}
-            message={currentState.message}
-            progress={currentState.progress}
             size="lg"
-            color="blue"
+            text={currentState.message || 'Loading...'}
           />
           
           {currentState.progress !== undefined && currentState.progress > 0 && (

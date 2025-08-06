@@ -104,10 +104,7 @@ export default function ImageStorage() {
                 setDragOver(false)
                 const files = Array.from(e.dataTransfer.files)
                 if (files[0] && files[0].type.startsWith('image/')) {
-                  handleFileSelect({ target: { files } } as React.ChangeEvent<HTMLInputElement>)
-                  if (files[0]) {
-                    quickAddImage(files[0])
-                  }
+                  quickAddImage(files[0])
                 }
               }}
               onDragOver={(e) => {

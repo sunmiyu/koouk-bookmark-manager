@@ -51,12 +51,20 @@ export default function AIToolsInfo() {
     }
   ])
 
-  const [newTool, setNewTool] = useState({
+  const [newTool, setNewTool] = useState<{
+    name: string
+    url: string
+    category: string
+    description: string
+    pricing: AITool['pricing']
+    rating: number
+    tags: string
+  }>({
     name: '',
     url: '',
     category: '',
     description: '',
-    pricing: 'Free' as const,
+    pricing: 'Free',
     rating: 5,
     tags: ''
   })

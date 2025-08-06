@@ -116,9 +116,9 @@ export default function WeatherWidget() {
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-800/40 hover:bg-gray-800/60 border border-gray-700/30 hover:border-gray-600/50 transition-all duration-200 cursor-pointer">
+      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-transparent hover:bg-gray-100 transition-all duration-200 cursor-pointer">
         <span className="text-base">{weatherData.icon}</span>
-        <span className="text-white text-sm font-medium">
+        <span className="text-black text-sm font-medium">
           {weatherData.temperature}°
         </span>
       </div>

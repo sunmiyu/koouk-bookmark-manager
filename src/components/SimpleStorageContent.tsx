@@ -133,8 +133,8 @@ export default function SimpleStorageContent() {
     <div className="space-y-6">
       {/* Add Content Section */}
       <div style={{ 
-        background: 'var(--color-surface)', 
-        border: '1px solid var(--color-border)', 
+        background: 'var(--color-card)', 
+        border: '1px solid var(--color-border-light)', 
         borderRadius: 'var(--radius-lg)', 
         padding: 'var(--space-lg)' 
       }}>
@@ -149,8 +149,8 @@ export default function SimpleStorageContent() {
 
       {/* Category Navigation */}
       <div style={{ 
-        background: 'var(--color-surface)', 
-        border: '1px solid var(--color-border)', 
+        background: 'var(--color-card)', 
+        border: '1px solid var(--color-border-light)', 
         borderRadius: 'var(--radius-lg)', 
         padding: 'var(--space-md)' 
       }}>
@@ -163,8 +163,8 @@ export default function SimpleStorageContent() {
               style={{
                 padding: 'var(--space-sm)',
                 borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--color-border)',
-                background: activeCategory === category.id ? 'var(--color-accent-muted)' : 'transparent',
+                border: '1px solid var(--color-border-light)',
+                background: activeCategory === category.id ? 'var(--color-background)' : 'transparent',
                 color: activeCategory === category.id ? 'var(--color-accent)' : 'var(--color-text-secondary)',
                 fontSize: 'var(--text-sm)',
                 fontWeight: activeCategory === category.id ? '600' : '500',
@@ -176,7 +176,7 @@ export default function SimpleStorageContent() {
               <span className="text-center leading-tight">{category.label}</span>
               {category.count > 0 && (
                 <span style={{
-                  background: activeCategory === category.id ? 'var(--color-accent)' : 'var(--color-border)',
+                  background: activeCategory === category.id ? 'var(--color-accent)' : 'var(--color-border-light)',
                   color: activeCategory === category.id ? 'var(--color-background)' : 'var(--color-text-tertiary)',
                   padding: '0.125rem 0.375rem',
                   borderRadius: 'var(--radius-sm)',
@@ -194,8 +194,8 @@ export default function SimpleStorageContent() {
 
       {/* Content Area */}
       <div style={{ 
-        background: 'var(--color-surface)', 
-        border: '1px solid var(--color-border)', 
+        background: 'var(--color-card)', 
+        border: '1px solid var(--color-border-light)', 
         borderRadius: 'var(--radius-lg)', 
         minHeight: '300px' 
       }}>

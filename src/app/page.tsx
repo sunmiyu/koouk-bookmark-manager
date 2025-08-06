@@ -16,6 +16,7 @@ import { LoadingProvider } from '@/contexts/LoadingContext'
 import ToastContainer from '@/components/ToastContainer'
 import LoadingOverlay from '@/components/LoadingOverlay'
 import { useOnboardingTour } from '@/hooks/useOnboardingTour'
+import UniversalSearch from '@/components/UniversalSearch'
 
 export type SectionType = 
   | 'dailyCard'
@@ -303,6 +304,9 @@ function HomeContent() {
         {/* Global Toast and Loading */}
         <ToastContainer />
         <LoadingOverlay />
+        
+        {/* Universal Search */}
+        <UniversalSearch />
       </ToastProvider>
     </LoadingProvider>
   )

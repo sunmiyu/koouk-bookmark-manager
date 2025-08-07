@@ -2,28 +2,18 @@
 
 import { useState } from 'react'
 import { SectionType, NoteType } from '@/app/page'
+import { DailyCardState } from '@/components/DailyCardContent'
 
 type SidebarProps = {
   activeSection: SectionType
   onSectionChange: (section: SectionType) => void
   selectedNoteId: string | null
   onNoteSelect: (noteId: string | null) => void
+  dailyCardState: DailyCardState
+  onDailyCardStateChange: (state: DailyCardState) => void
 }
 
-type DailyCardState = {
-  todo: boolean
-  diary: boolean
-  budget: boolean
-  goalTracker: boolean
-}
-
-export default function Sidebar({ activeSection, onSectionChange, selectedNoteId, onNoteSelect }: SidebarProps) {
-  const [dailyCardState, setDailyCardState] = useState<DailyCardState>({
-    todo: true,
-    diary: true,
-    budget: false,
-    goalTracker: false
-  })
+export default function Sidebar({ activeSection, onSectionChange, selectedNoteId, onNoteSelect, dailyCardState, onDailyCardStateChange }: SidebarProps) {
 
   const [notes, setNotes] = useState<NoteType[]>([
     { id: '1', title: 'note1', content: '', images: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
@@ -32,7 +22,8 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
   ])
 
   const handleDailyCardToggle = (key: keyof DailyCardState) => {
-    setDailyCardState(prev => ({ ...prev, [key]: !prev[key] }))
+    const newState = { ...dailyCardState, [key]: !dailyCardState[key] }
+    onDailyCardStateChange(newState)
   }
 
   const addNewNote = () => {
@@ -67,10 +58,10 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
 
   return (
     <div className="h-full" style={{ 
-      padding: '2rem 1.5rem',
+      padding: 'var(--space-6) var(--space-4)',
       backgroundColor: '#FAFAF9'
     }}>
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         {/* Daily Card Section */}
         <div>
           <button
@@ -80,9 +71,9 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
               backgroundColor: activeSection === 'dailyCard' ? '#FFFFFF' : 'transparent',
               color: activeSection === 'dailyCard' ? '#1A1A1A' : '#6B7280',
               fontWeight: activeSection === 'dailyCard' ? '500' : '400',
-              fontSize: '0.95rem',
-              borderRadius: '0.875rem',
-              padding: '0.875rem 1.125rem',
+              fontSize: 'var(--text-md)',
+              borderRadius: 'var(--radius-lg)',
+              padding: 'var(--space-3) var(--space-4)',
               border: activeSection === 'dailyCard' ? '1px solid #F0EDE8' : '1px solid transparent',
               letterSpacing: '-0.01em',
               boxShadow: activeSection === 'dailyCard' ? '0 1px 3px rgba(0, 0, 0, 0.05)' : 'none'
@@ -103,10 +94,10 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
             Daily Card
           </button>
           
-          <div className="mt-3 ml-2 space-y-1">
+          <div className="mt-3 ml-6 space-y-1">
             <label className="flex items-center gap-3 py-1.5 px-2 cursor-pointer transition-colors rounded-lg hover:bg-white/60" style={{
               color: '#6B7280',
-              fontSize: '0.85rem'
+              fontSize: 'var(--text-sm)'
             }}>
               <input
                 type="checkbox"
@@ -120,7 +111,7 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
             
             <label className="flex items-center gap-3 py-1.5 px-2 cursor-pointer transition-colors rounded-lg hover:bg-white/60" style={{
               color: '#6B7280',
-              fontSize: '0.85rem'
+              fontSize: 'var(--text-sm)'
             }}>
               <input
                 type="checkbox"
@@ -134,7 +125,7 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
             
             <label className="flex items-center gap-3 py-1.5 px-2 cursor-pointer transition-colors rounded-lg hover:bg-white/60" style={{
               color: '#6B7280',
-              fontSize: '0.85rem'
+              fontSize: 'var(--text-sm)'
             }}>
               <input
                 type="checkbox"
@@ -148,7 +139,7 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
             
             <label className="flex items-center gap-3 py-1.5 px-2 cursor-pointer transition-colors rounded-lg hover:bg-white/60" style={{
               color: '#6B7280',
-              fontSize: '0.85rem'
+              fontSize: 'var(--text-sm)'
             }}>
               <input
                 type="checkbox"
@@ -162,11 +153,15 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
           </div>
         </div>
 
+        {/* Divider */}
+        <hr style={{ border: 'none', borderTop: '1px solid #E8DCC0', margin: '1rem 0' }} />
+
         {/* Big Note Section */}
         <div>
-          <div className="flex items-center justify-between p-3" style={{
+          <div className="flex items-center justify-between" style={{
             backgroundColor: activeSection === 'bigNote' ? 'var(--bg-card)' : 'transparent',
-            borderRadius: 'var(--radius-lg)'
+            borderRadius: 'var(--radius-lg)',
+            padding: 'var(--space-3)'
           }}>
             <span style={{
               color: 'var(--text-primary)',
@@ -188,7 +183,7 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
             </button>
           </div>
           
-          <div className="mt-2 ml-4 space-y-1">
+          <div className="mt-3 ml-6 space-y-1">
             {notes.map(note => (
               <button
                 key={note.id}
@@ -208,6 +203,9 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
           </div>
         </div>
 
+        {/* Divider */}
+        <hr style={{ border: 'none', borderTop: '1px solid #E8DCC0', margin: '1rem 0' }} />
+
         {/* Storage Section */}
         <div>
           <button
@@ -224,7 +222,7 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
             Storage
           </button>
           
-          <div className="mt-2 ml-4 space-y-1">
+          <div className="mt-3 ml-6 space-y-1">
             {storageItems.map(item => (
               <button
                 key={item.key}
@@ -244,6 +242,9 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
           </div>
         </div>
 
+        {/* Divider */}
+        <hr style={{ border: 'none', borderTop: '1px solid #E8DCC0', margin: '1rem 0' }} />
+
         {/* Info Box Section */}
         <div>
           <button
@@ -260,7 +261,7 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
             Info Box
           </button>
           
-          <div className="mt-2 ml-4 space-y-1">
+          <div className="mt-3 ml-6 space-y-1">
             {infoBoxItems.map(item => (
               <button
                 key={item.key}
@@ -280,6 +281,9 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
           </div>
         </div>
 
+        {/* Divider */}
+        <hr style={{ border: 'none', borderTop: '1px solid #E8DCC0', margin: '1rem 0' }} />
+
         {/* TalkTalk Section */}
         <div>
           <button
@@ -289,9 +293,9 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
               backgroundColor: activeSection === 'talkTalk' ? '#FFFFFF' : 'transparent',
               color: activeSection === 'talkTalk' ? '#1A1A1A' : '#6B7280',
               fontWeight: activeSection === 'talkTalk' ? '500' : '400',
-              fontSize: '0.95rem',
-              borderRadius: '0.875rem',
-              padding: '0.875rem 1.125rem',
+              fontSize: 'var(--text-md)',
+              borderRadius: 'var(--radius-lg)',
+              padding: 'var(--space-3) var(--space-4)',
               border: activeSection === 'talkTalk' ? '1px solid #F0EDE8' : '1px solid transparent',
               letterSpacing: '-0.01em',
               boxShadow: activeSection === 'talkTalk' ? '0 1px 3px rgba(0, 0, 0, 0.05)' : 'none'

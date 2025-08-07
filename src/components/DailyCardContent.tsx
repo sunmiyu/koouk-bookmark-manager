@@ -36,7 +36,27 @@ type DayData = {
   goal: GoalEntry
 }
 
-export default function DailyCardContent() {
+export type DailyCardState = {
+  todo: boolean
+  diary: boolean
+  budget: boolean
+  goalTracker: boolean
+}
+
+type DailyCardContentProps = {
+  cardState?: DailyCardState
+}
+
+export default function DailyCardContent({ cardState }: DailyCardContentProps = {}) {
+  // 기본값 설정 (Todo는 항상 true)
+  const defaultCardState = {
+    todo: true,
+    diary: true,
+    budget: false,
+    goalTracker: false
+  }
+  
+  const activeCards = cardState || defaultCardState
   // Generate 7 days (3 past, today, 3 future)
   const generateDates = () => {
     const dates: DayData[] = []
@@ -132,24 +152,24 @@ export default function DailyCardContent() {
   }
 
   return (
-    <div className="h-full" style={{ 
-      padding: 'var(--space-10) var(--space-8)',
+    <div className="h-full overflow-y-auto" style={{ 
+      padding: 'var(--space-6) var(--space-4)',
       backgroundColor: 'var(--bg-primary)'
     }}>
       {/* Header - 세련된 타이포그래피 */}
-      <div className="mb-12">
+      <div className="mb-6 md:mb-12">
         <h1 style={{ 
-          fontSize: 'var(--text-3xl)',
+          fontSize: 'var(--text-2xl)',
           fontWeight: '300',
           color: 'var(--text-primary)',
           letterSpacing: '-0.02em',
           lineHeight: '1.2',
-          marginBottom: 'var(--space-2)'
+          marginBottom: 'var(--space-1)'
         }}>
           Daily Cards
         </h1>
         <p style={{ 
-          fontSize: 'var(--text-lg)',
+          fontSize: 'var(--text-md)',
           color: 'var(--text-secondary)',
           fontWeight: '400',
           lineHeight: '1.5',
@@ -174,19 +194,19 @@ export default function DailyCardContent() {
             display: none;
           }
         `}</style>
-        <div className="flex gap-8 pb-6" style={{ minWidth: 'min-content' }}>
+        <div className="flex gap-3 md:gap-8 pb-4 md:pb-6" style={{ minWidth: 'min-content' }}>
           {daysData.map((dayData) => (
-            <div key={dayData.date} className="flex-shrink-0" style={{ width: '22rem' }}>
+            <div key={dayData.date} className="flex-shrink-0 w-64 md:w-80" style={{ minWidth: '16rem' }}>
               {/* Date Header - 미니멀하고 우아한 */}
-              <div className="mb-6 text-center">
+              <div className="mb-4 md:mb-6 text-center">
                 <h2 style={{
-                  fontSize: 'var(--text-xl)',
+                  fontSize: 'var(--text-lg)',
                   fontWeight: dayData.date === new Date().toISOString().split('T')[0] ? '500' : '400',
                   color: dayData.date === new Date().toISOString().split('T')[0] ? 'var(--text-primary)' : 'var(--text-secondary)',
                   letterSpacing: '-0.01em',
-                  padding: 'var(--space-3) var(--space-6)',
+                  padding: 'var(--space-2) var(--space-4)',
                   backgroundColor: dayData.date === new Date().toISOString().split('T')[0] ? 'var(--bg-secondary)' : 'transparent',
-                  borderRadius: 'var(--radius-xl)',
+                  borderRadius: 'var(--radius-lg)',
                   border: dayData.date === new Date().toISOString().split('T')[0] ? '1px solid var(--border-medium)' : 'none',
                   transition: 'all 0.2s ease-out'
                 }}>
@@ -194,27 +214,31 @@ export default function DailyCardContent() {
                 </h2>
               </div>
 
-              {/* Cards Stack for this Date - 더 넉넉한 간격 */}
-              <div className="space-y-5">
-                {/* Todo Card */}
-                <TodoCard
-                  todos={dayData.todos}
-                  onAddTodo={(content) => addTodo(dayData.date, content)}
-                  onToggleTodo={(id) => toggleTodo(dayData.date, id)}
-                  onDeleteTodo={(id) => deleteTodo(dayData.date, id)}
-                />
+              {/* Cards Stack for this Date - 모바일 최적화된 간격 */}
+              <div className="space-y-3 md:space-y-5">
+                {/* Todo Card - 항상 표시 */}
+                {activeCards.todo && (
+                  <TodoCard
+                    todos={dayData.todos}
+                    onAddTodo={(content) => addTodo(dayData.date, content)}
+                    onToggleTodo={(id) => toggleTodo(dayData.date, id)}
+                    onDeleteTodo={(id) => deleteTodo(dayData.date, id)}
+                  />
+                )}
 
-                {/* Diary Card */}
-                <DiaryCard
-                  diary={dayData.diary}
-                  onUpdateDiary={(content) => updateDiary(dayData.date, content)}
-                />
+                {/* Diary Card - 체크박스 상태에 따라 표시 */}
+                {activeCards.diary && (
+                  <DiaryCard
+                    diary={dayData.diary}
+                    onUpdateDiary={(content) => updateDiary(dayData.date, content)}
+                  />
+                )}
 
-                {/* Budget Card (placeholder) */}
-                <BudgetCard />
+                {/* Budget Card - 체크박스 상태에 따라 표시 */}
+                {activeCards.budget && <BudgetCard />}
 
-                {/* Goal Tracker Card (placeholder) */}
-                <GoalCard />
+                {/* Goal Tracker Card - 체크박스 상태에 따라 표시 */}
+                {activeCards.goalTracker && <GoalCard />}
               </div>
             </div>
           ))}
@@ -250,8 +274,8 @@ function TodoCard({
       style={{ 
         backgroundColor: 'var(--bg-card)',
         border: '1px solid var(--border-light)',
-        borderRadius: 'var(--radius-xl)',
-        padding: 'var(--space-6)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 'var(--space-4)',
         boxShadow: 'var(--shadow-subtle)',
         transition: 'all 0.3s ease-out'
       }}
@@ -265,7 +289,7 @@ function TodoCard({
       }}
     >
       {/* 카드 제목 - 미니멀하고 우아한 */}
-      <div className="mb-5">
+      <div className="mb-3 md:mb-5">
         <h3 style={{ 
           fontSize: '1.1rem',
           fontWeight: '500',
@@ -277,7 +301,7 @@ function TodoCard({
         </h3>
       </div>
       
-      <div className="space-y-4">
+      <div className="space-y-3 md:space-y-4">
         {/* 입력 필드 - 세련된 디자인 */}
         <div className="relative">
           <input
@@ -291,11 +315,11 @@ function TodoCard({
             style={{
               backgroundColor: '#FAFAF9',
               border: `1px solid ${isFocused ? '#E8E5E1' : '#F5F3F0'}`,
-              borderRadius: '0.875rem',
-              padding: '0.875rem 1rem',
+              borderRadius: 'var(--radius-lg)',
+              padding: 'var(--space-3) var(--space-4)',
               color: '#1A1A1A',
               outline: 'none',
-              fontSize: '0.9rem',
+              fontSize: 'var(--text-sm)',
               fontWeight: '400',
               lineHeight: '1.4',
               letterSpacing: '0.01em'
@@ -333,7 +357,7 @@ function TodoCard({
         </div>
         
         {/* Todo 리스트 - 깔끔하고 우아한 */}
-        <div className="space-y-3 max-h-36 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+        <div className="space-y-2 md:space-y-3 max-h-32 md:max-h-36 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
           {todos.map(todo => (
             <div 
               key={todo.id} 
@@ -354,7 +378,7 @@ function TodoCard({
                 className={`flex-1 transition-all duration-200 ${todo.completed ? 'line-through' : ''}`} 
                 style={{
                   color: todo.completed ? '#9CA3AF' : '#1A1A1A',
-                  fontSize: '0.9rem',
+                  fontSize: 'var(--text-sm)',
                   fontWeight: '400',
                   lineHeight: '1.4',
                   letterSpacing: '0.01em',
@@ -413,8 +437,8 @@ function DiaryCard({
       style={{ 
         backgroundColor: 'var(--bg-card)',
         border: '1px solid var(--border-light)',
-        borderRadius: 'var(--radius-xl)',
-        padding: 'var(--space-6)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 'var(--space-4)',
         boxShadow: 'var(--shadow-subtle)',
         transition: 'all 0.3s ease-out'
       }}
@@ -428,9 +452,9 @@ function DiaryCard({
       }}
     >
       {/* 카드 제목 */}
-      <div className="mb-5">
+      <div className="mb-3 md:mb-5">
         <h3 style={{ 
-          fontSize: '1.1rem',
+          fontSize: 'var(--text-lg)',
           fontWeight: '500',
           color: '#1A1A1A',
           letterSpacing: '-0.01em',
@@ -440,7 +464,7 @@ function DiaryCard({
         </h3>
       </div>
       
-      <div className="space-y-3">
+      <div className="space-y-2 md:space-y-3">
         <textarea
           value={diary.content}
           onChange={(e) => onUpdateDiary(e.target.value)}
@@ -451,16 +475,16 @@ function DiaryCard({
           style={{
             backgroundColor: '#FAFAF9',
             border: `1px solid ${isFocused ? '#E8E5E1' : '#F5F3F0'}`,
-            borderRadius: '0.875rem',
-            padding: '1rem',
+            borderRadius: 'var(--radius-lg)',
+            padding: 'var(--space-4)',
             color: '#1A1A1A',
             outline: 'none',
-            fontSize: '0.9rem',
+            fontSize: 'var(--text-sm)',
             fontWeight: '400',
             lineHeight: '1.6',
             letterSpacing: '0.01em',
-            height: '6rem',
-            minHeight: '6rem'
+            height: '5rem',
+            minHeight: '5rem'
           }}
           maxLength={500}
         />
@@ -469,7 +493,7 @@ function DiaryCard({
         <div className="flex justify-end">
           <span style={{ 
             color: diary.characterCount > 450 ? '#EF4444' : '#9CA3AF',
-            fontSize: '0.75rem',
+            fontSize: 'var(--text-xs)',
             fontWeight: '400',
             letterSpacing: '0.02em',
             transition: 'color 0.2s ease-out'
@@ -490,8 +514,8 @@ function BudgetCard() {
       style={{ 
         backgroundColor: 'var(--bg-card)',
         border: '1px solid var(--border-light)',
-        borderRadius: 'var(--radius-xl)',
-        padding: 'var(--space-6)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 'var(--space-4)',
         boxShadow: 'var(--shadow-subtle)',
         transition: 'all 0.3s ease-out'
       }}
@@ -504,9 +528,9 @@ function BudgetCard() {
         e.currentTarget.style.boxShadow = 'var(--shadow-subtle)'
       }}
     >
-      <div className="mb-5">
+      <div className="mb-3 md:mb-5">
         <h3 style={{ 
-          fontSize: '1.1rem',
+          fontSize: 'var(--text-lg)',
           fontWeight: '500',
           color: '#1A1A1A',
           letterSpacing: '-0.01em',
@@ -516,25 +540,25 @@ function BudgetCard() {
         </h3>
       </div>
       
-      <div className="text-center py-8">
+      <div className="text-center py-6 md:py-8">
         <div style={{
           backgroundColor: '#FAFAF9',
-          borderRadius: '1rem',
-          padding: '1.5rem',
+          borderRadius: 'var(--radius-lg)',
+          padding: 'var(--space-4)',
           border: '1px solid #F5F3F0'
         }}>
           <p style={{ 
             color: '#6B7280',
-            fontSize: '0.9rem',
+            fontSize: 'var(--text-sm)',
             fontWeight: '400',
             lineHeight: '1.5',
-            marginBottom: '0.5rem'
+            marginBottom: 'var(--space-2)'
           }}>
             예산 관리 기능
           </p>
           <p style={{ 
             color: '#9CA3AF',
-            fontSize: '0.8rem',
+            fontSize: 'var(--text-xs)',
             fontWeight: '400',
             letterSpacing: '0.01em'
           }}>
@@ -554,8 +578,8 @@ function GoalCard() {
       style={{ 
         backgroundColor: 'var(--bg-card)',
         border: '1px solid var(--border-light)',
-        borderRadius: 'var(--radius-xl)',
-        padding: 'var(--space-6)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 'var(--space-4)',
         boxShadow: 'var(--shadow-subtle)',
         transition: 'all 0.3s ease-out'
       }}
@@ -568,9 +592,9 @@ function GoalCard() {
         e.currentTarget.style.boxShadow = 'var(--shadow-subtle)'
       }}
     >
-      <div className="mb-5">
+      <div className="mb-3 md:mb-5">
         <h3 style={{ 
-          fontSize: '1.1rem',
+          fontSize: 'var(--text-lg)',
           fontWeight: '500',
           color: '#1A1A1A',
           letterSpacing: '-0.01em',
@@ -580,25 +604,25 @@ function GoalCard() {
         </h3>
       </div>
       
-      <div className="text-center py-8">
+      <div className="text-center py-6 md:py-8">
         <div style={{
           backgroundColor: '#FAFAF9',
-          borderRadius: '1rem',
-          padding: '1.5rem',
+          borderRadius: 'var(--radius-lg)',
+          padding: 'var(--space-4)',
           border: '1px solid #F5F3F0'
         }}>
           <p style={{ 
             color: '#6B7280',
-            fontSize: '0.9rem',
+            fontSize: 'var(--text-sm)',
             fontWeight: '400',
             lineHeight: '1.5',
-            marginBottom: '0.5rem'
+            marginBottom: 'var(--space-2)'
           }}>
             목표 추적 기능
           </p>
           <p style={{ 
             color: '#9CA3AF',
-            fontSize: '0.8rem',
+            fontSize: 'var(--text-xs)',
             fontWeight: '400',
             letterSpacing: '0.01em'
           }}>

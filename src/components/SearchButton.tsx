@@ -45,7 +45,7 @@ export default function SearchButton() {
   }, [isOpen])
 
   return (
-    <div className="fixed bottom-6 right-6 z-50" ref={searchRef}>
+    <div className="fixed bottom-6 right-6 z-40" ref={searchRef}>
       {/* 검색 버튼 - Floating */}
       <button
         onClick={() => setIsOpen(!isOpen)}

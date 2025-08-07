@@ -13,18 +13,20 @@ import NewsInfo from '@/components/info/NewsInfo'
 import MusicInfo from '@/components/info/MusicInfo'
 import AIToolsInfo from '@/components/info/AIToolsInfo'
 import TalkTalkContent from '@/components/TalkTalkContent'
+import { DailyCardState } from '@/components/DailyCardContent'
 
 type MainContentProps = {
   activeSection: SectionType
   selectedNoteId: string | null
   onNoteSelect: (noteId: string | null) => void
+  dailyCardState?: DailyCardState
 }
 
-export default function MainContent({ activeSection, selectedNoteId }: MainContentProps) {
+export default function MainContent({ activeSection, selectedNoteId, dailyCardState }: MainContentProps) {
   const renderContent = () => {
     switch (activeSection) {
       case 'dailyCard':
-        return <DailyCardContent />
+        return <DailyCardContent cardState={dailyCardState} />
       
       case 'bigNote':
         return <BigNoteEditor noteId={selectedNoteId} />
@@ -88,12 +90,12 @@ export default function MainContent({ activeSection, selectedNoteId }: MainConte
 // Storage Page Component
 function StoragePage({ title, icon }: { type: string, title: string, icon: string }) {
   return (
-    <div className="h-full" style={{ padding: 'var(--space-6)' }}>
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-4">
-          <span className="text-3xl">{icon}</span>
+    <div className="h-full" style={{ padding: 'var(--space-4) var(--space-3)' }}>
+      <div className="mb-4 md:mb-6">
+        <div className="flex items-center gap-3 mb-3 md:mb-4">
+          <span style={{ fontSize: 'var(--text-2xl)' }}>{icon}</span>
           <h1 style={{ 
-            fontSize: 'var(--text-2xl)', 
+            fontSize: 'var(--text-xl)', 
             fontWeight: '700', 
             color: 'var(--text-primary)' 
           }}>
@@ -102,21 +104,25 @@ function StoragePage({ title, icon }: { type: string, title: string, icon: strin
         </div>
       </div>
 
-      <div className="bg-white rounded-lg border p-6 min-h-96" style={{ 
+      <div className="bg-white rounded-lg border min-h-64 md:min-h-96" style={{ 
         backgroundColor: 'var(--bg-card)',
-        borderColor: 'var(--border-light)'
+        borderColor: 'var(--border-light)',
+        padding: 'var(--space-4)'
       }}>
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">{icon}</div>
+        <div className="text-center py-8 md:py-12">
+          <div style={{ fontSize: 'var(--text-3xl)', marginBottom: 'var(--space-3)' }}>{icon}</div>
           <h3 style={{ 
-            fontSize: 'var(--text-xl)', 
+            fontSize: 'var(--text-lg)', 
             fontWeight: '600', 
             color: 'var(--text-primary)',
             marginBottom: 'var(--space-2)'
           }}>
             {title}
           </h3>
-          <p style={{ color: 'var(--text-secondary)' }}>
+          <p style={{ 
+            color: 'var(--text-secondary)',
+            fontSize: 'var(--text-sm)'
+          }}>
             이 섹션은 아직 구현중입니다.
           </p>
         </div>
@@ -174,26 +180,26 @@ function InfoPage({ type, title, icon }: { type: string, title: string, icon: st
 
   return (
     <div className="h-full" style={{ 
-      padding: 'var(--space-10) var(--space-8)',
+      padding: 'var(--space-6) var(--space-4)',
       backgroundColor: 'var(--bg-primary)'
     }}>
       {/* Header */}
-      <div className="mb-12">
-        <div className="flex items-center gap-4">
-          <span style={{ fontSize: '2rem' }}>{icon}</span>
+      <div className="mb-6 md:mb-12">
+        <div className="flex items-center gap-3">
+          <span style={{ fontSize: 'var(--text-2xl)' }}>{icon}</span>
           <div>
             <h1 style={{ 
-              fontSize: 'var(--text-3xl)',
+              fontSize: 'var(--text-2xl)',
               fontWeight: '300',
               color: 'var(--text-primary)',
               letterSpacing: '-0.02em',
               lineHeight: '1.2',
-              marginBottom: 'var(--space-2)'
+              marginBottom: 'var(--space-1)'
             }}>
               {title}
             </h1>
             <p style={{ 
-              fontSize: 'var(--text-lg)',
+              fontSize: 'var(--text-md)',
               color: 'var(--text-secondary)',
               fontWeight: '400',
               lineHeight: '1.5'
@@ -208,27 +214,27 @@ function InfoPage({ type, title, icon }: { type: string, title: string, icon: st
       <div style={{ 
         backgroundColor: 'var(--bg-card)',
         border: '1px solid var(--border-light)',
-        borderRadius: 'var(--radius-xl)',
-        padding: 'var(--space-12)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 'var(--space-6)',
         boxShadow: 'var(--shadow-subtle)',
         textAlign: 'center' as const
       }}>
-        <div style={{ fontSize: '4rem', marginBottom: 'var(--space-6)' }}>{icon}</div>
+        <div style={{ fontSize: 'var(--text-3xl)', marginBottom: 'var(--space-4)' }}>{icon}</div>
         
         <h3 style={{ 
-          fontSize: 'var(--text-2xl)',
+          fontSize: 'var(--text-xl)',
           fontWeight: '400',
           color: 'var(--text-primary)',
-          marginBottom: 'var(--space-4)',
+          marginBottom: 'var(--space-3)',
           letterSpacing: '-0.01em'
         }}>
           {title}
         </h3>
         
         <p style={{ 
-          fontSize: 'var(--text-lg)',
+          fontSize: 'var(--text-md)',
           color: 'var(--text-secondary)',
-          marginBottom: 'var(--space-8)',
+          marginBottom: 'var(--space-6)',
           lineHeight: '1.6'
         }}>
           곧 출시 예정입니다
@@ -238,14 +244,14 @@ function InfoPage({ type, title, icon }: { type: string, title: string, icon: st
         <div style={{ 
           backgroundColor: 'var(--bg-secondary)',
           borderRadius: 'var(--radius-lg)',
-          padding: 'var(--space-6)',
-          marginBottom: 'var(--space-6)'
+          padding: 'var(--space-4)',
+          marginBottom: 'var(--space-4)'
         }}>
           <h4 style={{ 
-            fontSize: 'var(--text-lg)',
+            fontSize: 'var(--text-md)',
             fontWeight: '500',
             color: 'var(--text-primary)',
-            marginBottom: 'var(--space-4)',
+            marginBottom: 'var(--space-3)',
             letterSpacing: '-0.01em'
           }}>
             예정 기능
@@ -253,10 +259,10 @@ function InfoPage({ type, title, icon }: { type: string, title: string, icon: st
           <div className="space-y-2">
             {content.features.map((feature, index) => (
               <div key={index} style={{
-                fontSize: 'var(--text-md)',
+                fontSize: 'var(--text-sm)',
                 color: 'var(--text-secondary)',
                 textAlign: 'left' as const,
-                padding: 'var(--space-2) 0'
+                padding: 'var(--space-1) 0'
               }}>
                 {feature}
               </div>

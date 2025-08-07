@@ -2,86 +2,89 @@
 
 /* 메인 툴팁 스타일 */
 .koouk-intro-tooltip {
-  background: white !important;
-  border: 1px solid #F0EDE8 !important;
-  border-radius: 20px !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 8px 20px rgba(0, 0, 0, 0.1) !important;
+  background: #FAFAF9 !important;
+  border: 1px solid #E8DCC0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif !important;
-  max-width: 380px !important;
+  max-width: 360px !important;
   padding: 0 !important;
-  min-width: 280px !important;
+  min-width: 300px !important;
+  z-index: 2147483647 !important;
+  position: fixed !important;
 }
 
 /* 툴팁 헤더 */
 .koouk-intro-tooltip .introjs-tooltip-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  border-radius: 20px 20px 0 0 !important;
-  padding: 20px 24px 16px 24px !important;
+  background: #F5F1E8 !important;
+  border-radius: 12px 12px 0 0 !important;
+  padding: 20px 24px !important;
   border: none !important;
   margin: 0 !important;
+  border-bottom: 1px solid #E8DCC0 !important;
 }
 
 .koouk-intro-tooltip .introjs-tooltip-title {
-  color: white !important;
-  font-size: 18px !important;
-  font-weight: 600 !important;
+  color: #333333 !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
   margin: 0 !important;
-  letter-spacing: -0.01em !important;
+  letter-spacing: 0 !important;
 }
 
 /* 툴팁 내용 */
 .koouk-intro-tooltip .introjs-tooltiptext {
   padding: 24px !important;
-  color: #1A1A1A !important;
-  font-size: 15px !important;
+  color: #333333 !important;
+  font-size: 14px !important;
   line-height: 1.6 !important;
   border: none !important;
 }
 
 /* 버튼 영역 */
 .koouk-intro-tooltip .introjs-tooltipbuttons {
-  padding: 0 24px 24px 24px !important;
+  padding: 0 24px 20px 24px !important;
   text-align: right !important;
-  border-top: 1px solid #F0EDE8 !important;
-  padding-top: 20px !important;
-  margin-top: 20px !important;
+  border-top: 1px solid #E8DCC0 !important;
+  padding-top: 16px !important;
+  margin-top: 16px !important;
 }
 
 /* 다음 버튼 */
 .koouk-intro-tooltip .introjs-nextbutton {
-  background: #1A1A1A !important;
+  background: #333333 !important;
   color: white !important;
   border: none !important;
-  border-radius: 12px !important;
-  padding: 12px 20px !important;
+  border-radius: 8px !important;
+  padding: 10px 16px !important;
   font-size: 14px !important;
-  font-weight: 500 !important;
+  font-weight: 400 !important;
   margin-left: 8px !important;
-  transition: all 0.2s ease-out !important;
-  box-shadow: 0 2px 8px rgba(26, 26, 26, 0.2) !important;
+  transition: background 0.2s ease !important;
+  box-shadow: none !important;
 }
 
 .koouk-intro-tooltip .introjs-nextbutton:hover {
-  background: #333333 !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(26, 26, 26, 0.3) !important;
+  background: #555555 !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 /* 이전 버튼 */
 .koouk-intro-tooltip .introjs-prevbutton {
-  background: #F8F8F7 !important;
+  background: transparent !important;
   color: #6B7280 !important;
-  border: 1px solid #E8E5E1 !important;
-  border-radius: 12px !important;
-  padding: 12px 16px !important;
+  border: 1px solid #E8DCC0 !important;
+  border-radius: 8px !important;
+  padding: 10px 16px !important;
   font-size: 14px !important;
-  font-weight: 500 !important;
-  transition: all 0.2s ease-out !important;
+  font-weight: 400 !important;
+  transition: all 0.2s ease !important;
 }
 
 .koouk-intro-tooltip .introjs-prevbutton:hover {
-  background: #F0EDE8 !important;
-  color: #1A1A1A !important;
+  background: #F5F1E8 !important;
+  color: #333333 !important;
 }
 
 /* 건너뛰기 버튼 */
@@ -90,9 +93,9 @@
   color: #9CA3AF !important;
   border: none !important;
   font-size: 13px !important;
-  text-decoration: underline !important;
-  padding: 12px 16px !important;
-  transition: color 0.2s ease-out !important;
+  text-decoration: none !important;
+  padding: 10px 16px !important;
+  transition: color 0.2s ease !important;
 }
 
 .koouk-intro-tooltip .introjs-skipbutton:hover {
@@ -101,29 +104,31 @@
 
 /* 진행률 바 */
 .koouk-intro-tooltip .introjs-progress {
-  background: #F0EDE8 !important;
-  border-radius: 10px !important;
-  height: 4px !important;
-  margin: 0 24px 20px 24px !important;
+  background: #E8DCC0 !important;
+  border-radius: 4px !important;
+  height: 3px !important;
+  margin: 0 24px 16px 24px !important;
 }
 
 .koouk-intro-tooltip .introjs-progressbar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  border-radius: 10px !important;
-  height: 4px !important;
+  background: #333333 !important;
+  border-radius: 4px !important;
+  height: 3px !important;
 }
 
 /* 하이라이트 효과 */
 .koouk-intro-highlight {
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.4) !important;
-  border-radius: 16px !important;
-  transition: all 0.3s ease-out !important;
+  box-shadow: 0 0 0 2px rgba(51, 51, 51, 0.3) !important;
+  border-radius: 12px !important;
+  transition: all 0.2s ease !important;
 }
 
 /* 오버레이 */
 .introjs-overlay {
-  background: rgba(0, 0, 0, 0.7) !important;
-  backdrop-filter: blur(2px) !important;
+  background: rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: none !important;
+  z-index: 2147483646 !important;
+  position: fixed !important;
 }
 
 /* 화살표 */
@@ -132,22 +137,22 @@
 }
 
 .koouk-intro-tooltip .introjs-arrow.top {
-  border-bottom-color: white !important;
+  border-bottom-color: #FAFAF9 !important;
   top: -24px !important;
 }
 
 .koouk-intro-tooltip .introjs-arrow.bottom {
-  border-top-color: white !important;
+  border-top-color: #FAFAF9 !important;
   bottom: -24px !important;
 }
 
 .koouk-intro-tooltip .introjs-arrow.left {
-  border-right-color: white !important;
+  border-right-color: #FAFAF9 !important;
   left: -24px !important;
 }
 
 .koouk-intro-tooltip .introjs-arrow.right {
-  border-left-color: white !important;
+  border-left-color: #FAFAF9 !important;
   right: -24px !important;
 }
 

@@ -15,6 +15,7 @@ import { LoadingProvider } from '@/contexts/LoadingContext'
 import LoadingOverlay from '@/components/LoadingOverlay'
 import { useOnboardingTour } from '@/hooks/useOnboardingTour'
 import SearchButton from '@/components/SearchButton'
+import { DailyCardState } from '@/components/DailyCardContent'
 
 export type SectionType = 
   | 'dailyCard'
@@ -79,10 +80,17 @@ const tourButtonBaseStyle = {
   fontWeight: '500'
 }
 
+
 function HomeContent() {
   const [activeSection, setActiveSection] = useState<SectionType>('dailyCard')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true) // 모바일 기본값: 닫힘
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null)
+  const [dailyCardState, setDailyCardState] = useState<DailyCardState>({
+    todo: true,
+    diary: true,
+    budget: false,
+    goalTracker: false
+  })
   
   // Authentication
   const { user, loading: authLoading } = useAuth()
@@ -117,13 +125,13 @@ function HomeContent() {
       {/* New Koouk Layout */}
         <div className="min-h-screen flex flex-col" style={mainContainerStyle}>
             {/* Container with max width - 더 넓은 화면 */}
-            <div className="w-full max-w-[1600px] mx-auto" style={{ padding: '0 20px' }}>
+            <div className="w-full max-w-[1600px] mx-auto px-3 md:px-5">
               {/* Header */}
               <header className="w-full border-b" style={headerStyle}>
                 {/* Mobile Layout: 2 rows */}
                 <div className="md:hidden">
                   {/* First Row: Hamburger + Logo + Account */}
-                  <div className="flex items-center justify-between w-full mb-3">
+                  <div className="flex items-center justify-between w-full mb-2">
                     <div className="flex items-center gap-4">
                       {/* Sidebar Toggle Button */}
                       <button
@@ -145,14 +153,17 @@ function HomeContent() {
                       <KooukLogo />
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <button
                         onClick={startTour}
-                        className="md:hidden p-2 rounded-lg transition-colors"
+                        className="md:hidden transition-colors"
                         style={{
                           backgroundColor: 'transparent',
                           color: 'var(--text-secondary)',
                           border: '1px solid var(--border-light)',
+                          borderRadius: 'var(--radius-md)',
+                          padding: 'var(--space-2) var(--space-3)',
+                          fontSize: 'var(--text-xs)'
                         }}
                         onTouchStart={(e) => {
                           e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'
@@ -161,7 +172,7 @@ function HomeContent() {
                           e.currentTarget.style.backgroundColor = 'transparent'
                         }}
                       >
-                        <span>🎓</span>
+                        <span>투어</span>
                       </button>
                       <AuthButton />
                     </div>
@@ -232,7 +243,7 @@ function HomeContent() {
                 {/* Desktop Sidebar */}
                 <div 
                   id="desktop-sidebar"
-                  className="hidden md:block transition-all duration-300 border-r w-80 sidebar-tour-target"
+                  className="hidden md:block transition-all duration-300 border-r w-64 sidebar-tour-target"
                   style={desktopSidebarStyle}
                   role="navigation"
                   aria-label="Main navigation"
@@ -243,6 +254,8 @@ function HomeContent() {
                       onSectionChange={setActiveSection}
                       selectedNoteId={selectedNoteId}
                       onNoteSelect={setSelectedNoteId}
+                      dailyCardState={dailyCardState}
+                      onDailyCardStateChange={setDailyCardState}
                     />
                   </div>
                 </div>
@@ -293,6 +306,8 @@ function HomeContent() {
                           }}
                           selectedNoteId={selectedNoteId}
                           onNoteSelect={setSelectedNoteId}
+                          dailyCardState={dailyCardState}
+                          onDailyCardStateChange={setDailyCardState}
                         />
                       </div>
                     </div>
@@ -307,6 +322,7 @@ function HomeContent() {
                       activeSection={activeSection}
                       selectedNoteId={selectedNoteId}
                       onNoteSelect={setSelectedNoteId}
+                      dailyCardState={dailyCardState}
                     />
                   </div>
 

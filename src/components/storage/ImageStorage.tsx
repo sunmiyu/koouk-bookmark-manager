@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 
 type ImageItem = {
@@ -29,6 +29,69 @@ export default function ImageStorage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [dragOver, setDragOver] = useState(false)
+  const [quickImageURL, setQuickImageURL] = useState('')
+  const [isQuickAdding, setIsQuickAdding] = useState(false)
+  const [clipboardSupported, setClipboardSupported] = useState(false)
+
+  // Check clipboard support on mount
+  useEffect(() => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.read === 'function') {
+      setClipboardSupported(true)
+    }
+  }, [])
+
+  // Handle clipboard paste
+  const handleClipboardPaste = async () => {
+    if (!clipboardSupported) return
+    
+    try {
+      const clipboardItems = await navigator.clipboard.read()
+      
+      for (const clipboardItem of clipboardItems) {
+        for (const type of clipboardItem.types) {
+          if (type.startsWith('image/')) {
+            const blob = await clipboardItem.getType(type)
+            const file = new File([blob], `clipboard-image-${Date.now()}.${type.split('/')[1]}`, { type })
+            quickAddImage(file)
+            return
+          }
+        }
+      }
+      
+      // If no image found, show message
+      alert('클립보드에 이미지가 없습니다.')
+    } catch (err) {
+      console.error('Failed to read clipboard:', err)
+      alert('클립보드 접근에 실패했습니다.')
+    }
+  }
+
+  // Handle global paste event
+  useEffect(() => {
+    const handleGlobalPaste = (e: ClipboardEvent) => {
+      // Only handle if we're in the image storage section and no input is focused
+      if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') {
+        return
+      }
+      
+      const items = e.clipboardData?.items
+      if (!items) return
+      
+      for (const item of Array.from(items)) {
+        if (item.type.startsWith('image/')) {
+          e.preventDefault()
+          const file = item.getAsFile()
+          if (file) {
+            quickAddImage(file)
+          }
+          break
+        }
+      }
+    }
+
+    document.addEventListener('paste', handleGlobalPaste)
+    return () => document.removeEventListener('paste', handleGlobalPaste)
+  }, [])
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -71,6 +134,44 @@ export default function ImageStorage() {
     setImages(prev => [imageItem, ...prev])
   }
 
+  const quickAddImageURL = async () => {
+    if (!quickImageURL.trim()) return
+    
+    setIsQuickAdding(true)
+    try {
+      // URL 유효성 검사 및 제목 추출
+      let title = quickImageURL
+      try {
+        const url = new URL(quickImageURL)
+        const pathSegments = url.pathname.split('/').filter(segment => segment)
+        const fileName = pathSegments[pathSegments.length - 1]
+        
+        if (fileName && fileName.includes('.')) {
+          title = fileName.replace(/\.[^/.]+$/, '') // 확장자 제거
+        } else {
+          const domain = url.hostname.replace('www.', '')
+          title = domain.charAt(0).toUpperCase() + domain.slice(1)
+        }
+      } catch {
+        title = 'Image from URL'
+      }
+      
+      const imageItem: ImageItem = {
+        id: Date.now().toString(),
+        title,
+        imageUrl: quickImageURL,
+        description: '빠른 URL 추가로 저장됨',
+        tags: ['URL'],
+        createdAt: new Date().toISOString()
+      }
+      
+      setImages(prev => [imageItem, ...prev])
+      setQuickImageURL('')
+    } finally {
+      setIsQuickAdding(false)
+    }
+  }
+
   const deleteImage = (id: string) => {
     setImages(prev => prev.filter(img => img.id !== id))
   }
@@ -81,9 +182,9 @@ export default function ImageStorage() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <span className="text-3xl">🖼️</span>
+            <span className="text-lg">🖼️</span>
             <h1 style={{ 
-              fontSize: 'var(--text-2xl)', 
+              fontSize: 'var(--text-xl)', 
               fontWeight: '700', 
               color: 'var(--text-primary)' 
             }}>
@@ -115,7 +216,7 @@ export default function ImageStorage() {
               onDragLeave={() => setDragOver(false)}
               onClick={() => document.getElementById('image-input')?.click()}
             >
-              <span style={{ fontSize: '2rem', marginBottom: 'var(--space-2)', display: 'block' }}>📸</span>
+              <span style={{ fontSize: '1.125rem', marginBottom: 'var(--space-2)', display: 'block' }}>📸</span>
               <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>
                 이미지를 드래그하거나 클릭해서 바로 추가
               </p>
@@ -133,6 +234,40 @@ export default function ImageStorage() {
               }}
               style={{ display: 'none' }}
             />
+
+            {/* Clipboard paste button */}
+            {clipboardSupported && (
+              <button
+                onClick={handleClipboardPaste}
+                className="transition-all duration-200"
+                style={{
+                  backgroundColor: 'var(--bg-secondary)',
+                  color: 'var(--text-secondary)',
+                  border: '1px solid var(--border-light)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: 'var(--space-3) var(--space-4)',
+                  fontSize: 'var(--text-sm)',
+                  fontWeight: '500',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 'var(--space-2)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--text-primary)'
+                  e.currentTarget.style.color = 'var(--bg-card)'
+                  e.currentTarget.style.transform = 'scale(1.02)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'
+                  e.currentTarget.style.color = 'var(--text-secondary)'
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}
+              >
+                <span>📋</span>
+                <span>클립보드에서 붙여넣기</span>
+              </button>
+            )}
             
             <button
               onClick={() => setShowAddForm(!showAddForm)}
@@ -149,6 +284,74 @@ export default function ImageStorage() {
               {showAddForm ? '간단하게 추가' : '자세한 정보 입력'}
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Quick URL Input */}
+      <div className="mb-6">
+        <div className="flex gap-3">
+          <div className="flex-1 relative">
+            <input
+              type="url"
+              value={quickImageURL}
+              onChange={(e) => setQuickImageURL(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  quickAddImageURL()
+                }
+              }}
+              placeholder="이미지 URL을 붙여넣으세요 (Pinterest, Instagram, 웹사이트 등)"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl transition-all duration-200 ease-out"
+              style={{
+                backgroundColor: '#FAFAF9',
+                borderColor: '#F5F3F0',
+                color: '#1A1A1A',
+                fontSize: 'var(--text-sm)',
+                fontWeight: '400',
+                outline: 'none'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#E8E5E1'
+                e.target.style.backgroundColor = '#FFFFFF'
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#F5F3F0'
+                e.target.style.backgroundColor = '#FAFAF9'
+              }}
+            />
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              🔗
+            </div>
+          </div>
+          <button
+            onClick={quickAddImageURL}
+            disabled={!quickImageURL.trim() || isQuickAdding}
+            className="px-6 py-3 bg-gray-900 text-white rounded-xl font-medium transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: quickImageURL.trim() ? '#1A1A1A' : '#9CA3AF',
+              fontSize: 'var(--text-sm)'
+            }}
+            onMouseEnter={(e) => {
+              if (quickImageURL.trim()) {
+                e.currentTarget.style.backgroundColor = '#333333'
+                e.currentTarget.style.transform = 'scale(1.02)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (quickImageURL.trim()) {
+                e.currentTarget.style.backgroundColor = '#1A1A1A'
+                e.currentTarget.style.transform = 'scale(1)'
+              }
+            }}
+          >
+            {isQuickAdding ? '추가 중...' : '빠른 추가'}
+          </button>
+        </div>
+        <div className="mt-2 text-xs" style={{ color: 'var(--text-muted)' }}>
+          <p>💡 URL을 입력하고 엔터키를 누르면 바로 저장됩니다</p>
+          {clipboardSupported && (
+            <p>📋 Ctrl+V로 클립보드 이미지를 바로 붙여넣기할 수 있습니다</p>
+          )}
         </div>
       </div>
 

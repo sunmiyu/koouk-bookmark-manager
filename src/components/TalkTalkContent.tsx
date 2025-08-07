@@ -68,16 +68,6 @@ export default function TalkTalkContent() {
     }}>
       {/* Header */}
       <div className="mb-12">
-        <h1 style={{ 
-          fontSize: 'var(--text-3xl)',
-          fontWeight: '300',
-          color: 'var(--text-primary)',
-          letterSpacing: '-0.02em',
-          lineHeight: '1.2',
-          marginBottom: 'var(--space-2)'
-        }}>
-          TalkTalk
-        </h1>
         <p style={{ 
           fontSize: 'var(--text-lg)',
           color: 'var(--text-secondary)',

@@ -16,6 +16,11 @@ import LoadingOverlay from '@/components/LoadingOverlay'
 import { useOnboardingTour } from '@/hooks/useOnboardingTour'
 import SearchButton from '@/components/SearchButton'
 import { DailyCardState } from '@/components/DailyCardContent'
+import MobileBottomNav from '@/components/MobileBottomNav'
+import DailyCardChips from '@/components/DailyCardChips'
+import StorageSwipeTabs from '@/components/StorageSwipeTabs'
+import BigNoteDropdown from '@/components/BigNoteDropdown'
+import InfoSwipeTabs from '@/components/InfoSwipeTabs'
 
 export type SectionType = 
   | 'dailyCard'
@@ -91,6 +96,73 @@ function HomeContent() {
     budget: false,
     goalTracker: false
   })
+  const [notes, setNotes] = useState<NoteType[]>([
+    { id: '1', title: 'note1', content: '', images: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+    { id: '2', title: 'note2', content: '', images: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+    { id: '3', title: 'note3', content: '', images: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+  ])
+
+  const addNewNote = () => {
+    const newNote: NoteType = {
+      id: Date.now().toString(),
+      title: `note${notes.length + 1}`,
+      content: '',
+      images: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+    setNotes(prev => [...prev, newNote])
+    setSelectedNoteId(newNote.id)
+    setActiveSection('bigNote')
+  }
+
+  const handleNoteClick = (noteId: string) => {
+    setSelectedNoteId(noteId)
+    setActiveSection('bigNote')
+  }
+
+  // Render top navigation based on active section
+  const renderTopNavigation = () => {
+    if (activeSection === 'dailyCard') {
+      return (
+        <DailyCardChips
+          dailyCardState={dailyCardState}
+          onDailyCardStateChange={setDailyCardState}
+        />
+      )
+    }
+    
+    if (activeSection.startsWith('storage')) {
+      return (
+        <StorageSwipeTabs
+          activeSection={activeSection}
+          onSectionChange={setActiveSection}
+        />
+      )
+    }
+    
+    if (activeSection === 'bigNote') {
+      return (
+        <BigNoteDropdown
+          notes={notes}
+          selectedNoteId={selectedNoteId}
+          onNoteSelect={setSelectedNoteId}
+          onAddNote={addNewNote}
+        />
+      )
+    }
+    
+    if (activeSection.startsWith('info')) {
+      return (
+        <InfoSwipeTabs
+          activeSection={activeSection}
+          onSectionChange={setActiveSection}
+        />
+      )
+    }
+    
+    return null
+  }
   
   // Authentication
   const { user, loading: authLoading } = useAuth()
@@ -124,88 +196,70 @@ function HomeContent() {
     <LoadingProvider>
       {/* New Koouk Layout */}
         <div className="min-h-screen flex flex-col" style={mainContainerStyle}>
-            {/* Container with max width - 더 넓은 화면 */}
-            <div className="w-full max-w-[1600px] mx-auto px-3 md:px-5">
+            {/* Container with max width - 중앙 정렬 */}
+            <div className="w-full max-w-[1400px] mx-auto px-3 md:px-5">
               {/* Header */}
               <header className="w-full border-b" style={headerStyle}>
-                {/* Mobile Layout: 2 rows */}
+                {/* Mobile Layout: Single row with 로고 - 날씨 - 시간 - 투어 - 계정 */}
                 <div className="md:hidden">
-                  {/* First Row: Hamburger + Logo + Account */}
-                  <div className="flex items-center justify-between w-full mb-2">
-                    <div className="flex items-center gap-4">
-                      {/* Sidebar Toggle Button */}
-                      <button
-                        onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                        className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-                        style={{
-                          color: 'var(--text-secondary)',
-                          backgroundColor: sidebarCollapsed ? 'var(--bg-secondary)' : 'transparent'
-                        }}
-                        aria-label={sidebarCollapsed ? '사이드바 열기' : '사이드바 닫기'}
-                        aria-expanded={!sidebarCollapsed}
-                        aria-controls="mobile-sidebar"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                      </button>
-                      
+                  <div className="flex items-center justify-between w-full">
+                    {/* 로고 */}
+                    <div className="flex-shrink-0">
                       <KooukLogo />
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    {/* 중앙: 날씨 + 시간 */}
+                    <div className="flex items-center gap-4 flex-1 justify-center">
+                      <EnhancedWeatherWidget />
+                      <EnhancedTimeDisplay />
+                    </div>
+
+                    {/* 우측: 투어 + 계정 */}
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <button
                         onClick={startTour}
-                        className="md:hidden transition-colors"
+                        className="md:hidden transition-all duration-200"
                         style={{
                           backgroundColor: 'transparent',
                           color: 'var(--text-secondary)',
-                          border: '1px solid var(--border-light)',
-                          borderRadius: 'var(--radius-md)',
-                          padding: 'var(--space-2) var(--space-3)',
-                          fontSize: 'var(--text-xs)'
+                          border: 'none',
+                          borderRadius: '50%',
+                          padding: 'var(--space-2)',
+                          fontSize: 'var(--text-sm)',
+                          width: '2rem',
+                          height: '2rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'
+                          e.currentTarget.style.transform = 'scale(1.05)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent'
+                          e.currentTarget.style.transform = 'scale(1)'
                         }}
                         onTouchStart={(e) => {
                           e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'
+                          e.currentTarget.style.transform = 'scale(1.05)'
                         }}
                         onTouchEnd={(e) => {
                           e.currentTarget.style.backgroundColor = 'transparent'
+                          e.currentTarget.style.transform = 'scale(1)'
                         }}
                       >
-                        <span>투어</span>
+                        <span>🎓</span>
                       </button>
                       <AuthButton />
                     </div>
-                  </div>
-
-                  {/* Second Row: Weather + Time */}
-                  <div className="flex items-center justify-between w-full">
-                    <EnhancedWeatherWidget />
-                    <EnhancedTimeDisplay />
                   </div>
                 </div>
 
                 {/* Desktop Layout: 1 row */}
                 <div className="hidden md:flex items-center justify-between w-full" style={{ height: '70px' }}>
-                  {/* Left: Hamburger + Logo */}
-                  <div className="flex items-center gap-4">
-                    {/* Sidebar Toggle Button */}
-                    <button
-                      onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                      className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-                      style={{
-                        color: 'var(--text-secondary)',
-                        backgroundColor: sidebarCollapsed ? 'var(--bg-secondary)' : 'transparent'
-                      }}
-                      aria-label={sidebarCollapsed ? '사이드바 열기' : '사이드바 닫기'}
-                      aria-expanded={!sidebarCollapsed}
-                      aria-controls="desktop-sidebar"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                      </svg>
-                    </button>
-                    
+                  {/* Left: Logo only */}
+                  <div className="flex items-center">
                     <KooukLogo />
                   </div>
 
@@ -230,20 +284,23 @@ function HomeContent() {
                         e.currentTarget.style.color = 'var(--text-secondary)'
                       }}
                     >
-                      <span>\ud83c\udf93</span>
-                      <span>\ud22c\uc5b4 \ub2e4\uc2dc\ubcf4\uae30</span>
+                      <span>🎓</span>
+                      <span>투어 다시보기</span>
                     </button>
                     <AuthButton />
                   </div>
                 </div>
               </header>
 
+              {/* Mobile Top Navigation */}
+              {renderTopNavigation()}
+
               {/* Main Layout: Sidebar + Content */}
               <div className="flex flex-1 overflow-hidden relative">
-                {/* Desktop Sidebar */}
+                {/* Desktop Sidebar - 항상 표시 */}
                 <div 
                   id="desktop-sidebar"
-                  className="hidden md:block transition-all duration-300 border-r w-64 sidebar-tour-target"
+                  className="hidden md:block border-r w-64 sidebar-tour-target"
                   style={desktopSidebarStyle}
                   role="navigation"
                   aria-label="Main navigation"
@@ -253,9 +310,11 @@ function HomeContent() {
                       activeSection={activeSection}
                       onSectionChange={setActiveSection}
                       selectedNoteId={selectedNoteId}
-                      onNoteSelect={setSelectedNoteId}
+                      onNoteSelect={handleNoteClick}
                       dailyCardState={dailyCardState}
                       onDailyCardStateChange={setDailyCardState}
+                      notes={notes}
+                      onAddNote={addNewNote}
                     />
                   </div>
                 </div>
@@ -305,9 +364,14 @@ function HomeContent() {
                             setSidebarCollapsed(true) // 모바일에서 메뉴 선택 시 사이드바 닫기
                           }}
                           selectedNoteId={selectedNoteId}
-                          onNoteSelect={setSelectedNoteId}
+                          onNoteSelect={(noteId) => {
+                            handleNoteClick(noteId)
+                            setSidebarCollapsed(true)
+                          }}
                           dailyCardState={dailyCardState}
                           onDailyCardStateChange={setDailyCardState}
+                          notes={notes}
+                          onAddNote={addNewNote}
                         />
                       </div>
                     </div>
@@ -317,7 +381,7 @@ function HomeContent() {
                 {/* Main Content Area with Right Panel */}
                 <div className="flex flex-1 overflow-hidden">
                   {/* Main Content */}
-                  <div className="flex-1 overflow-y-auto daily-cards-tour-target storage-tour-target">
+                  <div className="flex-1 overflow-y-auto daily-cards-tour-target storage-tour-target md:pb-0" style={{ paddingBottom: '80px' }}>
                     <MainContent 
                       activeSection={activeSection}
                       selectedNoteId={selectedNoteId}
@@ -337,6 +401,12 @@ function HomeContent() {
               </div>
             </div>
         </div>
+        
+        {/* Mobile Bottom Navigation */}
+        <MobileBottomNav
+          activeSection={activeSection}
+          onSectionChange={setActiveSection}
+        />
         
         {/* Global Toast and Loading */}
         <LoadingOverlay />

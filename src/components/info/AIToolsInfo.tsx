@@ -134,10 +134,10 @@ export default function AIToolsInfo() {
       <div className="mb-12">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
-            <span style={{ fontSize: '2rem' }}>🤖</span>
+            <span style={{ fontSize: '1.125rem' }}>🤖</span>
             <div>
               <h1 style={{ 
-                fontSize: 'var(--text-3xl)',
+                fontSize: 'var(--text-lg)',
                 fontWeight: '300',
                 color: 'var(--text-primary)',
                 letterSpacing: '-0.02em',

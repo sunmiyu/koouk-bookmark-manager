@@ -73,91 +73,182 @@ export default function LandingPage() {
       backgroundColor: 'var(--bg-primary)', 
       color: 'var(--text-primary)' 
     }}>
-      {/* Mobile: Simple Splash Screen */}
-      <div className="md:hidden min-h-screen flex flex-col items-center justify-center px-6 text-center">
-        <div className="mb-8">
-          <div className="flex items-center justify-center mb-6">
-            <span className="text-5xl mr-3">🏠</span>
-            <KooukLogo />
-          </div>
-          
-          <h1 className="text-2xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
-            일상이 복잡하다고?
-          </h1>
-          
-          <p className="text-lg mb-8" style={{ color: 'var(--text-secondary)' }}>
-            여기서 간단하게 정리해보세요! ✨
-          </p>
-        </div>
-
-        <div className="w-full max-w-sm space-y-4">
-          <button
-            onClick={handleGoogleSignIn}
-            className="w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all hover:scale-105"
-            style={{
-              backgroundColor: 'var(--bg-card)',
+      {/* Mobile: Premium Splash Screen */}
+      <div className="md:hidden min-h-screen flex flex-col items-center justify-center px-8 text-center">
+        {/* Premium Mobile Card Container */}
+        <div className="w-full max-w-sm" style={{
+          backgroundColor: 'var(--bg-card)',
+          border: '1px solid var(--border-light)',
+          borderRadius: 'var(--radius-xl)',
+          boxShadow: 'var(--shadow-elevated)',
+          padding: 'var(--space-12) var(--space-8)'
+        }}>
+          <div className="mb-10">
+            <div className="flex items-center justify-center mb-8">
+              <span style={{ fontSize: '3.5rem', marginRight: '0.75rem' }}>🏠</span>
+              <KooukLogo />
+            </div>
+            
+            <h1 style={{ 
+              fontSize: 'var(--text-2xl)',
+              fontWeight: '300',
+              letterSpacing: '-0.02em',
+              lineHeight: '1.2',
               color: 'var(--text-primary)',
-              border: '2px solid var(--border-light)',
-            }}
-          >
-            🚀 바로 시작하기!
-          </button>
-          
-          <button
-            onClick={handleEmailSignIn}
-            className="w-full py-3 px-6 rounded-xl font-medium transition-all"
-            style={{
-              backgroundColor: 'transparent',
+              marginBottom: 'var(--space-6)'
+            }}>
+              일상이 복잡하다고?
+            </h1>
+            
+            <p style={{ 
+              fontSize: 'var(--text-lg)',
               color: 'var(--text-secondary)',
-              border: '1px solid var(--border-light)',
-            }}
-          >
-            로그인하기
-          </button>
+              fontWeight: '400',
+              lineHeight: '1.5',
+              letterSpacing: '0.01em'
+            }}>
+              여기서 간단하게 정리해보세요! ✨
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <button
+              onClick={handleGoogleSignIn}
+              className="w-full transition-all duration-300 ease-out group"
+              style={{
+                backgroundColor: 'var(--text-primary)',
+                color: 'var(--bg-card)',
+                border: 'none',
+                borderRadius: 'var(--radius-xl)',
+                padding: 'var(--space-5) var(--space-6)',
+                fontSize: 'var(--text-lg)',
+                fontWeight: '500',
+                letterSpacing: '-0.01em',
+                boxShadow: 'var(--shadow-subtle)'
+              }}
+              onTouchStart={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)'
+                e.currentTarget.style.boxShadow = 'var(--shadow-elevated)'
+              }}
+              onTouchEnd={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = 'var(--shadow-subtle)'
+              }}
+            >
+              🚀 바로 시작하기!
+            </button>
+            
+            <button
+              onClick={handleEmailSignIn}
+              className="w-full transition-all duration-200 ease-out"
+              style={{
+                backgroundColor: 'transparent',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-light)',
+                borderRadius: 'var(--radius-lg)',
+                padding: 'var(--space-4) var(--space-6)',
+                fontSize: 'var(--text-md)',
+                fontWeight: '400',
+                letterSpacing: '0.01em'
+              }}
+              onTouchStart={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'
+                e.currentTarget.style.color = 'var(--text-primary)'
+              }}
+              onTouchEnd={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent'
+                e.currentTarget.style.color = 'var(--text-secondary)'
+              }}
+            >
+              로그인하기
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Desktop: Full Landing Page */}
+      {/* Desktop: Premium Landing Page */}
       <div className="hidden md:block">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-8">
           {/* Hero Section */}
           <div className="min-h-screen flex flex-col items-center justify-center text-center">
-            <div className="max-w-4xl mx-auto">
-              <div className="flex items-center justify-center mb-8">
-                <span className="text-6xl mr-4">🏠</span>
-                <div className="scale-150">
+            <div className="max-w-5xl mx-auto">
+              {/* Premium Logo Section */}
+              <div className="flex items-center justify-center mb-12">
+                <span style={{ fontSize: '4.5rem', marginRight: '1rem' }}>🏠</span>
+                <div className="scale-[1.8]">
                   <KooukLogo />
                 </div>
               </div>
               
-              <h1 className="text-5xl md:text-6xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
+              {/* Premium Typography */}
+              <h1 style={{ 
+                fontSize: '4.5rem',
+                fontWeight: '300',
+                letterSpacing: '-0.03em',
+                lineHeight: '1.1',
+                color: 'var(--text-primary)',
+                marginBottom: '2rem'
+              }}>
                 일상이 복잡하다고?<br />
-                <span style={{ color: 'var(--text-secondary)' }}>koouk에서 간단하게 정리해보세요!</span>
+                <span style={{ 
+                  color: 'var(--text-secondary)',
+                  fontSize: '3.5rem',
+                  fontWeight: '400'
+                }}>
+                  koouk에서 간단하게 정리해보세요!
+                </span>
               </h1>
               
-              <div className="text-xl md:text-2xl mb-8 space-y-2">
-                <p style={{ color: 'var(--text-secondary)' }}>
+              <div className="mb-12 space-y-6">
+                <p style={{ 
+                  fontSize: '1.5rem',
+                  color: 'var(--text-secondary)',
+                  fontWeight: '400',
+                  lineHeight: '1.5',
+                  letterSpacing: '0.01em'
+                }}>
                   할일, 저장, 정보체크 모두 여기서 끝! 🎯
                 </p>
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full" style={{ 
-                  backgroundColor: '#FEF3C7', 
-                  border: '2px solid #F59E0B',
-                  color: '#92400E',
-                  fontSize: '1.1rem',
-                  fontWeight: '600'
+                
+                {/* Premium Badge */}
+                <div className="inline-flex items-center gap-3 transition-all duration-300 ease-out" style={{ 
+                  backgroundColor: '#F5F1E8', 
+                  border: '1px solid #E8DCC0',
+                  color: '#8B5A2B',
+                  fontSize: '1.25rem',
+                  fontWeight: '500',
+                  letterSpacing: '-0.01em',
+                  borderRadius: 'var(--radius-xl)',
+                  padding: 'var(--space-4) var(--space-8)',
+                  boxShadow: 'var(--shadow-subtle)'
                 }}>
                   ✨ Easy Easy Super Easy! ✨
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+              {/* Premium Buttons */}
+              <div className="flex flex-col sm:flex-row gap-6 justify-center">
                 <button
                   onClick={handleGoogleSignIn}
-                  className="px-8 py-4 rounded-xl text-lg font-bold transition-all hover:scale-105 shadow-lg"
+                  className="transition-all duration-300 ease-out group"
                   style={{
-                    backgroundColor: 'var(--bg-card)',
-                    color: 'var(--text-primary)',
-                    border: '2px solid var(--border-light)',
+                    backgroundColor: 'var(--text-primary)',
+                    color: 'var(--bg-card)',
+                    border: 'none',
+                    borderRadius: 'var(--radius-xl)',
+                    padding: 'var(--space-6) var(--space-10)',
+                    fontSize: '1.25rem',
+                    fontWeight: '500',
+                    letterSpacing: '-0.01em',
+                    boxShadow: 'var(--shadow-elevated)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)'
+                    e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.15), 0 8px 20px rgba(0, 0, 0, 0.1)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)'
+                    e.currentTarget.style.boxShadow = 'var(--shadow-elevated)'
                   }}
                 >
                   🚀 바로 시작하기!
@@ -165,11 +256,29 @@ export default function LandingPage() {
                 
                 <button
                   onClick={handleEmailSignIn}
-                  className="px-8 py-4 rounded-xl text-lg font-medium transition-all hover:scale-105"
+                  className="transition-all duration-200 ease-out"
                   style={{
-                    backgroundColor: 'transparent',
+                    backgroundColor: 'var(--bg-card)',
                     color: 'var(--text-secondary)',
-                    border: '2px solid var(--border-light)',
+                    border: '1px solid var(--border-light)',
+                    borderRadius: 'var(--radius-xl)',
+                    padding: 'var(--space-6) var(--space-10)',
+                    fontSize: '1.125rem',
+                    fontWeight: '400',
+                    letterSpacing: '0.01em',
+                    boxShadow: 'var(--shadow-subtle)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'
+                    e.currentTarget.style.color = 'var(--text-primary)'
+                    e.currentTarget.style.transform = 'translateY(-1px)'
+                    e.currentTarget.style.boxShadow = 'var(--shadow-elevated)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--bg-card)'
+                    e.currentTarget.style.color = 'var(--text-secondary)'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = 'var(--shadow-subtle)'
                   }}
                 >
                   로그인하기
@@ -178,40 +287,80 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Features Section */}
-          <div className="py-20">
+          {/* Premium Features Section */}
+          <div className="py-32">
             <div className="max-w-6xl mx-auto">
-              <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+              <div className="text-center mb-20">
+                <h2 style={{ 
+                  fontSize: '3rem',
+                  fontWeight: '300',
+                  letterSpacing: '-0.02em',
+                  lineHeight: '1.2',
+                  color: 'var(--text-primary)',
+                  marginBottom: '1.5rem'
+                }}>
                   뭘 할 수 있나요? 🤔
                 </h2>
-                <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
-                  복잡한 앱들은 그만! <strong>클릭 한 번</strong>으로 모든 게 끝나요 ⚡
+                <p style={{ 
+                  fontSize: '1.25rem',
+                  color: 'var(--text-secondary)',
+                  fontWeight: '400',
+                  lineHeight: '1.6',
+                  letterSpacing: '0.01em'
+                }}>
+                  복잡한 앱들은 그만! <strong style={{ color: 'var(--text-primary)' }}>클릭 한 번</strong>으로 모든 게 끝나요 ⚡
                 </p>
               </div>
               
-              <div className="grid md:grid-cols-3 gap-8">
+              <div className="grid md:grid-cols-3 gap-10">
                 {/* Daily Cards */}
                 <div 
-                  className="p-8 rounded-2xl text-center hover:scale-105 transition-all"
+                  className="text-center group transition-all duration-300 ease-out"
                   style={{
                     backgroundColor: 'var(--bg-card)',
                     border: '1px solid var(--border-light)',
+                    borderRadius: 'var(--radius-xl)',
+                    padding: '3rem 2.5rem',
+                    boxShadow: 'var(--shadow-subtle)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)'
+                    e.currentTarget.style.boxShadow = 'var(--shadow-elevated)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)'
+                    e.currentTarget.style.boxShadow = 'var(--shadow-subtle)'
                   }}
                 >
-                  <div className="text-6xl mb-4">📝</div>
-                  <h3 className="text-2xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+                  <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>📝</div>
+                  <h3 style={{ 
+                    fontSize: '1.75rem',
+                    fontWeight: '500',
+                    letterSpacing: '-0.01em',
+                    color: 'var(--text-primary)',
+                    marginBottom: '1.5rem'
+                  }}>
                     Daily Cards
                   </h3>
-                  <p className="text-lg mb-4" style={{ color: 'var(--text-secondary)' }}>
+                  <p style={{ 
+                    fontSize: '1.125rem',
+                    color: 'var(--text-secondary)',
+                    lineHeight: '1.6',
+                    marginBottom: '1.5rem',
+                    fontWeight: '400'
+                  }}>
                     &ldquo;오늘 뭐 해야 하지?&rdquo;<br />
                     할일부터 일기까지 한번에! 📋
                   </p>
-                  <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full" style={{
-                    backgroundColor: '#DCFCE7',
-                    color: '#166534',
-                    fontSize: '0.85rem',
-                    fontWeight: '500'
+                  <div className="inline-flex items-center gap-2" style={{
+                    backgroundColor: '#F0FDF4',
+                    color: '#15803D',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    letterSpacing: '0.01em',
+                    borderRadius: 'var(--radius-lg)',
+                    padding: 'var(--space-2) var(--space-4)',
+                    border: '1px solid #BBF7D0'
                   }}>
                     <span>⚡</span> 쓰고 → 엔터!
                   </div>
@@ -219,25 +368,52 @@ export default function LandingPage() {
 
                 {/* Storage */}
                 <div 
-                  className="p-8 rounded-2xl text-center hover:scale-105 transition-all"
+                  className="text-center group transition-all duration-300 ease-out"
                   style={{
                     backgroundColor: 'var(--bg-card)',
                     border: '1px solid var(--border-light)',
+                    borderRadius: 'var(--radius-xl)',
+                    padding: '3rem 2.5rem',
+                    boxShadow: 'var(--shadow-subtle)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)'
+                    e.currentTarget.style.boxShadow = 'var(--shadow-elevated)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)'
+                    e.currentTarget.style.boxShadow = 'var(--shadow-subtle)'
                   }}
                 >
-                  <div className="text-6xl mb-4">💾</div>
-                  <h3 className="text-2xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+                  <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>💾</div>
+                  <h3 style={{ 
+                    fontSize: '1.75rem',
+                    fontWeight: '500',
+                    letterSpacing: '-0.01em',
+                    color: 'var(--text-primary)',
+                    marginBottom: '1.5rem'
+                  }}>
                     Storage
                   </h3>
-                  <p className="text-lg mb-4" style={{ color: 'var(--text-secondary)' }}>
+                  <p style={{ 
+                    fontSize: '1.125rem',
+                    color: 'var(--text-secondary)',
+                    lineHeight: '1.6',
+                    marginBottom: '1.5rem',
+                    fontWeight: '400'
+                  }}>
                     &ldquo;여기저기 저장한 링크들,&rdquo;<br />
                     이제 찾기 쉽게! 🔍
                   </p>
-                  <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full" style={{
-                    backgroundColor: '#DBEAFE',
+                  <div className="inline-flex items-center gap-2" style={{
+                    backgroundColor: '#EFF6FF',
                     color: '#1D4ED8',
-                    fontSize: '0.85rem',
-                    fontWeight: '500'
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    letterSpacing: '0.01em',
+                    borderRadius: 'var(--radius-lg)',
+                    padding: 'var(--space-2) var(--space-4)',
+                    border: '1px solid #BFDBFE'
                   }}>
                     <span>⚡</span> 붙여넣기 → 저장!
                   </div>
@@ -245,25 +421,52 @@ export default function LandingPage() {
 
                 {/* Info Hub */}
                 <div 
-                  className="p-8 rounded-2xl text-center hover:scale-105 transition-all"
+                  className="text-center group transition-all duration-300 ease-out"
                   style={{
                     backgroundColor: 'var(--bg-card)',
                     border: '1px solid var(--border-light)',
+                    borderRadius: 'var(--radius-xl)',
+                    padding: '3rem 2.5rem',
+                    boxShadow: 'var(--shadow-subtle)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)'
+                    e.currentTarget.style.boxShadow = 'var(--shadow-elevated)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)'
+                    e.currentTarget.style.boxShadow = 'var(--shadow-subtle)'
                   }}
                 >
-                  <div className="text-6xl mb-4">📰</div>
-                  <h3 className="text-2xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+                  <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>📰</div>
+                  <h3 style={{ 
+                    fontSize: '1.75rem',
+                    fontWeight: '500',
+                    letterSpacing: '-0.01em',
+                    color: 'var(--text-primary)',
+                    marginBottom: '1.5rem'
+                  }}>
                     Info Hub
                   </h3>
-                  <p className="text-lg mb-4" style={{ color: 'var(--text-secondary)' }}>
+                  <p style={{ 
+                    fontSize: '1.125rem',
+                    color: 'var(--text-secondary)',
+                    lineHeight: '1.6',
+                    marginBottom: '1.5rem',
+                    fontWeight: '400'
+                  }}>
                     &ldquo;뉴스, 날씨, 주식까지&rdquo;<br />
                     매일 확인하는 것들 모음! 📊
                   </p>
-                  <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full" style={{
-                    backgroundColor: '#FEF3C7',
+                  <div className="inline-flex items-center gap-2" style={{
+                    backgroundColor: '#FFFBEB',
                     color: '#92400E',
-                    fontSize: '0.85rem',
-                    fontWeight: '500'
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    letterSpacing: '0.01em',
+                    borderRadius: 'var(--radius-lg)',
+                    padding: 'var(--space-2) var(--space-4)',
+                    border: '1px solid #FDE68A'
                   }}>
                     <span>⚡</span> 클릭 → 바로 확인!
                   </div>
@@ -272,47 +475,83 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* CTA Section */}
-          <div className="py-20 text-center">
-            <div className="mb-8">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+          {/* Premium CTA Section */}
+          <div className="py-32 text-center">
+            {/* Premium Final Message */}
+            <div className="mb-16">
+              <h2 style={{ 
+                fontSize: '3.5rem',
+                fontWeight: '300',
+                letterSpacing: '-0.03em',
+                lineHeight: '1.1',
+                color: 'var(--text-primary)',
+                marginBottom: '2rem'
+              }}>
                 복잡한 건 그만! 🙅‍♂️<br />
-                <span style={{ color: 'var(--text-secondary)' }}>koouk과 함께 심플하게! ✨</span>
+                <span style={{ 
+                  color: 'var(--text-secondary)',
+                  fontSize: '2.75rem',
+                  fontWeight: '400'
+                }}>
+                  koouk과 함께 심플하게! ✨
+                </span>
               </h2>
-              <div className="flex justify-center">
-                <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full" style={{
-                  backgroundColor: '#EDE9FE',
-                  border: '2px solid #8B5CF6',
-                  color: '#5B21B6',
-                  fontSize: '1.2rem',
-                  fontWeight: '700'
+              
+              {/* Premium Final Badge */}
+              <div className="flex justify-center mb-8">
+                <div className="inline-flex items-center gap-3 transition-all duration-300 ease-out" style={{
+                  backgroundColor: '#F5F1E8',
+                  border: '2px solid #E8DCC0',
+                  color: '#8B5A2B',
+                  fontSize: '1.5rem',
+                  fontWeight: '600',
+                  letterSpacing: '-0.01em',
+                  borderRadius: 'var(--radius-xl)',
+                  padding: 'var(--space-6) var(--space-12)',
+                  boxShadow: 'var(--shadow-elevated)'
                 }}>
                   🚀 Easy Easy Super Easy!
                 </div>
               </div>
             </div>
             
-            <div className="space-y-4">
+            {/* Premium Final CTA */}
+            <div className="space-y-6">
               <button
                 onClick={handleGoogleSignIn}
-                className="px-12 py-6 rounded-2xl text-2xl font-bold transition-all hover:scale-105 shadow-xl"
+                className="transition-all duration-300 ease-out"
                 style={{
-                  backgroundColor: '#1A1A1A',
-                  color: 'white',
+                  backgroundColor: 'var(--text-primary)',
+                  color: 'var(--bg-card)',
                   border: 'none',
+                  borderRadius: 'var(--radius-xl)',
+                  padding: 'var(--space-8) var(--space-16)',
+                  fontSize: '1.75rem',
+                  fontWeight: '500',
+                  letterSpacing: '-0.02em',
+                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15), 0 8px 20px rgba(0, 0, 0, 0.1)'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = '#333333'
-                  e.currentTarget.style.transform = 'scale(1.05) translateY(-2px)'
+                  e.currentTarget.style.transform = 'translateY(-3px) scale(1.03)'
+                  e.currentTarget.style.boxShadow = '0 25px 50px rgba(0, 0, 0, 0.25), 0 12px 30px rgba(0, 0, 0, 0.15)'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#1A1A1A'
-                  e.currentTarget.style.transform = 'scale(1) translateY(0)'
+                  e.currentTarget.style.backgroundColor = 'var(--text-primary)'
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)'
+                  e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.15), 0 8px 20px rgba(0, 0, 0, 0.1)'
                 }}
               >
                 🚀 바로 시작하기!
               </button>
-              <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
+              
+              <p style={{ 
+                fontSize: '1rem',
+                color: 'var(--text-tertiary)',
+                fontWeight: '400',
+                letterSpacing: '0.01em',
+                marginTop: '1.5rem'
+              }}>
                 3초 만에 시작! 복잡한 설정은 없어요 ⚡
               </p>
             </div>

@@ -7,6 +7,7 @@ type RestaurantItem = {
   name: string
   cuisine: string
   location: string
+  url?: string
   rating: number
   priceRange: string
   notes: string
@@ -49,6 +50,61 @@ export default function RestaurantStorage() {
     notes: ''
   })
   const [showAddForm, setShowAddForm] = useState(false)
+  const [quickRestaurantURL, setQuickRestaurantURL] = useState('')
+  const [isQuickAdding, setIsQuickAdding] = useState(false)
+
+  const quickAddRestaurantURL = async () => {
+    if (!quickRestaurantURL.trim()) return
+    
+    setIsQuickAdding(true)
+    try {
+      // URL 유효성 검사 및 제목 추출
+      let name = quickRestaurantURL
+      let location = '링크 참조'
+      
+      try {
+        const url = new URL(quickRestaurantURL)
+        const domain = url.hostname.replace('www.', '')
+        
+        // 도메인별 맞춤 처리
+        if (domain.includes('naver') || domain.includes('map')) {
+          name = '네이버 지도 맛집'
+          location = '네이버 지도 링크'
+        } else if (domain.includes('kakao') || domain.includes('map')) {
+          name = '카카오맵 맛집'
+          location = '카카오맵 링크'
+        } else if (domain.includes('google')) {
+          name = 'Google Maps 맛집'
+          location = 'Google Maps 링크'
+        } else if (domain.includes('yogiyo') || domain.includes('baedal')) {
+          name = '배달앱 맛집'
+          location = '배달앱 링크'
+        } else {
+          name = domain.charAt(0).toUpperCase() + domain.slice(1) + ' 맛집'
+        }
+      } catch {
+        name = 'URL 맛집'
+      }
+      
+      const restaurantItem: RestaurantItem = {
+        id: Date.now().toString(),
+        name,
+        cuisine: '',
+        location,
+        url: quickRestaurantURL,
+        rating: 0,
+        priceRange: '$',
+        notes: '빠른 URL 추가로 저장됨',
+        visited: false,
+        createdAt: new Date().toISOString()
+      }
+      
+      setRestaurants(prev => [restaurantItem, ...prev])
+      setQuickRestaurantURL('')
+    } finally {
+      setIsQuickAdding(false)
+    }
+  }
 
   const addRestaurant = () => {
     if (newRestaurant.name && newRestaurant.location) {
@@ -100,9 +156,9 @@ export default function RestaurantStorage() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <span className="text-3xl">🍽️</span>
+            <span className="text-lg">🍽️</span>
             <h1 style={{ 
-              fontSize: 'var(--text-2xl)', 
+              fontSize: 'var(--text-xl)', 
               fontWeight: '700', 
               color: 'var(--text-primary)' 
             }}>
@@ -117,6 +173,71 @@ export default function RestaurantStorage() {
             + 맛집 추가
           </button>
         </div>
+      </div>
+
+      {/* Quick URL Input */}
+      <div className="mb-6">
+        <div className="flex gap-3">
+          <div className="flex-1 relative">
+            <input
+              type="url"
+              value={quickRestaurantURL}
+              onChange={(e) => setQuickRestaurantURL(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  quickAddRestaurantURL()
+                }
+              }}
+              placeholder="맛집 URL을 붙여넣으세요 (네이버지도, 구글맵, 배달앱 등)"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl transition-all duration-200 ease-out"
+              style={{
+                backgroundColor: '#FAFAF9',
+                borderColor: '#F5F3F0',
+                color: '#1A1A1A',
+                fontSize: 'var(--text-sm)',
+                fontWeight: '400',
+                outline: 'none'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#E8E5E1'
+                e.target.style.backgroundColor = '#FFFFFF'
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#F5F3F0'
+                e.target.style.backgroundColor = '#FAFAF9'
+              }}
+            />
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              🍽️
+            </div>
+          </div>
+          <button
+            onClick={quickAddRestaurantURL}
+            disabled={!quickRestaurantURL.trim() || isQuickAdding}
+            className="px-6 py-3 bg-gray-900 text-white rounded-xl font-medium transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: quickRestaurantURL.trim() ? '#1A1A1A' : '#9CA3AF',
+              fontSize: 'var(--text-sm)'
+            }}
+            onMouseEnter={(e) => {
+              if (quickRestaurantURL.trim()) {
+                e.currentTarget.style.backgroundColor = '#333333'
+                e.currentTarget.style.transform = 'scale(1.02)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (quickRestaurantURL.trim()) {
+                e.currentTarget.style.backgroundColor = '#1A1A1A'
+                e.currentTarget.style.transform = 'scale(1)'
+              }
+            }}
+          >
+            {isQuickAdding ? '추가 중...' : '빠른 추가'}
+          </button>
+        </div>
+        <p className="text-xs text-gray-500 mt-2" style={{ color: 'var(--text-muted)' }}>
+          💡 맛집 URL을 입력하고 엔터키를 누르면 바로 저장됩니다
+        </p>
       </div>
 
       {/* Add Form */}
@@ -270,6 +391,18 @@ export default function RestaurantStorage() {
               <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>
                 📍 {restaurant.location}
               </p>
+              
+              {restaurant.url && (
+                <a 
+                  href={restaurant.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:text-blue-700 text-xs underline flex items-center gap-1"
+                  style={{ fontSize: 'var(--text-xs)' }}
+                >
+                  🔗 링크 보기
+                </a>
+              )}
               
               <div className="flex items-center gap-2">
                 <span style={{ color: 'var(--warning)' }}>

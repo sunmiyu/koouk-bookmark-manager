@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React from 'react'
 import { SectionType, NoteType } from '@/app/page'
 import { DailyCardState } from '@/components/DailyCardContent'
 
@@ -8,34 +8,27 @@ type SidebarProps = {
   activeSection: SectionType
   onSectionChange: (section: SectionType) => void
   selectedNoteId: string | null
-  onNoteSelect: (noteId: string | null) => void
+  onNoteSelect: (noteId: string) => void
   dailyCardState: DailyCardState
   onDailyCardStateChange: (state: DailyCardState) => void
+  notes: NoteType[]
+  onAddNote: () => void
 }
 
-export default function Sidebar({ activeSection, onSectionChange, selectedNoteId, onNoteSelect, dailyCardState, onDailyCardStateChange }: SidebarProps) {
-
-  const [notes, setNotes] = useState<NoteType[]>([
-    { id: '1', title: 'note1', content: '', images: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-    { id: '2', title: 'note2', content: '', images: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-    { id: '3', title: 'note3', content: '', images: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-  ])
+export default function Sidebar({ 
+  activeSection, 
+  onSectionChange, 
+  selectedNoteId, 
+  onNoteSelect, 
+  dailyCardState, 
+  onDailyCardStateChange,
+  notes,
+  onAddNote
+}: SidebarProps) {
 
   const handleDailyCardToggle = (key: keyof DailyCardState) => {
     const newState = { ...dailyCardState, [key]: !dailyCardState[key] }
     onDailyCardStateChange(newState)
-  }
-
-  const addNewNote = () => {
-    const newNote: NoteType = {
-      id: Date.now().toString(),
-      title: `note${notes.length + 1}`,
-      content: '',
-      images: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }
-    setNotes(prev => [...prev, newNote])
   }
 
   const handleNoteClick = (noteId: string) => {
@@ -64,35 +57,46 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
       <div className="space-y-4 md:space-y-6">
         {/* Daily Card Section */}
         <div>
-          <button
-            onClick={() => onSectionChange('dailyCard')}
-            className="w-full text-left transition-all duration-300 ease-out"
-            style={{
-              backgroundColor: activeSection === 'dailyCard' ? '#FFFFFF' : 'transparent',
-              color: activeSection === 'dailyCard' ? '#1A1A1A' : '#6B7280',
-              fontWeight: activeSection === 'dailyCard' ? '500' : '400',
-              fontSize: 'var(--text-md)',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-3) var(--space-4)',
-              border: activeSection === 'dailyCard' ? '1px solid #F0EDE8' : '1px solid transparent',
-              letterSpacing: '-0.01em',
-              boxShadow: activeSection === 'dailyCard' ? '0 1px 3px rgba(0, 0, 0, 0.05)' : 'none'
-            }}
-            onMouseEnter={(e) => {
-              if (activeSection !== 'dailyCard') {
-                e.currentTarget.style.backgroundColor = '#F8F8F7'
-                e.currentTarget.style.color = '#1A1A1A'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeSection !== 'dailyCard') {
-                e.currentTarget.style.backgroundColor = 'transparent'
-                e.currentTarget.style.color = '#6B7280'
-              }
-            }}
+          <div className="flex items-center justify-between w-full transition-all duration-300 ease-out" style={{
+            backgroundColor: activeSection === 'dailyCard' ? '#FFFFFF' : 'transparent',
+            color: activeSection === 'dailyCard' ? '#1A1A1A' : '#6B7280',
+            fontWeight: activeSection === 'dailyCard' ? '500' : '400',
+            fontSize: 'var(--text-md)',
+            borderRadius: 'var(--radius-lg)',
+            padding: 'var(--space-3) var(--space-4)',
+            border: activeSection === 'dailyCard' ? '1px solid #F0EDE8' : '1px solid transparent',
+            letterSpacing: '-0.01em',
+            boxShadow: activeSection === 'dailyCard' ? '0 1px 3px rgba(0, 0, 0, 0.05)' : 'none'
+          }}
+          onMouseEnter={(e) => {
+            if (activeSection !== 'dailyCard') {
+              e.currentTarget.style.backgroundColor = '#F8F8F7'
+              e.currentTarget.style.color = '#1A1A1A'
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (activeSection !== 'dailyCard') {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.color = '#6B7280'
+            }
+          }}
           >
-            Daily Card
-          </button>
+            <button
+              onClick={() => onSectionChange('dailyCard')}
+              className="text-left flex-1"
+              style={{ 
+                backgroundColor: 'transparent',
+                border: 'none',
+                color: 'inherit',
+                fontSize: 'inherit',
+                fontWeight: 'inherit'
+              }}
+            >
+              Daily Card
+            </button>
+            {/* Placeholder space for + button consistency */}
+            <div style={{ width: '24px', height: '24px' }} />
+          </div>
           
           <div className="mt-3 ml-6 space-y-1">
             <label className="flex items-center gap-3 py-1.5 px-2 cursor-pointer transition-colors rounded-lg hover:bg-white/60" style={{
@@ -158,20 +162,33 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
 
         {/* Big Note Section */}
         <div>
-          <div className="flex items-center justify-between" style={{
-            backgroundColor: activeSection === 'bigNote' ? 'var(--bg-card)' : 'transparent',
+          <div className="flex items-center justify-between w-full transition-all duration-300 ease-out" style={{
+            backgroundColor: activeSection === 'bigNote' ? '#FFFFFF' : 'transparent',
+            color: activeSection === 'bigNote' ? '#1A1A1A' : '#6B7280',
+            fontWeight: activeSection === 'bigNote' ? '500' : '400',
+            fontSize: 'var(--text-md)',
             borderRadius: 'var(--radius-lg)',
-            padding: 'var(--space-3)'
-          }}>
-            <span style={{
-              color: 'var(--text-primary)',
-              fontWeight: activeSection === 'bigNote' ? '600' : '500',
-              fontSize: 'var(--text-base)'
-            }}>
-              Big Note
-            </span>
+            padding: 'var(--space-3) var(--space-4)',
+            border: activeSection === 'bigNote' ? '1px solid #F0EDE8' : '1px solid transparent',
+            letterSpacing: '-0.01em',
+            boxShadow: activeSection === 'bigNote' ? '0 1px 3px rgba(0, 0, 0, 0.05)' : 'none'
+          }}
+          onMouseEnter={(e) => {
+            if (activeSection !== 'bigNote') {
+              e.currentTarget.style.backgroundColor = '#F8F8F7'
+              e.currentTarget.style.color = '#1A1A1A'
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (activeSection !== 'bigNote') {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.color = '#6B7280'
+            }
+          }}
+          >
+            <span>Big Note</span>
             <button
-              onClick={addNewNote}
+              onClick={onAddNote}
               className="w-6 h-6 rounded-full text-sm flex items-center justify-center transition-colors"
               style={{ 
                 backgroundColor: 'var(--bg-secondary)',
@@ -208,19 +225,46 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
 
         {/* Storage Section */}
         <div>
-          <button
-            onClick={() => onSectionChange('storage-url')}
-            className="w-full text-left p-3 transition-all duration-200"
-            style={{
-              backgroundColor: activeSection.startsWith('storage') ? 'var(--bg-card)' : 'transparent',
-              color: 'var(--text-primary)',
-              fontWeight: activeSection.startsWith('storage') ? '600' : '500',
-              fontSize: 'var(--text-base)',
-              borderRadius: 'var(--radius-lg)'
-            }}
+          <div className="flex items-center justify-between w-full transition-all duration-300 ease-out" style={{
+            backgroundColor: activeSection.startsWith('storage') ? '#FFFFFF' : 'transparent',
+            color: activeSection.startsWith('storage') ? '#1A1A1A' : '#6B7280',
+            fontWeight: activeSection.startsWith('storage') ? '500' : '400',
+            fontSize: 'var(--text-md)',
+            borderRadius: 'var(--radius-lg)',
+            padding: 'var(--space-3) var(--space-4)',
+            border: activeSection.startsWith('storage') ? '1px solid #F0EDE8' : '1px solid transparent',
+            letterSpacing: '-0.01em',
+            boxShadow: activeSection.startsWith('storage') ? '0 1px 3px rgba(0, 0, 0, 0.05)' : 'none'
+          }}
+          onMouseEnter={(e) => {
+            if (!activeSection.startsWith('storage')) {
+              e.currentTarget.style.backgroundColor = '#F8F8F7'
+              e.currentTarget.style.color = '#1A1A1A'
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!activeSection.startsWith('storage')) {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.color = '#6B7280'
+            }
+          }}
           >
-            Storage
-          </button>
+            <button
+              onClick={() => onSectionChange('storage-url')}
+              className="text-left flex-1"
+              style={{ 
+                backgroundColor: 'transparent',
+                border: 'none',
+                color: 'inherit',
+                fontSize: 'inherit',
+                fontWeight: 'inherit'
+              }}
+            >
+              Storage
+            </button>
+            {/* Placeholder space for + button consistency */}
+            <div style={{ width: '24px', height: '24px' }} />
+          </div>
           
           <div className="mt-3 ml-6 space-y-1">
             {storageItems.map(item => (
@@ -247,19 +291,46 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
 
         {/* Info Box Section */}
         <div>
-          <button
-            onClick={() => onSectionChange('info-stocks')}
-            className="w-full text-left p-3 transition-all duration-200"
-            style={{
-              backgroundColor: activeSection.startsWith('info') ? 'var(--bg-card)' : 'transparent',
-              color: 'var(--text-primary)',
-              fontWeight: activeSection.startsWith('info') ? '600' : '500',
-              fontSize: 'var(--text-base)',
-              borderRadius: 'var(--radius-lg)'
-            }}
+          <div className="flex items-center justify-between w-full transition-all duration-300 ease-out" style={{
+            backgroundColor: activeSection.startsWith('info') ? '#FFFFFF' : 'transparent',
+            color: activeSection.startsWith('info') ? '#1A1A1A' : '#6B7280',
+            fontWeight: activeSection.startsWith('info') ? '500' : '400',
+            fontSize: 'var(--text-md)',
+            borderRadius: 'var(--radius-lg)',
+            padding: 'var(--space-3) var(--space-4)',
+            border: activeSection.startsWith('info') ? '1px solid #F0EDE8' : '1px solid transparent',
+            letterSpacing: '-0.01em',
+            boxShadow: activeSection.startsWith('info') ? '0 1px 3px rgba(0, 0, 0, 0.05)' : 'none'
+          }}
+          onMouseEnter={(e) => {
+            if (!activeSection.startsWith('info')) {
+              e.currentTarget.style.backgroundColor = '#F8F8F7'
+              e.currentTarget.style.color = '#1A1A1A'
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!activeSection.startsWith('info')) {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.color = '#6B7280'
+            }
+          }}
           >
-            Info Box
-          </button>
+            <button
+              onClick={() => onSectionChange('info-stocks')}
+              className="text-left flex-1"
+              style={{ 
+                backgroundColor: 'transparent',
+                border: 'none',
+                color: 'inherit',
+                fontSize: 'inherit',
+                fontWeight: 'inherit'
+              }}
+            >
+              Info Box
+            </button>
+            {/* Placeholder space for + button consistency */}
+            <div style={{ width: '24px', height: '24px' }} />
+          </div>
           
           <div className="mt-3 ml-6 space-y-1">
             {infoBoxItems.map(item => (
@@ -286,35 +357,46 @@ export default function Sidebar({ activeSection, onSectionChange, selectedNoteId
 
         {/* TalkTalk Section */}
         <div>
-          <button
-            onClick={() => onSectionChange('talkTalk')}
-            className="w-full text-left transition-all duration-300 ease-out"
-            style={{
-              backgroundColor: activeSection === 'talkTalk' ? '#FFFFFF' : 'transparent',
-              color: activeSection === 'talkTalk' ? '#1A1A1A' : '#6B7280',
-              fontWeight: activeSection === 'talkTalk' ? '500' : '400',
-              fontSize: 'var(--text-md)',
-              borderRadius: 'var(--radius-lg)',
-              padding: 'var(--space-3) var(--space-4)',
-              border: activeSection === 'talkTalk' ? '1px solid #F0EDE8' : '1px solid transparent',
-              letterSpacing: '-0.01em',
-              boxShadow: activeSection === 'talkTalk' ? '0 1px 3px rgba(0, 0, 0, 0.05)' : 'none'
-            }}
-            onMouseEnter={(e) => {
-              if (activeSection !== 'talkTalk') {
-                e.currentTarget.style.backgroundColor = '#F8F8F7'
-                e.currentTarget.style.color = '#1A1A1A'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeSection !== 'talkTalk') {
-                e.currentTarget.style.backgroundColor = 'transparent'
-                e.currentTarget.style.color = '#6B7280'
-              }
-            }}
+          <div className="flex items-center justify-between w-full transition-all duration-300 ease-out" style={{
+            backgroundColor: activeSection === 'talkTalk' ? '#FFFFFF' : 'transparent',
+            color: activeSection === 'talkTalk' ? '#1A1A1A' : '#6B7280',
+            fontWeight: activeSection === 'talkTalk' ? '500' : '400',
+            fontSize: 'var(--text-md)',
+            borderRadius: 'var(--radius-lg)',
+            padding: 'var(--space-3) var(--space-4)',
+            border: activeSection === 'talkTalk' ? '1px solid #F0EDE8' : '1px solid transparent',
+            letterSpacing: '-0.01em',
+            boxShadow: activeSection === 'talkTalk' ? '0 1px 3px rgba(0, 0, 0, 0.05)' : 'none'
+          }}
+          onMouseEnter={(e) => {
+            if (activeSection !== 'talkTalk') {
+              e.currentTarget.style.backgroundColor = '#F8F8F7'
+              e.currentTarget.style.color = '#1A1A1A'
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (activeSection !== 'talkTalk') {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.color = '#6B7280'
+            }
+          }}
           >
-            TalkTalk
-          </button>
+            <button
+              onClick={() => onSectionChange('talkTalk')}
+              className="text-left flex-1"
+              style={{ 
+                backgroundColor: 'transparent',
+                border: 'none',
+                color: 'inherit',
+                fontSize: 'inherit',
+                fontWeight: 'inherit'
+              }}
+            >
+              TalkTalk
+            </button>
+            {/* Placeholder space for + button consistency */}
+            <div style={{ width: '24px', height: '24px' }} />
+          </div>
         </div>
       </div>
     </div>

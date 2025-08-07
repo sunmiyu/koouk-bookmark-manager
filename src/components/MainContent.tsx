@@ -80,7 +80,7 @@ export default function MainContent({ activeSection, selectedNoteId, dailyCardSt
 
   return (
     <div className="h-full" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      <div className="max-w-[1200px] mx-auto h-full">
+      <div className={`h-full ${activeSection === 'bigNote' ? '' : 'max-w-[1200px] mx-auto'}`}>
         {renderContent()}
       </div>
     </div>
@@ -93,7 +93,7 @@ function StoragePage({ title, icon }: { type: string, title: string, icon: strin
     <div className="h-full" style={{ padding: 'var(--space-4) var(--space-3)' }}>
       <div className="mb-4 md:mb-6">
         <div className="flex items-center gap-3 mb-3 md:mb-4">
-          <span style={{ fontSize: 'var(--text-2xl)' }}>{icon}</span>
+          <span style={{ fontSize: 'var(--text-xl)' }}>{icon}</span>
           <h1 style={{ 
             fontSize: 'var(--text-xl)', 
             fontWeight: '700', 
@@ -110,7 +110,7 @@ function StoragePage({ title, icon }: { type: string, title: string, icon: strin
         padding: 'var(--space-4)'
       }}>
         <div className="text-center py-8 md:py-12">
-          <div style={{ fontSize: 'var(--text-3xl)', marginBottom: 'var(--space-3)' }}>{icon}</div>
+          <div style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-3)' }}>{icon}</div>
           <h3 style={{ 
             fontSize: 'var(--text-lg)', 
             fontWeight: '600', 
@@ -186,10 +186,10 @@ function InfoPage({ type, title, icon }: { type: string, title: string, icon: st
       {/* Header */}
       <div className="mb-6 md:mb-12">
         <div className="flex items-center gap-3">
-          <span style={{ fontSize: 'var(--text-2xl)' }}>{icon}</span>
+          <span style={{ fontSize: 'var(--text-xl)' }}>{icon}</span>
           <div>
             <h1 style={{ 
-              fontSize: 'var(--text-2xl)',
+              fontSize: 'var(--text-xl)',
               fontWeight: '300',
               color: 'var(--text-primary)',
               letterSpacing: '-0.02em',
@@ -219,7 +219,7 @@ function InfoPage({ type, title, icon }: { type: string, title: string, icon: st
         boxShadow: 'var(--shadow-subtle)',
         textAlign: 'center' as const
       }}>
-        <div style={{ fontSize: 'var(--text-3xl)', marginBottom: 'var(--space-4)' }}>{icon}</div>
+        <div style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-4)' }}>{icon}</div>
         
         <h3 style={{ 
           fontSize: 'var(--text-xl)',

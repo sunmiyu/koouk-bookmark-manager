@@ -85,15 +85,19 @@ export default function DailyCardContent({ cardState }: DailyCardContentProps = 
     const today = new Date()
     const isToday = date.toDateString() === today.toDateString()
     
+    const weekdays = ['일', '월', '화', '수', '목', '금', '토']
+    const weekday = weekdays[date.getDay()]
+    const dateStr = `${date.getMonth() + 1}/${date.getDate()}`
+    
     if (isToday) {
-      return `오늘 ${date.getMonth() + 1}/${date.getDate()}`
+      return { text: `${dateStr}`, weekday: `오늘 (${weekday})`, isToday: true }
     }
     
     const diff = Math.floor((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-    if (diff === -1) return `어제 ${date.getMonth() + 1}/${date.getDate()}`
-    if (diff === 1) return `내일 ${date.getMonth() + 1}/${date.getDate()}`
+    if (diff === -1) return { text: `${dateStr}`, weekday: `어제 (${weekday})`, isToday: false }
+    if (diff === 1) return { text: `${dateStr}`, weekday: `내일 (${weekday})`, isToday: false }
     
-    return `${date.getMonth() + 1}/${date.getDate()}`
+    return { text: `${dateStr}`, weekday: `${weekday}`, isToday: false }
   }
 
   const addTodo = (dateString: string, content: string) => {
@@ -156,37 +160,25 @@ export default function DailyCardContent({ cardState }: DailyCardContentProps = 
       padding: 'var(--space-6) var(--space-4)',
       backgroundColor: 'var(--bg-primary)'
     }}>
-      {/* Header - 세련된 타이포그래피 */}
-      <div className="mb-6 md:mb-12">
-        <h1 style={{ 
-          fontSize: 'var(--text-2xl)',
-          fontWeight: '300',
-          color: 'var(--text-primary)',
-          letterSpacing: '-0.02em',
-          lineHeight: '1.2',
-          marginBottom: 'var(--space-1)'
-        }}>
-          Daily Cards
-        </h1>
-        <p style={{ 
-          fontSize: 'var(--text-md)',
-          color: 'var(--text-secondary)',
-          fontWeight: '400',
-          lineHeight: '1.5',
-          letterSpacing: '0.01em'
-        }}>
-          각 날짜별로 나만의 일상을 기록해보세요
-        </p>
-      </div>
 
       {/* Horizontal Date Scroll Container */}
       <div 
-        className="overflow-x-auto" 
+        className="overflow-x-auto overflow-y-hidden" 
         style={{ 
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
           scrollBehavior: 'smooth',
-          WebkitOverflowScrolling: 'touch'
+          WebkitOverflowScrolling: 'touch',
+          cursor: 'grab'
+        }}
+        onMouseDown={(e) => {
+          e.currentTarget.style.cursor = 'grabbing'
+        }}
+        onMouseUp={(e) => {
+          e.currentTarget.style.cursor = 'grab'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.cursor = 'grab'
         }}
       >
         <style jsx>{`
@@ -194,25 +186,33 @@ export default function DailyCardContent({ cardState }: DailyCardContentProps = 
             display: none;
           }
         `}</style>
-        <div className="flex gap-3 md:gap-8 pb-4 md:pb-6" style={{ minWidth: 'min-content' }}>
-          {daysData.map((dayData) => (
-            <div key={dayData.date} className="flex-shrink-0 w-64 md:w-80" style={{ minWidth: '16rem' }}>
-              {/* Date Header - 미니멀하고 우아한 */}
-              <div className="mb-4 md:mb-6 text-center">
-                <h2 style={{
-                  fontSize: 'var(--text-lg)',
-                  fontWeight: dayData.date === new Date().toISOString().split('T')[0] ? '500' : '400',
-                  color: dayData.date === new Date().toISOString().split('T')[0] ? 'var(--text-primary)' : 'var(--text-secondary)',
-                  letterSpacing: '-0.01em',
-                  padding: 'var(--space-2) var(--space-4)',
-                  backgroundColor: dayData.date === new Date().toISOString().split('T')[0] ? 'var(--bg-secondary)' : 'transparent',
-                  borderRadius: 'var(--radius-lg)',
-                  border: dayData.date === new Date().toISOString().split('T')[0] ? '1px solid var(--border-medium)' : 'none',
-                  transition: 'all 0.2s ease-out'
-                }}>
-                  {formatDate(dayData.date)}
-                </h2>
-              </div>
+        <div className="flex gap-3 md:gap-8 pb-4 md:pb-6" style={{ minWidth: 'max-content', width: 'fit-content' }}>
+          {daysData.map((dayData) => {
+            const dateInfo = formatDate(dayData.date)
+            return (
+              <div key={dayData.date} className="flex-shrink-0 w-64 md:w-80" style={{ minWidth: '16rem' }}>
+                {/* Date Header - 카드 상단 왼쪽 정렬 */}
+                <div className="mb-4 md:mb-6 text-left">
+                  <div className="mb-3">
+                    <h2 style={{
+                      fontSize: 'var(--text-xl)',
+                      fontWeight: 'bold',
+                      color: dateInfo.isToday ? 'var(--text-primary)' : 'var(--text-primary)',
+                      letterSpacing: '-0.01em',
+                      marginBottom: 'var(--space-1)'
+                    }}>
+                      {dateInfo.text}
+                    </h2>
+                    <p style={{
+                      fontSize: 'var(--text-sm)',
+                      fontWeight: dateInfo.isToday ? 'bold' : '500',
+                      color: dateInfo.isToday ? 'var(--text-primary)' : 'var(--text-secondary)',
+                      letterSpacing: '0.01em'
+                    }}>
+                      {dateInfo.weekday}
+                    </p>
+                  </div>
+                </div>
 
               {/* Cards Stack for this Date - 모바일 최적화된 간격 */}
               <div className="space-y-3 md:space-y-5">
@@ -240,8 +240,9 @@ export default function DailyCardContent({ cardState }: DailyCardContentProps = 
                 {/* Goal Tracker Card - 체크박스 상태에 따라 표시 */}
                 {activeCards.goalTracker && <GoalCard />}
               </div>
-            </div>
-          ))}
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>
@@ -470,7 +471,7 @@ function DiaryCard({
           onChange={(e) => onUpdateDiary(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          placeholder="오늘 어땠나요? 간단히라도 👋"
+          placeholder="오늘 어땠나요?"
           className="w-full resize-none transition-all duration-200 ease-out"
           style={{
             backgroundColor: '#FAFAF9',
@@ -506,8 +507,13 @@ function DiaryCard({
   )
 }
 
-// Budget Card Component - 세련된 디자인
+// Budget Card Component - 감성있는 예산 관리
 function BudgetCard() {
+  const [income, setIncome] = useState('')
+  const [expense, setExpense] = useState('')
+  const [note, setNote] = useState('')
+  const [isFocused, setIsFocused] = useState('')
+
   return (
     <div 
       className="group transition-all duration-300 ease-out"
@@ -540,38 +546,141 @@ function BudgetCard() {
         </h3>
       </div>
       
-      <div className="text-center py-6 md:py-8">
-        <div style={{
-          backgroundColor: '#FAFAF9',
-          borderRadius: 'var(--radius-lg)',
-          padding: 'var(--space-4)',
-          border: '1px solid #F5F3F0'
-        }}>
-          <p style={{ 
-            color: '#6B7280',
+      <div className="space-y-3">
+        {/* 수입 입력 */}
+        <div className="flex items-center gap-3">
+          <span style={{ 
+            fontSize: 'var(--text-sm)',
+            color: 'var(--text-secondary)',
+            fontWeight: '500',
+            minWidth: '40px'
+          }}>
+            수입
+          </span>
+          <input
+            type="number"
+            value={income}
+            onChange={(e) => setIncome(e.target.value)}
+            onFocus={() => setIsFocused('income')}
+            onBlur={() => setIsFocused('')}
+            placeholder="0"
+            className="flex-1 transition-all duration-200 ease-out"
+            style={{
+              backgroundColor: '#FAFAF9',
+              border: `1px solid ${isFocused === 'income' ? '#E8E5E1' : '#F5F3F0'}`,
+              borderRadius: 'var(--radius-md)',
+              padding: 'var(--space-2) var(--space-3)',
+              color: '#16A34A',
+              outline: 'none',
+              fontSize: 'var(--text-sm)',
+              fontWeight: '500',
+              textAlign: 'right'
+            }}
+          />
+          <span style={{ 
+            fontSize: 'var(--text-sm)',
+            color: 'var(--text-secondary)',
+            fontWeight: '400'
+          }}>
+            원
+          </span>
+        </div>
+
+        {/* 지출 입력 */}
+        <div className="flex items-center gap-3">
+          <span style={{ 
+            fontSize: 'var(--text-sm)',
+            color: 'var(--text-secondary)',
+            fontWeight: '500',
+            minWidth: '40px'
+          }}>
+            지출
+          </span>
+          <input
+            type="number"
+            value={expense}
+            onChange={(e) => setExpense(e.target.value)}
+            onFocus={() => setIsFocused('expense')}
+            onBlur={() => setIsFocused('')}
+            placeholder="0"
+            className="flex-1 transition-all duration-200 ease-out"
+            style={{
+              backgroundColor: '#FAFAF9',
+              border: `1px solid ${isFocused === 'expense' ? '#E8E5E1' : '#F5F3F0'}`,
+              borderRadius: 'var(--radius-md)',
+              padding: 'var(--space-2) var(--space-3)',
+              color: '#DC2626',
+              outline: 'none',
+              fontSize: 'var(--text-sm)',
+              fontWeight: '500',
+              textAlign: 'right'
+            }}
+          />
+          <span style={{ 
+            fontSize: 'var(--text-sm)',
+            color: 'var(--text-secondary)',
+            fontWeight: '400'
+          }}>
+            원
+          </span>
+        </div>
+
+        {/* 메모 */}
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          onFocus={() => setIsFocused('note')}
+          onBlur={() => setIsFocused('')}
+          placeholder="오늘의 가계부 메모..."
+          className="w-full resize-none transition-all duration-200 ease-out"
+          style={{
+            backgroundColor: '#FAFAF9',
+            border: `1px solid ${isFocused === 'note' ? '#E8E5E1' : '#F5F3F0'}`,
+            borderRadius: 'var(--radius-md)',
+            padding: 'var(--space-3)',
+            color: '#1A1A1A',
+            outline: 'none',
             fontSize: 'var(--text-sm)',
             fontWeight: '400',
             lineHeight: '1.5',
-            marginBottom: 'var(--space-2)'
-          }}>
-            예산 관리 기능
-          </p>
-          <p style={{ 
-            color: '#9CA3AF',
-            fontSize: 'var(--text-xs)',
-            fontWeight: '400',
-            letterSpacing: '0.01em'
-          }}>
-            곧 출시 예정입니다
-          </p>
-        </div>
+            height: '3rem',
+            minHeight: '3rem'
+          }}
+        />
+
+        {/* 잔액 표시 */}
+        {(income || expense) && (
+          <div className="pt-2 border-t border-gray-100">
+            <div className="flex justify-between items-center">
+              <span style={{ 
+                fontSize: 'var(--text-sm)',
+                color: 'var(--text-secondary)',
+                fontWeight: '500'
+              }}>
+                잔액
+              </span>
+              <span style={{ 
+                fontSize: 'var(--text-md)',
+                color: (parseFloat(income || '0') - parseFloat(expense || '0')) >= 0 ? '#16A34A' : '#DC2626',
+                fontWeight: 'bold'
+              }}>
+                {(parseFloat(income || '0') - parseFloat(expense || '0')).toLocaleString()}원
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
 }
 
-// Goal Card Component - 세련된 디자인
+// Goal Card Component - 감성있는 목표 관리
 function GoalCard() {
+  const [goal, setGoal] = useState('')
+  const [current, setCurrent] = useState('')
+  const [note, setNote] = useState('')
+  const [isFocused, setIsFocused] = useState('')
+
   return (
     <div 
       className="group transition-all duration-300 ease-out"
@@ -604,31 +713,140 @@ function GoalCard() {
         </h3>
       </div>
       
-      <div className="text-center py-6 md:py-8">
-        <div style={{
-          backgroundColor: '#FAFAF9',
-          borderRadius: 'var(--radius-lg)',
-          padding: 'var(--space-4)',
-          border: '1px solid #F5F3F0'
-        }}>
-          <p style={{ 
-            color: '#6B7280',
+      <div className="space-y-3">
+        {/* 목표 입력 */}
+        <div>
+          <label style={{ 
+            fontSize: 'var(--text-sm)',
+            color: 'var(--text-secondary)',
+            fontWeight: '500',
+            marginBottom: 'var(--space-2)',
+            display: 'block'
+          }}>
+            오늘의 목표 🎯
+          </label>
+          <input
+            type="text"
+            value={goal}
+            onChange={(e) => setGoal(e.target.value)}
+            onFocus={() => setIsFocused('goal')}
+            onBlur={() => setIsFocused('')}
+            placeholder="예: 운동 30분, 책 10페이지 읽기..."
+            className="w-full transition-all duration-200 ease-out"
+            style={{
+              backgroundColor: '#FAFAF9',
+              border: `1px solid ${isFocused === 'goal' ? '#E8E5E1' : '#F5F3F0'}`,
+              borderRadius: 'var(--radius-md)',
+              padding: 'var(--space-3)',
+              color: '#1A1A1A',
+              outline: 'none',
+              fontSize: 'var(--text-sm)',
+              fontWeight: '400',
+              lineHeight: '1.4'
+            }}
+          />
+        </div>
+
+        {/* 현재 상황 입력 */}
+        <div>
+          <label style={{ 
+            fontSize: 'var(--text-sm)',
+            color: 'var(--text-secondary)',
+            fontWeight: '500',
+            marginBottom: 'var(--space-2)',
+            display: 'block'
+          }}>
+            지금 어떤가요? 💪
+          </label>
+          <input
+            type="text"
+            value={current}
+            onChange={(e) => setCurrent(e.target.value)}
+            onFocus={() => setIsFocused('current')}
+            onBlur={() => setIsFocused('')}
+            placeholder="예: 운동 15분 완료, 책 5페이지..."
+            className="w-full transition-all duration-200 ease-out"
+            style={{
+              backgroundColor: '#FAFAF9',
+              border: `1px solid ${isFocused === 'current' ? '#E8E5E1' : '#F5F3F0'}`,
+              borderRadius: 'var(--radius-md)',
+              padding: 'var(--space-3)',
+              color: '#1A1A1A',
+              outline: 'none',
+              fontSize: 'var(--text-sm)',
+              fontWeight: '400',
+              lineHeight: '1.4'
+            }}
+          />
+        </div>
+
+        {/* 메모 */}
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          onFocus={() => setIsFocused('note')}
+          onBlur={() => setIsFocused('')}
+          placeholder="목표에 대한 생각이나 느낌을 적어보세요..."
+          className="w-full resize-none transition-all duration-200 ease-out"
+          style={{
+            backgroundColor: '#FAFAF9',
+            border: `1px solid ${isFocused === 'note' ? '#E8E5E1' : '#F5F3F0'}`,
+            borderRadius: 'var(--radius-md)',
+            padding: 'var(--space-3)',
+            color: '#1A1A1A',
+            outline: 'none',
             fontSize: 'var(--text-sm)',
             fontWeight: '400',
             lineHeight: '1.5',
-            marginBottom: 'var(--space-2)'
-          }}>
-            목표 추적 기능
-          </p>
-          <p style={{ 
-            color: '#9CA3AF',
-            fontSize: 'var(--text-xs)',
-            fontWeight: '400',
-            letterSpacing: '0.01em'
-          }}>
-            곧 출시 예정입니다
-          </p>
-        </div>
+            height: '3rem',
+            minHeight: '3rem'
+          }}
+        />
+
+        {/* 진행 상황 표시 */}
+        {(goal || current) && (
+          <div className="pt-2 border-t border-gray-100">
+            <div className="flex justify-between items-start gap-3">
+              <div className="flex-1">
+                <div style={{ 
+                  fontSize: 'var(--text-sm)',
+                  color: 'var(--text-secondary)',
+                  fontWeight: '500',
+                  marginBottom: 'var(--space-1)'
+                }}>
+                  진행 상황
+                </div>
+                <div className="flex items-center gap-2">
+                  <div style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    backgroundColor: current ? '#16A34A' : '#E5E7EB'
+                  }} />
+                  <span style={{ 
+                    fontSize: 'var(--text-sm)',
+                    color: current ? '#16A34A' : '#6B7280',
+                    fontWeight: current ? '500' : '400'
+                  }}>
+                    {current ? '진행 중' : '시작 전'}
+                  </span>
+                </div>
+              </div>
+              
+              {goal && current && (
+                <div className="text-right">
+                  <span style={{ 
+                    fontSize: 'var(--text-xs)',
+                    color: '#6B7280',
+                    fontWeight: '400'
+                  }}>
+                    화이팅! 🔥
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

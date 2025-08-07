@@ -46,31 +46,99 @@ export default function AuthButton() {
       <div className="relative z-10" ref={dropdownRef}>
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="w-8 h-8 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all duration-200 flex items-center justify-center cursor-pointer"
+          className="transition-all duration-200 flex items-center justify-center cursor-pointer"
+          style={{
+            width: '2rem',
+            height: '2rem',
+            backgroundColor: 'var(--text-primary)',
+            color: 'var(--bg-card)',
+            borderRadius: '50%',
+            border: 'none'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#333333'
+            e.currentTarget.style.transform = 'scale(1.05)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--text-primary)'
+            e.currentTarget.style.transform = 'scale(1)'
+          }}
           title={user.user_metadata?.full_name || user.email || 'User'}
         >
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
           </svg>
         </button>
         
         {isDropdownOpen && (
-          <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 z-20">
-            <div className="p-3 border-b border-gray-700 text-center">
-              <div className="text-sm text-white font-medium">{user.user_metadata?.full_name || user.email}</div>
-              <div className="text-xs text-gray-400">{user.email}</div>
+          <div 
+            className="absolute right-0 mt-2 z-20"
+            style={{
+              width: '12rem',
+              backgroundColor: 'var(--bg-card)',
+              borderRadius: 'var(--radius-lg)',
+              boxShadow: 'var(--shadow-elevated)',
+              border: '1px solid var(--border-light)'
+            }}
+          >
+            <div 
+              className="p-3 text-center"
+              style={{ 
+                borderBottom: '1px solid var(--border-light)',
+                backgroundColor: 'var(--bg-secondary)'
+              }}
+            >
+              <div style={{ 
+                fontSize: 'var(--text-sm)', 
+                color: 'var(--text-primary)', 
+                fontWeight: '500' 
+              }}>
+                {user.user_metadata?.full_name || user.email}
+              </div>
+              <div style={{ 
+                fontSize: 'var(--text-xs)', 
+                color: 'var(--text-secondary)' 
+              }}>
+                {user.email}
+              </div>
             </div>
             <div className="py-1">
               <button
                 onClick={handleSignOut}
-                className="w-full text-center px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors cursor-pointer"
+                className="w-full text-center px-3 py-2 transition-colors cursor-pointer"
+                style={{
+                  fontSize: 'var(--text-sm)',
+                  color: 'var(--text-secondary)',
+                  backgroundColor: 'transparent'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--text-primary)'
+                  e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--text-secondary)'
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                }}
               >
                 Logout
               </button>
               <a
                 href="/account/delete"
-                className="block w-full text-center px-3 py-2 text-sm text-gray-500 hover:text-gray-300 hover:bg-gray-700 transition-colors cursor-pointer"
+                className="block w-full text-center px-3 py-2 transition-colors cursor-pointer"
                 onClick={() => setIsDropdownOpen(false)}
+                style={{
+                  fontSize: 'var(--text-sm)',
+                  color: 'var(--text-muted)',
+                  textDecoration: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--text-secondary)'
+                  e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--text-muted)'
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                }}
               >
                 Delete Account
               </a>
@@ -85,19 +153,65 @@ export default function AuthButton() {
     <div className="relative z-10" ref={dropdownRef}>
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="w-16 py-1 bg-gray-700 text-white text-sm font-medium rounded-full hover:bg-gray-600 transition-all duration-200 h-[24px] flex items-center justify-center cursor-pointer"
+        className="transition-all duration-200 flex items-center justify-center cursor-pointer"
+        style={{
+          width: '2rem',
+          height: '2rem',
+          backgroundColor: 'var(--bg-secondary)',
+          color: 'var(--text-secondary)',
+          borderRadius: '50%',
+          border: '1px solid var(--border-light)',
+          fontSize: 'var(--text-xs)'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = 'var(--text-primary)'
+          e.currentTarget.style.color = 'var(--bg-card)'
+          e.currentTarget.style.transform = 'scale(1.05)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'
+          e.currentTarget.style.color = 'var(--text-secondary)'
+          e.currentTarget.style.transform = 'scale(1)'
+        }}
       >
-        <span>{t('login')}</span>
+        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+        </svg>
       </button>
       
       {isDropdownOpen && (
-        <div className="absolute right-0 mt-3 w-80 bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 z-20 overflow-hidden">
+        <div 
+          className="absolute right-0 mt-2 z-20 overflow-hidden"
+          style={{
+            width: '20rem',
+            backgroundColor: 'var(--bg-card)',
+            borderRadius: 'var(--radius-xl)',
+            boxShadow: 'var(--shadow-elevated)',
+            border: '1px solid var(--border-light)'
+          }}
+        >
           {/* Header */}
-          <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white text-center">
+          <div 
+            className="px-6 py-4 text-center"
+            style={{ 
+              borderBottom: '1px solid var(--border-light)',
+              backgroundColor: 'var(--bg-secondary)'
+            }}
+          >
+            <h3 style={{
+              fontSize: 'var(--text-lg)',
+              fontWeight: '500',
+              color: 'var(--text-primary)',
+              marginBottom: 'var(--space-1)',
+              letterSpacing: '-0.01em'
+            }}>
               Sign in to Koouk
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 text-center mt-1">
+            <p style={{
+              fontSize: 'var(--text-sm)',
+              color: 'var(--text-secondary)',
+              fontWeight: '400'
+            }}>
               Access your personal life hub
             </p>
           </div>
@@ -106,7 +220,21 @@ export default function AuthButton() {
           <div className="p-6">
             <button
               onClick={handleSignIn}
-              className="w-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 rounded-lg px-4 py-3 transition-all duration-200 flex items-center justify-center gap-3 group hover:shadow-md"
+              className="w-full transition-all duration-200 flex items-center justify-center gap-3 group"
+              style={{
+                backgroundColor: 'var(--bg-card)',
+                border: '2px solid var(--border-light)',
+                borderRadius: 'var(--radius-lg)',
+                padding: 'var(--space-3) var(--space-4)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--text-secondary)'
+                e.currentTarget.style.boxShadow = 'var(--shadow-subtle)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border-light)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
             >
               <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -114,7 +242,11 @@ export default function AuthButton() {
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
               </svg>
-              <span className="text-gray-700 dark:text-gray-300 font-medium group-hover:text-gray-900 dark:group-hover:text-white">
+              <span style={{
+                color: 'var(--text-primary)',
+                fontSize: 'var(--text-sm)',
+                fontWeight: '500'
+              }}>
                 Continue with Google
               </span>
             </button>

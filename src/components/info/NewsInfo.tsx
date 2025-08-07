@@ -88,9 +88,9 @@ export default function NewsInfo() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <span className="text-3xl">📰</span>
+            <span className="text-lg">📰</span>
             <h1 style={{ 
-              fontSize: 'var(--text-2xl)', 
+              fontSize: 'var(--text-xl)', 
               fontWeight: '700', 
               color: 'var(--text-primary)' 
             }}>
@@ -208,7 +208,7 @@ export default function NewsInfo() {
         
         {filteredArticles.length === 0 && (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4">📰</div>
+            <div className="text-lg mb-4">📰</div>
             <h3 style={{ 
               fontSize: 'var(--text-xl)', 
               fontWeight: '600', 

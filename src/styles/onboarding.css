@@ -48,6 +48,7 @@
   border-top: 1px solid #E8DCC0 !important;
   padding-top: 16px !important;
   margin-top: 16px !important;
+  pointer-events: auto !important;
 }
 
 /* 다음 버튼 */
@@ -62,6 +63,10 @@
   margin-left: 8px !important;
   transition: background 0.2s ease !important;
   box-shadow: none !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  outline: none !important;
+  text-decoration: none !important;
 }
 
 .koouk-intro-tooltip .introjs-nextbutton:hover {
@@ -80,6 +85,10 @@
   font-size: 14px !important;
   font-weight: 400 !important;
   transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  outline: none !important;
+  text-decoration: none !important;
 }
 
 .koouk-intro-tooltip .introjs-prevbutton:hover {
@@ -96,6 +105,9 @@
   text-decoration: none !important;
   padding: 10px 16px !important;
   transition: color 0.2s ease !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  outline: none !important;
 }
 
 .koouk-intro-tooltip .introjs-skipbutton:hover {

@@ -68,15 +68,13 @@
     --space-10: 1.5rem;   /* 24px */
     --space-12: 2rem;     /* 32px */
     
-    /* Mobile Typography */
-    --text-xs: 0.7rem;    /* 11px */
-    --text-sm: 0.75rem;   /* 12px */
-    --text-base: 0.8rem;  /* 13px */
-    --text-md: 0.85rem;   /* 14px */
-    --text-lg: 0.9rem;    /* 15px */
-    --text-xl: 1rem;      /* 16px */
-    --text-2xl: 1.125rem; /* 18px */
-    --text-3xl: 1.5rem;   /* 24px */
+    /* Mobile Typography - 가독성 최적화 */
+    --text-xs: 0.8125rem; /* 13px - 작은 라벨, 보조 텍스트 */
+    --text-sm: 0.875rem;  /* 14px - 버튼 텍스트, 메뉴 */  
+    --text-base: 0.9375rem; /* 15px - 기본 본문 */
+    --text-md: 1rem;      /* 16px - 중간 본문, 입력 필드 */
+    --text-lg: 1.0625rem; /* 17px - 중간 제목 */
+    --text-xl: 1.125rem;  /* 18px - 큰 제목 (최대 크기) */
   }
 }
 

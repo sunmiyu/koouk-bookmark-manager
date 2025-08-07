@@ -114,9 +114,9 @@ export default function VideoStorage() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <span className="text-3xl">🎥</span>
+            <span className="text-lg">🎥</span>
             <h1 style={{ 
-              fontSize: 'var(--text-2xl)', 
+              fontSize: 'var(--text-xl)', 
               fontWeight: '700', 
               color: 'var(--text-primary)' 
             }}>

@@ -7,6 +7,7 @@ type TravelItem = {
   name: string
   location: string
   country: string
+  url?: string
   description: string
   priority: 'high' | 'medium' | 'low'
   estimatedCost: string
@@ -53,6 +54,67 @@ export default function TravelStorage() {
     bestSeason: ''
   })
   const [showAddForm, setShowAddForm] = useState(false)
+  const [quickTravelURL, setQuickTravelURL] = useState('')
+  const [isQuickAdding, setIsQuickAdding] = useState(false)
+
+  const quickAddTravelURL = async () => {
+    if (!quickTravelURL.trim()) return
+    
+    setIsQuickAdding(true)
+    try {
+      // URL 유효성 검사 및 제목 추출
+      let name = quickTravelURL
+      let location = '링크 참조'
+      let country = '링크 참조'
+      
+      try {
+        const url = new URL(quickTravelURL)
+        const domain = url.hostname.replace('www.', '')
+        
+        // 도메인별 맞춤 처리
+        if (domain.includes('tripadvisor')) {
+          name = 'TripAdvisor 여행지'
+          location = 'TripAdvisor 링크'
+        } else if (domain.includes('booking') || domain.includes('airbnb')) {
+          name = '숙박 예약 사이트'
+          location = '숙박 링크'
+        } else if (domain.includes('expedia') || domain.includes('hotels')) {
+          name = '호텔 예약 사이트'
+          location = '호텔 링크'
+        } else if (domain.includes('google') && url.pathname.includes('maps')) {
+          name = 'Google Maps 여행지'
+          location = 'Google Maps 링크'
+        } else if (domain.includes('visitkorea') || domain.includes('korea')) {
+          name = '한국관광공사 여행지'
+          location = '한국'
+          country = '대한민국'
+        } else {
+          name = domain.charAt(0).toUpperCase() + domain.slice(1) + ' 여행지'
+        }
+      } catch {
+        name = 'URL 여행지'
+      }
+      
+      const travelItem: TravelItem = {
+        id: Date.now().toString(),
+        name,
+        location,
+        country,
+        url: quickTravelURL,
+        description: '빠른 URL 추가로 저장됨',
+        priority: 'medium',
+        estimatedCost: '',
+        bestSeason: '',
+        visited: false,
+        createdAt: new Date().toISOString()
+      }
+      
+      setDestinations(prev => [travelItem, ...prev])
+      setQuickTravelURL('')
+    } finally {
+      setIsQuickAdding(false)
+    }
+  }
 
   const addDestination = () => {
     if (newDestination.name && newDestination.location) {
@@ -101,9 +163,9 @@ export default function TravelStorage() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <span className="text-3xl">✈️</span>
+            <span className="text-lg">✈️</span>
             <h1 style={{ 
-              fontSize: 'var(--text-2xl)', 
+              fontSize: 'var(--text-xl)', 
               fontWeight: '700', 
               color: 'var(--text-primary)' 
             }}>
@@ -118,6 +180,71 @@ export default function TravelStorage() {
             + 여행지 추가
           </button>
         </div>
+      </div>
+
+      {/* Quick URL Input */}
+      <div className="mb-6">
+        <div className="flex gap-3">
+          <div className="flex-1 relative">
+            <input
+              type="url"
+              value={quickTravelURL}
+              onChange={(e) => setQuickTravelURL(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  quickAddTravelURL()
+                }
+              }}
+              placeholder="여행지 URL을 붙여넣으세요 (TripAdvisor, Airbnb, 관광공사 등)"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl transition-all duration-200 ease-out"
+              style={{
+                backgroundColor: '#FAFAF9',
+                borderColor: '#F5F3F0',
+                color: '#1A1A1A',
+                fontSize: 'var(--text-sm)',
+                fontWeight: '400',
+                outline: 'none'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#E8E5E1'
+                e.target.style.backgroundColor = '#FFFFFF'
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#F5F3F0'
+                e.target.style.backgroundColor = '#FAFAF9'
+              }}
+            />
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              ✈️
+            </div>
+          </div>
+          <button
+            onClick={quickAddTravelURL}
+            disabled={!quickTravelURL.trim() || isQuickAdding}
+            className="px-6 py-3 bg-gray-900 text-white rounded-xl font-medium transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: quickTravelURL.trim() ? '#1A1A1A' : '#9CA3AF',
+              fontSize: 'var(--text-sm)'
+            }}
+            onMouseEnter={(e) => {
+              if (quickTravelURL.trim()) {
+                e.currentTarget.style.backgroundColor = '#333333'
+                e.currentTarget.style.transform = 'scale(1.02)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (quickTravelURL.trim()) {
+                e.currentTarget.style.backgroundColor = '#1A1A1A'
+                e.currentTarget.style.transform = 'scale(1)'
+              }
+            }}
+          >
+            {isQuickAdding ? '추가 중...' : '빠른 추가'}
+          </button>
+        </div>
+        <p className="text-xs text-gray-500 mt-2" style={{ color: 'var(--text-muted)' }}>
+          💡 여행지 URL을 입력하고 엔터키를 누르면 바로 저장됩니다
+        </p>
       </div>
 
       {/* Add Form */}
@@ -280,6 +407,18 @@ export default function TravelStorage() {
               <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>
                 📍 {destination.location}, {destination.country}
               </p>
+              
+              {destination.url && (
+                <a 
+                  href={destination.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:text-blue-700 text-xs underline flex items-center gap-1"
+                  style={{ fontSize: 'var(--text-xs)' }}
+                >
+                  🔗 링크 보기
+                </a>
+              )}
               
               {destination.estimatedCost && (
                 <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>

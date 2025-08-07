@@ -26,15 +26,35 @@ export function useOnboardingTour() {
     // Add additional delay to ensure CSS is applied
     await new Promise(resolve => setTimeout(resolve, 500))
     
+    // Wait for tour target elements to be available
+    await new Promise(resolve => {
+      const checkElements = () => {
+        const sidebar = document.querySelector('.sidebar-tour-target')
+        const dailyCards = document.querySelector('.daily-cards-tour-target')
+        const storage = document.querySelector('.storage-tour-target')
+        
+        if (sidebar && dailyCards && storage) {
+          resolve(true)
+        } else {
+          setTimeout(checkElements, 100)
+        }
+      }
+      checkElements()
+      // Fallback timeout after 3 seconds
+      setTimeout(() => resolve(true), 3000)
+    })
+    
     const intro = introJs()
     
     // Debug: Check if tooltip elements exist before starting
-    intro.onbeforechange(() => {
-      console.log('Tour step changing...')
+    intro.onbeforechange(function(targetElement) {
+      console.log('Tour step changing to:', targetElement)
+      // Always return true to allow progression
       return true
     })
     
-    intro.onafterchange(() => {
+    intro.onafterchange(function(targetElement) {
+      console.log('Tour step changed to:', targetElement)
       // Apply custom styles after each step change
       setTimeout(() => {
         const tooltip = document.querySelector('.koouk-intro-tooltip') as HTMLElement
@@ -46,8 +66,18 @@ export function useOnboardingTour() {
         } else {
           console.log('Tooltip not found')
         }
-      }, 100)
+      }, 50)
     })
+    
+    // Handle tour errors - check if onerror exists
+    const introWithError = intro as { onerror?: (callback: (stepIndex: number, reason: string) => boolean) => void }
+    if (typeof introWithError.onerror === 'function') {
+      introWithError.onerror(function(stepIndex: number, reason: string) {
+        console.warn('Tour error at step', stepIndex, ':', reason)
+        // Continue to next step or complete tour
+        return true
+      })
+    }
     
     intro.setOptions({
       nextLabel: '다음',
@@ -62,7 +92,7 @@ export function useOnboardingTour() {
       overlayOpacity: 0.6,
       tooltipClass: 'koouk-intro-tooltip',
       highlightClass: 'koouk-intro-highlight',
-      disableInteraction: true,
+      disableInteraction: false,
       tooltipPosition: 'bottom' as const,
       steps: [
         {

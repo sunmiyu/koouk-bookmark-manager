@@ -11,9 +11,7 @@ import RightPanel from '@/components/RightPanel'
 import { useAuth } from '@/contexts/AuthContext'
 import LandingPage from '@/components/LandingPage'
 import LoadingSpinner from '@/components/LoadingSpinner'
-import { ToastProvider } from '@/contexts/ToastContext'
 import { LoadingProvider } from '@/contexts/LoadingContext'
-import ToastContainer from '@/components/ToastContainer'
 import LoadingOverlay from '@/components/LoadingOverlay'
 import { useOnboardingTour } from '@/hooks/useOnboardingTour'
 import SearchButton from '@/components/SearchButton'
@@ -116,8 +114,7 @@ function HomeContent() {
 
   return (
     <LoadingProvider>
-      <ToastProvider position="top-right" maxToasts={5}>
-        {/* New Koouk Layout */}
+      {/* New Koouk Layout */}
         <div className="min-h-screen flex flex-col" style={mainContainerStyle}>
             {/* Container with max width - 더 넓은 화면 */}
             <div className="w-full max-w-[1600px] mx-auto" style={{ padding: '0 20px' }}>
@@ -326,12 +323,10 @@ function HomeContent() {
         </div>
         
         {/* Global Toast and Loading */}
-        <ToastContainer />
         <LoadingOverlay />
         
         {/* Universal Search - Floating Button */}
         <SearchButton />
-      </ToastProvider>
     </LoadingProvider>
   )
 }

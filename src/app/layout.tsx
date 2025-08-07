@@ -12,6 +12,8 @@ import { TodoProvider } from "@/contexts/TodoContext";
 import { SearchProvider } from "@/contexts/SearchContext";
 import { Analytics } from '@vercel/analytics/react';
 import { GoogleAnalytics } from '@next/third-parties/google'
+import { ToastProvider } from '@/contexts/ToastContext'
+import ToastContainer from '@/components/ToastContainer'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -86,32 +88,37 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ErrorBoundary>
-          <ContextErrorBoundary contextName="Language">
-            <LanguageProvider>
-              <ContextErrorBoundary contextName="Authentication">
-                <AuthProvider>
-                  <ContextErrorBoundary contextName="User Plan">
-                    <UserPlanProvider>
-                      <ContextErrorBoundary contextName="Content">
-                        <ContentProvider>
-                          <ContextErrorBoundary contextName="Todo">
-                            <TodoProvider>
-                              <ContextErrorBoundary contextName="Search">
-                                <SearchProvider>
-                                  <SecurityMonitor />
-                                  {children}
-                                  <CookieBanner />
-                                </SearchProvider>
+          <ContextErrorBoundary contextName="Toast">
+            <ToastProvider position="top-right" maxToasts={5}>
+              <ContextErrorBoundary contextName="Language">
+                <LanguageProvider>
+                  <ContextErrorBoundary contextName="Authentication">
+                    <AuthProvider>
+                      <ContextErrorBoundary contextName="User Plan">
+                        <UserPlanProvider>
+                          <ContextErrorBoundary contextName="Content">
+                            <ContentProvider>
+                              <ContextErrorBoundary contextName="Todo">
+                                <TodoProvider>
+                                  <ContextErrorBoundary contextName="Search">
+                                    <SearchProvider>
+                                      <SecurityMonitor />
+                                      {children}
+                                      <CookieBanner />
+                                    </SearchProvider>
+                                  </ContextErrorBoundary>
+                                </TodoProvider>
                               </ContextErrorBoundary>
-                            </TodoProvider>
+                            </ContentProvider>
                           </ContextErrorBoundary>
-                        </ContentProvider>
+                        </UserPlanProvider>
                       </ContextErrorBoundary>
-                    </UserPlanProvider>
+                    </AuthProvider>
                   </ContextErrorBoundary>
-                </AuthProvider>
+                </LanguageProvider>
               </ContextErrorBoundary>
-            </LanguageProvider>
+              <ToastContainer />
+            </ToastProvider>
           </ContextErrorBoundary>
         </ErrorBoundary>
         <Analytics />

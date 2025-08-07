@@ -149,7 +149,6 @@ function HomeContent() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <SearchButton />
                       <button
                         onClick={startTour}
                         className="md:hidden p-2 rounded-lg transition-colors"
@@ -208,9 +207,8 @@ function HomeContent() {
                     <EnhancedTimeDisplay />
                   </div>
 
-                  {/* Right: Search + Account + Tour */}
+                  {/* Right: Account + Tour */}
                   <div className="flex items-center gap-3">
-                    <SearchButton />
                     <button
                       onClick={startTour}
                       className="hidden md:flex items-center gap-2 transition-all duration-200 ease-out"
@@ -331,7 +329,8 @@ function HomeContent() {
         <ToastContainer />
         <LoadingOverlay />
         
-        {/* Universal Search */}
+        {/* Universal Search - Floating Button */}
+        <SearchButton />
       </ToastProvider>
     </LoadingProvider>
   )

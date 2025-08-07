@@ -26,7 +26,7 @@ export function useOnboardingTour() {
       doneLabel: '완료! 🎉',
       showProgress: true,
       showBullets: false,
-      exitOnOverlayClick: false,
+      exitOnOverlayClick: true,
       exitOnEsc: true,
       scrollToElement: true,
       overlayOpacity: 0.8,

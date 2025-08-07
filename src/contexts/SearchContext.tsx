@@ -92,8 +92,15 @@ const CATEGORY_MAPPING = {
 } as const
 
 export function SearchProvider({ children }: { children: ReactNode }) {
-  const { notes, links, videos, images } = useContent()
-  const { todos } = useTodos()
+  // Safe context access with fallbacks
+  const contentContext = useContent()
+  const todosContext = useTodos()
+  
+  const notes = contentContext?.notes || []
+  const links = contentContext?.links || []
+  const videos = contentContext?.videos || []
+  const images = contentContext?.images || []
+  const todos = todosContext?.todos || []
   
   const [searchFilter, setSearchFilter] = useState<SearchFilter>({
     query: '',

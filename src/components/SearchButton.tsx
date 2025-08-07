@@ -45,15 +45,23 @@ export default function SearchButton() {
   }, [isOpen])
 
   return (
-    <div className="relative" ref={searchRef}>
-      {/* 검색 버튼 */}
+    <div className="fixed bottom-6 right-6 z-50" ref={searchRef}>
+      {/* 검색 버튼 - Floating */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 rounded-lg transition-colors"
+        className="w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 ease-out flex items-center justify-center"
         style={{
-          backgroundColor: isOpen ? 'var(--bg-secondary)' : 'transparent',
-          color: 'var(--text-secondary)',
-          border: '1px solid var(--border-light)',
+          backgroundColor: isOpen ? 'var(--bg-primary)' : '#667eea',
+          color: 'white',
+          border: 'none',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.05)'
+          e.currentTarget.style.backgroundColor = isOpen ? 'var(--bg-primary)' : '#5a67d8'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1)'
+          e.currentTarget.style.backgroundColor = isOpen ? 'var(--bg-primary)' : '#667eea'
         }}
         aria-label="검색"
       >
@@ -65,7 +73,7 @@ export default function SearchButton() {
       {/* 검색 팝업 */}
       {isOpen && (
         <div
-          className="absolute right-0 top-full mt-2 w-80 max-h-96 overflow-hidden"
+          className="absolute right-0 bottom-full mb-2 w-80 max-h-96 overflow-hidden"
           style={{
             backgroundColor: 'var(--bg-card)',
             border: '1px solid var(--border-medium)',

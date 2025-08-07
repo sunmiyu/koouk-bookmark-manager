@@ -125,19 +125,21 @@ export default function UniversalSearch() {
         </svg>
       </button>
 
+      {/* 모바일 검색 오버레이 - 검색 결과가 있을 때만 */}
+      {isMobileSearchOpen && hasResults && (
+        <div 
+          className="md:hidden fixed inset-0 z-50"
+          style={{
+            background: 'rgba(0, 0, 0, 0.3)',
+            backdropFilter: 'blur(8px)',
+          }}
+          onClick={closeMobileSearch}
+        />
+      )}
+
       {/* 모바일 검색 슬라이드업 */}
       {isMobileSearchOpen && (
         <>
-          {/* 배경 오버레이 */}
-          <div 
-            className="md:hidden fixed inset-0 z-50"
-            style={{
-              background: hasResults ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.1)',
-              backdropFilter: hasResults ? 'blur(8px)' : 'blur(2px)',
-            }}
-            onClick={closeMobileSearch}
-          />
-
           {/* 검색바 컨테이너 */}
           <div 
             className="md:hidden fixed bottom-0 left-0 right-0 z-50 transition-transform duration-300 ease-out"
@@ -275,22 +277,24 @@ export default function UniversalSearch() {
         </>
       )}
 
+      {/* PC 검색 오버레이 - 검색 결과가 있을 때만 */}
+      {isDesktopSearchOpen && hasResults && (
+        <div 
+          className="hidden md:block fixed inset-0 z-50"
+          style={{
+            background: 'rgba(0, 0, 0, 0.3)',
+            backdropFilter: 'blur(8px)',
+          }}
+          onClick={() => {
+            setIsDesktopSearchOpen(false)
+            clearSearch()
+          }}
+        />
+      )}
+
       {/* PC 검색 패널 */}
       {isDesktopSearchOpen && (
         <>
-          {/* 배경 오버레이 */}
-          <div 
-            className="hidden md:block fixed inset-0 z-50"
-            style={{
-              background: hasResults ? 'rgba(0, 0, 0, 0.4)' : 'rgba(0, 0, 0, 0.2)',
-              backdropFilter: hasResults ? 'blur(8px)' : 'blur(4px)',
-            }}
-            onClick={() => {
-              setIsDesktopSearchOpen(false)
-              clearSearch()
-            }}
-          />
-
           {/* 검색 패널 */}
           <div 
             className="hidden md:block fixed bottom-8 right-8 z-50 transition-all duration-300 ease-out"

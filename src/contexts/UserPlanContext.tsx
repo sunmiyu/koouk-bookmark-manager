@@ -21,11 +21,11 @@ export function UserPlanProvider({ children }: { children: ReactNode }) {
 
   // Load plan from localStorage on mount
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    
-    const savedPlan = localStorage.getItem('koouk_user_plan') as UserPlan
-    if (savedPlan && ['free', 'pro', 'unlimited'].includes(savedPlan)) {
-      setCurrentPlan(savedPlan)
+    if (typeof window !== 'undefined') {
+      const savedPlan = localStorage.getItem('koouk_user_plan') as UserPlan
+      if (savedPlan && ['free', 'pro', 'unlimited'].includes(savedPlan)) {
+        setCurrentPlan(savedPlan)
+      }
     }
   }, [])
 

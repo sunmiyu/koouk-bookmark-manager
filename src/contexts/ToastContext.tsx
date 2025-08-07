@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useRef, useEffect, ReactNode } from 'react'
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info'
 export type ToastPosition = 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center'
@@ -43,6 +43,7 @@ export function ToastProvider({
 }: ToastProviderProps) {
   const [toasts, setToasts] = useState<Toast[]>([])
   const [toastPosition, setToastPosition] = useState<ToastPosition>(position)
+  const timersRef = useRef<Map<string, NodeJS.Timeout>>(new Map())
 
   const generateId = useCallback(() => {
     return Math.random().toString(36).substring(2) + Date.now().toString(36)
@@ -50,6 +51,12 @@ export function ToastProvider({
 
   const hideToast = useCallback((id: string) => {
     setToasts(prev => prev.filter(toast => toast.id !== id))
+    // Clear associated timer
+    const timer = timersRef.current.get(id)
+    if (timer) {
+      clearTimeout(timer)
+      timersRef.current.delete(id)
+    }
   }, [])
 
   const showToast = useCallback((toastData: Omit<Toast, 'id'>) => {
@@ -68,9 +75,10 @@ export function ToastProvider({
 
     // Auto-remove toast if not persistent
     if (!newToast.persistent && newToast.duration && newToast.duration > 0) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         hideToast(id)
       }, newToast.duration)
+      timersRef.current.set(id, timer)
     }
 
     return id
@@ -78,10 +86,22 @@ export function ToastProvider({
 
   const clearAll = useCallback(() => {
     setToasts([])
+    // Clear all timers
+    timersRef.current.forEach(timer => clearTimeout(timer))
+    timersRef.current.clear()
   }, [])
 
   const setPosition = useCallback((newPosition: ToastPosition) => {
     setToastPosition(newPosition)
+  }, [])
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    const timers = timersRef.current
+    return () => {
+      timers.forEach(timer => clearTimeout(timer))
+      timers.clear()
+    }
   }, [])
 
   return (

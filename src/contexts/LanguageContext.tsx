@@ -16,18 +16,18 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   // Load language preference from localStorage on mount
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    
-    const savedLanguage = localStorage.getItem('language') as Language
-    if (savedLanguage && (savedLanguage === 'ko' || savedLanguage === 'en')) {
-      setLanguage(savedLanguage)
-    } else {
-      // Detect browser language
-      const browserLang = navigator.language.toLowerCase()
-      if (browserLang.startsWith('ko')) {
-        setLanguage('ko')
+    if (typeof window !== 'undefined') {
+      const savedLanguage = localStorage.getItem('language') as Language
+      if (savedLanguage && (savedLanguage === 'ko' || savedLanguage === 'en')) {
+        setLanguage(savedLanguage)
       } else {
-        setLanguage('en')
+        // Detect browser language
+        const browserLang = navigator.language.toLowerCase()
+        if (browserLang.startsWith('ko')) {
+          setLanguage('ko')
+        } else {
+          setLanguage('en')
+        }
       }
     }
   }, [])
@@ -37,6 +37,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLanguage(lang)
     if (typeof window !== 'undefined') {
       localStorage.setItem('language', lang)
+      
       // Update HTML lang attribute
       document.documentElement.lang = lang
     }

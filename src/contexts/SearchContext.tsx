@@ -108,12 +108,14 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   
   // 검색 기록 로드
   useEffect(() => {
-    const saved = localStorage.getItem('search-history')
-    if (saved) {
-      try {
-        setSearchHistory(JSON.parse(saved))
-      } catch (error) {
-        console.error('Failed to load search history:', error)
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('search-history')
+      if (saved) {
+        try {
+          setSearchHistory(JSON.parse(saved))
+        } catch (error) {
+          console.error('Failed to load search history:', error)
+        }
       }
     }
   }, [])
@@ -377,13 +379,17 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     
     const newHistory = [query, ...searchHistory.filter(h => h !== query)].slice(0, 10)
     setSearchHistory(newHistory)
-    localStorage.setItem('search-history', JSON.stringify(newHistory))
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('search-history', JSON.stringify(newHistory))
+    }
   }
   
   // 검색 기록 초기화
   const clearHistory = () => {
     setSearchHistory([])
-    localStorage.removeItem('search-history')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('search-history')
+    }
   }
   
   // 텍스트 하이라이팅

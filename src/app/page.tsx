@@ -16,7 +16,7 @@ import { LoadingProvider } from '@/contexts/LoadingContext'
 import ToastContainer from '@/components/ToastContainer'
 import LoadingOverlay from '@/components/LoadingOverlay'
 import { useOnboardingTour } from '@/hooks/useOnboardingTour'
-import UniversalSearch from '@/components/UniversalSearch'
+import SearchButton from '@/components/SearchButton'
 
 export type SectionType = 
   | 'dailyCard'
@@ -43,6 +43,42 @@ export type NoteType = {
   images: string[]
   createdAt: string
   updatedAt: string
+}
+
+// Memoized style objects to prevent unnecessary re-renders
+const mainContainerStyle = {
+  backgroundColor: 'var(--bg-primary)',
+  color: 'var(--text-primary)'
+}
+
+const headerStyle = {
+  padding: 'var(--space-4) 0',
+  backgroundColor: 'var(--bg-card)',
+  borderColor: 'var(--border-light)',
+}
+
+const desktopSidebarStyle = {
+  borderColor: 'var(--border-light)',
+  backgroundColor: 'var(--bg-card)'
+}
+
+const rightPanelStyle = {
+  borderColor: '#F0EDE8',
+  backgroundColor: '#FAFAF9'
+}
+
+const mobileSidebarOverlayStyle = {
+  backgroundColor: 'rgba(0, 0, 0, 0.3)'
+}
+
+const tourButtonBaseStyle = {
+  backgroundColor: 'transparent',
+  color: 'var(--text-secondary)',
+  border: '1px solid var(--border-light)',
+  borderRadius: 'var(--radius-lg)',
+  padding: 'var(--space-2) var(--space-3)',
+  fontSize: 'var(--text-xs)',
+  fontWeight: '500'
 }
 
 function HomeContent() {
@@ -81,23 +117,12 @@ function HomeContent() {
   return (
     <LoadingProvider>
       <ToastProvider position="top-right" maxToasts={5}>
-        {/* Show Landing Page if not authenticated */}
-        {!isAuthenticated ? (
-          <LandingPage />
-        ) : (
-          /* New Koouk Layout */
-          <div className="min-h-screen flex flex-col" style={{ 
-            backgroundColor: 'var(--bg-primary)', 
-            color: 'var(--text-primary)' 
-          }}>
+        {/* New Koouk Layout */}
+        <div className="min-h-screen flex flex-col" style={mainContainerStyle}>
             {/* Container with max width - 더 넓은 화면 */}
             <div className="w-full max-w-[1600px] mx-auto" style={{ padding: '0 20px' }}>
               {/* Header */}
-              <header className="w-full border-b" style={{ 
-                padding: 'var(--space-4) 0',
-                backgroundColor: 'var(--bg-card)',
-                borderColor: 'var(--border-light)',
-              }}>
+              <header className="w-full border-b" style={headerStyle}>
                 {/* Mobile Layout: 2 rows */}
                 <div className="md:hidden">
                   {/* First Row: Hamburger + Logo + Account */}
@@ -111,6 +136,9 @@ function HomeContent() {
                           color: 'var(--text-secondary)',
                           backgroundColor: sidebarCollapsed ? 'var(--bg-secondary)' : 'transparent'
                         }}
+                        aria-label={sidebarCollapsed ? '사이드바 열기' : '사이드바 닫기'}
+                        aria-expanded={!sidebarCollapsed}
+                        aria-controls="mobile-sidebar"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -121,6 +149,7 @@ function HomeContent() {
                     </div>
 
                     <div className="flex items-center gap-3">
+                      <SearchButton />
                       <button
                         onClick={startTour}
                         className="md:hidden p-2 rounded-lg transition-colors"
@@ -161,6 +190,9 @@ function HomeContent() {
                         color: 'var(--text-secondary)',
                         backgroundColor: sidebarCollapsed ? 'var(--bg-secondary)' : 'transparent'
                       }}
+                      aria-label={sidebarCollapsed ? '사이드바 열기' : '사이드바 닫기'}
+                      aria-expanded={!sidebarCollapsed}
+                      aria-controls="desktop-sidebar"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -176,20 +208,13 @@ function HomeContent() {
                     <EnhancedTimeDisplay />
                   </div>
 
-                  {/* Right: Account + Tour */}
+                  {/* Right: Search + Account + Tour */}
                   <div className="flex items-center gap-3">
+                    <SearchButton />
                     <button
                       onClick={startTour}
                       className="hidden md:flex items-center gap-2 transition-all duration-200 ease-out"
-                      style={{
-                        backgroundColor: 'transparent',
-                        color: 'var(--text-secondary)',
-                        border: '1px solid var(--border-light)',
-                        borderRadius: 'var(--radius-lg)',
-                        padding: 'var(--space-2) var(--space-3)',
-                        fontSize: 'var(--text-xs)',
-                        fontWeight: '500'
-                      }}
+                      style={tourButtonBaseStyle}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'
                         e.currentTarget.style.color = 'var(--text-primary)'
@@ -211,11 +236,11 @@ function HomeContent() {
               <div className="flex flex-1 overflow-hidden relative">
                 {/* Desktop Sidebar */}
                 <div 
+                  id="desktop-sidebar"
                   className="hidden md:block transition-all duration-300 border-r w-80 sidebar-tour-target"
-                  style={{ 
-                    borderColor: 'var(--border-light)',
-                    backgroundColor: 'var(--bg-card)'
-                  }}
+                  style={desktopSidebarStyle}
+                  role="navigation"
+                  aria-label="Main navigation"
                 >
                   <div className="h-full overflow-y-auto">
                     <Sidebar 
@@ -233,18 +258,22 @@ function HomeContent() {
                     {/* Backdrop - 반투명 오버레이 */}
                     <div 
                       className="md:hidden fixed inset-0 z-40"
-                      style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
+                      style={mobileSidebarOverlayStyle}
                       onClick={() => setSidebarCollapsed(true)}
                     />
                     
                     {/* Sidebar - 그림자 효과 추가 */}
                     <div 
+                      id="mobile-sidebar"
                       className="md:hidden fixed left-0 top-0 h-full w-80 z-50 transform transition-transform duration-300"
                       style={{ 
                         backgroundColor: 'var(--bg-card)',
                         transform: sidebarCollapsed ? 'translateX(-100%)' : 'translateX(0)',
                         boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1)'
                       }}
+                      role="dialog"
+                      aria-modal="true"
+                      aria-labelledby="sidebar-title"
                     >
                       <div className="h-full overflow-y-auto">
                         {/* Close button */}
@@ -253,6 +282,7 @@ function HomeContent() {
                             onClick={() => setSidebarCollapsed(true)}
                             className="p-2 rounded-md hover:bg-gray-100 transition-colors"
                             style={{ color: 'var(--text-secondary)' }}
+                            aria-label="사이드바 닫기"
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -288,25 +318,20 @@ function HomeContent() {
                   {/* Right Panel - 사용자 가이드 */}
                   <div 
                     className="hidden xl:block w-80 border-l overflow-y-auto"
-                    style={{ 
-                      borderColor: '#F0EDE8',
-                      backgroundColor: '#FAFAF9'
-                    }}
+                    style={rightPanelStyle}
                   >
                     <RightPanel activeSection={activeSection} />
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+        </div>
         
         {/* Global Toast and Loading */}
         <ToastContainer />
         <LoadingOverlay />
         
         {/* Universal Search */}
-        <UniversalSearch />
       </ToastProvider>
     </LoadingProvider>
   )

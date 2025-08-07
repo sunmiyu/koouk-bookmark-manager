@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SecurityMonitor from "@/components/SecurityMonitor";
 import CookieBanner from "@/components/CookieBanner";
+import ErrorBoundary, { ContextErrorBoundary } from "@/components/ErrorBoundary";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserPlanProvider } from "@/contexts/UserPlanContext";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -84,21 +85,35 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <LanguageProvider>
-          <AuthProvider>
-            <UserPlanProvider>
-                <ContentProvider>
-                  <TodoProvider>
-                    <SearchProvider>
-                      <SecurityMonitor />
-                      {children}
-                      <CookieBanner />
-                    </SearchProvider>
-                  </TodoProvider>
-                </ContentProvider>
-            </UserPlanProvider>
-          </AuthProvider>
-        </LanguageProvider>
+        <ErrorBoundary>
+          <ContextErrorBoundary contextName="Language">
+            <LanguageProvider>
+              <ContextErrorBoundary contextName="Authentication">
+                <AuthProvider>
+                  <ContextErrorBoundary contextName="User Plan">
+                    <UserPlanProvider>
+                      <ContextErrorBoundary contextName="Content">
+                        <ContentProvider>
+                          <ContextErrorBoundary contextName="Todo">
+                            <TodoProvider>
+                              <ContextErrorBoundary contextName="Search">
+                                <SearchProvider>
+                                  <SecurityMonitor />
+                                  {children}
+                                  <CookieBanner />
+                                </SearchProvider>
+                              </ContextErrorBoundary>
+                            </TodoProvider>
+                          </ContextErrorBoundary>
+                        </ContentProvider>
+                      </ContextErrorBoundary>
+                    </UserPlanProvider>
+                  </ContextErrorBoundary>
+                </AuthProvider>
+              </ContextErrorBoundary>
+            </LanguageProvider>
+          </ContextErrorBoundary>
+        </ErrorBoundary>
         <Analytics />
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
@@ -112,10 +127,18 @@ export default function RootLayout({
                   .then(function(registration) {
                     console.log('Service Worker registered successfully:', registration.scope);
                     
-                    // Enable background sync for alarms
-                    if ('sync' in window.ServiceWorkerRegistration.prototype) {
-                      registration.sync.register('alarm-check');
-                      console.log('Background sync registered for alarms');
+                    // Enable background sync for alarms - check both API support and registration status
+                    if ('sync' in window.ServiceWorkerRegistration.prototype && 
+                        registration.sync && 
+                        typeof registration.sync.register === 'function') {
+                      try {
+                        registration.sync.register('alarm-check');
+                        console.log('Background sync registered for alarms');
+                      } catch (error) {
+                        console.log('Background sync registration failed:', error);
+                      }
+                    } else {
+                      console.log('Background sync not supported');
                     }
                   })
                   .catch(function(error) {

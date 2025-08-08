@@ -21,6 +21,7 @@ import FolderTree from './FolderTree'
 import { DragDropProvider } from '@/contexts/DragDropContext'
 import { FolderItem, StorageItem, createFolder, createStorageItem, defaultFolderTemplates, createDummyFolders } from '@/types/folder'
 import { SharedFolder } from '@/types/share'
+import { searchEngine } from '@/lib/search-engine'
 
 // interface FolderWorkspaceProps {
 //   className?: string
@@ -100,6 +101,9 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
   const handleFoldersChange = (newFolders: FolderItem[]) => {
     setFolders(newFolders)
     saveToStorage(newFolders)
+    
+    // 검색 엔진 인덱스 업데이트
+    searchEngine.indexFolders(newFolders)
   }
 
   const handleFolderSelect = (folderId: string) => {

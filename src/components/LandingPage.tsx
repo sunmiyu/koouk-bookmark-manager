@@ -29,21 +29,13 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white relative">
-      {/* Minimal subtle background pattern */}
-      <div 
-        className="absolute inset-0 opacity-[0.02]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.4'%3E%3Ccircle cx='3' cy='3' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-        }}
-      />
-
-      {/* Header */}
+    <div className="min-h-screen apple-page relative">
+      {/* Frosted translucent header */}
       <motion.header 
-        className="relative z-10 px-8 py-12"
+        className="apple-header px-8 py-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 0.6 }}
       >
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <motion.div 
@@ -53,14 +45,14 @@ export default function HomePage() {
             <img 
               src="/koouk-logo.svg" 
               alt="KOOUK" 
-              className="h-8 w-auto"
+              className="h-7 w-auto opacity-90"
             />
           </motion.div>
 
           <motion.button
             onClick={handleGoogleSignIn}
             disabled={isLoading}
-            className="px-6 py-2 text-sm font-medium text-black hover:text-gray-600 transition-colors border border-black hover:bg-black hover:text-white"
+            className="apple-button-ghost"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -78,17 +70,17 @@ export default function HomePage() {
             transition={{ duration: 0.8 }}
           >
             <motion.h1 
-              className="text-4xl md:text-5xl font-light text-black mb-8 tracking-wide leading-tight"
+              className="apple-heading-xl font-semibold mb-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
               Personal Knowledge
-              <span className="block font-normal">Management</span>
+              <span className="block font-bold" style={{ WebkitTextStroke: '0 transparent' }}>Management</span>
             </motion.h1>
 
             <motion.p 
-              className="text-lg text-gray-700 mb-12 max-w-2xl mx-auto leading-relaxed font-light"
+              className="apple-subtitle mb-12 max-w-2xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
@@ -105,7 +97,7 @@ export default function HomePage() {
               <motion.button
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
-                className="group px-12 py-3 bg-black text-white font-medium text-sm tracking-wide hover:bg-gray-800 transition-colors duration-300 flex items-center gap-3"
+                className="apple-button-primary"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -125,34 +117,34 @@ export default function HomePage() {
           </motion.div>
         </div>
 
-        {/* Features */}
+        {/* Feature Cards */}
         <motion.section 
-          className="grid md:grid-cols-3 gap-16 mb-32 pt-16 border-t border-gray-100"
+          className="grid md:grid-cols-3 gap-8 md:gap-10 mb-28 pt-14 border-t apple-divider"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
         >
-          <div className="text-center">
-            <h3 className="text-sm font-medium text-black mb-3 tracking-wide uppercase">
+          <div className="text-center apple-card p-6 md:p-7 apple-elevated">
+            <h3 className="text-sm font-semibold mb-2 tracking-wide" style={{ color: 'var(--apple-text)' }}>
               Smart Folders
             </h3>
-            <p className="text-gray-600 leading-relaxed text-sm">
+            <p className="text-sm" style={{ color: 'var(--apple-text-secondary)' }}>
               자동으로 분류되는 스마트 폴더링
             </p>
           </div>
-          <div className="text-center">
-            <h3 className="text-sm font-medium text-black mb-3 tracking-wide uppercase">
+          <div className="text-center apple-card p-6 md:p-7 apple-elevated">
+            <h3 className="text-sm font-semibold mb-2 tracking-wide" style={{ color: 'var(--apple-text)' }}>
               Share Place
             </h3>
-            <p className="text-gray-600 leading-relaxed text-sm">
+            <p className="text-sm" style={{ color: 'var(--apple-text-secondary)' }}>
               다른 사용자와 정보 공유
             </p>
           </div>
-          <div className="text-center">
-            <h3 className="text-sm font-medium text-black mb-3 tracking-wide uppercase">
+          <div className="text-center apple-card p-6 md:p-7 apple-elevated">
+            <h3 className="text-sm font-semibold mb-2 tracking-wide" style={{ color: 'var(--apple-text)' }}>
               Quick Save
             </h3>
-            <p className="text-gray-600 leading-relaxed text-sm">
+            <p className="text-sm" style={{ color: 'var(--apple-text-secondary)' }}>
               즉시 저장 가능한 입력창
             </p>
           </div>
@@ -160,19 +152,19 @@ export default function HomePage() {
 
         {/* Footer */}
         <motion.footer 
-          className="text-center pb-16 pt-32 border-t border-gray-100"
+          className="text-center pb-16 pt-24 border-t apple-divider"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 1.2 }}
+          transition={{ duration: 0.6, delay: 1.0 }}
         >
-          <div className="flex items-center justify-center mb-6">
+          <div className="flex items-center justify-center mb-5">
             <img 
               src="/koouk-logo.svg" 
               alt="KOOUK" 
-              className="h-5 w-auto opacity-60"
+              className="h-5 w-auto opacity-70"
             />
           </div>
-          <p className="text-gray-400 text-xs tracking-wide uppercase">
+          <p className="text-xs tracking-wide" style={{ color: 'var(--apple-text-secondary)' }}>
             © 2024 Personal Knowledge Management
           </p>
         </motion.footer>

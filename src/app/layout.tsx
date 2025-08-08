@@ -3,17 +3,12 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SecurityMonitor from "@/components/SecurityMonitor";
 import CookieBanner from "@/components/CookieBanner";
-import ErrorBoundary, { ContextErrorBoundary } from "@/components/ErrorBoundary";
+import SimpleErrorBoundary from "@/components/SimpleErrorBoundary";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserPlanProvider } from "@/contexts/UserPlanContext";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { ContentProvider } from "@/contexts/ContentContext";
-import { TodoProvider } from "@/contexts/TodoContext";
-import { SearchProvider } from "@/contexts/SearchContext";
 import { Analytics } from '@vercel/analytics/react';
 import { GoogleAnalytics } from '@next/third-parties/google'
-import { ToastProvider } from '@/contexts/ToastContext'
-import ToastContainer from '@/components/ToastContainer'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -87,40 +82,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ErrorBoundary>
-          <ContextErrorBoundary contextName="Toast">
-            <ToastProvider position="top-right" maxToasts={5}>
-              <ContextErrorBoundary contextName="Language">
-                <LanguageProvider>
-                  <ContextErrorBoundary contextName="Authentication">
-                    <AuthProvider>
-                      <ContextErrorBoundary contextName="User Plan">
-                        <UserPlanProvider>
-                          <ContextErrorBoundary contextName="Content">
-                            <ContentProvider>
-                              <ContextErrorBoundary contextName="Todo">
-                                <TodoProvider>
-                                  <ContextErrorBoundary contextName="Search">
-                                    <SearchProvider>
-                                      <SecurityMonitor />
-                                      {children}
-                                      <CookieBanner />
-                                    </SearchProvider>
-                                  </ContextErrorBoundary>
-                                </TodoProvider>
-                              </ContextErrorBoundary>
-                            </ContentProvider>
-                          </ContextErrorBoundary>
-                        </UserPlanProvider>
-                      </ContextErrorBoundary>
-                    </AuthProvider>
-                  </ContextErrorBoundary>
-                </LanguageProvider>
-              </ContextErrorBoundary>
-              <ToastContainer />
-            </ToastProvider>
-          </ContextErrorBoundary>
-        </ErrorBoundary>
+        <SimpleErrorBoundary>
+          <LanguageProvider>
+            <AuthProvider>
+              <UserPlanProvider>
+                <SecurityMonitor />
+                {children}
+                <CookieBanner />
+              </UserPlanProvider>
+            </AuthProvider>
+          </LanguageProvider>
+        </SimpleErrorBoundary>
         <Analytics />
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />

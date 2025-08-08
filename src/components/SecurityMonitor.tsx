@@ -1,7 +1,13 @@
 'use client'
 
 import { useEffect } from 'react'
-import { trackEvents } from '@/lib/analytics'
+
+// 간단한 로깅 함수 (배포용)
+const trackEvents = (event: string, data: unknown) => {
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Security Event:', event, data)
+  }
+}
 
 export default function SecurityMonitor() {
   useEffect(() => {
@@ -19,11 +25,11 @@ export default function SecurityMonitor() {
             : new URL(url).pathname
           
           if (response.status === 403) {
-            trackEvents.securityEvent('cors_blocked', endpoint)
+            trackEvents('cors_blocked', endpoint)
           } else if (response.status === 429) {
-            trackEvents.securityEvent('rate_limit_hit', endpoint)
+            trackEvents('rate_limit_hit', endpoint)
           } else {
-            trackEvents.apiError(endpoint, response.status)
+            trackEvents('api_error', { endpoint, status: response.status })
           }
           
           console.warn('API Error Tracked:', {

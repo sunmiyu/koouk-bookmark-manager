@@ -1,260 +1,216 @@
-# Koouk - Personal Life Hub
+# KOOUK - Your Personal Storage Hub
 
-> Your personal life hub - manage bookmarks, daily info, and lifestyle in one place
+> 흩어져 있는 모든 정보를 한 곳에. 찾고 싶을 때 바로 찾는 개인 저장 공간.
 
-## 🎯 Project Overview
+## 🎯 서비스 개요
 
-Koouk is a personal lifestyle management platform that serves as your daily digital assistant. Unlike productivity tools focused on work and collaboration, Koouk specializes in organizing and accessing personal information that matters to your daily routine.
+**KOOUK**은 개인의 디지털 정보를 하나로 모으는 스마트 저장 공간입니다. 
+유튜브 링크, 인스타그램 게시물, 카카오톡 대화, 애플 메모장... 여기저기 흩어진 소중한 정보들을 한 곳에서 관리하고, 강력한 검색으로 필요할 때 즉시 찾을 수 있습니다.
 
-## ✨ Features
+## 💡 핵심 가치
 
-### Core Functionality
-- **Smart Bookmarking**: Videos, links, images, and notes in organized categories
-- **Real-time Weather**: Location-based weather updates with caching
-- **Intuitive Search**: Quick access to saved content
-- **User Authentication**: Google OAuth integration
-- **PWA Support**: Install as mobile/desktop app
+### 🔍 **초강화 검색**
+- 저장된 모든 콘텐츠를 텍스트, 태그, 카테고리로 검색
+- URL 제목, 설명, 메모까지 전체 검색
+- 스마트 필터링으로 원하는 정보 즉시 발견
 
-### Security & Analytics
-- **CORS Protection**: API endpoint security
-- **Rate Limiting**: DDoS protection and cost control
-- **Google Analytics 4**: User behavior tracking
-- **Vercel Analytics**: Performance monitoring
+### 📱 **원클릭 저장**
+- URL 복사 → 붙여넣기 → 자동 저장
+- 유튜브, 인스타, 웹사이트 썸네일 자동 생성
+- 드래그 & 드롭으로 이미지 저장
 
-## 💰 Business Model
+### 🧠 **스마트 추천**
+- 저장 패턴 분석으로 개인 성향 파악
+- 비슷한 관심사 기반 콘텐츠 추천
+- 카테고리별 트렌드 제안
 
-### Pricing Tiers
+## 🗂️ 저장 가능한 콘텐츠
+
+### 📺 **영상 콘텐츠**
+- YouTube 영상 (썸네일, 제목, 채널명 자동 추출)
+- Instagram 릴스/게시물
+- TikTok, 기타 SNS 영상
+
+### 🔗 **웹 콘텐츠**
+- 뉴스 기사, 블로그 포스트
+- 쇼핑몰 상품 페이지
+- 참고 자료, 문서
+
+### 🖼️ **이미지 & 파일**
+- 사진, 스크린샷
+- 문서, PDF
+- 메모, 노트
+
+### 🍽️ **라이프스타일**
+- 맛집 정보 (지도, 메뉴, 리뷰)
+- 여행지 (장소, 일정, 후기)
+- 쇼핑 위시리스트
+
+### 📝 **개인 기록**
+- 짧은 메모 (Quick Note)
+- 긴 글 (Big Note)
+- 아이디어, 일기
+
+## 🔥 주요 기능
+
+### ⚡ **즉시 저장**
 ```
-🆓 Free Plan - $0/month
-├── 50 items per category
-├── Basic weather & search
-└── Core bookmarking features
-
-💎 Pro Plan - $6.99/month  
-├── 500 items per category
-├── 2 Mini Functions
-└── Priority support
-
-🚀 Premium Plan - $12.99/month
-├── Unlimited items
-├── 4 Mini Functions
-└── Advanced features
-```
-
-### Mini Functions Area - Core Innovation
-
-**"아침에 일어나서 제일 먼저 보는 정보를 한눈에"**
-
-#### UI Layout Structure:
-```
-┌─ Header (KOOUK + Weather + Controls)
-├─ Mini Functions Area (NEW) ← 핵심 차별화!
-│  ├─ 🚗 출퇴근 시간: 35분 걸림 (평소보다 +10분)
-│  ├─ 📈 저장 주식: 테슬라 ▼3% $350 | 애플 ▼5% $170  
-│  └─ 🎵 추천 음악: 아침 집중용 | 카페 감성 | 운동용
-├─ Todos (기존)
-└─ Bookmarks (기존)
-```
-
-#### Available Mini Functions:
-- **🚗 Real-time Commute**: Live traffic from home to work with Google Maps API
-- **📈 Stock & Crypto Dashboard**: Personal watchlist with real-time prices
-- **🎵 Smart Music Recommendations**: YouTube/Spotify playlist suggestions
-- **🍽️ Local Food & Places**: Nearby restaurants based on time and location
-- **⏰ Pomodoro Focus Timer**: 25min work + 5min break cycles with daily stats
-- **🎯 Daily Goal Tracker**: Personal objectives with visual progress bars
-
-#### Freemium Hook Strategy:
-```
-🆓 Free Plan: Preview cards (read-only, no interaction)
-💎 Pro Plan: Choose 2 active Mini Functions  
-🚀 Premium Plan: Choose 4 active Mini Functions
+URL 복사 → KOOUK 접속 → Ctrl+V → 저장 완료
 ```
 
-**Value Proposition**: Replace 6+ separate apps with one personalized dashboard
-
-## 🏆 Competitive Advantage vs Notion
-
-### Market Positioning
-| Aspect | Notion | Koouk |
-|--------|--------|-------|
-| **Target** | Teams & Productivity | Personal Lifestyle |
-| **Use Case** | Work & Study | Daily Life Management |
-| **Complexity** | High learning curve | Instant usability |
-| **Focus** | Document creation | Information access |
-| **Timing** | Work hours | 24/7 personal use |
-
-### Key Differentiators
-
-#### ✅ Koouk Advantages
-- **Personal-First Design**: Built specifically for individual daily routines
-- **Speed**: 3-second access to any saved information
-- **Real-time Data**: Live weather, stocks, traffic, music
-- **Lifestyle Integration**: Daily habits and personal interests
-- **Mobile-Optimized**: Touch-first interface design
-- **Price**: 50% less than Notion Plus ($6.99 vs $8/month)
-
-#### 🎯 Unique Value Proposition
-**"Not a productivity tool, but a personal life companion"**
-- Notion helps you work better
-- Koouk helps you live smarter
-
-### Target User Journey
+### 🔍 **강력한 검색**
 ```
-🌅 Morning: Check weather, stocks, commute time
-☕ Lunch: Find nearby restaurants from saved spots  
-🎵 Afternoon: Play focus music, set work timer
-🚗 Evening: Check traffic, browse entertainment bookmarks
-🌙 Night: Review goals, plan tomorrow
+"파리 여행" 검색 → 여행지, 맛집, 사진, 메모까지 한 번에
 ```
 
-## 🔍 Competitive Landscape Analysis
-
-### Direct Competitors
-| App | Platform | Features | Pricing | Limitations |
-|-----|----------|----------|---------|-------------|
-| **DayView** | Apple TV | Weather, Stocks, Commute, Calendar | Free | Apple TV only, limited mobile |
-| **Morning.coffee** | Web/GitHub | Custom dashboard | Open source | Developer setup required |
-| **Momentum Dash** | Browser | Focus, Timer, Inspiration | $3.33/month | Browser extension only |
-| **Any.do** | Mobile | Tasks, Calendar widgets | Free/$5.99/month | Task-focused, limited widgets |
-
-### Market Gap Analysis
-**✅ Koouk's Opportunity:**
-- **Mobile-first design** (vs DayView's TV focus)
-- **All-in-one solution** (vs scattered widget apps)
-- **Personal lifestyle focus** (vs productivity tools)
-- **Real-time API integration** (vs static information)
-- **Freemium model** (vs free-only or subscription-only)
-
-### Unique Positioning
+### 🏷️ **스마트 태그**
 ```
-🎯 "The only app that replaces your morning phone routine"
-├─ No more opening 6+ separate apps
-├─ Real-time personal data in one place  
-├─ Bookmark management + mini functions
-└─ Mobile-optimized dashboard experience
+자동 카테고리 분류 + 사용자 커스텀 태그
 ```
 
-## 🚀 Market Opportunity
-
-### Addressable Market
-- **Personal Information Management**: $2.8B market
-- **Lifestyle Apps**: Growing 15% annually  
-- **Individual Subscriptions**: Higher retention than B2B
-- **Morning Routine Apps**: Emerging $500M niche market
-
-### Growth Strategy
-1. **Phase 1**: MVP with core bookmarking + 2 mini functions
-2. **Phase 2**: User feedback integration + mobile app
-3. **Phase 3**: API partnerships (Spotify, Google Maps, financial data)
-4. **Phase 4**: AI-powered personal insights
-
-## 🛠️ Technical Stack
-
-### Current Implementation
-- **Frontend**: Next.js 15.4.4, TypeScript, Tailwind CSS
-- **Authentication**: Supabase Auth with Google OAuth
-- **Database**: Supabase PostgreSQL
-- **Storage**: Supabase + localStorage fallback
-- **Hosting**: Vercel with edge functions
-- **Analytics**: Google Analytics 4 + Vercel Analytics
-- **Security**: CORS middleware, rate limiting, CSP headers
-- **State Management**: React Context API
-- **PWA**: Service workers, offline support
-
-### Production-Ready Backend Plan
-
-#### Database & Storage
+### 📊 **개인 인사이트**
 ```
-🎯 Priority 1: Data Persistence
-├─ Firebase/Supabase: User data & bookmarks
-├─ PostgreSQL: Structured data with relations
-├─ Redis: Caching & session management
-└─ Cloudinary/AWS S3: Image & file storage
+이달에 저장한 콘텐츠 분석 → 관심사 트렌드 파악
 ```
 
-#### Authentication & Security
-```
-🔐 Enhanced Auth System:
-├─ NextAuth session management enhancement
-├─ JWT token refresh handling
-├─ User profile & preferences storage
-└─ Multi-device sync capability
-```
+## 🎨 사용자 경험
 
-#### Real-time Features
-```
-⚡ Live Data Integration:
-├─ Google Maps API: Traffic & commute data
-├─ Alpha Vantage: Stock market data
-├─ OpenWeatherMap: Enhanced weather
-├─ YouTube/Spotify API: Music recommendations
-└─ WebSocket: Real-time updates
-```
+### 📱 **모바일 최적화**
+- 한 손으로 조작 가능한 인터페이스
+- 빠른 스와이프 네비게이션
+- 오프라인에서도 저장된 콘텐츠 확인
 
-#### Infrastructure Requirements
-```
-🏗️ Production Setup:
-├─ Automatic data backup (daily)
-├─ Database migration scripts
-├─ Environment-specific configs
-├─ Error logging & monitoring
-└─ Performance optimization
-```
+### 💻 **데스크톱 파워**
+- 멀티 탭으로 빠른 정보 저장
+- 드래그 & 드롭 대량 업로드
+- 키보드 단축키 지원
 
-### Implementation Roadmap
-1. **Week 1-2**: Firebase/Supabase setup + user migration
-2. **Week 3-4**: Image upload system (Cloudinary)
-3. **Week 5-6**: External API integrations 
-4. **Week 7-8**: Real-time features + optimization
+### 🌐 **크로스 플랫폼**
+- 모든 기기에서 동기화
+- 브라우저 확장 프로그램
+- PWA 앱 설치 지원
 
-## 📊 Revenue Projections
+## 💼 비즈니스 모델
 
-### Year 1 Targets
-- **10,000** Free users
-- **1,000** Pro subscribers → $83,880 ARR
-- **200** Premium subscribers → $31,176 ARR
-- **Total**: $115,056 ARR
+### 🆓 **무료 플랜**
+- 카테고리당 100개 아이템
+- 기본 검색 기능
+- 웹 접근
 
-### Year 3 Targets  
-- **50,000** Free users
-- **5,000** Pro subscribers → $419,400 ARR
-- **1,500** Premium subscribers → $233,820 ARR
-- **Total**: $653,220 ARR
+### 💎 **프로 플랜** ($9.99/월)
+- 카테고리당 1000개 아이템
+- 고급 검색 & 필터
+- 브라우저 확장 프로그램
+- 백업 & 동기화
+
+### 🚀 **프리미엄 플랜** ($19.99/월)
+- 무제한 저장
+- AI 기반 스마트 추천
+- 팀 공유 기능
+- API 접근
+
+## 🛠️ 기술 스택
+
+### **Frontend**
+- Next.js 15 + TypeScript
+- Tailwind CSS
+- React Context API
+- PWA 지원
+
+### **Backend**
+- Supabase (Database + Auth)
+- Edge Functions
+- Real-time Subscriptions
+
+### **AI & ML**
+- 콘텐츠 분류 AI
+- 개인화 추천 엔진
+- 자동 태그 생성
+
+### **External APIs**
+- YouTube Data API
+- Instagram Graph API
+- Web Scraping Service
+- Image Recognition API
+
+## 🚀 로드맵
+
+### **Q1 2024**
+- [x] MVP 개발 완료
+- [x] 기본 저장 기능
+- [x] 검색 시스템 구축
+
+### **Q2 2024**
+- [ ] AI 추천 시스템
+- [ ] 모바일 앱 출시
+- [ ] 브라우저 확장 프로그램
+
+### **Q3 2024**
+- [ ] 팀 공유 기능
+- [ ] 고급 분석 대시보드
+- [ ] API 플랫폼 오픈
+
+### **Q4 2024**
+- [ ] 글로벌 서비스 확장
+- [ ] 파트너십 확대
+- [ ] 엔터프라이즈 솔루션
+
+## 🎯 경쟁 우위
+
+| 서비스 | 타겟 | 장점 | 한계 |
+|--------|------|------|------|
+| **Notion** | 팀/생산성 | 강력한 편집 | 개인 정보 저장에 과함 |
+| **Pinterest** | 이미지 중심 | 시각적 | 텍스트/링크 관리 부족 |
+| **Pocket** | 읽기 목록 | 간단함 | 카테고리 관리 제한적 |
+| **KOOUK** | 개인 저장소 | **종합적 관리 + 강력한 검색** | - |
+
+## 📊 시장 기회
+
+- **개인 정보 관리 시장**: $5.2B (연 15% 성장)
+- **북마크 관리 도구**: 사용자 2억+ 
+- **콘텐츠 큐레이션**: 젊은 세대 핵심 니즈
+- **디지털 미니멀리즘**: 하나로 통합하는 트렌드
 
 ---
 
-## Getting Started
+## 🚀 시작하기
 
-First, run the development server:
+### 개발 환경 설정
 
 ```bash
+# 저장소 클론
+git clone https://github.com/your-username/koouk-clone.git
+cd koouk-clone
+
+# 의존성 설치
+npm install
+
+# 환경 변수 설정
+cp .env.example .env.local
+
+# 개발 서버 실행
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 배포
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Vercel 배포
+vercel --prod
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# 또는 Docker
+docker build -t koouk .
+docker run -p 3000:3000 koouk
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 📬 연락처
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **이메일**: hello@koouk.io
+- **웹사이트**: https://koouk.io
+- **GitHub**: https://github.com/koouk-io
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**KOOUK** - 흩어진 정보의 완벽한 정리, 필요할 때의 즉시 검색 ✨

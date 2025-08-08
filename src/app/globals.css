@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "../styles/onboarding.css";
 
 /* Koouk Design System - Expensive-looking, Intuitive Simplicity */
 @config "../../tailwind.config.js";
@@ -295,3 +294,13 @@ input[type="checkbox"] {
 
 .radius-lg { border-radius: var(--radius-lg); }
 .radius-xl { border-radius: var(--radius-xl); }
+
+/* Hide scrollbar utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar { 
+  display: none;  /* Safari and Chrome */
+}

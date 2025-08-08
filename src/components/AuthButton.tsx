@@ -50,10 +50,15 @@ export default function AuthButton() {
           style={{
             width: '2rem',
             height: '2rem',
+            minWidth: '2rem',
+            minHeight: '2rem',
+            maxWidth: '2rem',
+            maxHeight: '2rem',
             backgroundColor: 'var(--text-primary)',
             color: 'var(--bg-card)',
             borderRadius: '50%',
-            border: 'none'
+            border: 'none',
+            aspectRatio: '1 / 1'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = '#333333'
@@ -157,11 +162,16 @@ export default function AuthButton() {
         style={{
           width: '2rem',
           height: '2rem',
+          minWidth: '2rem',
+          minHeight: '2rem',
+          maxWidth: '2rem',
+          maxHeight: '2rem',
           backgroundColor: 'var(--bg-secondary)',
           color: 'var(--text-secondary)',
           borderRadius: '50%',
           border: '1px solid var(--border-light)',
-          fontSize: 'var(--text-xs)'
+          fontSize: 'var(--text-xs)',
+          aspectRatio: '1 / 1'
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.backgroundColor = 'var(--text-primary)'

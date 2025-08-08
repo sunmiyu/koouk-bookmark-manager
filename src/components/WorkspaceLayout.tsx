@@ -61,15 +61,9 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
     >
       {/* 전체 컨테이너를 중앙 정렬하고 max-width 설정 */}
       <div className="w-full max-w-[1400px] mx-auto h-full flex flex-col">
-      {/* 상단 헤더 - Vercel 스타일 */}
+      {/* 상단 헤더 - Apple 스타일 가볍게 적용 */}
       <motion.header 
-        className="flex items-center justify-between px-6 py-4 border-b backdrop-blur-sm"
-        style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.8)',
-          borderColor: 'var(--border-light)',
-          boxShadow: 'var(--shadow-card)',
-          backdropFilter: 'blur(12px) saturate(180%)'
-        }}
+        className="apple-header flex items-center justify-between px-6 py-3"
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.3 }}
@@ -78,26 +72,26 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
         <div className="flex items-center gap-4">
           {/* 모바일 햄버거 메뉴 */}
           <button
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="md:hidden apple-button-ghost"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            <Menu size={20} style={{ color: 'var(--text-primary)' }} />
+            <Menu size={20} />
           </button>
 
           {/* 사이드바 토글 (데스크톱) */}
           <button
-            className="hidden md:block p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="hidden md:block apple-button-ghost"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
           >
-            <Menu size={20} style={{ color: 'var(--text-primary)' }} />
+            <Menu size={20} />
           </button>
 
-          {/* KOOUK 로고 - Vercel 스타일 */}
+          {/* KOOUK 로고 */}
           <motion.div className="flex items-center gap-3" whileHover={{ scale: 1.02 }}>
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <div className="w-4 h-4 bg-white rounded-sm"></div>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center apple-card">
+              <div className="w-4 h-4 bg-black rounded-sm"></div>
             </div>
-            <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-semibold" style={{ color: 'var(--apple-text)' }}>
               KOOUK
             </h1>
           </motion.div>
@@ -116,35 +110,23 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleSearchSubmit}
-              className="w-full pl-12 pr-24 py-3 rounded-xl text-sm transition-all duration-300"
-              style={{
-                backgroundColor: 'var(--bg-muted)',
-                border: '1px solid var(--border-light)',
-                color: 'var(--text-primary)',
-                boxShadow: 'var(--shadow-subtle)'
-              }}
+              className="apple-input pl-10 pr-24"
               whileFocus={{
-                scale: 1.01,
-                borderColor: 'var(--text-accent)',
-                boxShadow: 'var(--shadow-focus)'
+                scale: 1.01
               }}
             />
             <Search 
               size={18} 
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none"
-              style={{ color: 'var(--text-secondary)' }}
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
+              style={{ color: 'var(--apple-text-secondary)' }}
             />
             
             {/* 검색 범위 선택 */}
             <select
               value={searchScope}
               onChange={(e) => setSearchScope(e.target.value as typeof searchScope)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 px-3 py-1 rounded-lg text-xs font-medium border-0 outline-none transition-colors"
-              style={{
-                backgroundColor: 'var(--bg-card)',
-                color: 'var(--text-primary)',
-                border: '1px solid var(--border-light)'
-              }}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 rounded-lg text-xs font-medium border apple-card"
+              style={{ color: 'var(--apple-text)' }}
             >
               <option value="all">전체</option>
               <option value="folder">현재폴더</option>
@@ -154,37 +136,28 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
         </div>
 
         {/* 우측: 도구 & 사용자 */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {/* 뷰 모드 토글 */}
-          <div className="hidden md:flex items-center gap-1 p-1 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+          <div className="hidden md:flex items-center gap-1 p-1 rounded-full apple-card">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white shadow-sm' : ''}`}
+              className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'apple-elevated' : ''}`}
             >
-              <Grid3X3 size={16} style={{ color: viewMode === 'grid' ? 'var(--text-primary)' : 'var(--text-secondary)' }} />
+              <Grid3X3 size={16} style={{ color: viewMode === 'grid' ? 'var(--apple-text)' : 'var(--apple-text-secondary)' }} />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm' : ''}`}
+              className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'apple-elevated' : ''}`}
             >
-              <LayoutList size={16} style={{ color: viewMode === 'list' ? 'var(--text-primary)' : 'var(--text-secondary)' }} />
+              <LayoutList size={16} style={{ color: viewMode === 'list' ? 'var(--apple-text)' : 'var(--apple-text-secondary)' }} />
             </button>
           </div>
 
           {/* Share Place 버튼 */}
           <motion.button
             onClick={props.onSharePlaceClick}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
-            style={{
-              backgroundColor: 'var(--bg-card)',
-              color: 'var(--text-primary)',
-              border: '1px solid var(--border-light)',
-              boxShadow: 'var(--shadow-subtle)'
-            }}
-            whileHover={{ 
-              scale: 1.05,
-              boxShadow: 'var(--shadow-elevated)' 
-            }}
+            className="apple-button-ghost"
+            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             <Share2 size={16} />
@@ -193,16 +166,8 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
 
           {/* 새 항목 추가 */}
           <motion.button
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
-            style={{
-              background: 'var(--gradient-secondary)',
-              color: 'white',
-              boxShadow: 'var(--shadow-subtle)'
-            }}
-            whileHover={{ 
-              scale: 1.05,
-              boxShadow: 'var(--shadow-elevated)'
-            }}
+            className="apple-button-primary"
+            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             <Plus size={16} />
@@ -211,27 +176,21 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
 
           {/* 사용자 프로필 */}
           <motion.button 
-            className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
-            style={{ backgroundColor: 'var(--bg-secondary)' }}
+            className="w-10 h-10 rounded-full flex items-center justify-center apple-card"
             whileHover={{ scale: 1.05 }}
           >
-            <User size={18} style={{ color: 'var(--text-secondary)' }} />
+            <User size={18} style={{ color: 'var(--apple-text-secondary)' }} />
           </motion.button>
         </div>
       </motion.header>
 
       {/* 메인 작업 영역 */}
       <div className="flex-1 flex overflow-hidden">
-        {/* 좌측 사이드바 - Vercel 스타일 */}
+        {/* 좌측 사이드바 - 가벼운 유리효과 */}
         <AnimatePresence>
           {(!sidebarCollapsed || mobileMenuOpen) && (
             <motion.aside
-              className={`${mobileMenuOpen ? 'fixed inset-0 z-50 md:relative md:inset-auto' : 'hidden md:block'} w-72 h-full border-r backdrop-blur-sm`}
-              style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                borderColor: 'var(--border-light)',
-                backdropFilter: 'blur(8px) saturate(180%)'
-              }}
+              className={`${mobileMenuOpen ? 'fixed inset-0 z-50 md:relative md:inset-auto' : 'hidden md:block'} w-72 h-full apple-card`}
               initial={{ x: -288, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -288, opacity: 0 }}
@@ -242,7 +201,7 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
                 <div className="md:hidden flex justify-end p-4">
                   <button
                     onClick={() => setMobileMenuOpen(false)}
-                    className="p-2 rounded-lg hover:bg-gray-100"
+                    className="apple-button-ghost"
                   >
                     <X size={20} />
                   </button>
@@ -265,7 +224,7 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
           )}
         </AnimatePresence>
 
-        {/* 메인 캔버스 영역 - 피그마 스타일 */}
+        {/* 메인 캔버스 영역 */}
         <motion.main 
           className="flex-1 flex flex-col overflow-hidden"
           style={{ backgroundColor: 'var(--bg-primary)' }}
@@ -276,11 +235,7 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
           {/* 브레드크럼 & 제어 */}
           {selectedFolder && (
             <motion.div 
-              className="flex items-center justify-between px-6 py-4 border-b"
-              style={{
-                backgroundColor: 'var(--bg-card)',
-                borderColor: 'var(--border-light)'
-              }}
+              className="flex items-center justify-between px-6 py-4 border-b apple-card"
               initial={{ y: -10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
             >
@@ -289,16 +244,16 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: selectedFolder.color }}
                 />
-                <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+                <h2 className="text-lg font-semibold" style={{ color: 'var(--apple-text)' }}>
                   {selectedFolder.name}
                 </h2>
-                <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                <span className="text-sm" style={{ color: 'var(--apple-text-secondary)' }}>
                   {selectedFolder.children.length}개 항목
                 </span>
               </div>
 
-              <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                <Maximize2 size={18} style={{ color: 'var(--text-secondary)' }} />
+              <button className="apple-button-ghost">
+                <Maximize2 size={18} />
               </button>
             </motion.div>
           )}
@@ -313,7 +268,7 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
       {/* 모바일 오버레이 */}
       {mobileMenuOpen && (
         <motion.div
-          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          className="md:hidden fixed inset-0 bg-black/50 z-40"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

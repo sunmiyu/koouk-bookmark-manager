@@ -204,19 +204,15 @@ export default function UniversalInputBar({
         <AnimatePresence>
           {showFolderSelector && (
             <motion.div
-              className="mb-4 p-4 rounded-xl shadow-lg"
-              style={{
-                backgroundColor: 'var(--bg-card)',
-                border: '1px solid var(--border-light)'
-              }}
+              className="mb-4 apple-card"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
             >
-              <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--text-primary)' }}>
+              <h3 className="text-sm font-medium px-4 pt-4" style={{ color: 'var(--apple-text)' }}>
                 저장할 폴더 선택:
               </h3>
-              <div className="max-h-60 overflow-y-auto space-y-1">
+              <div className="max-h-60 overflow-y-auto space-y-1 p-4 pt-2">
                 {allFolders.map((folder) => (
                   <button
                     key={folder.id}
@@ -225,7 +221,7 @@ export default function UniversalInputBar({
                       setShowFolderSelector(false)
                     }}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                      selectedFolderId === folder.id ? 'bg-blue-50' : 'hover:bg-gray-50'
+                      selectedFolderId === folder.id ? 'bg-blue-50' : 'hover:bg-black/5'
                     }`}
                     style={{ paddingLeft: `${12 + folder.depth * 16}px` }}
                   >
@@ -234,7 +230,7 @@ export default function UniversalInputBar({
                       style={{ backgroundColor: folder.color }}
                     />
                     <span className="text-sm truncate flex-1" style={{ 
-                      color: selectedFolderId === folder.id ? '#3B82F6' : 'var(--text-primary)' 
+                      color: selectedFolderId === folder.id ? '#3B82F6' : 'var(--apple-text)'
                     }}>
                       {folder.depth > 0 && '└ '}
                       {folder.name}
@@ -252,25 +248,21 @@ export default function UniversalInputBar({
         {/* 첨부 파일 프리뷰 */}
         {attachedFiles.length > 0 && (
           <motion.div
-            className="mb-4 p-3 rounded-xl"
-            style={{
-              backgroundColor: 'var(--bg-secondary)',
-              border: '1px solid var(--border-light)'
-            }}
+            className="mb-4 apple-card"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 p-3">
               {attachedFiles.map((file, index) => (
                 <div
                   key={index}
                   className="flex items-center gap-2 px-3 py-1 rounded-lg"
-                  style={{ backgroundColor: 'var(--bg-card)' }}
+                  style={{ background: 'rgba(255,255,255,0.6)' }}
                 >
                   {file.type.startsWith('image/') ? <Image size={14} /> :
                    file.type.startsWith('video/') ? <Video size={14} /> :
                    <FileText size={14} />}
-                  <span className="text-xs truncate max-w-32" style={{ color: 'var(--text-primary)' }}>
+                  <span className="text-xs truncate max-w-32" style={{ color: 'var(--apple-text)' }}>
                     {file.name}
                   </span>
                   <button
@@ -287,12 +279,8 @@ export default function UniversalInputBar({
 
         {/* 메인 입력 바 */}
         <motion.div
-          className="relative rounded-xl shadow-xl"
-          style={{
-            backgroundColor: 'var(--bg-card)',
-            border: '1px solid var(--border-light)',
-            boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)'
-          }}
+          className="relative apple-card"
+          style={{ boxShadow: '0 10px 40px rgba(0, 0, 0, 0.08)' }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
@@ -300,11 +288,9 @@ export default function UniversalInputBar({
             {/* 폴더 선택 버튼 */}
             <button
               onClick={toggleFolderSelector}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-colors"
+              className="apple-button-ghost"
               style={{
-                backgroundColor: selectedFolder ? selectedFolder.color + '20' : 'var(--bg-secondary)',
-                color: selectedFolder ? selectedFolder.color : 'var(--text-secondary)',
-                border: `1px solid ${selectedFolder ? selectedFolder.color + '40' : 'var(--border-light)'}`
+                color: selectedFolder ? selectedFolder.color : 'var(--apple-text)'
               }}
             >
               <Folder size={16} />
@@ -324,7 +310,7 @@ export default function UniversalInputBar({
                 placeholder="링크, 메모, 문서 등 무엇이든 입력하세요... (Ctrl+Enter로 저장)"
                 className="w-full resize-none border-none outline-none bg-transparent text-sm leading-relaxed"
                 style={{ 
-                  color: 'var(--text-primary)',
+                  color: 'var(--apple-text)',
                   minHeight: '60px',
                   maxHeight: '200px'
                 }}
@@ -335,24 +321,18 @@ export default function UniversalInputBar({
             <div className="flex items-center gap-2">
               <button
                 onClick={handleFileAttach}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="apple-button-ghost"
                 title="파일 첨부"
               >
-                <Paperclip size={18} style={{ color: 'var(--text-secondary)' }} />
+                <Paperclip size={18} />
               </button>
 
               <button
                 onClick={handleSubmit}
                 disabled={(!input.trim() && attachedFiles.length === 0) || isProcessing || !selectedFolderId}
-                className={`p-2 rounded-lg transition-all ${
-                  (!input.trim() && attachedFiles.length === 0) || isProcessing || !selectedFolderId
-                    ? 'opacity-50 cursor-not-allowed' 
-                    : 'hover:scale-105 shadow-md'
+                className={`apple-button-primary ${
+                  ((!input.trim() && attachedFiles.length === 0) || isProcessing || !selectedFolderId) ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
-                style={{
-                  backgroundColor: 'var(--text-primary)',
-                  color: 'var(--bg-card)'
-                }}
               >
                 <Send size={18} />
               </button>

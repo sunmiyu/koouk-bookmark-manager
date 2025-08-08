@@ -21,10 +21,10 @@ export default function MainWorkspace() {
   }
 
   return (
-    <div className="min-h-screen bg-white px-4">
-      {/* Vercel-style Header */}
-      <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
-        <div className="w-full bg-white">
+    <div className="min-h-screen px-4">
+      {/* Apple-style Frosted Header */}
+      <header className="apple-header">
+        <div className="w-full">
           <div className="max-w-6xl mx-auto px-8">
             <div className="flex items-center justify-between h-16">
               {/* Logo */}
@@ -32,7 +32,7 @@ export default function MainWorkspace() {
                 <img 
                   src="/koouk-logo.svg" 
                   alt="KOOUK" 
-                  className="h-6 w-auto"
+                  className="h-6 w-auto opacity-90"
                 />
               </div>
 
@@ -48,7 +48,7 @@ export default function MainWorkspace() {
                 />
 
                 {/* Feedback Button */}
-                <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors">
+                <button className="apple-button-ghost">
                   <MessageCircle className="w-4 h-4" />
                   <span>Feedback</span>
                 </button>
@@ -57,7 +57,7 @@ export default function MainWorkspace() {
                 <div className="relative">
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-md transition-colors"
+                    className="apple-button-ghost"
                   >
                     <div className="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center text-sm font-medium">
                       {user?.email?.[0]?.toUpperCase() || 'U'}
@@ -70,16 +70,17 @@ export default function MainWorkspace() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
-                      className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2"
+                      className="absolute right-0 mt-2 w-64 apple-card py-2"
                     >
-                      <div className="px-4 py-3 border-b border-gray-100">
-                        <div className="text-sm font-medium text-black">{user?.user_metadata?.name || 'User'}</div>
-                        <div className="text-xs text-gray-500">{user?.email}</div>
+                      <div className="px-4 py-3 border-b apple-divider">
+                        <div className="text-sm font-medium" style={{ color: 'var(--apple-text)' }}>{user?.user_metadata?.name || 'User'}</div>
+                        <div className="text-xs" style={{ color: 'var(--apple-text-secondary)' }}>{user?.email}</div>
                       </div>
                       
                       <button
                         onClick={() => setShowUserMenu(false)}
-                        className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        className="w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-black/5 transition-colors"
+                        style={{ color: 'var(--apple-text)' }}
                       >
                         <Settings className="w-4 h-4" />
                         Settings
@@ -87,7 +88,8 @@ export default function MainWorkspace() {
                       
                       <button
                         onClick={handleSignOut}
-                        className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        className="w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-red-50 transition-colors"
+                        style={{ color: '#e11d48' }}
                       >
                         <LogOut className="w-4 h-4" />
                         Sign out
@@ -102,17 +104,18 @@ export default function MainWorkspace() {
       </header>
 
       {/* Navigation Tabs */}
-      <nav className="border-b border-gray-200 bg-white">
-        <div className="w-full bg-white">
+      <nav className="border-b apple-divider">
+        <div className="w-full">
           <div className="max-w-6xl mx-auto px-8">
             <div className="flex w-full">
               <button
                 onClick={() => setActiveTab('my-folder')}
                 className={`flex-1 py-4 px-8 border-b-2 font-medium text-sm text-center transition-colors ${
                   activeTab === 'my-folder'
-                    ? 'border-black text-black'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-blue-600'
+                    : 'border-transparent'
                 }`}
+                style={{ color: activeTab === 'my-folder' ? 'var(--apple-text)' : 'var(--apple-text-secondary)' }}
               >
                 My Folder
               </button>
@@ -120,9 +123,10 @@ export default function MainWorkspace() {
                 onClick={() => setActiveTab('share-place')}
                 className={`flex-1 py-4 px-8 border-b-2 font-medium text-sm text-center transition-colors ${
                   activeTab === 'share-place'
-                    ? 'border-black text-black'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-blue-600'
+                    : 'border-transparent'
                 }`}
+                style={{ color: activeTab === 'share-place' ? 'var(--apple-text)' : 'var(--apple-text-secondary)' }}
               >
                 Market Place
               </button>

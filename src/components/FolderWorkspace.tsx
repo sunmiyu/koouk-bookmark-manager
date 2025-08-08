@@ -343,25 +343,39 @@ const FolderContent = ({
     )
   })
   
-  // 아이템 정렬
-  const sortedItems = [...filteredItems].sort((a, b) => {
-    switch (sortBy) {
-      case 'recent':
-        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      case 'oldest':
-        return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
-      case 'name':
-        return a.name.localeCompare(b.name, 'ko')
-      case 'type':
-        // 타입 우선순위: document > memo > url > video > image
-        const typeOrder = { document: 0, memo: 1, url: 2, video: 3, image: 4 }
-        const orderA = typeOrder[a.type] ?? 5
-        const orderB = typeOrder[b.type] ?? 5
-        return orderA - orderB || a.name.localeCompare(b.name, 'ko')
-      default:
-        return 0
+  // 아이템을 타입별로 그룹화 (영상 > 이미지 > 링크 > 문서 > 메모 순서)
+  const typeOrder = { video: 0, image: 1, url: 2, document: 3, memo: 4 }
+  
+  const groupedItems = filteredItems.reduce((groups, item) => {
+    const type = item.type
+    if (!groups[type]) {
+      groups[type] = []
     }
-  })
+    groups[type].push(item)
+    return groups
+  }, {} as Record<string, StorageItem[]>)
+  
+  // 각 그룹 내에서 정렬
+  const sortedGroups = Object.keys(groupedItems).sort((a, b) => {
+    return (typeOrder[a as keyof typeof typeOrder] ?? 5) - (typeOrder[b as keyof typeof typeOrder] ?? 5)
+  }).reduce((result, type) => {
+    const items = [...groupedItems[type]].sort((a, b) => {
+      switch (sortBy) {
+        case 'recent':
+          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        case 'oldest':
+          return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
+        case 'name':
+          return a.name.localeCompare(b.name, 'ko')
+        case 'type':
+          return 0 // 이미 타입별로 그룹화되어 있음
+        default:
+          return 0
+      }
+    })
+    result[type] = items
+    return result
+  }, {} as Record<string, StorageItem[]>)
 
   const getSortLabel = () => {
     switch (sortBy) {
@@ -474,16 +488,48 @@ const FolderContent = ({
         </div>
       </div>
 
-      {/* Content grid/list */}
-      <div className={
-        viewMode === 'grid'
-          ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-          : "space-y-3"
-      }>
-        {sortedItems.map((item) => (
-          <ItemCard key={item.id} item={item} viewMode={viewMode} />
-        ))}
-      </div>
+      {/* Content by type groups */}
+      {viewMode === 'grid' ? (
+        <div className="space-y-8">
+          {Object.entries(sortedGroups).map(([type, items]) => (
+            <div key={type} className="">
+              {/* Type header */}
+              <div className="flex items-center gap-2 mb-4">
+                <div className="flex items-center gap-2">
+                  {type === 'video' && <Video className="w-5 h-5 text-red-500" />}
+                  {type === 'image' && <ImageIcon className="w-5 h-5 text-green-500" />}
+                  {type === 'url' && <Link className="w-5 h-5 text-blue-500" />}
+                  {type === 'document' && <FileText className="w-5 h-5 text-blue-600" />}
+                  {type === 'memo' && <StickyNote className="w-5 h-5 text-yellow-500" />}
+                  <h4 className="font-medium text-gray-900 capitalize">
+                    {type === 'url' ? 'Links' : type === 'document' ? 'Documents' : type === 'memo' ? 'Memos' : type === 'image' ? 'Images' : 'Videos'}
+                  </h4>
+                  <span className="text-sm text-gray-500">({items.length})</span>
+                </div>
+              </div>
+              
+              {/* Horizontal scrollable items */}
+              <div className="overflow-x-auto">
+                <div className="flex gap-4 pb-2" style={{ minWidth: 'fit-content' }}>
+                  {items.map((item) => (
+                    <div key={item.id} className="flex-shrink-0 w-64">
+                      <ItemCard item={item} viewMode={viewMode} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {Object.entries(sortedGroups).flatMap(([type, items]) => 
+            items.map((item) => (
+              <ItemCard key={item.id} item={item} viewMode={viewMode} />
+            ))
+          )}
+        </div>
+      )}
     </div>
   )
 }

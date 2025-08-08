@@ -66,12 +66,12 @@ const DraggableStorageItem = ({
 
   const getItemIcon = () => {
     switch (item.type) {
-      case 'document': return <FileText size={14} />
-      case 'memo': return <StickyNote size={14} />
-      case 'image': return <Image size={14} />
-      case 'video': return <Video size={14} />
-      case 'url': return <Link size={14} />
-      default: return <FileText size={14} />
+      case 'document': return <FileText className="w-4 h-4" />
+      case 'memo': return <StickyNote className="w-4 h-4" />
+      case 'image': return <Image className="w-4 h-4" />
+      case 'video': return <Video className="w-4 h-4" />
+      case 'url': return <Link className="w-4 h-4" />
+      default: return <FileText className="w-4 h-4" />
     }
   }
 
@@ -80,19 +80,25 @@ const DraggableStorageItem = ({
       ref={setNodeRef}
       style={{
         ...style,
-        marginLeft: `${(level + 1) * 16}px`,
-        backgroundColor: isHovered ? 'var(--bg-secondary)' : 'transparent',
-        color: 'var(--text-secondary)'
+        marginLeft: `${(level + 1) * 20 + 12}px`
       }}
       {...attributes}
       {...listeners}
-      className="flex items-center py-1 px-2 rounded-lg cursor-pointer transition-all duration-200"
+      className={`flex items-center py-2 px-3 mx-2 rounded-md cursor-pointer transition-all duration-150
+        ${
+          isHovered 
+            ? 'bg-gray-50 text-gray-900' 
+            : 'text-gray-600 hover:text-gray-800'
+        }
+      `}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex items-center gap-2 flex-1 text-xs">
-        {getItemIcon()}
-        <span className="truncate">{item.name}</span>
+      <div className="flex items-center gap-2.5 flex-1 text-sm">
+        <div className="text-gray-400">
+          {getItemIcon()}
+        </div>
+        <span className="truncate font-medium">{item.name}</span>
       </div>
     </div>
   )
@@ -167,17 +173,19 @@ const DroppableFolder = ({
 
   return (
     <div ref={combinedRef} style={style}>
-      {/* 폴더 헤더 */}
+      {/* Vercel 스타일 폴더 헤더 */}
       <div
-        className="group flex items-center py-2 px-2 rounded-lg cursor-pointer transition-all duration-300"
+        className={`group flex items-center py-2.5 px-3 mx-2 rounded-lg cursor-pointer transition-all duration-150
+          ${
+            isSelected 
+              ? 'bg-gray-100 text-gray-900 shadow-sm' 
+              : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+          }
+        `}
         style={{
-          marginLeft: `${level * 16}px`,
-          backgroundColor: isSelected 
-            ? 'var(--bg-secondary)' 
-            : (isOver || isHovered) ? 'rgba(0, 0, 0, 0.02)' : 'transparent',
-          borderLeft: isSelected ? `3px solid ${item.color || 'var(--text-primary)'}` : '3px solid transparent',
-          borderRadius: isOver ? '8px' : '4px',
-          boxShadow: isOver ? '0 2px 8px rgba(0, 0, 0, 0.1)' : 'none'
+          marginLeft: `${level * 20}px`,
+          borderRadius: '8px',
+          boxShadow: isOver ? '0 1px 3px rgba(0, 0, 0, 0.1)' : 'none'
         }}
         {...attributes}
         {...listeners}
@@ -188,36 +196,34 @@ const DroppableFolder = ({
         }}
         onClick={handleSelect}
       >
-        {/* 확장/축소 아이콘 */}
+        {/* Vercel 스타일 확장/축소 아이콘 */}
         <div 
-          className="flex items-center justify-center w-5 h-5 mr-1"
+          className="flex items-center justify-center w-5 h-5 mr-2"
           onClick={(e) => {
             e.stopPropagation()
             if (hasChildren) handleToggle()
           }}
         >
-          {hasChildren && (
+          {hasChildren ? (
             isExpanded ? (
               <ChevronDown 
-                size={14} 
-                style={{ color: 'var(--text-secondary)' }}
-                className="transition-transform duration-200"
+                className="w-4 h-4 text-gray-400 hover:text-gray-600 transition-colors duration-150" 
               />
             ) : (
               <ChevronRight 
-                size={14} 
-                style={{ color: 'var(--text-secondary)' }}
-                className="transition-transform duration-200"
+                className="w-4 h-4 text-gray-400 hover:text-gray-600 transition-colors duration-150" 
               />
             )
+          ) : (
+            <div className="w-4 h-4" />
           )}
         </div>
 
-        {/* 폴더 정보 */}
-        <div className="flex items-center gap-2 flex-1 min-w-0">
+        {/* Vercel 스타일 폴더 정보 */}
+        <div className="flex items-center gap-3 flex-1 min-w-0">
           <div 
-            className="w-2 h-2 rounded-full flex-shrink-0"
-            style={{ backgroundColor: item.color || 'var(--text-secondary)' }}
+            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+            style={{ backgroundColor: item.color || '#6b7280' }}
           />
           
           {isRenaming ? (
@@ -233,33 +239,29 @@ const DroppableFolder = ({
                   setRenameName(item.name)
                 }
               }}
-              className="flex-1 text-sm bg-transparent border-none outline-none"
-              style={{ color: 'var(--text-primary)' }}
+              className="flex-1 text-sm font-medium bg-transparent border border-gray-200 rounded px-2 py-1 outline-none focus:border-gray-400"
               autoFocus
               onClick={(e) => e.stopPropagation()}
             />
           ) : (
-            <span 
-              className="text-sm font-medium truncate"
-              style={{ color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)' }}
-            >
+            <span className="text-sm font-medium truncate">
               {item.name}
             </span>
           )}
         </div>
 
-        {/* 액션 버튼들 */}
+        {/* Vercel 스타일 액션 버튼들 */}
         {(isHovered || showActions) && !isRenaming && (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
             <button
               onClick={(e) => {
                 e.stopPropagation()
                 onCreateFolder(item.id)
               }}
-              className="p-1 rounded hover:bg-black hover:bg-opacity-5 transition-colors"
+              className="p-1.5 rounded-md hover:bg-gray-100 transition-colors duration-150"
               title="새 폴더"
             >
-              <FolderPlus size={12} style={{ color: 'var(--text-secondary)' }} />
+              <FolderPlus className="w-3.5 h-3.5 text-gray-500" />
             </button>
             
             <button
@@ -267,22 +269,21 @@ const DroppableFolder = ({
                 e.stopPropagation()
                 setShowActions(!showActions)
               }}
-              className="p-1 rounded hover:bg-black hover:bg-opacity-5 transition-colors"
+              className="p-1.5 rounded-md hover:bg-gray-100 transition-colors duration-150"
             >
-              <MoreHorizontal size={12} style={{ color: 'var(--text-secondary)' }} />
+              <MoreHorizontal className="w-3.5 h-3.5 text-gray-500" />
             </button>
           </div>
         )}
       </div>
 
-      {/* 액션 메뉴 */}
+      {/* Vercel 스타일 액션 메뉴 */}
       {showActions && (
         <div 
-          className="absolute z-10 mt-1 py-1 rounded-lg shadow-lg"
+          className="absolute z-20 mt-1 py-2 bg-white rounded-lg shadow-lg border border-gray-100"
           style={{
-            backgroundColor: 'var(--bg-card)',
-            border: '1px solid var(--border-light)',
-            marginLeft: `${(level + 1) * 16}px`
+            marginLeft: `${(level + 1) * 20 + 12}px`,
+            minWidth: '180px'
           }}
         >
           <button
@@ -290,9 +291,9 @@ const DroppableFolder = ({
               setIsRenaming(true)
               setShowActions(false)
             }}
-            className="flex items-center gap-2 w-full px-3 py-1 text-xs hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all duration-150"
           >
-            <Edit3 size={12} />
+            <Edit3 className="w-4 h-4" />
             <span>이름 변경</span>
           </button>
           {onShareFolder && (
@@ -301,20 +302,21 @@ const DroppableFolder = ({
                 onShareFolder(item.id)
                 setShowActions(false)
               }}
-              className="flex items-center gap-2 w-full px-3 py-1 text-xs hover:bg-blue-50 text-blue-600 transition-colors"
+              className="flex items-center gap-3 w-full px-4 py-2 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-all duration-150"
             >
-              <Share2 size={12} />
+              <Share2 className="w-4 h-4" />
               <span>Share Place에 공유</span>
             </button>
           )}
+          <div className="my-1 border-t border-gray-100" />
           <button
             onClick={() => {
               onDeleteFolder(item.id)
               setShowActions(false)
             }}
-            className="flex items-center gap-2 w-full px-3 py-1 text-xs hover:bg-red-50 text-red-600 transition-colors"
+            className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 transition-all duration-150"
           >
-            <Trash2 size={12} />
+            <Trash2 className="w-4 h-4" />
             <span>삭제</span>
           </button>
         </div>
@@ -400,40 +402,35 @@ const FolderTreeNode = ({
 
 export default function FolderTree(props: FolderTreeProps) {
   return (
-    <div 
-      className="h-full flex flex-col"
-      style={{
-        backgroundColor: 'var(--bg-card)',
-        borderRight: '1px solid var(--border-light)'
-      }}
-    >
-      {/* 헤더 */}
-      <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'var(--border-light)' }}>
-        <h2 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
-          폴더
-        </h2>
-        <button
-          onClick={() => props.onCreateFolder()}
-          className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
-          title="새 폴더"
-        >
-          <Plus size={16} style={{ color: 'var(--text-secondary)' }} />
-        </button>
-      </div>
-
-      {/* 폴더 트리 */}
+    <div className="h-full flex flex-col bg-white">
+      {/* Vercel 스타일 폴더 트리 */}
       <SortableContext
         items={props.folders.map(f => f.id)}
         strategy={verticalListSortingStrategy}
       >
-        <div className="flex-1 overflow-y-auto scrollbar-hide p-2">
-          {props.folders.map((folder) => (
-            <FolderTreeNode
-              key={folder.id}
-              item={folder}
-              {...props}
-            />
-          ))}
+        <div className="flex-1 overflow-y-auto py-2">
+          {props.folders.length === 0 ? (
+            <div className="px-3 py-8 text-center">
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <FolderPlus className="w-5 h-5 text-gray-400" />
+              </div>
+              <p className="text-sm text-gray-500 mb-3">아직 폴더가 없습니다</p>
+              <button
+                onClick={() => props.onCreateFolder()}
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
+                첫 번째 폴더 만들기
+              </button>
+            </div>
+          ) : (
+            props.folders.map((folder) => (
+              <FolderTreeNode
+                key={folder.id}
+                item={folder}
+                {...props}
+              />
+            ))
+          )}
         </div>
       </SortableContext>
     </div>

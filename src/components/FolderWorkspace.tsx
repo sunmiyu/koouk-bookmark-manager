@@ -12,7 +12,8 @@ import {
   LayoutList,
   FolderOpen,
   Search,
-  Trash2
+  Trash2,
+  Plus
 } from 'lucide-react'
 import WorkspaceLayout from './WorkspaceLayout'
 import SharePlace from './SharePlace'
@@ -270,39 +271,61 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
       initialFolders={folders}
       onFoldersChange={handleFoldersChange}
     >
-      <div className="flex h-full">
-        {/* Left Sidebar - Folder Tree */}
-        <div className="w-64 border-r border-gray-200 bg-gray-50">
-          <div className="p-4 border-b border-gray-200">
-            <button
-              onClick={handleClearAll}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors border border-red-200 hover:border-red-300"
-            >
-              <Trash2 className="w-4 h-4" />
-              Clear All
-            </button>
-          </div>
-          <FolderTree
-            folders={folders}
-            selectedFolderId={selectedFolderId}
-            expandedFolders={expandedFolders}
-            onFolderSelect={handleFolderSelect}
-            onFolderToggle={handleFolderToggle}
-            onCreateFolder={handleCreateFolder}
-            onRenameFolder={handleRenameFolder}
-            onDeleteFolder={handleDeleteFolder}
-            onShareFolder={handleShareFolder}
-            onCreateItem={handleCreateItem}
-          />
-        </div>
+      {/* Vercel 스타일 컨테이너로 센터링 */}
+      <div className="vercel-container">
+        <div className="flex h-full max-w-none">
+          {/* Vercel 스타일 사이드바 */}
+          <div className="w-72 border-r border-gray-100 bg-white">
+            {/* 헤더 영역 */}
+            <div className="px-6 py-5 border-b border-gray-100">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-semibold text-gray-900">My Workspace</h2>
+                <button 
+                  onClick={() => handleCreateFolder()}
+                  className="p-1.5 hover:bg-gray-50 rounded-md transition-colors"
+                  title="새 폴더 만들기"
+                >
+                  <Plus className="w-4 h-4 text-gray-500" />
+                </button>
+              </div>
+              
+              <button
+                onClick={handleClearAll}
+                className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 
+                           text-sm font-medium text-gray-700 hover:text-gray-900 
+                           hover:bg-gray-50 rounded-lg transition-all duration-150
+                           border border-gray-200 hover:border-gray-300 hover:shadow-sm"
+              >
+                <Trash2 className="w-4 h-4" />
+                Clear All
+              </button>
+            </div>
 
-        {/* Main Content Area */}
-        <div className="flex-1 bg-white">
-          <FolderContent 
-            items={getSelectedFolderItems()}
-            onCreateItem={(type) => selectedFolderId && handleCreateItem(type, selectedFolderId)}
-            searchQuery={searchQuery}
-          />
+            {/* 폴더 트리 영역 */}
+            <div className="px-4 py-2">
+              <FolderTree
+                folders={folders}
+                selectedFolderId={selectedFolderId}
+                expandedFolders={expandedFolders}
+                onFolderSelect={handleFolderSelect}
+                onFolderToggle={handleFolderToggle}
+                onCreateFolder={handleCreateFolder}
+                onRenameFolder={handleRenameFolder}
+                onDeleteFolder={handleDeleteFolder}
+                onShareFolder={handleShareFolder}
+                onCreateItem={handleCreateItem}
+              />
+            </div>
+          </div>
+
+          {/* Main Content Area */}
+          <div className="flex-1 bg-white">
+            <FolderContent 
+              items={getSelectedFolderItems()}
+              onCreateItem={(type) => selectedFolderId && handleCreateItem(type, selectedFolderId)}
+              searchQuery={searchQuery}
+            />
+          </div>
         </div>
       </div>
       

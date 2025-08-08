@@ -38,6 +38,25 @@ export default function UniversalInputBar({
   // 현재 선택된 폴더
   const selectedFolder = folders.find(f => f.id === selectedFolderId)
 
+  // 모든 폴더를 재귀적으로 수집 (하위 폴더 포함)
+  const getAllFolders = (folders: FolderItem[], depth: number = 0): Array<FolderItem & { depth: number }> => {
+    const result: Array<FolderItem & { depth: number }> = []
+    
+    for (const folder of folders) {
+      result.push({ ...folder, depth })
+      
+      // 하위 폴더들 수집
+      const subfolders = folder.children.filter(child => child.type === 'folder') as FolderItem[]
+      if (subfolders.length > 0) {
+        result.push(...getAllFolders(subfolders, depth + 1))
+      }
+    }
+    
+    return result
+  }
+
+  const allFolders = getAllFolders(folders)
+
   // 텍스트 영역 자동 높이 조절
   useEffect(() => {
     if (textareaRef.current) {
@@ -198,7 +217,7 @@ export default function UniversalInputBar({
                 저장할 폴더 선택:
               </h3>
               <div className="max-h-60 overflow-y-auto space-y-1">
-                {folders.map((folder) => (
+                {allFolders.map((folder) => (
                   <button
                     key={folder.id}
                     onClick={() => {
@@ -208,18 +227,20 @@ export default function UniversalInputBar({
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       selectedFolderId === folder.id ? 'bg-blue-50' : 'hover:bg-gray-50'
                     }`}
+                    style={{ paddingLeft: `${12 + folder.depth * 16}px` }}
                   >
                     <div 
-                      className="w-3 h-3 rounded-full"
+                      className="w-3 h-3 rounded-full flex-shrink-0"
                       style={{ backgroundColor: folder.color }}
                     />
-                    <span className="text-sm" style={{ 
+                    <span className="text-sm truncate flex-1" style={{ 
                       color: selectedFolderId === folder.id ? '#3B82F6' : 'var(--text-primary)' 
                     }}>
+                      {folder.depth > 0 && '└ '}
                       {folder.name}
                     </span>
                     {selectedFolderId === folder.id && (
-                      <div className="ml-auto w-2 h-2 bg-blue-500 rounded-full" />
+                      <div className="ml-auto w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />
                     )}
                   </button>
                 ))}

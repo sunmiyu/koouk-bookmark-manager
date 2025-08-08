@@ -247,7 +247,7 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
     >
       <div className="flex h-full">
         {/* Left Sidebar - Folder Tree */}
-        <div className="w-80 border-r border-gray-200 bg-gray-50">
+        <div className="w-64 border-r border-gray-200 bg-gray-50">
           <FolderTree
             folders={folders}
             selectedFolderId={selectedFolderId}

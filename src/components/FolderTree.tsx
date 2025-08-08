@@ -9,6 +9,7 @@ import {
   Edit3,
   Trash2,
   FolderPlus,
+  Share2,
   FileText,
   Image,
   Video,
@@ -36,6 +37,7 @@ interface FolderTreeProps {
   onCreateItem: (type: StorageItem['type'], folderId: string) => void
   onRenameFolder: (folderId: string, newName: string) => void
   onDeleteFolder: (folderId: string) => void
+  onShareFolder?: (folderId: string) => void
 }
 
 const DraggableStorageItem = ({
@@ -107,6 +109,7 @@ const DroppableFolder = ({
   onCreateItem,
   onRenameFolder,
   onDeleteFolder,
+  onShareFolder,
   children
 }: {
   item: FolderItem
@@ -292,6 +295,18 @@ const DroppableFolder = ({
             <Edit3 size={12} />
             <span>이름 변경</span>
           </button>
+          {onShareFolder && (
+            <button
+              onClick={() => {
+                onShareFolder(item.id)
+                setShowActions(false)
+              }}
+              className="flex items-center gap-2 w-full px-3 py-1 text-xs hover:bg-blue-50 text-blue-600 transition-colors"
+            >
+              <Share2 size={12} />
+              <span>Share Place에 공유</span>
+            </button>
+          )}
           <button
             onClick={() => {
               onDeleteFolder(item.id)
@@ -328,9 +343,10 @@ const FolderTreeNode = ({
   onFolderSelect,
   onFolderToggle,
   onCreateFolder,
-  // onCreateItem,
+  onCreateItem,
   onRenameFolder,
-  onDeleteFolder
+  onDeleteFolder,
+  onShareFolder
 }: {
   item: FolderItem | StorageItem
   level?: number
@@ -357,9 +373,10 @@ const FolderTreeNode = ({
       onFolderSelect={onFolderSelect}
       onFolderToggle={onFolderToggle}
       onCreateFolder={onCreateFolder}
-      onCreateItem={() => {}}
+      onCreateItem={onCreateItem}
       onRenameFolder={onRenameFolder}
       onDeleteFolder={onDeleteFolder}
+      onShareFolder={onShareFolder}
     >
       {isExpanded && folderItem.children.map((child) => (
         <FolderTreeNode
@@ -371,9 +388,10 @@ const FolderTreeNode = ({
           onFolderSelect={onFolderSelect}
           onFolderToggle={onFolderToggle}
           onCreateFolder={onCreateFolder}
-          onCreateItem={() => {}}
+          onCreateItem={onCreateItem}
           onRenameFolder={onRenameFolder}
           onDeleteFolder={onDeleteFolder}
+          onShareFolder={onShareFolder}
         />
       ))}
     </DroppableFolder>

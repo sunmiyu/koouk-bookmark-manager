@@ -12,18 +12,23 @@ import {
   LayoutList
 } from 'lucide-react'
 import WorkspaceLayout from './WorkspaceLayout'
+import SharePlace from './SharePlace'
+import UniversalInputBar from './UniversalInputBar'
 import { DragDropProvider } from '@/contexts/DragDropContext'
 import { FolderItem, StorageItem, createFolder, createStorageItem, defaultFolderTemplates } from '@/types/folder'
+import { SharedFolder } from '@/types/share'
 
-interface FolderWorkspaceProps {
-  className?: string
-}
+// interface FolderWorkspaceProps {
+//   className?: string
+// }
 
 export default function FolderWorkspace() {
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
+  const [showSharePlace, setShowSharePlace] = useState(false)
+  const [shareSearchQuery, setShareSearchQuery] = useState('')
 
   // localStorage에서 데이터 로드
   useEffect(() => {
@@ -157,6 +162,49 @@ export default function FolderWorkspace() {
     }
   }
 
+  const handleShareFolder = (folderId: string) => {
+    const folderToShare = findFolderById(folders, folderId)
+    if (!folderToShare) return
+
+    const title = prompt('공유할 폴더의 제목을 입력하세요:', folderToShare.name)
+    if (!title?.trim()) return
+
+    const description = prompt('폴더에 대한 설명을 입력하세요:', '')
+    if (description === null) return
+
+    const category = prompt('카테고리를 선택하세요 (lifestyle, food, travel, study, parenting, investment, work, entertainment, health, tech):', 'lifestyle')
+    if (!category) return
+
+    // Share Place에 공유 성공 알림
+    alert(`"${title}" 폴더가 Share Place에 공유되었습니다! 🎉\n다른 사용자들이 이제 이 폴더를 발견하고 활용할 수 있습니다.`)
+  }
+
+  const handleImportFolder = (sharedFolder: SharedFolder) => {
+    // SharedFolder를 FolderItem으로 변환
+    const importedFolder: FolderItem = {
+      ...sharedFolder.folder,
+      id: `imported_${Date.now()}_${Math.random().toString(36).substring(2)}`,
+      name: sharedFolder.title + ' (복사본)',
+      updatedAt: new Date().toISOString()
+    }
+
+    const newFolders = [...folders, importedFolder]
+    handleFoldersChange(newFolders)
+    
+    // 임포트한 폴더 선택
+    handleFolderSelect(importedFolder.id)
+  }
+
+  const handleAddItem = (item: StorageItem, folderId: string) => {
+    const updatedFolders = addItemToFolder(folders, folderId, item)
+    handleFoldersChange(updatedFolders)
+  }
+
+  const handleSharePlaceSearch = (query: string) => {
+    setShareSearchQuery(query)
+    setShowSharePlace(true)
+  }
+
   const handleCreateItem = (type: StorageItem['type'], folderId: string) => {
     const typeLabels = {
       document: '문서',
@@ -215,6 +263,20 @@ export default function FolderWorkspace() {
     )
   }
 
+  // Share Place 표시
+  if (showSharePlace) {
+    return (
+      <SharePlace 
+        onBack={() => {
+          setShowSharePlace(false)
+          setShareSearchQuery('')
+        }} 
+        onImportFolder={handleImportFolder}
+        initialSearchQuery={shareSearchQuery}
+      />
+    )
+  }
+
   return (
     <DragDropProvider 
       initialFolders={folders}
@@ -230,12 +292,26 @@ export default function FolderWorkspace() {
         onCreateItem={handleCreateItem}
         onRenameFolder={handleRenameFolder}
         onDeleteFolder={handleDeleteFolder}
+        onShareFolder={handleShareFolder}
+        onSharePlaceClick={() => setShowSharePlace(true)}
+        onSharePlaceSearch={handleSharePlaceSearch}
       >
-        <FolderContent 
-          items={getSelectedFolderItems()}
-          onCreateItem={(type) => selectedFolderId && handleCreateItem(type, selectedFolderId)}
-        />
+        {(isFullWidth) => (
+          <FolderContent 
+            items={getSelectedFolderItems()}
+            onCreateItem={(type) => selectedFolderId && handleCreateItem(type, selectedFolderId)}
+            isFullWidth={isFullWidth}
+          />
+        )}
       </WorkspaceLayout>
+      
+      {/* Universal Input Bar */}
+      <UniversalInputBar
+        folders={folders}
+        selectedFolderId={selectedFolderId}
+        onAddItem={handleAddItem}
+        onFolderSelect={handleFolderSelect}
+      />
     </DragDropProvider>
   )
 }
@@ -243,12 +319,45 @@ export default function FolderWorkspace() {
 // 폴더 콘텐츠 컴포넌트
 const FolderContent = ({ 
   items, 
-  onCreateItem 
+  onCreateItem,
+  isFullWidth = false
 }: { 
   items: StorageItem[]
   onCreateItem: (type: StorageItem['type']) => void
+  isFullWidth?: boolean
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'name' | 'type'>('recent')
+  
+  // 아이템 정렬
+  const sortedItems = [...items].sort((a, b) => {
+    switch (sortBy) {
+      case 'recent':
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      case 'oldest':
+        return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
+      case 'name':
+        return a.name.localeCompare(b.name, 'ko')
+      case 'type':
+        // 타입 우선순위: document > memo > url > video > image
+        const typeOrder = { document: 0, memo: 1, url: 2, video: 3, image: 4 }
+        const orderA = typeOrder[a.type] ?? 5
+        const orderB = typeOrder[b.type] ?? 5
+        return orderA - orderB || a.name.localeCompare(b.name, 'ko')
+      default:
+        return 0
+    }
+  })
+
+  const getSortLabel = () => {
+    switch (sortBy) {
+      case 'recent': return '최근 수정된 순'
+      case 'oldest': return '오래된 순'
+      case 'name': return '이름순'
+      case 'type': return '타입별'
+      default: return '최근 수정된 순'
+    }
+  }
 
   if (items.length === 0) {
     return (
@@ -300,7 +409,7 @@ const FolderContent = ({
 
   return (
     <motion.div 
-      className="flex-1 flex flex-col"
+      className="flex-1 flex flex-col pb-32"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
@@ -311,21 +420,40 @@ const FolderContent = ({
             {items.length}개의 항목
           </h3>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-            최근 수정된 순으로 정렬
+            {getSortLabel()}로 정렬
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {/* 정렬 선택 */}
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+            className="px-3 py-2 rounded-lg text-sm border-0 outline-none"
+            style={{
+              backgroundColor: 'var(--bg-secondary)',
+              color: 'var(--text-primary)'
+            }}
+          >
+            <option value="recent">최근 순</option>
+            <option value="oldest">오래된 순</option>
+            <option value="name">이름 순</option>
+            <option value="type">타입 순</option>
+          </select>
+
+          {/* 뷰 모드 토글 */}
           <div className="flex items-center gap-1 p-1 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)' }}>
             <button
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white shadow-sm' : ''}`}
+              title="그리드 뷰"
             >
               <Grid3X3 size={16} style={{ color: viewMode === 'grid' ? 'var(--text-primary)' : 'var(--text-secondary)' }} />
             </button>
             <button
               onClick={() => setViewMode('list')}
               className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm' : ''}`}
+              title="리스트 뷰"
             >
               <LayoutList size={16} style={{ color: viewMode === 'list' ? 'var(--text-primary)' : 'var(--text-secondary)' }} />
             </button>
@@ -336,10 +464,12 @@ const FolderContent = ({
       {/* 콘텐츠 그리드/리스트 */}
       <div className={
         viewMode === 'grid'
-          ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+          ? isFullWidth 
+            ? "grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4"
+            : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
           : "space-y-3"
       }>
-        {items.map((item) => (
+        {sortedItems.map((item) => (
           <ItemCard key={item.id} item={item} viewMode={viewMode} />
         ))}
       </div>
@@ -358,6 +488,24 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
       case 'url': return <Link size={20} />
       default: return <FileText size={20} />
     }
+  }
+
+  const renderThumbnail = () => {
+    if (item.metadata?.thumbnail) {
+      return (
+        <img 
+          src={item.metadata.thumbnail} 
+          alt={item.name}
+          className="w-12 h-12 rounded-lg object-cover"
+          onError={(e) => {
+            // 썸네일 로드 실패 시 기본 아이콘으로 fallback
+            const target = e.target as HTMLImageElement
+            target.style.display = 'none'
+          }}
+        />
+      )
+    }
+    return null
   }
 
   const getTypeColor = () => {
@@ -385,13 +533,23 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
         }}
         whileTap={{ scale: 0.98 }}
       >
-        <div 
-          className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-          style={{ backgroundColor: getTypeColor() + '20' }}
-        >
-          <div style={{ color: getTypeColor() }}>
-            {getItemIcon()}
-          </div>
+        <div className="flex-shrink-0">
+          {renderThumbnail() ? (
+            <img 
+              src={item.metadata?.thumbnail} 
+              alt={item.name}
+              className="w-10 h-10 rounded-lg object-cover"
+            />
+          ) : (
+            <div 
+              className="w-10 h-10 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: getTypeColor() + '20' }}
+            >
+              <div style={{ color: getTypeColor() }}>
+                {getItemIcon()}
+              </div>
+            </div>
+          )}
         </div>
         
         <div className="flex-1 min-w-0">
@@ -423,13 +581,17 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
       }}
       whileTap={{ scale: 0.98 }}
     >
-      <div 
-        className="w-12 h-12 rounded-lg flex items-center justify-center mb-3"
-        style={{ backgroundColor: getTypeColor() + '20' }}
-      >
-        <div style={{ color: getTypeColor() }}>
-          {getItemIcon()}
-        </div>
+      <div className="mb-3">
+        {renderThumbnail() || (
+          <div 
+            className="w-12 h-12 rounded-lg flex items-center justify-center"
+            style={{ backgroundColor: getTypeColor() + '20' }}
+          >
+            <div style={{ color: getTypeColor() }}>
+              {getItemIcon()}
+            </div>
+          </div>
+        )}
       </div>
       
       <h4 className="font-medium mb-2 line-clamp-2" style={{ color: 'var(--text-primary)' }}>
@@ -451,6 +613,19 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
 }
 
 // 유틸리티 함수들
+
+function findFolderById(folders: FolderItem[], folderId: string): FolderItem | null {
+  for (const folder of folders) {
+    if (folder.id === folderId) {
+      return folder
+    }
+    
+    const childFolders = folder.children.filter(child => child.type === 'folder') as FolderItem[]
+    const found = findFolderById(childFolders, folderId)
+    if (found) return found
+  }
+  return null
+}
 
 function addToParentFolder(folders: FolderItem[], parentId: string, newItem: FolderItem | StorageItem): FolderItem[] {
   return folders.map(folder => {

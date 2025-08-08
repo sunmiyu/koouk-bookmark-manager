@@ -1,42 +1,22 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
+import { ArrowRight, Sparkles, Database, Share2, Zap, Globe } from 'lucide-react'
 
 export default function LandingPage() {
   const [isLoading, setIsLoading] = useState(false)
-  const [currentStory, setCurrentStory] = useState(0)
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
-  const stories = [
-    {
-      question: "노래방에서 부르고 싶었던 노래,",
-      subtext: "어디에 써놓고 싶지 않았나요?"
-    },
-    {
-      question: "꼭 먹고 싶었던 메뉴가", 
-      subtext: "분명 떠오른 적이 있었는데\n지금은 잊혀져있지 않나요?"
-    },
-    {
-      question: "친구가 추천해준 영화,",
-      subtext: "나중에 보려고 했는데\n제목이 기억나지 않죠?"
-    },
-    {
-      question: "여행가고 싶었던 그 장소,",
-      subtext: "인스타에서 봤는데\n어디였는지 모르겠죠?"
-    },
-    {
-      question: "오늘 있었던 소소한 일상,",
-      subtext: "일기로 남기고 싶었는데\n매번 미루고 있지 않나요?"
-    }
-  ]
-
-  // Auto-scroll through stories
+  // Mouse tracking for subtle interactive effects
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentStory(prev => (prev + 1) % (stories.length + 1)) // +1 for final section
-    }, 4000)
-    return () => clearInterval(interval)
-  }, [stories.length])
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY })
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
@@ -58,208 +38,251 @@ export default function LandingPage() {
     }
   }
 
+  const features = [
+    {
+      icon: Database,
+      title: '스마트 폴더링',
+      description: '생각, 링크, 파일을 자동으로 분류하여 체계적으로 관리하세요'
+    },
+    {
+      icon: Share2,
+      title: 'Share Place',
+      description: '가치 있는 정보를 다른 사용자들과 공유하고 발견하세요'
+    },
+    {
+      icon: Zap,
+      title: '즉시 저장',
+      description: 'Claude.ai처럼 간편한 입력창으로 무엇이든 빠르게 저장하세요'
+    }
+  ]
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#FAFAFA',
-      fontFamily: '"Pretendard", "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif'
-    }}>
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .story-enter {
-          animation: fadeInUp 0.8s ease-out;
-        }
-        
-        .elegant-button {
-          transition: all 0.3s ease;
-          transform: translateY(0);
-        }
-        
-        .elegant-button:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
-        }
-        
-        .story-indicator {
-          transition: all 0.3s ease;
-          background-color: #E5E7EB;
-        }
-        
-        .story-indicator.active {
-          background-color: #667EEA;
-        }
-      `}</style>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div 
+          className="absolute w-96 h-96 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl"
+          style={{
+            transform: `translate(${mousePosition.x * 0.02}px, ${mousePosition.y * 0.02}px)`,
+            left: '10%',
+            top: '20%'
+          }}
+        />
+        <div 
+          className="absolute w-80 h-80 bg-gradient-to-r from-purple-400/10 to-pink-400/10 rounded-full blur-3xl"
+          style={{
+            transform: `translate(${mousePosition.x * -0.015}px, ${mousePosition.y * -0.015}px)`,
+            right: '10%',
+            bottom: '20%'
+          }}
+        />
+        <div 
+          className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234f46e5' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+          }}
+        />
+      </div>
 
       {/* Header */}
-      <header style={{
-        padding: '2rem 1.5rem',
-        textAlign: 'center' as const,
-        borderBottom: '1px solid #F3F4F6'
-      }}>
-        <h1 style={{
-          fontSize: '1.5rem',
-          fontWeight: '300',
-          color: '#1A1A1A',
-          letterSpacing: '-0.02em',
-          margin: 0
-        }}>
-          koouk
-        </h1>
-      </header>
-
-      {/* Main Content */}
-      <main style={{
-        maxWidth: '800px',
-        margin: '0 auto',
-        padding: '0 1.5rem'
-      }}>
-        
-        {/* Stories Section */}
-        <section style={{
-          minHeight: '80vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center' as const,
-          position: 'relative' as const
-        }}>
-          
-          {/* Story Content */}
-          {currentStory < stories.length ? (
-            <div key={currentStory} className="story-enter" style={{
-              maxWidth: '600px',
-              padding: '4rem 0'
-            }}>
-              <h2 style={{
-                fontSize: 'clamp(2.5rem, 8vw, 5rem)',
-                fontWeight: '300',
-                color: '#1A1A1A',
-                lineHeight: '1.2',
-                letterSpacing: '-0.03em',
-                margin: '0 0 2rem 0',
-                wordBreak: 'keep-all'
-              }}>
-                {stories[currentStory].question}
-              </h2>
-              
-              <p style={{
-                fontSize: 'clamp(1.25rem, 4vw, 1.75rem)',
-                fontWeight: '300',
-                color: '#6B7280',
-                lineHeight: '1.8',
-                margin: 0,
-                whiteSpace: 'pre-line',
-                wordBreak: 'keep-all'
-              }}>
-                {stories[currentStory].subtext}
-              </p>
+      <motion.header 
+        className="relative z-10 px-6 py-8"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <motion.div 
+            className="flex items-center gap-3"
+            whileHover={{ scale: 1.02 }}
+          >
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <Sparkles size={18} className="text-white" />
             </div>
-          ) : (
-            // Final Value Proposition
-            <div key="final" className="story-enter" style={{
-              maxWidth: '700px',
-              padding: '4rem 0'
-            }}>
-              <h2 style={{
-                fontSize: 'clamp(2.5rem, 8vw, 4.5rem)',
-                fontWeight: '300',
-                color: '#1A1A1A',
-                lineHeight: '1.3',
-                letterSpacing: '-0.03em',
-                margin: '0 0 3rem 0',
-                wordBreak: 'keep-all'
-              }}>
-                소소한 기록들이 모이면<br />
-                당신만의 큰 가치가 됩니다.
-              </h2>
-              
-              <p style={{
-                fontSize: 'clamp(1.25rem, 4vw, 1.75rem)',
-                fontWeight: '300',
-                color: '#6B7280',
-                lineHeight: '1.8',
-                margin: '0 0 4rem 0',
-                wordBreak: 'keep-all'
-              }}>
-                그 무엇보다 쉽게,<br />
-                koouk에서 기록해보세요.
-              </p>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent tracking-tight">
+              KOOUK
+            </h1>
+          </motion.div>
 
-              {/* CTA Button */}
-              <button
+          <motion.button
+            onClick={handleGoogleSignIn}
+            disabled={isLoading}
+            className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {isLoading ? 'Loading...' : 'Sign In'}
+          </motion.button>
+        </div>
+      </motion.header>
+
+      {/* Hero Section */}
+      <main className="relative z-10 max-w-7xl mx-auto px-6">
+        <div className="text-center pt-20 pb-32">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <motion.h1 
+              className="text-5xl md:text-7xl font-bold text-gray-900 mb-8 tracking-tight leading-tight"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              Build your
+              <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Knowledge Hub
+              </span>
+            </motion.h1>
+
+            <motion.p 
+              className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
+              소소한 생각부터 중요한 자료까지, 
+              <span className="text-gray-900 font-semibold"> 체계적으로 저장하고 공유</span>하세요.
+              당신만의 지식 생태계를 만들어보세요.
+            </motion.p>
+
+            <motion.div
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+            >
+              <motion.button
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
-                className="elegant-button"
-                style={{
-                  backgroundColor: '#667EEA',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '12px',
-                  padding: '1rem 2.5rem',
-                  fontSize: '1.125rem',
-                  fontWeight: '500',
-                  letterSpacing: '-0.01em',
-                  cursor: isLoading ? 'not-allowed' : 'pointer',
-                  opacity: isLoading ? 0.7 : 1,
-                  boxShadow: '0 4px 14px rgba(102, 126, 234, 0.2)'
-                }}
+                className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 min-w-[200px] justify-center"
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.98 }}
               >
-                {isLoading ? '로딩중...' : '시작하기'}
-              </button>
-            </div>
-          )}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <span className="relative z-10">
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Loading...
+                    </div>
+                  ) : (
+                    <>
+                      Start Building
+                      <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </span>
+              </motion.button>
 
-          {/* Story Indicators */}
-          <div style={{
-            position: 'absolute' as const,
-            bottom: '3rem',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            gap: '0.5rem'
-          }}>
-            {[...stories, {}].map((_, index) => (
-              <div
-                key={index}
-                className={`story-indicator ${currentStory === index ? 'active' : ''}`}
-                style={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  cursor: 'pointer'
-                }}
-                onClick={() => setCurrentStory(index)}
-              />
-            ))}
+              <motion.button
+                className="px-8 py-4 text-gray-700 font-semibold hover:text-gray-900 transition-colors flex items-center gap-2 group"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Learn more
+                <Globe size={18} className="group-hover:rotate-12 transition-transform" />
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* Features Grid */}
+        <motion.section 
+          className="grid md:grid-cols-3 gap-8 mb-32"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+        >
+          {features.map((feature, index) => (
+            <motion.div
+              key={index}
+              className="group p-8 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200/50 hover:border-gray-300/50 shadow-lg hover:shadow-xl transition-all duration-300"
+              whileHover={{ scale: 1.02, y: -4 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1 + index * 0.1 }}
+            >
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                <feature.icon size={24} className="text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                {feature.title}
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                {feature.description}
+              </p>
+            </motion.div>
+          ))}
+        </motion.section>
+
+        {/* CTA Section */}
+        <motion.section 
+          className="text-center pb-32"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 1.4 }}
+        >
+          <div className="max-w-4xl mx-auto">
+            <motion.h2 
+              className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 tracking-tight"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.6 }}
+            >
+              Ready to organize your world?
+            </motion.h2>
+            <motion.p 
+              className="text-xl text-gray-600 mb-10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.8 }}
+            >
+              지금 시작해서 당신의 첫 번째 컬렉션을 만들어보세요.
+            </motion.p>
+            <motion.button
+              onClick={handleGoogleSignIn}
+              disabled={isLoading}
+              className="group px-10 py-4 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-3 mx-auto"
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 2 }}
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                <>
+                  Get Started for Free
+                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
+            </motion.button>
           </div>
-        </section>
+        </motion.section>
 
         {/* Footer */}
-        <footer style={{
-          textAlign: 'center' as const,
-          padding: '3rem 0 2rem',
-          borderTop: '1px solid #F3F4F6',
-          marginTop: '4rem'
-        }}>
-          <p style={{
-            fontSize: '0.875rem',
-            color: '#9CA3AF',
-            margin: 0,
-            fontWeight: '300'
-          }}>
-            © 2024 koouk. 소소함을 소중히.
+        <motion.footer 
+          className="text-center pb-12 pt-16 border-t border-gray-200/50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 2.2 }}
+        >
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="w-6 h-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <Sparkles size={14} className="text-white" />
+            </div>
+            <span className="font-semibold text-gray-900">KOOUK</span>
+          </div>
+          <p className="text-gray-500 text-sm">
+            © 2024 KOOUK. Building the future of knowledge management.
           </p>
-        </footer>
+        </motion.footer>
       </main>
     </div>
   )

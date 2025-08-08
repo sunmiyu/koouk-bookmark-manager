@@ -30,6 +30,11 @@ export interface StorageItem {
     duration?: number // 비디오용
     dimensions?: { width: number; height: number } // 이미지용
     wordCount?: number // 문서/메모용
+    thumbnail?: string // YouTube 썸네일 등
+    platform?: string // 'youtube', 'vimeo' 등
+    fileType?: string // MIME 타입
+    fileName?: string // 원본 파일명
+    [key: string]: unknown // 추가 메타데이터
   }
 }
 

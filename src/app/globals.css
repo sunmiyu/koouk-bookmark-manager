@@ -4,21 +4,28 @@
 @config "../../tailwind.config.js";
 
 :root {
-  /* Premium Color Palette - Consistent across all components */
-  --bg-primary: #FAFAF9;        /* Warm ivory background */
+  /* Vercel-inspired Premium Color Palette */
+  --bg-primary: #FAFAFA;        /* Clean neutral background */
   --bg-card: #FFFFFF;           /* Pure white cards */
-  --bg-secondary: #F8F8F7;      /* Subtle hover background */
-  --bg-muted: #F5F3F0;         /* Input backgrounds */
+  --bg-secondary: #F5F5F5;      /* Subtle hover background */
+  --bg-muted: #F8F8F8;         /* Input backgrounds */
+  --bg-accent: #000000;         /* Primary accent (black) */
   
-  --border-light: #F0EDE8;      /* Card borders */
-  --border-medium: #E8E5E1;     /* Focus borders */
-  --border-dark: #D1D5DB;       /* Stronger borders */
+  --border-light: #E5E5E5;      /* Card borders */
+  --border-medium: #D4D4D4;     /* Focus borders */
+  --border-dark: #A3A3A3;       /* Stronger borders */
   
-  --text-primary: #1A1A1A;      /* Soft black text */
-  --text-secondary: #6B7280;    /* Muted text */
-  --text-tertiary: #9CA3AF;     /* Light text */
-  --text-success: #10B981;      /* Success states */
+  --text-primary: #171717;      /* Near-black text */
+  --text-secondary: #737373;    /* Muted text */
+  --text-tertiary: #A3A3A3;     /* Light text */
+  --text-success: #22C55E;      /* Success states */
   --text-error: #EF4444;        /* Error states */
+  --text-accent: #3B82F6;       /* Blue accent */
+  
+  /* Gradient Accents */
+  --gradient-primary: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+  --gradient-secondary: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+  --gradient-subtle: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
   
   /* Premium Spacing System */
   --space-1: 0.25rem;   /* 4px */
@@ -47,10 +54,12 @@
   --radius-lg: 0.875rem;  /* 14px */
   --radius-xl: 1.25rem;   /* 20px */
   
-  /* Premium Shadows */
-  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-elevated: 0 8px 25px rgba(0, 0, 0, 0.08), 0 3px 10px rgba(0, 0, 0, 0.05);
-  --shadow-focus: 0 0 0 3px rgba(26, 26, 26, 0.1);
+  /* Premium Shadows - Vercel-inspired */
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-elevated: 0 10px 40px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --shadow-focus: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  --shadow-card: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-floating: 0 20px 40px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.08);
 }
 
 /* Mobile Responsive Variables */
@@ -91,14 +100,17 @@ html {
 }
 
 body {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", sans-serif;
   min-height: 100vh;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-size: var(--text-base);
-  line-height: 1.5;
+  line-height: 1.6;
+  font-weight: 400;
+  letter-spacing: -0.011em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Premium Input Styling */

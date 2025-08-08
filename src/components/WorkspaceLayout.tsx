@@ -11,7 +11,8 @@ import {
   Filter,
   Grid3X3,
   LayoutList,
-  Maximize2
+  Maximize2,
+  Share2
 } from 'lucide-react'
 import FolderTree from './FolderTree'
 import { FolderItem, StorageItem } from '@/types/folder'
@@ -26,13 +27,16 @@ interface WorkspaceLayoutProps {
   onCreateItem: (type: StorageItem['type'], folderId: string) => void
   onRenameFolder: (folderId: string, newName: string) => void
   onDeleteFolder: (folderId: string) => void
-  children: React.ReactNode
+  onShareFolder?: (folderId: string) => void
+  onSharePlaceClick?: () => void
+  onSharePlaceSearch?: (query: string) => void
+  children: (isFullWidth: boolean) => React.ReactNode
 }
 
 export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchScope, setSearchScope] = useState<'all' | 'folder'>('all')
+  const [searchScope, setSearchScope] = useState<'all' | 'folder' | 'share'>('all')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   // const [isMobile, setIsMobile] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -40,18 +44,31 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
   // 현재 선택된 폴더 정보
   const selectedFolder = props.folders.find(f => f.id === props.selectedFolderId)
 
+  // 검색 처리
+  const handleSearchSubmit = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      if (searchScope === 'share' && props.onSharePlaceSearch) {
+        props.onSharePlaceSearch(searchQuery.trim())
+      }
+      // 다른 검색 범위는 나중에 구현
+    }
+  }
+
   return (
     <div 
       className="h-screen flex flex-col"
       style={{ backgroundColor: 'var(--bg-primary)' }}
     >
-      {/* 상단 헤더 - 피그마 스타일 */}
+      {/* 전체 컨테이너를 중앙 정렬하고 max-width 설정 */}
+      <div className="w-full max-w-[1400px] mx-auto h-full flex flex-col">
+      {/* 상단 헤더 - Vercel 스타일 */}
       <motion.header 
         className="flex items-center justify-between px-6 py-4 border-b backdrop-blur-sm"
         style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
           borderColor: 'var(--border-light)',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
+          boxShadow: 'var(--shadow-card)',
+          backdropFilter: 'blur(12px) saturate(180%)'
         }}
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -75,14 +92,15 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
             <Menu size={20} style={{ color: 'var(--text-primary)' }} />
           </button>
 
-          {/* KOOUK 로고 */}
-          <motion.h1 
-            className="text-xl font-light tracking-wide"
-            style={{ color: 'var(--text-primary)' }}
-            whileHover={{ scale: 1.02 }}
-          >
-            koouk
-          </motion.h1>
+          {/* KOOUK 로고 - Vercel 스타일 */}
+          <motion.div className="flex items-center gap-3" whileHover={{ scale: 1.02 }}>
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <div className="w-4 h-4 bg-white rounded-sm"></div>
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+              KOOUK
+            </h1>
+          </motion.div>
         </div>
 
         {/* 중앙: 검색 바 */}
@@ -90,38 +108,48 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
           <div className="relative">
             <motion.input
               type="text"
-              placeholder={searchScope === 'all' ? '전체 검색...' : `${selectedFolder?.name || '폴더'} 내에서 검색...`}
+              placeholder={
+                searchScope === 'all' ? '전체 검색...' 
+                : searchScope === 'share' ? 'Share Place에서 검색... (예: 서울 물놀이 장소)'
+                : `${selectedFolder?.name || '폴더'} 내에서 검색...`
+              }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-20 py-3 rounded-xl text-sm transition-all duration-300"
+              onKeyDown={handleSearchSubmit}
+              className="w-full pl-12 pr-24 py-3 rounded-xl text-sm transition-all duration-300"
               style={{
-                backgroundColor: 'var(--bg-secondary)',
-                border: '2px solid transparent',
-                color: 'var(--text-primary)'
+                backgroundColor: 'var(--bg-muted)',
+                border: '1px solid var(--border-light)',
+                color: 'var(--text-primary)',
+                boxShadow: 'var(--shadow-subtle)'
               }}
               whileFocus={{
                 scale: 1.01,
-                borderColor: 'var(--text-primary)'
+                borderColor: 'var(--text-accent)',
+                boxShadow: 'var(--shadow-focus)'
               }}
             />
             <Search 
               size={18} 
-              className="absolute left-4 top-1/2 transform -translate-y-1/2"
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none"
               style={{ color: 'var(--text-secondary)' }}
             />
             
-            {/* 검색 범위 토글 */}
-            <button
-              onClick={() => setSearchScope(searchScope === 'all' ? 'folder' : 'all')}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium transition-colors"
+            {/* 검색 범위 선택 */}
+            <select
+              value={searchScope}
+              onChange={(e) => setSearchScope(e.target.value as typeof searchScope)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 px-3 py-1 rounded-lg text-xs font-medium border-0 outline-none transition-colors"
               style={{
-                backgroundColor: searchScope === 'folder' ? 'var(--text-primary)' : 'var(--bg-card)',
-                color: searchScope === 'folder' ? 'var(--bg-card)' : 'var(--text-secondary)'
+                backgroundColor: 'var(--bg-card)',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border-light)'
               }}
             >
-              <Filter size={12} />
-              {searchScope === 'all' ? '전체' : '폴더'}
-            </button>
+              <option value="all">전체</option>
+              <option value="folder">현재폴더</option>
+              <option value="share">Share Place</option>
+            </select>
           </div>
         </div>
 
@@ -143,14 +171,38 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
             </button>
           </div>
 
+          {/* Share Place 버튼 */}
+          <motion.button
+            onClick={props.onSharePlaceClick}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
+            style={{
+              backgroundColor: 'var(--bg-card)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border-light)',
+              boxShadow: 'var(--shadow-subtle)'
+            }}
+            whileHover={{ 
+              scale: 1.05,
+              boxShadow: 'var(--shadow-elevated)' 
+            }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Share2 size={16} />
+            <span className="hidden md:inline">Share Place</span>
+          </motion.button>
+
           {/* 새 항목 추가 */}
           <motion.button
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
             style={{
-              backgroundColor: 'var(--text-primary)',
-              color: 'var(--bg-card)'
+              background: 'var(--gradient-secondary)',
+              color: 'white',
+              boxShadow: 'var(--shadow-subtle)'
             }}
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ 
+              scale: 1.05,
+              boxShadow: 'var(--shadow-elevated)'
+            }}
             whileTap={{ scale: 0.95 }}
           >
             <Plus size={16} />
@@ -170,14 +222,15 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
 
       {/* 메인 작업 영역 */}
       <div className="flex-1 flex overflow-hidden">
-        {/* 좌측 사이드바 - 피그마 스타일 */}
+        {/* 좌측 사이드바 - Vercel 스타일 */}
         <AnimatePresence>
           {(!sidebarCollapsed || mobileMenuOpen) && (
             <motion.aside
-              className={`${mobileMenuOpen ? 'fixed inset-0 z-50 md:relative md:inset-auto' : 'hidden md:block'} w-72 h-full border-r`}
+              className={`${mobileMenuOpen ? 'fixed inset-0 z-50 md:relative md:inset-auto' : 'hidden md:block'} w-72 h-full border-r backdrop-blur-sm`}
               style={{
-                backgroundColor: 'var(--bg-card)',
-                borderColor: 'var(--border-light)'
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                borderColor: 'var(--border-light)',
+                backdropFilter: 'blur(8px) saturate(180%)'
               }}
               initial={{ x: -288, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
@@ -196,7 +249,18 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
                 </div>
               )}
 
-              <FolderTree {...props} />
+              <FolderTree 
+                folders={props.folders}
+                selectedFolderId={props.selectedFolderId}
+                expandedFolders={props.expandedFolders}
+                onFolderSelect={props.onFolderSelect}
+                onFolderToggle={props.onFolderToggle}
+                onCreateFolder={props.onCreateFolder}
+                onCreateItem={props.onCreateItem}
+                onRenameFolder={props.onRenameFolder}
+                onDeleteFolder={props.onDeleteFolder}
+                onShareFolder={props.onShareFolder}
+              />
             </motion.aside>
           )}
         </AnimatePresence>
@@ -241,7 +305,7 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
 
           {/* 메인 콘텐츠 영역 */}
           <div className="flex-1 p-6 overflow-auto scrollbar-hide">
-            {props.children}
+            {props.children(sidebarCollapsed)}
           </div>
         </motion.main>
       </div>
@@ -256,6 +320,7 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
+      </div> {/* 전체 컨테이너 닫기 */}
     </div>
   )
 }

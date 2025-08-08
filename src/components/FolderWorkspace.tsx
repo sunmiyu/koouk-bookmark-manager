@@ -176,11 +176,13 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
     localStorage.removeItem('koouk-selected-folder')
     localStorage.removeItem('koouk-expanded-folders')
     
-    // 더미 데이터로 재설정
-    const initialFolders = createDummyFolders()
-    setFolders(initialFolders)
-    setSelectedFolderId(initialFolders[0].id)
+    // 빈 상태로 초기화
+    setFolders([])
+    setSelectedFolderId(undefined)
     setExpandedFolders(new Set())
+    
+    // 검색 엔진도 클리어
+    searchEngine.indexFolders([])
   }
 
   const handleShareFolder = (folderId: string) => {
@@ -486,30 +488,214 @@ const FolderContent = ({
   )
 }
 
-// 아이템 카드 컴포넌트
+// 아이템 카드 컴포넌트 - 타입별 특화 카드
 const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'list' }) => {
-  const getItemIcon = () => {
-    switch (item.type) {
-      case 'document': return <FileText size={20} />
-      case 'memo': return <StickyNote size={20} />
-      case 'image': return <ImageIcon size={20} />
-      case 'video': return <Video size={20} />
-      case 'url': return <Link size={20} />
-      default: return <FileText size={20} />
+  // YouTube 썸네일 추출
+  const getYouTubeThumbnail = (url: string): string | null => {
+    const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/
+    const match = url.match(regex)
+    if (match) {
+      return `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg`
+    }
+    return null
+  }
+
+  // 링크에서 도메인 추출
+  const getDomain = (url: string): string => {
+    try {
+      return new URL(url).hostname.replace('www.', '')
+    } catch {
+      return url
     }
   }
 
-  const getTypeColor = () => {
-    switch (item.type) {
-      case 'document': return '#3B82F6'
-      case 'memo': return '#F59E0B'
-      case 'image': return '#10B981'
-      case 'video': return '#EF4444'
-      case 'url': return '#8B5CF6'
-      default: return '#6B7280'
-    }
+  // 타입별 카드 렌더링
+  const renderVideoCard = () => {
+    const thumbnail = getYouTubeThumbnail(item.content) || item.metadata?.thumbnail
+    return (
+      <motion.div
+        className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
+        whileHover={{ y: -2 }}
+        whileTap={{ scale: 0.98 }}
+      >
+        {/* 영상 썸네일 */}
+        <div className="relative bg-gray-900 aspect-video">
+          {thumbnail ? (
+            <img 
+              src={thumbnail} 
+              alt={item.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Video className="w-12 h-12 text-gray-400" />
+            </div>
+          )}
+          <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs">
+            <Video className="w-3 h-3 inline mr-1" />
+            Video
+          </div>
+        </div>
+        
+        {/* 콘텐츠 */}
+        <div className="p-4">
+          <h4 className="font-semibold text-gray-900 line-clamp-2 mb-2">
+            {item.name}
+          </h4>
+          <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+            {getDomain(item.content)}
+          </p>
+          <div className="text-xs text-gray-400">
+            {new Date(item.updatedAt).toLocaleDateString()}
+          </div>
+        </div>
+      </motion.div>
+    )
   }
 
+  const renderImageCard = () => {
+    return (
+      <motion.div
+        className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
+        whileHover={{ y: -2 }}
+        whileTap={{ scale: 0.98 }}
+      >
+        {/* 이미지 썸네일 */}
+        <div className="relative bg-gray-100 aspect-square">
+          {item.content.startsWith('http') || item.content.startsWith('/') ? (
+            <img 
+              src={item.content} 
+              alt={item.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <ImageIcon className="w-12 h-12 text-gray-400" />
+            </div>
+          )}
+          <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs">
+            <ImageIcon className="w-3 h-3 inline mr-1" />
+            Image
+          </div>
+        </div>
+        
+        {/* 콘텐츠 */}
+        <div className="p-4">
+          <h4 className="font-semibold text-gray-900 line-clamp-2 mb-2">
+            {item.name}
+          </h4>
+          <div className="text-xs text-gray-400">
+            {new Date(item.updatedAt).toLocaleDateString()}
+          </div>
+        </div>
+      </motion.div>
+    )
+  }
+
+  const renderLinkCard = () => {
+    return (
+      <motion.div
+        className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
+        whileHover={{ y: -2 }}
+        whileTap={{ scale: 0.98 }}
+      >
+        {/* 링크 썸네일 (임시로 파비콘 사용) */}
+        <div className="relative bg-gradient-to-br from-blue-50 to-purple-50 aspect-video flex items-center justify-center">
+          <div className="text-center">
+            <Link className="w-12 h-12 text-blue-500 mx-auto mb-2" />
+            <div className="text-sm font-medium text-gray-700">
+              {getDomain(item.content)}
+            </div>
+          </div>
+          <div className="absolute bottom-2 right-2 bg-blue-500 bg-opacity-90 text-white px-2 py-1 rounded text-xs">
+            <Link className="w-3 h-3 inline mr-1" />
+            Link
+          </div>
+        </div>
+        
+        {/* 콘텐츠 */}
+        <div className="p-4">
+          <h4 className="font-semibold text-gray-900 line-clamp-2 mb-2">
+            {item.name}
+          </h4>
+          <p className="text-sm text-blue-600 hover:text-blue-800 truncate mb-2">
+            {item.content}
+          </p>
+          <div className="text-xs text-gray-400">
+            {new Date(item.updatedAt).toLocaleDateString()}
+          </div>
+        </div>
+      </motion.div>
+    )
+  }
+
+  const renderMemoCard = () => {
+    return (
+      <motion.div
+        className="bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
+        whileHover={{ y: -2 }}
+        whileTap={{ scale: 0.98 }}
+      >
+        {/* 메모 헤더 */}
+        <div className="bg-yellow-400 bg-opacity-20 p-3 border-b border-yellow-200">
+          <div className="flex items-center gap-2">
+            <StickyNote className="w-5 h-5 text-yellow-600" />
+            <span className="text-sm font-medium text-yellow-800">Memo</span>
+          </div>
+        </div>
+        
+        {/* 메모 내용 */}
+        <div className="p-4">
+          <h4 className="font-semibold text-gray-900 line-clamp-1 mb-3">
+            {item.name}
+          </h4>
+          <div className="text-sm text-gray-700 line-clamp-4 whitespace-pre-wrap mb-3">
+            {item.content}
+          </div>
+          <div className="text-xs text-gray-500">
+            {new Date(item.updatedAt).toLocaleDateString()}
+          </div>
+        </div>
+      </motion.div>
+    )
+  }
+
+  const renderDocumentCard = () => {
+    const wordCount = item.content.split(' ').length
+    return (
+      <motion.div
+        className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
+        whileHover={{ y: -2 }}
+        whileTap={{ scale: 0.98 }}
+      >
+        {/* 문서 헤더 */}
+        <div className="bg-blue-50 p-3 border-b border-blue-100">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-blue-600" />
+              <span className="text-sm font-medium text-blue-800">Document</span>
+            </div>
+            <span className="text-xs text-blue-600">{wordCount} words</span>
+          </div>
+        </div>
+        
+        {/* 문서 내용 */}
+        <div className="p-4">
+          <h4 className="font-semibold text-gray-900 line-clamp-2 mb-3">
+            {item.name}
+          </h4>
+          <div className="text-sm text-gray-600 line-clamp-4 mb-3">
+            {item.content}
+          </div>
+          <div className="text-xs text-gray-500">
+            {new Date(item.updatedAt).toLocaleDateString()}
+          </div>
+        </div>
+      </motion.div>
+    )
+  }
+
+  // List 모드일 때는 간단한 형식
   if (viewMode === 'list') {
     return (
       <motion.div
@@ -517,13 +703,12 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.99 }}
       >
-        <div 
-          className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-          style={{ backgroundColor: getTypeColor() + '20' }}
-        >
-          <div style={{ color: getTypeColor() }}>
-            {getItemIcon()}
-          </div>
+        <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 bg-gray-50">
+          {item.type === 'video' && <Video className="w-5 h-5 text-red-500" />}
+          {item.type === 'image' && <ImageIcon className="w-5 h-5 text-green-500" />}
+          {item.type === 'url' && <Link className="w-5 h-5 text-blue-500" />}
+          {item.type === 'memo' && <StickyNote className="w-5 h-5 text-yellow-500" />}
+          {item.type === 'document' && <FileText className="w-5 h-5 text-blue-600" />}
         </div>
         
         <div className="flex-1 min-w-0">
@@ -535,49 +720,31 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
           </p>
         </div>
         
-        <div className="text-xs text-gray-500">
-          {new Date(item.updatedAt).toLocaleDateString()}
+        <div className="text-xs text-gray-500 flex items-center gap-2">
+          <span className="capitalize px-2 py-1 bg-gray-100 rounded text-xs">
+            {item.type}
+          </span>
+          <span>{new Date(item.updatedAt).toLocaleDateString()}</span>
         </div>
       </motion.div>
     )
   }
 
-  return (
-    <motion.div
-      className="p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-all duration-200 cursor-pointer bg-white"
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-    >
-      <div className="mb-3">
-        <div 
-          className="w-12 h-12 rounded-lg flex items-center justify-center"
-          style={{ backgroundColor: getTypeColor() + '20' }}
-        >
-          <div style={{ color: getTypeColor() }}>
-            {getItemIcon()}
-          </div>
-        </div>
-      </div>
-      
-      <h4 className="font-medium mb-2 line-clamp-2 text-gray-900">
-        {item.name}
-      </h4>
-      
-      <p className="text-sm text-gray-600 line-clamp-3 mb-3">
-        {item.content}
-      </p>
-      
-      <div className="flex items-center justify-between text-xs text-gray-500">
-        <span 
-          className="px-2 py-1 rounded-full text-xs font-medium"
-          style={{ backgroundColor: getTypeColor() + '20', color: getTypeColor() }}
-        >
-          {item.type}
-        </span>
-        <span>{new Date(item.updatedAt).toLocaleDateString()}</span>
-      </div>
-    </motion.div>
-  )
+  // Grid 모드에서 타입별 카드 렌더링
+  switch (item.type) {
+    case 'video':
+      return renderVideoCard()
+    case 'image':
+      return renderImageCard()
+    case 'url':
+      return renderLinkCard()
+    case 'memo':
+      return renderMemoCard()
+    case 'document':
+      return renderDocumentCard()
+    default:
+      return renderDocumentCard()
+  }
 }
 
 // 유틸리티 함수들

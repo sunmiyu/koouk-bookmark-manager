@@ -8,6 +8,7 @@ import {
   ExternalLink
 } from 'lucide-react'
 import { SharedFolder, ShareCategory, categoryMetadata, createDummySharedFolders } from '@/types/share'
+import { createFolder } from '@/types/folder'
 
 interface SharePlaceProps {
   onBack: () => void
@@ -47,53 +48,61 @@ export default function SharePlace({ searchQuery = '' }: { searchQuery?: string 
           id: '1',
           title: 'Seoul Travel Guide',
           description: 'Complete guide for visiting Seoul with hidden gems and local recommendations',
-          author: 'TravelExpert',
+          author: { id: 'user1', name: 'TravelExpert', avatar: '🌏', verified: true },
           category: 'travel',
-          likes: 125,
           createdAt: '2024-01-15T10:00:00Z',
+          updatedAt: '2024-01-15T10:00:00Z',
+          isPublic: true,
           tags: ['seoul', 'korea', 'travel', 'guide'],
-          folder: createFolder('Seoul Travel Guide', undefined, {
-            name: 'Seoul Travel Guide',
-            items: [
-              { name: 'Best Korean BBQ Places', type: 'url', content: 'https://example.com/bbq-places' },
-              { name: 'Hidden Cafes in Hongdae', type: 'memo', content: 'List of cozy cafes...' },
-              { name: 'Subway Map & Tips', type: 'document', content: 'Navigation guide...' }
-            ]
-          })
+          stats: {
+            views: 1250,
+            likes: 125,
+            helpful: 89,
+            notHelpful: 3,
+            shares: 45,
+            downloads: 234
+          },
+          folder: createFolder('Seoul Travel Guide')
         },
         {
           id: '2',
           title: 'Minimalist Morning Routine',
           description: 'Simple and effective morning routine for productivity and wellness',
-          author: 'LifestyleMaven',
+          author: { id: 'user2', name: 'LifestyleMaven', avatar: '✨', verified: false },
           category: 'lifestyle',
-          likes: 89,
           createdAt: '2024-01-10T08:00:00Z',
+          updatedAt: '2024-01-10T08:00:00Z',
+          isPublic: true,
           tags: ['morning', 'routine', 'minimalist', 'productivity'],
-          folder: createFolder('Morning Routine', undefined, {
-            name: 'Morning Routine',
-            items: [
-              { name: '5 AM Morning Schedule', type: 'document', content: 'Daily schedule...' },
-              { name: 'Meditation Apps', type: 'url', content: 'https://example.com/meditation' }
-            ]
-          })
+          stats: {
+            views: 650,
+            likes: 89,
+            helpful: 67,
+            notHelpful: 2,
+            shares: 34,
+            downloads: 156
+          },
+          folder: createFolder('Morning Routine')
         },
         {
           id: '3',
           title: 'Korean Recipes Collection',
           description: 'Authentic Korean recipes from traditional to modern fusion dishes',
-          author: 'ChefKim',
+          author: { id: 'user3', name: 'ChefKim', avatar: '👨‍🍳', verified: true },
           category: 'food',
-          likes: 203,
           createdAt: '2024-01-08T14:00:00Z',
+          updatedAt: '2024-01-08T14:00:00Z',
+          isPublic: true,
           tags: ['korean', 'recipes', 'cooking', 'food'],
-          folder: createFolder('Korean Recipes', undefined, {
-            name: 'Korean Recipes',
-            items: [
-              { name: 'Kimchi Recipe', type: 'document', content: 'Traditional kimchi...' },
-              { name: 'Bulgogi Recipe', type: 'document', content: 'Marinated beef...' }
-            ]
-          })
+          stats: {
+            views: 1834,
+            likes: 203,
+            helpful: 189,
+            notHelpful: 5,
+            shares: 98,
+            downloads: 445
+          },
+          folder: createFolder('Korean Recipes')
         }
       ]
 
@@ -128,10 +137,10 @@ export default function SharePlace({ searchQuery = '' }: { searchQuery?: string 
   }, [sharedFolders, selectedCategory, searchQuery])
 
   const handleImportFolder = (sharedFolder: SharedFolder) => {
-    if (confirm(`"${sharedFolder.title}" 폴더를 내 워크스페이스에 추가하시겠습니까?`)) {
+    if (confirm(`&quot;${sharedFolder.title}&quot; 폴더를 내 워크스페이스에 추가하시겠습니까?`)) {
       // 실제로는 props로 받은 onImportFolder 호출
       console.log('Importing folder:', sharedFolder.title)
-      alert(`"${sharedFolder.title}" 폴더가 My Folder에 추가되었습니다!`)
+      alert(`&quot;${sharedFolder.title}&quot; 폴더가 My Folder에 추가되었습니다!`)
     }
   }
 
@@ -221,11 +230,11 @@ export default function SharePlace({ searchQuery = '' }: { searchQuery?: string 
 
             {/* Author & Stats */}
             <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
-              <span>by {sharedFolder.author}</span>
+              <span>by {sharedFolder.author.name}</span>
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1">
                   <Heart className="w-3 h-3" />
-                  {sharedFolder.likes}
+                  {sharedFolder.stats.likes}
                 </span>
                 <span>
                   {new Date(sharedFolder.createdAt).toLocaleDateString()}
@@ -257,7 +266,7 @@ export default function SharePlace({ searchQuery = '' }: { searchQuery?: string 
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">No folders found</h3>
           <p className="text-gray-500 max-w-md mx-auto">
-            Try adjusting your search terms or category filter to find what you're looking for.
+            Try adjusting your search terms or category filter to find what you&apos;re looking for.
           </p>
         </div>
       )}

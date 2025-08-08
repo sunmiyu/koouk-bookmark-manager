@@ -4,16 +4,19 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
   FileText,
-  Image,
+  Image as ImageIcon,
   Video,
   Link,
   StickyNote,
   Grid3X3,
-  LayoutList
+  LayoutList,
+  FolderOpen,
+  Search
 } from 'lucide-react'
 import WorkspaceLayout from './WorkspaceLayout'
 import SharePlace from './SharePlace'
 import UniversalInputBar from './UniversalInputBar'
+import FolderTree from './FolderTree'
 import { DragDropProvider } from '@/contexts/DragDropContext'
 import { FolderItem, StorageItem, createFolder, createStorageItem, defaultFolderTemplates } from '@/types/folder'
 import { SharedFolder } from '@/types/share'
@@ -258,6 +261,7 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
             onRenameFolder={handleRenameFolder}
             onDeleteFolder={handleDeleteFolder}
             onShareFolder={handleShareFolder}
+            onCreateItem={handleCreateItem}
           />
         </div>
 
@@ -283,7 +287,7 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
 }
 
 // 폴더 콘텐츠 컴포넌트
-const const FolderContent = ({ 
+const FolderContent = ({ 
   items, 
   onCreateItem,
   isFullWidth = false,
@@ -385,7 +389,7 @@ const const FolderContent = ({
         </div>
         <h3 className="text-lg font-medium text-gray-900 mb-2">No results found</h3>
         <p className="text-gray-500 max-w-sm">
-          No items match "{searchQuery}". Try different keywords or create new content.
+          No items match &quot;{searchQuery}&quot;. Try different keywords or create new content.
         </p>
       </motion.div>
     )
@@ -452,116 +456,6 @@ const const FolderContent = ({
     </div>
   )
 }
-        <div className="w-16 h-16 rounded-full mb-6 flex items-center justify-center" 
-             style={{ backgroundColor: 'var(--bg-secondary)' }}>
-          <FileText size={24} style={{ color: 'var(--text-secondary)' }} />
-        </div>
-        
-        <h3 className="text-lg font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-          폴더가 비어있습니다
-        </h3>
-        <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
-          새로운 콘텐츠를 추가하여 시작하세요
-        </p>
-
-        <div className="flex flex-wrap gap-3">
-          {[
-            { type: 'url' as const, label: 'URL', icon: Link },
-            { type: 'memo' as const, label: '메모', icon: StickyNote },
-            { type: 'document' as const, label: '문서', icon: FileText },
-            { type: 'image' as const, label: '이미지', icon: Image },
-            { type: 'video' as const, label: '비디오', icon: Video },
-          ].map(({ type, label, icon: Icon }) => (
-            <motion.button
-              key={type}
-              onClick={() => onCreateItem(type)}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm transition-all"
-              style={{
-                backgroundColor: 'var(--bg-card)',
-                color: 'var(--text-primary)',
-                border: '1px solid var(--border-light)'
-              }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Icon size={16} />
-              {label}
-            </motion.button>
-          ))}
-        </div>
-      </motion.div>
-    )
-  }
-
-  return (
-    <motion.div 
-      className="flex-1 flex flex-col pb-32"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-    >
-      {/* 헤더 & 필터 */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-lg font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
-            {items.length}개의 항목
-          </h3>
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-            {getSortLabel()}로 정렬
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {/* 정렬 선택 */}
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="px-3 py-2 rounded-lg text-sm border-0 outline-none"
-            style={{
-              backgroundColor: 'var(--bg-secondary)',
-              color: 'var(--text-primary)'
-            }}
-          >
-            <option value="recent">최근 순</option>
-            <option value="oldest">오래된 순</option>
-            <option value="name">이름 순</option>
-            <option value="type">타입 순</option>
-          </select>
-
-          {/* 뷰 모드 토글 */}
-          <div className="flex items-center gap-1 p-1 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white shadow-sm' : ''}`}
-              title="그리드 뷰"
-            >
-              <Grid3X3 size={16} style={{ color: viewMode === 'grid' ? 'var(--text-primary)' : 'var(--text-secondary)' }} />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm' : ''}`}
-              title="리스트 뷰"
-            >
-              <LayoutList size={16} style={{ color: viewMode === 'list' ? 'var(--text-primary)' : 'var(--text-secondary)' }} />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* 콘텐츠 그리드/리스트 */}
-      <div className={
-        viewMode === 'grid'
-          ? isFullWidth 
-            ? "grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4"
-            : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
-          : "space-y-3"
-      }>
-        {sortedItems.map((item) => (
-          <ItemCard key={item.id} item={item} viewMode={viewMode} />
-        ))}
-      </div>
-    </motion.div>
-  )
-}
 
 // 아이템 카드 컴포넌트
 const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'list' }) => {
@@ -569,29 +463,11 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
     switch (item.type) {
       case 'document': return <FileText size={20} />
       case 'memo': return <StickyNote size={20} />
-      case 'image': return <Image size={20} />
+      case 'image': return <ImageIcon size={20} />
       case 'video': return <Video size={20} />
       case 'url': return <Link size={20} />
       default: return <FileText size={20} />
     }
-  }
-
-  const renderThumbnail = () => {
-    if (item.metadata?.thumbnail) {
-      return (
-        <img 
-          src={item.metadata.thumbnail} 
-          alt={item.name}
-          className="w-12 h-12 rounded-lg object-cover"
-          onError={(e) => {
-            // 썸네일 로드 실패 시 기본 아이콘으로 fallback
-            const target = e.target as HTMLImageElement
-            target.style.display = 'none'
-          }}
-        />
-      )
-    }
-    return null
   }
 
   const getTypeColor = () => {
@@ -608,46 +484,29 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
   if (viewMode === 'list') {
     return (
       <motion.div
-        className="flex items-center gap-4 p-4 rounded-xl transition-all duration-200 cursor-pointer"
-        style={{
-          backgroundColor: 'var(--bg-card)',
-          border: '1px solid var(--border-light)'
-        }}
-        whileHover={{ 
-          scale: 1.02,
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-        }}
-        whileTap={{ scale: 0.98 }}
+        className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-all duration-200 cursor-pointer bg-white"
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
       >
-        <div className="flex-shrink-0">
-          {renderThumbnail() ? (
-            <img 
-              src={item.metadata?.thumbnail} 
-              alt={item.name}
-              className="w-10 h-10 rounded-lg object-cover"
-            />
-          ) : (
-            <div 
-              className="w-10 h-10 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: getTypeColor() + '20' }}
-            >
-              <div style={{ color: getTypeColor() }}>
-                {getItemIcon()}
-              </div>
-            </div>
-          )}
+        <div 
+          className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+          style={{ backgroundColor: getTypeColor() + '20' }}
+        >
+          <div style={{ color: getTypeColor() }}>
+            {getItemIcon()}
+          </div>
         </div>
         
         <div className="flex-1 min-w-0">
-          <h4 className="font-medium truncate mb-1" style={{ color: 'var(--text-primary)' }}>
+          <h4 className="font-medium truncate mb-1 text-gray-900">
             {item.name}
           </h4>
-          <p className="text-sm truncate" style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-sm text-gray-600 truncate">
             {item.content.substring(0, 100)}
           </p>
         </div>
         
-        <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+        <div className="text-xs text-gray-500">
           {new Date(item.updatedAt).toLocaleDateString()}
         </div>
       </motion.div>
@@ -656,40 +515,34 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
 
   return (
     <motion.div
-      className="p-4 rounded-xl transition-all duration-200 cursor-pointer"
-      style={{
-        backgroundColor: 'var(--bg-card)',
-        border: '1px solid var(--border-light)'
-      }}
-      whileHover={{ 
-        scale: 1.02,
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-      }}
+      className="p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-all duration-200 cursor-pointer bg-white"
+      whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
       <div className="mb-3">
-        {renderThumbnail() || (
-          <div 
-            className="w-12 h-12 rounded-lg flex items-center justify-center"
-            style={{ backgroundColor: getTypeColor() + '20' }}
-          >
-            <div style={{ color: getTypeColor() }}>
-              {getItemIcon()}
-            </div>
+        <div 
+          className="w-12 h-12 rounded-lg flex items-center justify-center"
+          style={{ backgroundColor: getTypeColor() + '20' }}
+        >
+          <div style={{ color: getTypeColor() }}>
+            {getItemIcon()}
           </div>
-        )}
+        </div>
       </div>
       
-      <h4 className="font-medium mb-2 line-clamp-2" style={{ color: 'var(--text-primary)' }}>
+      <h4 className="font-medium mb-2 line-clamp-2 text-gray-900">
         {item.name}
       </h4>
       
-      <p className="text-sm line-clamp-3 mb-3" style={{ color: 'var(--text-secondary)' }}>
+      <p className="text-sm text-gray-600 line-clamp-3 mb-3">
         {item.content}
       </p>
       
-      <div className="flex items-center justify-between text-xs" style={{ color: 'var(--text-secondary)' }}>
-        <span className="px-2 py-1 rounded-full" style={{ backgroundColor: getTypeColor() + '20', color: getTypeColor() }}>
+      <div className="flex items-center justify-between text-xs text-gray-500">
+        <span 
+          className="px-2 py-1 rounded-full text-xs font-medium"
+          style={{ backgroundColor: getTypeColor() + '20', color: getTypeColor() }}
+        >
           {item.type}
         </span>
         <span>{new Date(item.updatedAt).toLocaleDateString()}</span>

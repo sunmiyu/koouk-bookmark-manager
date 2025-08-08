@@ -1,11 +1,34 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  // 빌드 성능 최적화
+  mode: 'jit', // Just-In-Time 컴파일
   darkMode: 'class', // 클래스 기반 다크모드 활성화
+  
+  // 컨텐츠 경로 최적화 - 더 정확한 경로 지정
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/contexts/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/lib/**/*.{js,ts}',
+    './src/types/**/*.{ts}',
+    // pages 디렉토리는 사용하지 않으므로 제거
+  ],
+  
+  // 사용하지 않는 클래스 제거 최적화
+  safelist: [
+    // 동적으로 생성되는 클래스들만 보호
+    'animate-spin',
+    'animate-pulse',
+    'animate-bounce',
+    // 색상 클래스 보호 (동적 색상 생성용)
+    {
+      pattern: /bg-(red|green|blue|yellow|purple|pink|indigo|gray)-(100|200|300|400|500|600|700|800|900)/,
+      variants: ['hover', 'focus'],
+    },
+    {
+      pattern: /text-(red|green|blue|yellow|purple|pink|indigo|gray)-(100|200|300|400|500|600|700|800|900)/,
+      variants: ['hover', 'focus'],
+    }
   ],
   theme: {
     extend: {
@@ -40,5 +63,28 @@ module.exports = {
       },
     },
   },
+  
+  // 성능 최적화 플러그인 및 설정
   plugins: [],
+  
+  // 추가 최적화 설정
+  experimental: {
+    // 최신 CSS 기능 최적화
+    optimizeUniversalDefaults: true,
+  },
+  
+  // 개발/프로덕션 최적화
+  future: {
+    hoverOnlyWhenSupported: true, // hover 지원 시에만 활성화
+  },
+  
+  // 빌드 크기 최적화
+  corePlugins: {
+    // 사용하지 않는 코어 플러그인 비활성화
+    preflight: true,
+    container: false, // container 클래스 사용 안 함
+    accessibility: true,
+    pointerEvents: true,
+    visibility: true,
+  }
 }

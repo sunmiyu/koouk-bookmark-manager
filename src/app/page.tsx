@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import LandingPage from '@/components/LandingPage'
-import FolderWorkspace from '@/components/FolderWorkspace'
+import HomePage from '@/components/LandingPage'
+import MainWorkspace from '@/components/MainWorkspace'
 
 function HomeContent() {
   const { user, loading: authLoading } = useAuth()
@@ -23,11 +23,11 @@ function HomeContent() {
 
   // 비인증 사용자
   if (!isAuthenticated) {
-    return <LandingPage />
+    return <HomePage />
   }
 
-  // 인증된 사용자에게 새로운 폴더 기반 워크스페이스 제공
-  return <FolderWorkspace />
+  // 인증된 사용자에게 새로운 워크스페이스 제공
+  return <MainWorkspace />
 }
 
 export default function Home() {

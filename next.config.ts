@@ -1,5 +1,11 @@
 import type { NextConfig } from "next";
 
+// Bundle Analyzer 설정
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+  openAnalyzer: true,
+});
+
 // Security Headers
 const securityHeaders = [
   {
@@ -48,7 +54,14 @@ const nextConfig: NextConfig = {
   },
   // Enable experimental features for better performance
   experimental: {
-    optimizePackageImports: ['@vercel/analytics']
+    optimizePackageImports: ['@vercel/analytics', 'lucide-react', 'framer-motion']
+  },
+  
+  // 빌드 성능 최적화 (swcMinify는 Next.js 15에서 deprecated)
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error']
+    } : false,
   },
   // Image domains for external images
   images: {
@@ -76,4 +89,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

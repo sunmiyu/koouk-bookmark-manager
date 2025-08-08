@@ -45,5 +45,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# eslint cache
+.eslintcache
+
 # design philosophy - keep local for development reference
 KOOUK_DESIGN_PHILOSOPHY.md

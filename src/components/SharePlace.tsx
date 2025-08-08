@@ -4,13 +4,8 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Search, 
-  TrendingUp,
   Heart,
-  ThumbsUp,
-  Download,
-  Eye,
-  Star,
-  ArrowLeft
+  ExternalLink
 } from 'lucide-react'
 import { SharedFolder, ShareCategory, categoryMetadata, createDummySharedFolders } from '@/types/share'
 
@@ -20,544 +15,252 @@ interface SharePlaceProps {
   initialSearchQuery?: string
 }
 
-export default function SharePlace({ onBack, onImportFolder, initialSearchQuery }: SharePlaceProps) {
+export default function SharePlace({ searchQuery = '' }: { searchQuery?: string }) {
   const [sharedFolders, setSharedFolders] = useState<SharedFolder[]>([])
-  const [selectedCategory, setSelectedCategory] = useState<ShareCategory | 'all'>('all')
-  const [searchQuery, setSearchQuery] = useState(initialSearchQuery || '')
-  const [sortBy, setSortBy] = useState<'popular' | 'recent' | 'helpful'>('popular')
-  const [selectedFolder, setSelectedFolder] = useState<SharedFolder | null>(null)
+  const [filteredFolders, setFilteredFolders] = useState<SharedFolder[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [isLoading, setIsLoading] = useState(true)
 
-  // 더미 데이터 로드
+  // 카테고리 옵션들
+  const categories = [
+    { value: 'all', label: 'All Categories' },
+    { value: 'lifestyle', label: 'Lifestyle' },
+    { value: 'food', label: 'Food & Recipe' },
+    { value: 'travel', label: 'Travel' },
+    { value: 'study', label: 'Study & Learning' },
+    { value: 'work', label: 'Work & Business' },
+    { value: 'entertainment', label: 'Entertainment' },
+    { value: 'health', label: 'Health & Fitness' },
+    { value: 'tech', label: 'Technology' },
+    { value: 'investment', label: 'Investment' },
+    { value: 'parenting', label: 'Parenting' }
+  ]
+
+  // Mock 데이터 로드
   useEffect(() => {
-    setSharedFolders(createDummySharedFolders())
+    const loadMockData = async () => {
+      setIsLoading(true)
+      
+      // Mock shared folders data
+      const mockSharedFolders: SharedFolder[] = [
+        {
+          id: '1',
+          title: 'Seoul Travel Guide',
+          description: 'Complete guide for visiting Seoul with hidden gems and local recommendations',
+          author: 'TravelExpert',
+          category: 'travel',
+          likes: 125,
+          createdAt: '2024-01-15T10:00:00Z',
+          tags: ['seoul', 'korea', 'travel', 'guide'],
+          folder: createFolder('Seoul Travel Guide', undefined, {
+            name: 'Seoul Travel Guide',
+            items: [
+              { name: 'Best Korean BBQ Places', type: 'url', content: 'https://example.com/bbq-places' },
+              { name: 'Hidden Cafes in Hongdae', type: 'memo', content: 'List of cozy cafes...' },
+              { name: 'Subway Map & Tips', type: 'document', content: 'Navigation guide...' }
+            ]
+          })
+        },
+        {
+          id: '2',
+          title: 'Minimalist Morning Routine',
+          description: 'Simple and effective morning routine for productivity and wellness',
+          author: 'LifestyleMaven',
+          category: 'lifestyle',
+          likes: 89,
+          createdAt: '2024-01-10T08:00:00Z',
+          tags: ['morning', 'routine', 'minimalist', 'productivity'],
+          folder: createFolder('Morning Routine', undefined, {
+            name: 'Morning Routine',
+            items: [
+              { name: '5 AM Morning Schedule', type: 'document', content: 'Daily schedule...' },
+              { name: 'Meditation Apps', type: 'url', content: 'https://example.com/meditation' }
+            ]
+          })
+        },
+        {
+          id: '3',
+          title: 'Korean Recipes Collection',
+          description: 'Authentic Korean recipes from traditional to modern fusion dishes',
+          author: 'ChefKim',
+          category: 'food',
+          likes: 203,
+          createdAt: '2024-01-08T14:00:00Z',
+          tags: ['korean', 'recipes', 'cooking', 'food'],
+          folder: createFolder('Korean Recipes', undefined, {
+            name: 'Korean Recipes',
+            items: [
+              { name: 'Kimchi Recipe', type: 'document', content: 'Traditional kimchi...' },
+              { name: 'Bulgogi Recipe', type: 'document', content: 'Marinated beef...' }
+            ]
+          })
+        }
+      ]
+
+      await new Promise(resolve => setTimeout(resolve, 800)) // Simulate loading
+      setSharedFolders(mockSharedFolders)
+      setIsLoading(false)
+    }
+
+    loadMockData()
   }, [])
 
-  // 필터링 및 정렬
-  const filteredAndSortedFolders = sharedFolders
-    .filter(folder => {
-      const matchesCategory = selectedCategory === 'all' || folder.category === selectedCategory
-      const matchesSearch = searchQuery === '' || 
-        folder.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        folder.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        folder.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-      return matchesCategory && matchesSearch
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'popular':
-          return (b.stats.likes + b.stats.helpful) - (a.stats.likes + a.stats.helpful)
-        case 'recent':
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        case 'helpful':
-          return b.stats.helpful - a.stats.helpful
-        default:
-          return 0
-      }
-    })
+  // 검색 및 필터링
+  useEffect(() => {
+    let filtered = sharedFolders
 
-  const handleRating = (folderId: string, type: 'like' | 'helpful' | 'not_helpful') => {
-    setSharedFolders(prev => prev.map(folder => {
-      if (folder.id === folderId) {
-        return {
-          ...folder,
-          stats: {
-            ...folder.stats,
-            [type === 'like' ? 'likes' : type === 'helpful' ? 'helpful' : 'notHelpful']: 
-              folder.stats[type === 'like' ? 'likes' : type === 'helpful' ? 'helpful' : 'notHelpful'] + 1
-          }
-        }
-      }
-      return folder
-    }))
-  }
+    // 카테고리 필터
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(folder => folder.category === selectedCategory)
+    }
 
-  const handleImportFolder = (folder: SharedFolder) => {
-    if (onImportFolder) {
-      onImportFolder(folder)
-      alert(`"${folder.title}" 폴더가 내 워크스페이스에 복사되었습니다! 🎉`)
+    // 검색 필터
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(folder =>
+        folder.title.toLowerCase().includes(query) ||
+        folder.description.toLowerCase().includes(query) ||
+        folder.tags.some(tag => tag.toLowerCase().includes(query))
+      )
+    }
+
+    setFilteredFolders(filtered)
+  }, [sharedFolders, selectedCategory, searchQuery])
+
+  const handleImportFolder = (sharedFolder: SharedFolder) => {
+    if (confirm(`"${sharedFolder.title}" 폴더를 내 워크스페이스에 추가하시겠습니까?`)) {
+      // 실제로는 props로 받은 onImportFolder 호출
+      console.log('Importing folder:', sharedFolder.title)
+      alert(`"${sharedFolder.title}" 폴더가 My Folder에 추가되었습니다!`)
     }
   }
 
-  if (selectedFolder) {
+  if (isLoading) {
     return (
-      <FolderDetailView 
-        folder={selectedFolder} 
-        onBack={() => setSelectedFolder(null)} 
-        onRate={handleRating}
-        onImport={handleImportFolder}
-      />
+      <div className="h-96 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-sm text-gray-500">Market Place 로딩중...</p>
+        </div>
+      </div>
     )
   }
 
   return (
-    <div className="h-screen flex flex-col" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      {/* 헤더 */}
-      <motion.header 
-        className="flex items-center justify-between px-6 py-4 border-b backdrop-blur-sm"
-        style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          borderColor: 'var(--border-light)',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
-        }}
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-      >
-        <div className="flex items-center gap-4">
-          <button
-            onClick={onBack}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <ArrowLeft size={20} style={{ color: 'var(--text-primary)' }} />
-          </button>
-          
-          <div>
-            <h1 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-              🤝 Share Place
-            </h1>
-            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-              {initialSearchQuery 
-                ? `"${initialSearchQuery}" 검색 결과` 
-                : "다른 사용자들이 공유한 유용한 폴더들을 둘러보세요"
-              }
-            </p>
-          </div>
+    <div className="h-full">
+      {/* Category Filter */}
+      <div className="mb-8 pb-4 border-b border-gray-200">
+        <div className="flex flex-wrap gap-2">
+          {categories.map((category) => (
+            <button
+              key={category.value}
+              onClick={() => setSelectedCategory(category.value)}
+              className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+                selectedCategory === category.value
+                  ? 'bg-black text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {category.label}
+            </button>
+          ))}
         </div>
+      </div>
 
-        {/* 검색 */}
-        <div className="flex-1 max-w-md mx-8">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="폴더 검색..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg text-sm transition-all"
-              style={{
-                backgroundColor: 'var(--bg-secondary)',
-                border: '1px solid var(--border-light)',
-                color: 'var(--text-primary)'
-              }}
-            />
-            <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2" 
-                   style={{ color: 'var(--text-secondary)' }} />
-          </div>
-        </div>
+      {/* Results Count */}
+      <div className="mb-6">
+        <p className="text-sm text-gray-500">
+          {filteredFolders.length} {filteredFolders.length === 1 ? 'folder' : 'folders'} found
+        </p>
+      </div>
 
-        {/* 정렬 */}
-        <div className="flex items-center gap-2">
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as 'popular' | 'recent' | 'helpful')}
-            className="px-3 py-2 rounded-lg text-sm"
-            style={{
-              backgroundColor: 'var(--bg-card)',
-              border: '1px solid var(--border-light)',
-              color: 'var(--text-primary)'
-            }}
-          >
-            <option value="popular">인기순</option>
-            <option value="recent">최신순</option>
-            <option value="helpful">유익함순</option>
-          </select>
-        </div>
-      </motion.header>
-
-      <div className="flex-1 flex overflow-hidden">
-        {/* 카테고리 사이드바 */}
-        <motion.aside 
-          className="w-64 border-r p-4"
-          style={{
-            backgroundColor: 'var(--bg-card)',
-            borderColor: 'var(--border-light)'
-          }}
-          initial={{ x: -256, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.1 }}
-        >
-          <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-            카테고리
-          </h3>
-          
-          <div className="space-y-2">
-            <CategoryButton
-              isSelected={selectedCategory === 'all'}
-              onClick={() => setSelectedCategory('all')}
-              icon="🌟"
-              label="전체"
-              count={sharedFolders.length}
-            />
-            
-            {(Object.keys(categoryMetadata) as ShareCategory[]).map(category => (
-              <CategoryButton
-                key={category}
-                isSelected={selectedCategory === category}
-                onClick={() => setSelectedCategory(category)}
-                icon={categoryMetadata[category].icon}
-                label={categoryMetadata[category].label}
-                count={sharedFolders.filter(f => f.category === category).length}
-                color={categoryMetadata[category].color}
-              />
-            ))}
-          </div>
-        </motion.aside>
-
-        {/* 메인 컨텐츠 */}
-        <main className="flex-1 p-6 overflow-auto scrollbar-hide">
-          {/* 통계 헤더 */}
-          <motion.div 
-            className="mb-6"
-            initial={{ opacity: 0, y: 10 }}
+      {/* Market Place Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredFolders.map((sharedFolder) => (
+          <motion.div
+            key={sharedFolder.id}
+            className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-300"
+            whileHover={{ y: -2 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                  {selectedCategory === 'all' 
-                    ? '모든 폴더' 
-                    : categoryMetadata[selectedCategory as ShareCategory]?.label
-                  }
-                </h2>
-                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                  {filteredAndSortedFolders.length}개의 공유 폴더
-                </p>
-              </div>
-              
-              <div className="flex items-center gap-4 text-xs" style={{ color: 'var(--text-secondary)' }}>
-                <div className="flex items-center gap-1">
-                  <TrendingUp size={14} />
-                  <span>이번 주 인기</span>
-                </div>
+            {/* Category Badge */}
+            <div className="mb-3">
+              <span className="inline-block px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded uppercase tracking-wide">
+                {categories.find(cat => cat.value === sharedFolder.category)?.label || sharedFolder.category}
+              </span>
+            </div>
+
+            {/* Title & Description */}
+            <h3 className="text-lg font-semibold text-black mb-2 line-clamp-2">
+              {sharedFolder.title}
+            </h3>
+            
+            <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+              {sharedFolder.description}
+            </p>
+
+            {/* Tags */}
+            <div className="mb-4">
+              <div className="flex flex-wrap gap-1">
+                {sharedFolder.tags.slice(0, 3).map((tag, index) => (
+                  <span
+                    key={index}
+                    className="inline-block px-2 py-1 text-xs bg-gray-50 text-gray-600 rounded"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+                {sharedFolder.tags.length > 3 && (
+                  <span className="inline-block px-2 py-1 text-xs text-gray-400">
+                    +{sharedFolder.tags.length - 3} more
+                  </span>
+                )}
               </div>
             </div>
-          </motion.div>
 
-          {/* 폴더 그리드 */}
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            <AnimatePresence>
-              {filteredAndSortedFolders.map((folder, index) => (
-                <FolderCard
-                  key={folder.id}
-                  folder={folder}
-                  index={index}
-                  onClick={() => setSelectedFolder(folder)}
-                  onRate={handleRating}
-                />
-              ))}
-            </AnimatePresence>
-          </motion.div>
+            {/* Author & Stats */}
+            <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
+              <span>by {sharedFolder.author}</span>
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1">
+                  <Heart className="w-3 h-3" />
+                  {sharedFolder.likes}
+                </span>
+                <span>
+                  {new Date(sharedFolder.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+            </div>
 
-          {/* 빈 상태 */}
-          {filteredAndSortedFolders.length === 0 && (
-            <motion.div 
-              className="text-center py-20"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              <div className="text-4xl mb-4">🔍</div>
-              <h3 className="text-lg font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                검색 결과가 없습니다
-              </h3>
-              <p style={{ color: 'var(--text-secondary)' }}>
-                다른 키워드로 검색하거나 카테고리를 변경해보세요
-              </p>
-            </motion.div>
-          )}
-        </main>
+            {/* Actions */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleImportFolder(sharedFolder)}
+                className="flex-1 px-4 py-2 bg-black text-white text-sm font-medium rounded hover:bg-gray-800 transition-colors"
+              >
+                Add to My Folder
+              </button>
+              <button className="px-3 py-2 border border-gray-200 text-gray-600 text-sm rounded hover:bg-gray-50 transition-colors">
+                <ExternalLink className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        ))}
       </div>
+
+      {/* Empty State */}
+      {filteredFolders.length === 0 && (
+        <div className="text-center py-16">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Search className="w-8 h-8 text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No folders found</h3>
+          <p className="text-gray-500 max-w-md mx-auto">
+            Try adjusting your search terms or category filter to find what you're looking for.
+          </p>
+        </div>
+      )}
     </div>
   )
 }
-
-// 카테고리 버튼 컴포넌트
-const CategoryButton = ({ 
-  isSelected, 
-  onClick, 
-  icon, 
-  label, 
-  count, 
-  color 
-}: {
-  isSelected: boolean
-  onClick: () => void
-  icon: string
-  label: string
-  count: number
-  color?: string
-}) => (
-  <motion.button
-    onClick={onClick}
-    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all"
-    style={{
-      backgroundColor: isSelected ? (color ? color + '20' : 'var(--bg-secondary)') : 'transparent',
-      color: isSelected ? (color || 'var(--text-primary)') : 'var(--text-secondary)'
-    }}
-    whileHover={{ scale: 1.02, x: 2 }}
-    whileTap={{ scale: 0.98 }}
-  >
-    <span className="text-base">{icon}</span>
-    <span className="flex-1 text-left font-medium">{label}</span>
-    <span className="text-xs opacity-70">{count}</span>
-  </motion.button>
-)
-
-// 폴더 카드 컴포넌트
-const FolderCard = ({ 
-  folder, 
-  index, 
-  onClick, 
-  onRate 
-}: {
-  folder: SharedFolder
-  index: number
-  onClick: () => void
-  onRate: (folderId: string, type: 'like' | 'helpful' | 'not_helpful') => void
-}) => (
-  <motion.div
-    className="group relative bg-white rounded-xl p-6 shadow-sm border cursor-pointer transition-all duration-200"
-    style={{
-      backgroundColor: 'var(--bg-card)',
-      borderColor: 'var(--border-light)',
-    }}
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: index * 0.1 }}
-    whileHover={{ 
-      scale: 1.02,
-      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.1)'
-    }}
-    onClick={onClick}
-  >
-    {/* 썸네일 */}
-    <div 
-      className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl mb-4"
-      style={{ backgroundColor: categoryMetadata[folder.category].color + '20' }}
-    >
-      {folder.thumbnail || categoryMetadata[folder.category].icon}
-    </div>
-
-    {/* 제목 및 설명 */}
-    <h3 className="text-lg font-semibold mb-2 line-clamp-2" style={{ color: 'var(--text-primary)' }}>
-      {folder.title}
-    </h3>
-    
-    <p className="text-sm mb-4 line-clamp-3" style={{ color: 'var(--text-secondary)' }}>
-      {folder.description}
-    </p>
-
-    {/* 작성자 */}
-    <div className="flex items-center gap-2 mb-4">
-      <div 
-        className="w-6 h-6 rounded-full flex items-center justify-center text-xs"
-        style={{ backgroundColor: categoryMetadata[folder.category].color + '20' }}
-      >
-        {folder.author.avatar}
-      </div>
-      <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-        {folder.author.name}
-      </span>
-      {folder.author.verified && <Star size={12} style={{ color: '#F59E0B' }} />}
-    </div>
-
-    {/* 태그 */}
-    <div className="flex flex-wrap gap-1 mb-4">
-      {folder.tags.slice(0, 3).map(tag => (
-        <span
-          key={tag}
-          className="px-2 py-1 text-xs rounded-full"
-          style={{
-            backgroundColor: 'var(--bg-secondary)',
-            color: 'var(--text-secondary)'
-          }}
-        >
-          #{tag}
-        </span>
-      ))}
-    </div>
-
-    {/* 통계 및 액션 */}
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-3 text-xs" style={{ color: 'var(--text-secondary)' }}>
-        <div className="flex items-center gap-1">
-          <Eye size={12} />
-          <span>{folder.stats.views.toLocaleString()}</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <Heart size={12} />
-          <span>{folder.stats.likes}</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <ThumbsUp size={12} />
-          <span>{folder.stats.helpful}</span>
-        </div>
-      </div>
-
-      {/* 빠른 액션 */}
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            onRate(folder.id, 'like')
-          }}
-          className="p-1 rounded hover:bg-red-50 transition-colors"
-        >
-          <Heart size={14} style={{ color: '#EF4444' }} />
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            onRate(folder.id, 'helpful')
-          }}
-          className="p-1 rounded hover:bg-green-50 transition-colors"
-        >
-          <ThumbsUp size={14} style={{ color: '#10B981' }} />
-        </button>
-      </div>
-    </div>
-  </motion.div>
-)
-
-// 폴더 상세 뷰 컴포넌트
-const FolderDetailView = ({ 
-  folder, 
-  onBack, 
-  onRate,
-  onImport
-}: {
-  folder: SharedFolder
-  onBack: () => void
-  onRate: (folderId: string, type: 'like' | 'helpful' | 'not_helpful') => void
-  onImport: (folder: SharedFolder) => void
-}) => (
-  <div className="h-screen flex flex-col" style={{ backgroundColor: 'var(--bg-primary)' }}>
-    {/* 상세 헤더 */}
-    <motion.header 
-      className="px-6 py-4 border-b"
-      style={{
-        backgroundColor: 'var(--bg-card)',
-        borderColor: 'var(--border-light)'
-      }}
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-    >
-      <div className="flex items-center gap-4">
-        <button
-          onClick={onBack}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-        >
-          <ArrowLeft size={20} />
-        </button>
-        
-        <div className="flex-1">
-          <h1 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-            {folder.title}
-          </h1>
-          <div className="flex items-center gap-3 mt-1">
-            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-              by {folder.author.name}
-            </span>
-            <span className="px-2 py-1 text-xs rounded-full" 
-                  style={{ 
-                    backgroundColor: categoryMetadata[folder.category].color + '20',
-                    color: categoryMetadata[folder.category].color
-                  }}>
-              {categoryMetadata[folder.category].label}
-            </span>
-          </div>
-        </div>
-      </div>
-    </motion.header>
-
-    {/* 상세 컨텐츠 */}
-    <div className="flex-1 p-6 overflow-auto">
-      <div className="max-w-4xl mx-auto">
-        {/* 설명 */}
-        <div className="mb-8">
-          <p className="text-base leading-relaxed" style={{ color: 'var(--text-primary)' }}>
-            {folder.description}
-          </p>
-        </div>
-
-        {/* 통계 */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <StatCard icon={<Eye size={20} />} label="조회수" value={folder.stats.views.toLocaleString()} />
-          <StatCard icon={<Heart size={20} />} label="좋아요" value={folder.stats.likes.toString()} />
-          <StatCard icon={<ThumbsUp size={20} />} label="유익해요" value={folder.stats.helpful.toString()} />
-          <StatCard icon={<Download size={20} />} label="다운로드" value={folder.stats.downloads.toString()} />
-        </div>
-
-        {/* 액션 버튼 */}
-        <div className="flex items-center gap-4 mb-8">
-          <motion.button
-            onClick={() => onRate(folder.id, 'like')}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-all"
-            style={{
-              backgroundColor: '#EF4444',
-              color: 'white'
-            }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Heart size={16} />
-            좋아요
-          </motion.button>
-          
-          <motion.button
-            onClick={() => onRate(folder.id, 'helpful')}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-all"
-            style={{
-              backgroundColor: '#10B981',
-              color: 'white'
-            }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <ThumbsUp size={16} />
-            유익해요
-          </motion.button>
-
-          <motion.button
-            onClick={() => onImport(folder)}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-all"
-            style={{
-              backgroundColor: 'var(--text-primary)',
-              color: 'var(--bg-card)'
-            }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Download size={16} />
-            내 워크스페이스로 복사
-          </motion.button>
-        </div>
-
-        {/* 폴더 미리보기 */}
-        <div className="p-6 rounded-xl" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
-          <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-            📁 폴더 미리보기
-          </h3>
-          <div className="text-center py-8" style={{ color: 'var(--text-secondary)' }}>
-            <div className="text-4xl mb-4">{folder.thumbnail || '📁'}</div>
-            <p>폴더 구조와 내용을 여기에 표시합니다</p>
-            <p className="text-sm mt-2">({folder.folder.children.length}개 항목)</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-)
-
-const StatCard = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
-  <div className="text-center p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
-    <div className="flex justify-center mb-2" style={{ color: 'var(--text-secondary)' }}>
-      {icon}
-    </div>
-    <div className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{value}</div>
-    <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>{label}</div>
-  </div>
-)

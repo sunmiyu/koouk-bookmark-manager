@@ -22,13 +22,11 @@ import { SharedFolder } from '@/types/share'
 //   className?: string
 // }
 
-export default function FolderWorkspace() {
+export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: string }) {
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
-  const [showSharePlace, setShowSharePlace] = useState(false)
-  const [shareSearchQuery, setShareSearchQuery] = useState('')
 
   // localStorage에서 데이터 로드
   useEffect(() => {
@@ -176,33 +174,12 @@ export default function FolderWorkspace() {
     if (!category) return
 
     // Share Place에 공유 성공 알림
-    alert(`"${title}" 폴더가 Share Place에 공유되었습니다! 🎉\n다른 사용자들이 이제 이 폴더를 발견하고 활용할 수 있습니다.`)
-  }
-
-  const handleImportFolder = (sharedFolder: SharedFolder) => {
-    // SharedFolder를 FolderItem으로 변환
-    const importedFolder: FolderItem = {
-      ...sharedFolder.folder,
-      id: `imported_${Date.now()}_${Math.random().toString(36).substring(2)}`,
-      name: sharedFolder.title + ' (복사본)',
-      updatedAt: new Date().toISOString()
-    }
-
-    const newFolders = [...folders, importedFolder]
-    handleFoldersChange(newFolders)
-    
-    // 임포트한 폴더 선택
-    handleFolderSelect(importedFolder.id)
+    alert(`"${title}" 폴더가 Market Place에 공유되었습니다! 🎉\n다른 사용자들이 이제 이 폴더를 발견하고 활용할 수 있습니다.`)
   }
 
   const handleAddItem = (item: StorageItem, folderId: string) => {
     const updatedFolders = addItemToFolder(folders, folderId, item)
     handleFoldersChange(updatedFolders)
-  }
-
-  const handleSharePlaceSearch = (query: string) => {
-    setShareSearchQuery(query)
-    setShowSharePlace(true)
   }
 
   const handleCreateItem = (type: StorageItem['type'], folderId: string) => {
@@ -254,26 +231,12 @@ export default function FolderWorkspace() {
 
   if (isLoading) {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="h-96 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p style={{ color: 'var(--text-secondary)' }}>워크스페이스 로딩중...</p>
+          <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-sm text-gray-500">워크스페이스 로딩중...</p>
         </div>
       </div>
-    )
-  }
-
-  // Share Place 표시
-  if (showSharePlace) {
-    return (
-      <SharePlace 
-        onBack={() => {
-          setShowSharePlace(false)
-          setShareSearchQuery('')
-        }} 
-        onImportFolder={handleImportFolder}
-        initialSearchQuery={shareSearchQuery}
-      />
     )
   }
 
@@ -282,28 +245,31 @@ export default function FolderWorkspace() {
       initialFolders={folders}
       onFoldersChange={handleFoldersChange}
     >
-      <WorkspaceLayout
-        folders={folders}
-        selectedFolderId={selectedFolderId}
-        expandedFolders={expandedFolders}
-        onFolderSelect={handleFolderSelect}
-        onFolderToggle={handleFolderToggle}
-        onCreateFolder={handleCreateFolder}
-        onCreateItem={handleCreateItem}
-        onRenameFolder={handleRenameFolder}
-        onDeleteFolder={handleDeleteFolder}
-        onShareFolder={handleShareFolder}
-        onSharePlaceClick={() => setShowSharePlace(true)}
-        onSharePlaceSearch={handleSharePlaceSearch}
-      >
-        {(isFullWidth) => (
+      <div className="flex h-full">
+        {/* Left Sidebar - Folder Tree */}
+        <div className="w-80 border-r border-gray-200 bg-gray-50">
+          <FolderTree
+            folders={folders}
+            selectedFolderId={selectedFolderId}
+            expandedFolders={expandedFolders}
+            onFolderSelect={handleFolderSelect}
+            onFolderToggle={handleFolderToggle}
+            onCreateFolder={handleCreateFolder}
+            onRenameFolder={handleRenameFolder}
+            onDeleteFolder={handleDeleteFolder}
+            onShareFolder={handleShareFolder}
+          />
+        </div>
+
+        {/* Main Content Area */}
+        <div className="flex-1 bg-white">
           <FolderContent 
             items={getSelectedFolderItems()}
             onCreateItem={(type) => selectedFolderId && handleCreateItem(type, selectedFolderId)}
-            isFullWidth={isFullWidth}
+            searchQuery={searchQuery}
           />
-        )}
-      </WorkspaceLayout>
+        </div>
+      </div>
       
       {/* Universal Input Bar */}
       <UniversalInputBar
@@ -317,20 +283,33 @@ export default function FolderWorkspace() {
 }
 
 // 폴더 콘텐츠 컴포넌트
-const FolderContent = ({ 
+const const FolderContent = ({ 
   items, 
   onCreateItem,
-  isFullWidth = false
+  isFullWidth = false,
+  searchQuery = ''
 }: { 
   items: StorageItem[]
   onCreateItem: (type: StorageItem['type']) => void
   isFullWidth?: boolean
+  searchQuery?: string
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'name' | 'type'>('recent')
   
+  // 검색 필터링
+  const filteredItems = items.filter(item => {
+    if (!searchQuery.trim()) return true
+    const query = searchQuery.toLowerCase()
+    return (
+      item.name.toLowerCase().includes(query) ||
+      item.content.toLowerCase().includes(query) ||
+      item.type.toLowerCase().includes(query)
+    )
+  })
+  
   // 아이템 정렬
-  const sortedItems = [...items].sort((a, b) => {
+  const sortedItems = [...filteredItems].sort((a, b) => {
     switch (sortBy) {
       case 'recent':
         return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
@@ -366,6 +345,113 @@ const FolderContent = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
+        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+          <FolderOpen className="w-8 h-8 text-gray-400" />
+        </div>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">Empty Folder</h3>
+        <p className="text-gray-500 mb-6 max-w-sm">
+          This folder is empty. Add some content to get started.
+        </p>
+        
+        <div className="flex flex-wrap gap-2 justify-center">
+          {(['memo', 'document', 'url', 'image', 'video'] as const).map((type) => (
+            <button
+              key={type}
+              onClick={() => onCreateItem(type)}
+              className="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+            >
+              {type === 'memo' && <StickyNote className="w-4 h-4" />}
+              {type === 'document' && <FileText className="w-4 h-4" />}
+              {type === 'url' && <Link className="w-4 h-4" />}
+              {type === 'image' && <ImageIcon className="w-4 h-4" />}
+              {type === 'video' && <Video className="w-4 h-4" />}
+              Add {type}
+            </button>
+          ))}
+        </div>
+      </motion.div>
+    )
+  }
+
+  if (searchQuery.trim() && filteredItems.length === 0) {
+    return (
+      <motion.div 
+        className="flex-1 flex flex-col items-center justify-center text-center p-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+          <Search className="w-8 h-8 text-gray-400" />
+        </div>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">No results found</h3>
+        <p className="text-gray-500 max-w-sm">
+          No items match "{searchQuery}". Try different keywords or create new content.
+        </p>
+      </motion.div>
+    )
+  }
+
+  return (
+    <div className="flex-1 p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h3 className="text-lg font-medium text-black">
+            {filteredItems.length} items
+          </h3>
+          <p className="text-sm text-gray-500">
+            {getSortLabel()}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {/* Sort selector */}
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+            className="px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+          >
+            <option value="recent">Recent</option>
+            <option value="oldest">Oldest</option>
+            <option value="name">Name</option>
+            <option value="type">Type</option>
+          </select>
+
+          {/* View mode toggle */}
+          <div className="flex items-center gap-1 p-1 border border-gray-200 rounded-md">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-2 rounded transition-colors ${
+                viewMode === 'grid' ? 'bg-black text-white' : 'text-gray-400 hover:text-gray-600'
+              }`}
+            >
+              <Grid3X3 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-2 rounded transition-colors ${
+                viewMode === 'list' ? 'bg-black text-white' : 'text-gray-400 hover:text-gray-600'
+              }`}
+            >
+              <LayoutList className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Content grid/list */}
+      <div className={
+        viewMode === 'grid'
+          ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+          : "space-y-3"
+      }>
+        {sortedItems.map((item) => (
+          <ItemCard key={item.id} item={item} viewMode={viewMode} />
+        ))}
+      </div>
+    </div>
+  )
+}
         <div className="w-16 h-16 rounded-full mb-6 flex items-center justify-center" 
              style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <FileText size={24} style={{ color: 'var(--text-secondary)' }} />

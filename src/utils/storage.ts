@@ -1,4 +1,4 @@
-import { StorageItem } from '@/app/page'
+import { StorageItem } from '@/types/folder'
 
 const STORAGE_KEY = 'koouk-storage-items'
 
@@ -81,7 +81,7 @@ export const storageUtils = {
 
     const lowerQuery = query.toLowerCase()
     return items.filter(item => 
-      item.title.toLowerCase().includes(lowerQuery) ||
+      item.name.toLowerCase().includes(lowerQuery) ||
       item.content.toLowerCase().includes(lowerQuery) ||
       item.description?.toLowerCase().includes(lowerQuery) ||
       item.tags.some(tag => tag.toLowerCase().includes(lowerQuery))

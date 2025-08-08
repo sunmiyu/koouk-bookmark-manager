@@ -74,7 +74,7 @@ export const defaultFolderTemplates = {
 }
 
 // 유틸리티 함수들
-export const createFolder = (name: string, parentId?: string, template?: any): FolderItem => ({
+export const createFolder = (name: string, parentId?: string, template?: { color?: string; icon?: string }): FolderItem => ({
   id: `folder_${Date.now()}_${Math.random().toString(36).substring(2)}`,
   name,
   type: 'folder',

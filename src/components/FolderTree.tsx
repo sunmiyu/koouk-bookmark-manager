@@ -328,7 +328,7 @@ const FolderTreeNode = ({
   onFolderSelect,
   onFolderToggle,
   onCreateFolder,
-  onCreateItem,
+  // onCreateItem,
   onRenameFolder,
   onDeleteFolder
 }: {
@@ -357,7 +357,7 @@ const FolderTreeNode = ({
       onFolderSelect={onFolderSelect}
       onFolderToggle={onFolderToggle}
       onCreateFolder={onCreateFolder}
-      onCreateItem={onCreateItem}
+      onCreateItem={() => {}}
       onRenameFolder={onRenameFolder}
       onDeleteFolder={onDeleteFolder}
     >
@@ -371,7 +371,7 @@ const FolderTreeNode = ({
           onFolderSelect={onFolderSelect}
           onFolderToggle={onFolderToggle}
           onCreateFolder={onCreateFolder}
-          onCreateItem={onCreateItem}
+          onCreateItem={() => {}}
           onRenameFolder={onRenameFolder}
           onDeleteFolder={onDeleteFolder}
         />

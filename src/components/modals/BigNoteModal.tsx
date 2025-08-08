@@ -34,11 +34,12 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote }: BigN
     const wordCount = content.trim().split(/\s+/).length
 
     onSave({
-      type: 'big_note',
-      title: title.trim(),
+      type: 'document',
+      name: title.trim(),
       content: content.trim(),
+      folderId: '', // will be set by parent
       tags,
-      wordCount
+      metadata: { wordCount }
     })
 
     // Reset form

@@ -18,7 +18,7 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote }: Qu
 
   useEffect(() => {
     if (editNote) {
-      setTitle(editNote.title)
+      setTitle(editNote.name)
       setContent(editNote.content)
       setTags(editNote.tags)
     } else {
@@ -32,9 +32,10 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote }: Qu
     if (!content.trim()) return
 
     onSave({
-      type: 'quick_note',
-      title: title.trim() || 'Quick Memo',
+      type: 'memo',
+      name: title.trim() || 'Quick Memo',
       content: content.trim(),
+      folderId: '', // will be set by parent
       tags
     })
 

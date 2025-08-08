@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import LandingPage from '@/components/LandingPage'
 import FolderWorkspace from '@/components/FolderWorkspace'

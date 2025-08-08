@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
-  Plus,
   FileText,
   Image,
   Video,
@@ -17,10 +16,10 @@ import { DragDropProvider } from '@/contexts/DragDropContext'
 import { FolderItem, StorageItem, createFolder, createStorageItem, defaultFolderTemplates } from '@/types/folder'
 
 interface FolderWorkspaceProps {
-  // 추후 props 추가 가능
+  className?: string
 }
 
-export default function FolderWorkspace(props: FolderWorkspaceProps) {
+export default function FolderWorkspace() {
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())

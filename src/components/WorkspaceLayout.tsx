@@ -14,7 +14,7 @@ import {
   Maximize2
 } from 'lucide-react'
 import FolderTree from './FolderTree'
-import { FolderItem } from '@/types/folder'
+import { FolderItem, StorageItem } from '@/types/folder'
 
 interface WorkspaceLayoutProps {
   folders: FolderItem[]
@@ -23,7 +23,7 @@ interface WorkspaceLayoutProps {
   onFolderSelect: (folderId: string) => void
   onFolderToggle: (folderId: string) => void
   onCreateFolder: (parentId?: string) => void
-  onCreateItem: (type: any, folderId: string) => void
+  onCreateItem: (type: StorageItem['type'], folderId: string) => void
   onRenameFolder: (folderId: string, newName: string) => void
   onDeleteFolder: (folderId: string) => void
   children: React.ReactNode
@@ -34,7 +34,7 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchScope, setSearchScope] = useState<'all' | 'folder'>('all')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const [isMobile, setIsMobile] = useState(false)
+  // const [isMobile, setIsMobile] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   // 현재 선택된 폴더 정보

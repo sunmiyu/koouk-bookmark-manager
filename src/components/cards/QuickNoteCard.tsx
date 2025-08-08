@@ -1,6 +1,6 @@
 'use client'
 
-import { StorageItem } from '@/app/page'
+import { StorageItem } from '@/types/folder'
 
 type QuickNoteCardProps = {
   note: StorageItem
@@ -92,7 +92,7 @@ export default function QuickNoteCard({ note, onEdit, onDelete }: QuickNoteCardP
       </div>
 
       {/* Title */}
-      {note.title && (
+      {note.name && (
         <h3 className="mb-2 line-clamp-1" style={{
           fontSize: '14px',
           fontWeight: '600',
@@ -100,7 +100,7 @@ export default function QuickNoteCard({ note, onEdit, onDelete }: QuickNoteCardP
           lineHeight: '1.3',
           letterSpacing: '-0.01em'
         }}>
-          {note.title}
+          {note.name}
         </h3>
       )}
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { StorageItem } from '@/app/page'
+import { StorageItem } from '@/types/folder'
 
 interface QuickNoteModalProps {
   isOpen: boolean

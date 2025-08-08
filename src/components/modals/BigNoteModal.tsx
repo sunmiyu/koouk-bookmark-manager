@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { StorageItem } from '@/app/page'
+import { StorageItem } from '@/types/folder'
 
 interface BigNoteModalProps {
   isOpen: boolean
@@ -18,7 +18,7 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote }: BigN
 
   useEffect(() => {
     if (editNote) {
-      setTitle(editNote.title)
+      setTitle(editNote.name)
       setContent(editNote.content)
       setTags(editNote.tags)
     } else {

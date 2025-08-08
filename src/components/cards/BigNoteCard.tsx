@@ -1,6 +1,6 @@
 'use client'
 
-import { StorageItem } from '@/app/page'
+import { StorageItem } from '@/types/folder'
 
 type BigNoteCardProps = {
   note: StorageItem
@@ -84,7 +84,7 @@ export default function BigNoteCard({ note, onEdit, onDelete }: BigNoteCardProps
         lineHeight: '1.4',
         letterSpacing: '-0.01em'
       }}>
-        {note.title}
+        {note.name}
       </h3>
 
       {/* Content Preview */}
@@ -101,20 +101,20 @@ export default function BigNoteCard({ note, onEdit, onDelete }: BigNoteCardProps
         fontSize: 'var(--text-xs)',
         color: 'var(--text-secondary)'
       }}>
-        {note.wordCount && (
+        {note.metadata?.wordCount && (
           <span className="flex items-center gap-1">
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            {note.wordCount.toLocaleString()} words
+            {note.metadata.wordCount.toLocaleString()} words
           </span>
         )}
-        {note.wordCount && (
+        {note.metadata?.wordCount && (
           <span className="flex items-center gap-1">
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            {getReadingTime(note.wordCount)} min read
+            {getReadingTime(note.metadata.wordCount)} min read
           </span>
         )}
       </div>

@@ -11,14 +11,15 @@ import {
   Grid3X3,
   LayoutList,
   FolderOpen,
-  Search
+  Search,
+  Trash2
 } from 'lucide-react'
 import WorkspaceLayout from './WorkspaceLayout'
 import SharePlace from './SharePlace'
 import UniversalInputBar from './UniversalInputBar'
 import FolderTree from './FolderTree'
 import { DragDropProvider } from '@/contexts/DragDropContext'
-import { FolderItem, StorageItem, createFolder, createStorageItem, defaultFolderTemplates } from '@/types/folder'
+import { FolderItem, StorageItem, createFolder, createStorageItem, defaultFolderTemplates, createDummyFolders } from '@/types/folder'
 import { SharedFolder } from '@/types/share'
 
 // interface FolderWorkspaceProps {
@@ -47,10 +48,8 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
             setSelectedFolderId(parsedFolders[0].id)
           }
         } else {
-          // 첫 방문 시 기본 템플릿 생성
-          const initialFolders = defaultFolderTemplates.general.map(template =>
-            createFolder(template.name, undefined, template)
-          )
+          // 첫 방문 시 더미 데이터 생성
+          const initialFolders = createDummyFolders()
           setFolders(initialFolders)
           if (initialFolders.length > 0) {
             setSelectedFolderId(initialFolders[0].id)
@@ -163,6 +162,23 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
     }
   }
 
+  const handleClearAll = () => {
+    if (!confirm('모든 폴더와 내용을 삭제하고 새로 시작하시겠습니까?')) {
+      return
+    }
+    
+    // localStorage 클리어
+    localStorage.removeItem('koouk-folders')
+    localStorage.removeItem('koouk-selected-folder')
+    localStorage.removeItem('koouk-expanded-folders')
+    
+    // 더미 데이터로 재설정
+    const initialFolders = createDummyFolders()
+    setFolders(initialFolders)
+    setSelectedFolderId(initialFolders[0].id)
+    setExpandedFolders(new Set())
+  }
+
   const handleShareFolder = (folderId: string) => {
     const folderToShare = findFolderById(folders, folderId)
     if (!folderToShare) return
@@ -251,6 +267,15 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
       <div className="flex h-full">
         {/* Left Sidebar - Folder Tree */}
         <div className="w-64 border-r border-gray-200 bg-gray-50">
+          <div className="p-4 border-b border-gray-200">
+            <button
+              onClick={handleClearAll}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors border border-red-200 hover:border-red-300"
+            >
+              <Trash2 className="w-4 h-4" />
+              Clear All
+            </button>
+          </div>
           <FolderTree
             folders={folders}
             selectedFolderId={selectedFolderId}

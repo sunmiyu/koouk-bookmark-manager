@@ -199,7 +199,7 @@ export default function UniversalInputBar({
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
-      <div className="w-full max-w-[1400px] mx-auto px-6 pb-6">
+      <div className="w-full max-w-6xl mx-auto px-6 pb-6">
         {/* 폴더 선택기 */}
         <AnimatePresence>
           {showFolderSelector && (

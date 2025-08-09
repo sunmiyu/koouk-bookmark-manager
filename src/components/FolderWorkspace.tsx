@@ -570,8 +570,8 @@ const FolderContent = ({
                 </div>
               </div>
               
-              {/* Grid layout - Maximum 4 columns */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
+              {/* Grid layout - Mobile 2 cols, Desktop up to 6 cols */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                 {items.slice(0, 8).map((item) => (
                   <ItemCard key={item.id} item={item} viewMode={viewMode} />
                 ))}
@@ -681,12 +681,12 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
 
     return (
       <motion.div
-        className="bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-lg hover:shadow-gray-100/50 transition-all duration-300 cursor-pointer group"
-        whileHover={{ y: -2 }}
+        className="bg-white border border-gray-100 rounded-lg overflow-hidden hover:shadow-md hover:shadow-gray-100/50 transition-all duration-300 cursor-pointer group"
+        whileHover={{ y: -1 }}
         whileTap={{ scale: 0.98 }}
       >
-        {/* Enhanced preview area */}
-        <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 aspect-video overflow-hidden">
+        {/* Compact preview area */}
+        <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 aspect-[4/3] overflow-hidden">
           {thumbnail ? (
             <div className="w-full h-full">
               <img 
@@ -703,41 +703,47 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
               />
               {/* Fallback icon (hidden by default) */}
               <div className="w-full h-full absolute inset-0 flex items-center justify-center" style={{ display: 'none' }}>
-                <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
+                <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center text-accent">
                   {getTypeIcon()}
                 </div>
               </div>
             </div>
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center text-accent group-hover:scale-110 transition-transform duration-300">
+              <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center text-accent group-hover:scale-110 transition-transform duration-300">
                 {getTypeIcon()}
               </div>
             </div>
           )}
           
-          {/* Enhanced type badge */}
-          <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm text-white px-2.5 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 shadow-sm">
+          {/* Compact type badge */}
+          <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded-full text-[10px] font-medium flex items-center gap-1 shadow-sm">
             <div className="text-accent">
-              {getTypeIcon()}
+              <div className="w-3 h-3">
+                {item.type === 'video' && <Video className="w-3 h-3" />}
+                {item.type === 'image' && <ImageIcon className="w-3 h-3" />}
+                {item.type === 'url' && <Link className="w-3 h-3" />}
+                {item.type === 'document' && <FileText className="w-3 h-3" />}
+                {item.type === 'memo' && <StickyNote className="w-3 h-3" />}
+              </div>
             </div>
-            <span className="capitalize text-white">
+            <span className="capitalize text-white hidden sm:inline">
               {item.type === 'url' ? 'Link' : item.type}
             </span>
           </div>
 
           {/* Duration overlay for videos */}
           {item.type === 'video' && getMetadataInfo() && (
-            <div className="absolute bottom-3 right-3 bg-black/80 backdrop-blur-sm text-white px-2 py-1 rounded text-xs font-medium">
+            <div className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-[10px] font-medium">
               {getMetadataInfo()}
             </div>
           )}
         </div>
         
-        {/* Minimal content section */}
-        <div className="p-2">
+        {/* Very minimal content section */}
+        <div className="p-1.5">
           {/* Title only */}
-          <h4 className="font-medium text-gray-900 line-clamp-2 text-xs group-hover:text-accent transition-colors duration-200">
+          <h4 className="font-medium text-gray-900 line-clamp-2 text-[11px] leading-tight group-hover:text-accent transition-colors duration-200">
             {item.name}
           </h4>
         </div>

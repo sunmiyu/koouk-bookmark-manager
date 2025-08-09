@@ -198,32 +198,32 @@ export const createDummyFolders = (): FolderItem[] => {
   const sampleFolder = createFolder('타입별 샘플 모음', undefined, { color: '#6B7280', icon: 'Folder' })
   sampleFolder.children = [
     // Video 타입 3개
-    createStorageItem('React 18 완벽 가이드', 'video', 'https://youtube.com/watch?v=react18-guide', sampleFolder.id, {
-      thumbnail: 'https://img.youtube.com/vi/react18-guide/mqdefault.jpg',
+    createStorageItem('React 18 완벽 가이드', 'video', 'https://youtube.com/watch?v=jN4kvDQ0cI8', sampleFolder.id, {
+      thumbnail: 'https://img.youtube.com/vi/jN4kvDQ0cI8/mqdefault.jpg',
       platform: 'youtube',
       duration: 3600
     }),
-    createStorageItem('Next.js 13 새로운 기능', 'video', 'https://youtube.com/watch?v=nextjs13-features', sampleFolder.id, {
-      thumbnail: 'https://img.youtube.com/vi/nextjs13-features/mqdefault.jpg',
+    createStorageItem('Next.js 13 새로운 기능', 'video', 'https://youtube.com/watch?v=__mSgDEOyv8', sampleFolder.id, {
+      thumbnail: 'https://img.youtube.com/vi/__mSgDEOyv8/mqdefault.jpg',
       platform: 'youtube',
       duration: 1800
     }),
-    createStorageItem('TypeScript 실무 활용법', 'video', 'https://youtube.com/watch?v=typescript-practice', sampleFolder.id, {
-      thumbnail: 'https://img.youtube.com/vi/typescript-practice/mqdefault.jpg',
+    createStorageItem('TypeScript 실무 활용법', 'video', 'https://youtube.com/watch?v=1jMJDbq7ZX4', sampleFolder.id, {
+      thumbnail: 'https://img.youtube.com/vi/1jMJDbq7ZX4/mqdefault.jpg',
       platform: 'youtube',
       duration: 2400
     }),
     
     // Image 타입 3개
-    createStorageItem('UI 디자인 레퍼런스', 'image', 'https://picsum.photos/800/600?random=1', sampleFolder.id, {
+    createStorageItem('UI 디자인 레퍼런스', 'image', 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&h=600&fit=crop', sampleFolder.id, {
       dimensions: { width: 800, height: 600 },
       fileSize: 245760
     }),
-    createStorageItem('색상 팔레트 가이드', 'image', 'https://picsum.photos/800/600?random=2', sampleFolder.id, {
+    createStorageItem('색상 팔레트 가이드', 'image', 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&h=600&fit=crop', sampleFolder.id, {
       dimensions: { width: 800, height: 600 },
       fileSize: 189340
     }),
-    createStorageItem('타이포그래피 예시', 'image', 'https://picsum.photos/800/600?random=3', sampleFolder.id, {
+    createStorageItem('타이포그래피 예시', 'image', 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop', sampleFolder.id, {
       dimensions: { width: 800, height: 600 },
       fileSize: 324580
     }),

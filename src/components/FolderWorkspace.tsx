@@ -33,6 +33,7 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
+  const [sidebarVisible, setSidebarVisible] = useState(true)
 
   // localStorage에서 데이터 로드
   useEffect(() => {
@@ -464,19 +465,55 @@ const FolderContent = ({
   }
 
   return (
-    <div className="flex-1 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-lg font-medium text-black">
-            {filteredItems.length} items
-          </h3>
-          <p className="text-sm text-gray-500">
-            {getSortLabel()}
-          </p>
+    <div className="flex h-screen">
+      {/* Sidebar */}
+      {sidebarVisible && (
+        <div className="w-64 bg-white border-r border-gray-200 flex-shrink-0">
+          <div className="h-full">
+            <DragDropProvider>
+              <FolderTree 
+                folders={folders}
+                selectedFolderId={selectedFolderId}
+                expandedFolders={expandedFolders}
+                onFolderSelect={handleFolderSelect}
+                onFolderToggle={handleFolderToggle}
+                onCreateFolder={handleCreateFolder}
+                onCreateItem={handleCreateItem}
+                onRenameFolder={handleRenameFolder}
+                onDeleteFolder={handleDeleteFolder}
+                onShareFolder={handleShareFolder}
+              />
+            </DragDropProvider>
+          </div>
         </div>
+      )}
+      
+      {/* Main content */}
+      <div className="flex-1 flex flex-col">
+        <div className="flex-1 p-6">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              {/* Sidebar toggle button */}
+              <button
+                onClick={() => setSidebarVisible(!sidebarVisible)}
+                className="p-2 hover:bg-gray-100 rounded-md transition-colors"
+                title={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
+              >
+                <Menu className="w-5 h-5 text-gray-600" />
+              </button>
+              
+              <div>
+                <h3 className="text-lg font-medium text-black">
+                  {filteredItems.length} items
+                </h3>
+                <p className="text-sm text-gray-500">
+                  {getSortLabel()}
+                </p>
+              </div>
+            </div>
 
-        <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
           {/* Sort selector */}
           <select
             value={sortBy}
@@ -533,8 +570,8 @@ const FolderContent = ({
                 </div>
               </div>
               
-              {/* Grid layout - Better UX */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {/* Grid layout - Maximum 4 columns */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
                 {items.slice(0, 8).map((item) => (
                   <ItemCard key={item.id} item={item} viewMode={viewMode} />
                 ))}
@@ -559,6 +596,8 @@ const FolderContent = ({
           )}
         </div>
       )}
+        </div>
+      </div>
     </div>
   )
 }
@@ -586,8 +625,20 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
 
   // Unified card design for all types
   const renderUnifiedCard = () => {
-    const thumbnail = item.type === 'video' ? (getYouTubeThumbnail(item.content) || item.metadata?.thumbnail) : 
-                     item.type === 'image' ? item.content : null
+    // Enhanced thumbnail logic
+    const getThumbnail = () => {
+      if (item.type === 'video') {
+        // 우선순위: metadata.thumbnail > YouTube extraction
+        if (item.metadata?.thumbnail) return item.metadata.thumbnail
+        return getYouTubeThumbnail(item.content)
+      }
+      if (item.type === 'image') {
+        return item.content
+      }
+      return null
+    }
+
+    const thumbnail = getThumbnail()
     
     // Type-specific icon and color
     const getTypeIcon = () => {
@@ -601,47 +652,94 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
       }
     }
 
+    // Enhanced metadata display
+    const getMetadataInfo = () => {
+      switch(item.type) {
+        case 'video':
+          if (item.metadata?.duration) {
+            const minutes = Math.floor(item.metadata.duration / 60)
+            const seconds = item.metadata.duration % 60
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`
+          }
+          return null
+        case 'image':
+          if (item.metadata?.dimensions) {
+            return `${item.metadata.dimensions.width}×${item.metadata.dimensions.height}`
+          }
+          return null
+        case 'document':
+          if (item.metadata?.wordCount) {
+            return `${item.metadata.wordCount}자`
+          }
+          return null
+        case 'url':
+          return getDomain(item.content)
+        default:
+          return null
+      }
+    }
+
     return (
       <motion.div
-        className="bg-surface border border-default rounded-lg overflow-hidden hover:shadow-sm transition-all duration-200 cursor-pointer group"
-        whileHover={{ y: -1 }}
+        className="bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-lg hover:shadow-gray-100/50 transition-all duration-300 cursor-pointer group"
+        whileHover={{ y: -2 }}
+        whileTap={{ scale: 0.98 }}
       >
-        {/* Unified preview area */}
-        <div className="relative bg-background aspect-video">
-          {thumbnail && (item.type === 'video' || item.type === 'image') ? (
-            <img 
-              src={thumbnail} 
-              alt={item.name}
-              className="w-full h-full object-cover"
-            />
+        {/* Enhanced preview area */}
+        <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 aspect-video overflow-hidden">
+          {thumbnail ? (
+            <div className="w-full h-full">
+              <img 
+                src={thumbnail} 
+                alt={item.name}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                onError={(e) => {
+                  // Fallback when image fails to load
+                  const target = e.target as HTMLImageElement
+                  target.style.display = 'none'
+                  const fallback = target.nextElementSibling as HTMLElement
+                  if (fallback) fallback.style.display = 'flex'
+                }}
+              />
+              {/* Fallback icon (hidden by default) */}
+              <div className="w-full h-full absolute inset-0 flex items-center justify-center" style={{ display: 'none' }}>
+                <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
+                  {getTypeIcon()}
+                </div>
+              </div>
+            </div>
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center text-accent">
+              <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center text-accent group-hover:scale-110 transition-transform duration-300">
                 {getTypeIcon()}
               </div>
             </div>
           )}
           
-          {/* Type badge */}
-          <div className="absolute top-2 right-2 bg-accent/10 backdrop-blur-sm text-accent px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-            {getTypeIcon()}
-            <span className="capitalize">{item.type === 'url' ? 'Link' : item.type}</span>
+          {/* Enhanced type badge */}
+          <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm text-white px-2.5 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 shadow-sm">
+            <div className="text-accent">
+              {getTypeIcon()}
+            </div>
+            <span className="capitalize text-white">
+              {item.type === 'url' ? 'Link' : item.type}
+            </span>
           </div>
+
+          {/* Duration overlay for videos */}
+          {item.type === 'video' && getMetadataInfo() && (
+            <div className="absolute bottom-3 right-3 bg-black/80 backdrop-blur-sm text-white px-2 py-1 rounded text-xs font-medium">
+              {getMetadataInfo()}
+            </div>
+          )}
         </div>
         
-        {/* Content */}
-        <div className="p-3">
-          <h4 className="font-medium text-primary line-clamp-2 mb-1 text-sm">
+        {/* Minimal content section */}
+        <div className="p-2">
+          {/* Title only */}
+          <h4 className="font-medium text-gray-900 line-clamp-2 text-xs group-hover:text-accent transition-colors duration-200">
             {item.name}
           </h4>
-          <p className="text-xs text-muted line-clamp-1 mb-2">
-            {item.type === 'url' ? getDomain(item.content) : 
-             item.type === 'memo' ? item.content.substring(0, 50) + '...' : 
-             item.content.length > 50 ? item.content.substring(0, 50) + '...' : item.content}
-          </p>
-          <div className="text-xs text-muted">
-            {new Date(item.updatedAt).toLocaleDateString('ko-KR')}
-          </div>
         </div>
       </motion.div>
     )

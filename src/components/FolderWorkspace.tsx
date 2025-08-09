@@ -30,7 +30,7 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
-  const [sidebarVisible, setSidebarVisible] = useState(true)
+  const [sidebarVisible, setSidebarVisible] = useState(true) // eslint-disable-line @typescript-eslint/no-unused-vars
 
   // localStorage에서 데이터 로드
   useEffect(() => {
@@ -326,14 +326,6 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
           </div>
         </div>
       </div>
-      
-      {/* Universal Input Bar */}
-      <UniversalInputBar
-        folders={folders}
-        selectedFolderId={selectedFolderId}
-        onAddItem={handleAddItem}
-        onFolderSelect={handleFolderSelect}
-      />
     </DragDropProvider>
   )
 }

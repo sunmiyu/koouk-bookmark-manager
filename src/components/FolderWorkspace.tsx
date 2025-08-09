@@ -13,15 +13,12 @@ import {
   FolderOpen,
   Search,
   Trash2,
-  Plus
+  Plus,
+  Menu
 } from 'lucide-react'
-import WorkspaceLayout from './WorkspaceLayout'
-import SharePlace from './SharePlace'
-import UniversalInputBar from './UniversalInputBar'
 import FolderTree from './FolderTree'
 import { DragDropProvider } from '@/contexts/DragDropContext'
 import { FolderItem, StorageItem, createFolder, createStorageItem, defaultFolderTemplates, createDummyFolders } from '@/types/folder'
-import { SharedFolder } from '@/types/share'
 import { searchEngine } from '@/lib/search-engine'
 
 // interface FolderWorkspaceProps {
@@ -345,12 +342,10 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
 const FolderContent = ({ 
   items, 
   onCreateItem,
-  isFullWidth = false,
   searchQuery = ''
 }: { 
   items: StorageItem[]
   onCreateItem: (type: StorageItem['type']) => void
-  isFullWidth?: boolean
   searchQuery?: string
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')

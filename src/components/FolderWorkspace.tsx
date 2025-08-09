@@ -32,8 +32,14 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
   const [isLoading, setIsLoading] = useState(true)
   const [sidebarVisible, setSidebarVisible] = useState(true) // eslint-disable-line @typescript-eslint/no-unused-vars
 
-  // localStorage에서 데이터 로드
+  // localStorage에서 데이터 로드 - 클라이언트 사이드에서만 실행
   useEffect(() => {
+    // 브라우저 환경 체크
+    if (typeof window === 'undefined') {
+      setIsLoading(false)
+      return
+    }
+
     const loadData = () => {
       try {
         const savedFolders = localStorage.getItem('koouk-folders')
@@ -78,11 +84,18 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
       }
     }
 
-    loadData()
+    // 약간의 지연을 두고 로드 (hydration 이슈 방지)
+    const timer = setTimeout(() => {
+      loadData()
+    }, 0)
+
+    return () => clearTimeout(timer)
   }, [])
 
-  // 데이터 저장
+  // 데이터 저장 - 브라우저 환경 체크 추가
   const saveToStorage = (newFolders: FolderItem[], newSelectedId?: string) => {
+    if (typeof window === 'undefined') return
+    
     try {
       localStorage.setItem('koouk-folders', JSON.stringify(newFolders))
       
@@ -170,10 +183,12 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
       return
     }
     
-    // localStorage 클리어
-    localStorage.removeItem('koouk-folders')
-    localStorage.removeItem('koouk-selected-folder')
-    localStorage.removeItem('koouk-expanded-folders')
+    if (typeof window !== 'undefined') {
+      // localStorage 클리어
+      localStorage.removeItem('koouk-folders')
+      localStorage.removeItem('koouk-selected-folder')
+      localStorage.removeItem('koouk-expanded-folders')
+    }
     
     // 빈 상태로 초기화
     setFolders([])
@@ -201,10 +216,6 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
     alert(`"${title}" 폴더가 Market Place에 공유되었습니다! 🎉\n다른 사용자들이 이제 이 폴더를 발견하고 활용할 수 있습니다.`)
   }
 
-  const handleAddItem = (item: StorageItem, folderId: string) => {
-    const updatedFolders = addItemToFolder(folders, folderId, item)
-    handleFoldersChange(updatedFolders)
-  }
 
   const handleCreateItem = (type: StorageItem['type'], folderId: string) => {
     const typeLabels = {
@@ -452,55 +463,19 @@ const FolderContent = ({
   }
 
   return (
-    <div className="flex h-screen">
-      {/* Sidebar */}
-      {sidebarVisible && (
-        <div className="w-64 bg-white border-r border-gray-200 flex-shrink-0">
-          <div className="h-full">
-            <DragDropProvider>
-              <FolderTree 
-                folders={folders}
-                selectedFolderId={selectedFolderId}
-                expandedFolders={expandedFolders}
-                onFolderSelect={handleFolderSelect}
-                onFolderToggle={handleFolderToggle}
-                onCreateFolder={handleCreateFolder}
-                onCreateItem={handleCreateItem}
-                onRenameFolder={handleRenameFolder}
-                onDeleteFolder={handleDeleteFolder}
-                onShareFolder={handleShareFolder}
-              />
-            </DragDropProvider>
-          </div>
+    <div className="flex-1 p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h3 className="text-lg font-medium text-black">
+            {filteredItems.length} items
+          </h3>
+          <p className="text-sm text-gray-500">
+            {getSortLabel()}
+          </p>
         </div>
-      )}
-      
-      {/* Main content */}
-      <div className="flex-1 flex flex-col">
-        <div className="flex-1 p-6">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              {/* Sidebar toggle button */}
-              <button
-                onClick={() => setSidebarVisible(!sidebarVisible)}
-                className="p-2 hover:bg-gray-100 rounded-md transition-colors"
-                title={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
-              >
-                <Menu className="w-5 h-5 text-gray-600" />
-              </button>
-              
-              <div>
-                <h3 className="text-lg font-medium text-black">
-                  {filteredItems.length} items
-                </h3>
-                <p className="text-sm text-gray-500">
-                  {getSortLabel()}
-                </p>
-              </div>
-            </div>
 
-            <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3">
           {/* Sort selector */}
           <select
             value={sortBy}
@@ -583,8 +558,6 @@ const FolderContent = ({
           )}
         </div>
       )}
-        </div>
-      </div>
     </div>
   )
 }

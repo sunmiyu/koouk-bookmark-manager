@@ -80,7 +80,7 @@ export default function LandingPage() {
       <section style={{ padding: '4rem 0 2rem', background: 'linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%)' }}>
         <div className="container text-center" style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 1rem' }}>
           <h1 style={{ 
-            fontSize: 'clamp(2.5rem, 5vw, 4rem)', 
+            fontSize: 'clamp(2rem, 4vw, 3.5rem)', 
             fontWeight: '700', 
             marginBottom: '1rem', 
             color: 'var(--text-primary)',
@@ -93,20 +93,21 @@ export default function LandingPage() {
           </h1>
           
           <p style={{ 
-            fontSize: '1.25rem', 
+            fontSize: '1.125rem', 
             color: 'var(--text-secondary)', 
             marginBottom: '0.75rem', 
             fontWeight: '500',
-            letterSpacing: '0.01em'
+            letterSpacing: '-0.01em'
           }}>
             Information. Organized. Monetized. Discovered.
           </p>
           
           <p style={{ 
-            fontSize: '1rem', 
+            fontSize: '0.9375rem', 
             color: 'var(--text-muted)', 
             marginBottom: '2rem',
-            fontWeight: '400'
+            fontWeight: '400',
+            letterSpacing: '-0.01em'
           }}>
             AI가 줄 수 없는 것들이 여기 있습니다
           </p>
@@ -129,30 +130,31 @@ export default function LandingPage() {
             <div className="container" style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 1rem' }}>
               <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
                 <h2 style={{ 
-                  fontSize: '2.5rem', 
+                  fontSize: '2rem', 
                   fontWeight: '700', 
                   marginBottom: '1rem',
                   color: 'var(--text-primary)',
-                  letterSpacing: '-0.01em'
+                  letterSpacing: '-0.02em'
                 }}>
                   Information. Reimagined.
                 </h2>
                 <h3 style={{ 
-                  fontSize: '1.5rem', 
+                  fontSize: '1.25rem', 
                   fontWeight: '600', 
                   marginBottom: '2rem',
-                  color: 'var(--text-secondary)'
+                  color: 'var(--text-secondary)',
+                  letterSpacing: '-0.015em'
                 }}>
                   진짜 내 것이 되는 정보의 경험
                 </h3>
                 <p style={{ 
-                  fontSize: '1.125rem', 
-                  lineHeight: '1.7', 
+                  fontSize: '1rem', 
+                  lineHeight: '1.5', 
                   color: 'var(--text-secondary)',
                   maxWidth: '800px',
-                  margin: '0 auto'
+                  margin: '0 auto',
+                  letterSpacing: '-0.01em'
                 }}>
-                  우리는 수천 개를 저장합니다. 하지만 다시 찾는 건 몇 개일까요?<br />
                   Koouk은 흩어진 정보를 체계적 지식으로 바꿉니다.<br />
                   저장이 아닌, <strong>소유의 시작</strong>입니다.
                 </p>
@@ -180,25 +182,26 @@ export default function LandingPage() {
                 </div>
                 
                 <blockquote style={{ 
-                  fontSize: '1.1rem',
-                  lineHeight: '1.8',
+                  fontSize: '1rem',
+                  lineHeight: '1.6',
                   color: 'var(--text-primary)',
                   fontStyle: 'normal',
                   marginTop: '1rem',
-                  marginBottom: '2rem'
+                  marginBottom: '2rem',
+                  letterSpacing: '-0.01em'
                 }}>
-                  <strong style={{ color: 'var(--accent)' }}>ChatGPT한테 물어봐도 뭔가 애매하고</strong>, 유튜브 저장해도 나중에 못 찾겠고... 
-                  정말 좋은 정보들이 여기저기 흩어져 있는데 <strong style={{ color: 'var(--accent)' }}>AI는 제가 뭘 저장했는지 모르잖아요</strong>. 
-                  지금은 Koouk에서 제 취향대로, 제 방식대로 정리해서 진짜 필요할 때 바로 찾을 수 있어요. 
+                  <strong style={{ color: 'var(--accent)' }}>AI는 제가 뭘 저장했는지 모르잖아요</strong>. 
+                  Koouk에서 제 방식대로 정리해서 필요할 때 바로 찾을 수 있어요. 
                   <strong style={{ background: 'linear-gradient(135deg, #ff6b6b, #4ecdc4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                     AI가 줄 수 없는 &lsquo;내가 검증한 정보&rsquo;의 힘이에요!
                   </strong>
                 </blockquote>
                 
                 <cite style={{ 
-                  fontSize: '0.95rem',
+                  fontSize: '0.8125rem',
                   color: 'var(--text-muted)',
-                  fontStyle: 'normal'
+                  fontStyle: 'normal',
+                  letterSpacing: '-0.01em'
                 }}>
                   — 직장인 김○○님
                 </cite>
@@ -211,32 +214,33 @@ export default function LandingPage() {
             <div className="container" style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 1rem' }}>
               <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
                 <h2 style={{ 
-                  fontSize: '2.5rem', 
+                  fontSize: '2rem', 
                   fontWeight: '700', 
                   marginBottom: '1rem',
                   color: 'var(--text-primary)',
-                  letterSpacing: '-0.01em'
+                  letterSpacing: '-0.02em'
                 }}>
                   Your Interest. Your Income.
                 </h2>
                 <h3 style={{ 
-                  fontSize: '1.5rem', 
+                  fontSize: '1.25rem', 
                   fontWeight: '600', 
                   marginBottom: '2rem',
-                  color: 'var(--text-secondary)'
+                  color: 'var(--text-secondary)',
+                  letterSpacing: '-0.015em'
                 }}>
                   당신의 관심사가 수입이 되는 순간
                 </h3>
                 <p style={{ 
-                  fontSize: '1.125rem', 
-                  lineHeight: '1.7', 
+                  fontSize: '1rem', 
+                  lineHeight: '1.5', 
                   color: 'var(--text-secondary)',
                   maxWidth: '800px',
-                  margin: '0 auto'
+                  margin: '0 auto',
+                  letterSpacing: '-0.01em'
                 }}>
-                  맛집 탐방이 취미인 당신. 정성스럽게 만든 서울 맛집 리스트가<br />
+                  정성스럽게 만든 서울 맛집 리스트가<br />
                   누군가에게는 <strong style={{ color: 'var(--accent)' }}>2,900원의 가치</strong>입니다.<br />
-                  당신의 관심. 당신의 시간. 당신의 보상.<br />
                   이것이 <strong>관심 경제</strong>의 새로운 정의입니다.
                 </p>
               </div>
@@ -263,26 +267,26 @@ export default function LandingPage() {
                 </div>
                 
                 <blockquote style={{ 
-                  fontSize: '1.1rem',
-                  lineHeight: '1.8',
+                  fontSize: '1rem',
+                  lineHeight: '1.6',
                   color: 'var(--text-primary)',
                   fontStyle: 'normal',
                   marginTop: '1rem',
-                  marginBottom: '2rem'
+                  marginBottom: '2rem',
+                  letterSpacing: '-0.01em'
                 }}>
-                  <strong style={{ color: '#4ecdc4' }}>AI가 &lsquo;육아용품 추천&rsquo;이라고 하면 너무 일반적이고 뻔한 얘기만 해주더라고요.</strong> 
-                  진짜 써본 사람만 아는 꿀팁이나 &lsquo;이건 사지 마세요&rsquo; 같은 솔직한 후기는 
                   <strong style={{ color: '#4ecdc4' }}>사람이 직접 겪어봐야 아는 거잖아요</strong>. 
-                  제가 3년간 시행착오 겪으며 정리한 리스트가 비슷한 상황의 엄마들에게 도움이 되고 
+                  3년간 시행착오 겪으며 정리한 리스트가 엄마들에게 도움이 되고 
                   <strong style={{ background: 'linear-gradient(135deg, #4ecdc4, #44a08d)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                     그걸로 용돈도 벌 수 있어서 뿌듯해요!
                   </strong>
                 </blockquote>
                 
                 <cite style={{ 
-                  fontSize: '0.95rem',
+                  fontSize: '0.8125rem',
                   color: 'var(--text-muted)',
-                  fontStyle: 'normal'
+                  fontStyle: 'normal',
+                  letterSpacing: '-0.01em'
                 }}>
                   — 육아맘 박○○님
                 </cite>
@@ -295,30 +299,31 @@ export default function LandingPage() {
             <div className="container" style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 1rem' }}>
               <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
                 <h2 style={{ 
-                  fontSize: '2.5rem', 
+                  fontSize: '2rem', 
                   fontWeight: '700', 
                   marginBottom: '1rem',
                   color: 'var(--text-primary)',
-                  letterSpacing: '-0.01em'
+                  letterSpacing: '-0.02em'
                 }}>
                   Stop Searching. Start Discovering.
                 </h2>
                 <h3 style={{ 
-                  fontSize: '1.5rem', 
+                  fontSize: '1.25rem', 
                   fontWeight: '600', 
                   marginBottom: '2rem',
-                  color: 'var(--text-secondary)'
+                  color: 'var(--text-secondary)',
+                  letterSpacing: '-0.015em'
                 }}>
                   검색을 넘어, 발견의 시대로
                 </h3>
                 <p style={{ 
-                  fontSize: '1.125rem', 
-                  lineHeight: '1.7', 
+                  fontSize: '1rem', 
+                  lineHeight: '1.5', 
                   color: 'var(--text-secondary)',
                   maxWidth: '800px',
-                  margin: '0 auto'
+                  margin: '0 auto',
+                  letterSpacing: '-0.01em'
                 }}>
-                  검색하고 검색해도 원하는 답을 찾을 수 없던 경험.<br />
                   <strong style={{ color: 'var(--accent)' }}>AI가 줄 수 없고 검색엔진이 줄 수 없는</strong><br />
                   완결성 리스트를 발견하세요!
                 </p>
@@ -346,15 +351,15 @@ export default function LandingPage() {
                 </div>
                 
                 <blockquote style={{ 
-                  fontSize: '1.1rem',
-                  lineHeight: '1.8',
+                  fontSize: '1rem',
+                  lineHeight: '1.6',
                   color: 'var(--text-primary)',
                   fontStyle: 'normal',
                   marginTop: '1rem',
-                  marginBottom: '2rem'
+                  marginBottom: '2rem',
+                  letterSpacing: '-0.01em'
                 }}>
-                  <strong style={{ color: '#ff9800' }}>구글에서 &lsquo;강남 맛집&rsquo; 검색하면 광고 투성이고 AI는 늘 비슷한 유명한 곳만 추천하고...</strong> 
-                  진짜 아는 사람이 &lsquo;여기는 점심시간 피해야 해요&rsquo;, &lsquo;이 메뉴는 별로예요&rsquo; 이런 리얼한 정보까지 담아놓은 리스트를 찾을 수 있어서 너무 좋아요. 
+                  진짜 아는 사람이 리얼한 정보까지 담아놓은 리스트를 찾을 수 있어서 너무 좋아요. 
                   <strong style={{ color: '#ff9800' }}>AI로는 절대 얻을 수 없는 &lsquo;현장에서 직접 겪은 사람만 아는 정보&rsquo;죠.</strong> 
                   <strong style={{ background: 'linear-gradient(135deg, #ff9800, #f57c00)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                     이런 건 정말 돈 주고 살 만해요!
@@ -362,9 +367,10 @@ export default function LandingPage() {
                 </blockquote>
                 
                 <cite style={{ 
-                  fontSize: '0.95rem',
+                  fontSize: '0.8125rem',
                   color: 'var(--text-muted)',
-                  fontStyle: 'normal'
+                  fontStyle: 'normal',
+                  letterSpacing: '-0.01em'
                 }}>
                   — 워킹맘 최○○님
                 </cite>
@@ -470,21 +476,23 @@ export default function LandingPage() {
       }}>
         <div className="container text-center" style={{ maxWidth: '800px', margin: '0 auto', padding: '0 1rem' }}>
           <h2 style={{ 
-            fontSize: '2rem', 
+            fontSize: '1.75rem', 
             fontWeight: '700', 
             marginBottom: '1rem',
-            color: 'var(--text-primary)'
+            color: 'var(--text-primary)',
+            letterSpacing: '-0.02em'
           }}>
             AI 시대에도 인간만이 줄 수 있는 가치
           </h2>
           
           <p style={{ 
-            fontSize: '1.125rem', 
+            fontSize: '1rem', 
             color: 'var(--text-secondary)', 
             marginBottom: '2rem',
-            lineHeight: '1.6'
+            lineHeight: '1.5',
+            letterSpacing: '-0.01em'
           }}>
-            검증된 개인 경험의 힘 • 현장성이 곧 신뢰성 • 시행착오를 거쳐 완성된 지식
+            검증된 개인 경험의 힘 • 시행착오를 거쳐 완성된 지식
           </p>
           
           <button 
@@ -495,7 +503,7 @@ export default function LandingPage() {
               color: 'white',
               border: 'none',
               padding: '1rem 2rem',
-              fontSize: '1.125rem',
+              fontSize: '1rem',
               fontWeight: '600',
               borderRadius: '0.5rem',
               cursor: loading ? 'not-allowed' : 'pointer',

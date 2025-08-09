@@ -108,7 +108,7 @@ export default function CoverFlowCard({ content, index, onDelete, onClick }: Cov
           <div className="content-preview-text" style={{ height: '200px' }}>
             <pre
               style={{
-                fontSize: '14px',
+                fontSize: '0.8125rem',
                 whiteSpace: 'pre-wrap',
                 wordWrap: 'break-word',
                 height: '100%',
@@ -119,8 +119,9 @@ export default function CoverFlowCard({ content, index, onDelete, onClick }: Cov
                 borderRadius: '8px',
                 border: '1px solid var(--border)',
                 fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
-                lineHeight: '1.5',
-                color: 'var(--text-primary)'
+                lineHeight: '1.4',
+                color: 'var(--text-primary)',
+                letterSpacing: '-0.01em'
               }}
             >
               {textContent.length > 800 ? textContent.substring(0, 800) + '...' : textContent}
@@ -163,7 +164,7 @@ export default function CoverFlowCard({ content, index, onDelete, onClick }: Cov
                 rel="noopener noreferrer"
                 className="text-sm text-primary hover:text-accent truncate flex-1"
                 onClick={(e) => e.stopPropagation()}
-                style={{ textDecoration: 'none' }}
+                style={{ textDecoration: 'none', letterSpacing: '-0.01em' }}
               >
                 {url.replace(/^https?:\/\//, '').replace(/\/$/, '')}
               </a>
@@ -193,15 +194,16 @@ export default function CoverFlowCard({ content, index, onDelete, onClick }: Cov
               {/* Memo content with typography focus */}
               <div
                 style={{
-                  fontSize: '15px',
-                  lineHeight: '1.6',
+                  fontSize: '0.9375rem',
+                  lineHeight: '1.5',
                   fontWeight: '400',
                   color: '#2d3748',
                   whiteSpace: 'pre-wrap',
                   wordBreak: 'break-word',
                   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                   flex: 1,
-                  overflow: 'hidden'
+                  overflow: 'hidden',
+                  letterSpacing: '-0.01em'
                 }}
               >
                 {previewLines.length > 150 ? previewLines.substring(0, 150) + '...' : previewLines}
@@ -218,9 +220,10 @@ export default function CoverFlowCard({ content, index, onDelete, onClick }: Cov
               }}>
                 <Edit3 className="w-3 h-3" style={{ color: '#9ca3af' }} />
                 <span style={{
-                  fontSize: '11px',
+                  fontSize: '0.75rem',
                   color: '#9ca3af',
-                  fontWeight: '500'
+                  fontWeight: '500',
+                  letterSpacing: '-0.01em'
                 }}>
                   {content.metadata?.createdDate || new Date(content.createdAt).toLocaleDateString()}
                 </span>
@@ -339,15 +342,14 @@ export default function CoverFlowCard({ content, index, onDelete, onClick }: Cov
         <div className="flex items-center justify-center mb-2">
           <div className="flex items-center space-x-1.5 px-2.5 py-1 bg-white rounded-full border border-gray-200">
             <div style={{ color: getTypeColor(content.type) }}>{getTypeIcon()}</div>
-            <span className="text-xs font-medium text-gray-600 capitalize">
+            <span className="text-sm font-medium text-gray-600 capitalize">
               {getTypeLabel(content.type)}
             </span>
           </div>
         </div>
         
         {/* Title */}
-        <h3 className="font-semibold text-center mb-1 text-gray-800 leading-tight" style={{
-          fontSize: '16px',
+        <h3 className="font-semibold text-center mb-1 text-gray-800 leading-tight text-lg" style={{
           lineHeight: '1.3',
           display: '-webkit-box',
           WebkitLineClamp: 2,
@@ -359,7 +361,7 @@ export default function CoverFlowCard({ content, index, onDelete, onClick }: Cov
         </h3>
         
         {/* Metadata */}
-        <div className="flex items-center justify-center text-xs text-gray-500 mt-1">
+        <div className="flex items-center justify-center text-sm text-gray-500 mt-1">
           <span>
             {content.type === 'memo' 
               ? (content.metadata?.createdDate || new Date(content.createdAt).toLocaleDateString())

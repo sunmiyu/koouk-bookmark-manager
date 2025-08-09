@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { Heart, Download, Eye, Search, Filter, Star } from 'lucide-react'
 import { SharedContent } from '@/types/core'
+import MarketPlaceRightPanel from './MarketPlaceRightPanel'
 
 // Mock data for demo
 const MOCK_SHARED_CONTENT: SharedContent[] = [
@@ -143,69 +144,75 @@ export default function MarketPlace({ searchQuery = '' }: MarketPlaceProps) {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-primary mb-2">Market Place</h1>
-        <p className="text-secondary">
-          Discover and import curated content from the community
-        </p>
-      </div>
-
-      {/* Filters */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          {/* Category Filter */}
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="input text-sm w-48"
-          >
-            {CATEGORIES.map(category => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-
-          {/* Sort Filter */}
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="input text-sm w-40"
-          >
-            <option value="popular">Most Popular</option>
-            <option value="recent">Most Recent</option>
-            <option value="downloads">Most Downloaded</option>
-          </select>
-        </div>
-
-        <div className="text-sm text-secondary">
-          {filteredContent.length} {filteredContent.length === 1 ? 'item' : 'items'}
-        </div>
-      </div>
-
-      {/* Content Grid */}
-      {filteredContent.length === 0 ? (
-        <div className="text-center py-16">
-          <Search className="w-12 h-12 text-muted mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-primary mb-2">No items found</h3>
+    <div className="flex h-full">
+      {/* Main Content Area */}
+      <div className="flex-1 space-y-6 pr-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl font-bold text-primary mb-2">Market Place</h1>
           <p className="text-secondary">
-            Try adjusting your filters or search terms
+            Discover and import curated content from the community
           </p>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredContent.map(item => (
-            <SharedContentCard
-              key={item.id}
-              item={item}
-              onImport={handleImport}
-              onLike={handleLike}
-            />
-          ))}
+
+        {/* Filters */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            {/* Category Filter */}
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="input text-sm w-48"
+            >
+              {CATEGORIES.map(category => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+
+            {/* Sort Filter */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+              className="input text-sm w-40"
+            >
+              <option value="popular">Most Popular</option>
+              <option value="recent">Most Recent</option>
+              <option value="downloads">Most Downloaded</option>
+            </select>
+          </div>
+
+          <div className="text-sm text-secondary">
+            {filteredContent.length} {filteredContent.length === 1 ? 'item' : 'items'}
+          </div>
         </div>
-      )}
+
+        {/* Content Grid */}
+        {filteredContent.length === 0 ? (
+          <div className="text-center py-16">
+            <Search className="w-12 h-12 text-muted mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-primary mb-2">No items found</h3>
+            <p className="text-secondary">
+              Try adjusting your filters or search terms
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredContent.map(item => (
+              <SharedContentCard
+                key={item.id}
+                item={item}
+                onImport={handleImport}
+                onLike={handleLike}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Right Panel */}
+      <MarketPlaceRightPanel />
     </div>
   )
 }

@@ -194,14 +194,194 @@ export const createDummyFolders = (): FolderItem[] => {
   
   restaurantFolder.children = [seoulFolder, incheonFolder, personalFolder]
   
-  return [investFolder, fashionFolder, beautyFolder, parentingFolder, recipeFolder, restaurantFolder]
+  // 타입별 샘플 모음 폴더 (각 타입 3개씩)
+  const sampleFolder = createFolder('타입별 샘플 모음', undefined, { color: '#6B7280', icon: 'Folder' })
+  sampleFolder.children = [
+    // Video 타입 3개
+    createStorageItem('React 18 완벽 가이드', 'video', 'https://youtube.com/watch?v=react18-guide', sampleFolder.id, {
+      thumbnail: 'https://img.youtube.com/vi/react18-guide/mqdefault.jpg',
+      platform: 'youtube',
+      duration: 3600
+    }),
+    createStorageItem('Next.js 13 새로운 기능', 'video', 'https://youtube.com/watch?v=nextjs13-features', sampleFolder.id, {
+      thumbnail: 'https://img.youtube.com/vi/nextjs13-features/mqdefault.jpg',
+      platform: 'youtube',
+      duration: 1800
+    }),
+    createStorageItem('TypeScript 실무 활용법', 'video', 'https://youtube.com/watch?v=typescript-practice', sampleFolder.id, {
+      thumbnail: 'https://img.youtube.com/vi/typescript-practice/mqdefault.jpg',
+      platform: 'youtube',
+      duration: 2400
+    }),
+    
+    // Image 타입 3개
+    createStorageItem('UI 디자인 레퍼런스', 'image', 'https://picsum.photos/800/600?random=1', sampleFolder.id, {
+      dimensions: { width: 800, height: 600 },
+      fileSize: 245760
+    }),
+    createStorageItem('색상 팔레트 가이드', 'image', 'https://picsum.photos/800/600?random=2', sampleFolder.id, {
+      dimensions: { width: 800, height: 600 },
+      fileSize: 189340
+    }),
+    createStorageItem('타이포그래피 예시', 'image', 'https://picsum.photos/800/600?random=3', sampleFolder.id, {
+      dimensions: { width: 800, height: 600 },
+      fileSize: 324580
+    }),
+    
+    // URL/Link 타입 3개
+    createStorageItem('MDN Web Docs', 'url', 'https://developer.mozilla.org', sampleFolder.id, {
+      platform: 'web',
+      fileType: 'text/html'
+    }),
+    createStorageItem('GitHub 코드 저장소', 'url', 'https://github.com/facebook/react', sampleFolder.id, {
+      platform: 'github',
+      fileType: 'text/html'
+    }),
+    createStorageItem('Stack Overflow 질문', 'url', 'https://stackoverflow.com/questions/tagged/javascript', sampleFolder.id, {
+      platform: 'stackoverflow',
+      fileType: 'text/html'
+    }),
+    
+    // Document 타입 3개
+    createStorageItem('프로젝트 기획서', 'document', `# 웹 애플리케이션 개발 프로젝트
+
+## 1. 프로젝트 개요
+- 목표: 현대적인 웹 애플리케이션 개발
+- 기간: 2024년 1월 ~ 3월
+- 팀원: 개발자 3명, 디자이너 1명
+
+## 2. 기술 스택
+- Frontend: React 18, TypeScript, Tailwind CSS
+- Backend: Node.js, Express, MongoDB
+- 배포: Vercel, Railway
+
+## 3. 주요 기능
+- 사용자 인증 시스템
+- 실시간 데이터 동기화
+- 반응형 웹 디자인
+- PWA 지원`, sampleFolder.id, {
+      wordCount: 87,
+      fileType: 'text/markdown'
+    }),
+    
+    createStorageItem('회의록 - 2024년 1월', 'document', `# 개발팀 주간 회의록
+날짜: 2024년 1월 15일
+참석자: 김개발, 이디자인, 박기획
+
+## 논의사항
+1. 새로운 기능 개발 일정 검토
+2. 사용자 피드백 분석 결과 공유
+3. 다음 스프린트 계획 수립
+
+## 결정사항
+- React 18로 업그레이드 진행
+- 디자인 시스템 구축 우선순위 상향
+- 테스트 자동화 도입
+
+## 액션 아이템
+- [김개발] React 18 마이그레이션 가이드 작성
+- [이디자인] 컴포넌트 라이브러리 설계
+- [박기획] 사용자 스토리 업데이트`, sampleFolder.id, {
+      wordCount: 124,
+      fileType: 'text/markdown'
+    }),
+    
+    createStorageItem('개발 가이드라인', 'document', `# 코딩 컨벤션 가이드
+
+## JavaScript/TypeScript
+- 변수명: camelCase 사용
+- 함수명: 동사 + 명사 형태
+- 상수: UPPER_SNAKE_CASE
+- 인터페이스: PascalCase (I 접두사 없음)
+
+## React 컴포넌트
+- 파일명: PascalCase.tsx
+- Props 인터페이스: ComponentNameProps
+- 기본 export 사용
+
+## CSS/Styling
+- Tailwind CSS 클래스 우선 사용
+- 커스텀 CSS는 최소화
+- 반응형 디자인 필수 적용
+
+## Git 커밋 메시지
+- feat: 새로운 기능 추가
+- fix: 버그 수정
+- docs: 문서 수정
+- style: 코드 포매팅`, sampleFolder.id, {
+      wordCount: 96,
+      fileType: 'text/markdown'
+    }),
+    
+    // Memo 타입 3개
+    createStorageItem('오늘의 할 일', 'memo', `✅ 오늘 완료할 작업들
+
+1. 프로젝트 회의 참석 (오전 10시)
+2. 새로운 기능 개발 시작
+3. 코드 리뷰 요청사항 반영
+4. 문서 업데이트
+5. 테스트 케이스 작성
+
+💡 중요한 포인트
+- 사용자 경험 개선에 집중
+- 코드 품질 유지
+- 팀원과의 소통 강화`, sampleFolder.id, {
+      wordCount: 45
+    }),
+    
+    createStorageItem('아이디어 메모', 'memo', `💭 새로운 기능 아이디어
+
+🚀 앱 개선 방안
+- 다크모드 테마 추가
+- 키보드 단축키 지원
+- 오프라인 모드 구현
+- 실시간 협업 기능
+
+🎨 UI/UX 개선
+- 애니메이션 효과 추가
+- 모바일 최적화
+- 접근성 향상
+- 사용자 온보딩 개선
+
+📊 데이터 분석
+- 사용자 행동 추적
+- A/B 테스트 도입
+- 성능 모니터링`, sampleFolder.id, {
+      wordCount: 52
+    }),
+    
+    createStorageItem('학습 노트', 'memo', `📚 오늘 배운 것들
+
+✨ React 18의 새로운 기능들
+- Concurrent Rendering
+- Automatic Batching  
+- Suspense for Data Fetching
+- New Hooks (useId, useDeferredValue)
+
+🔧 TypeScript 팁
+- Utility Types 활용
+- Generic 타입 추론
+- Conditional Types
+- Template Literal Types
+
+💡 성능 최적화
+- Code Splitting
+- Lazy Loading
+- Memoization
+- Bundle Size 분석`, sampleFolder.id, {
+      wordCount: 48
+    })
+  ]
+  
+  return [investFolder, fashionFolder, beautyFolder, parentingFolder, recipeFolder, restaurantFolder, sampleFolder]
 }
 
 export const createStorageItem = (
   name: string,
   type: StorageItem['type'],
   content: string,
-  folderId: string
+  folderId: string,
+  metadata?: StorageItem['metadata']
 ): StorageItem => ({
   id: `item_${Date.now()}_${Math.random().toString(36).substring(2)}`,
   name,
@@ -210,5 +390,6 @@ export const createStorageItem = (
   folderId,
   tags: [],
   createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString()
+  updatedAt: new Date().toISOString(),
+  metadata
 })

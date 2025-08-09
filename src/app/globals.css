@@ -72,17 +72,19 @@ body {
   color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-feature-settings: "rlig" 1, "calt" 1;
-  line-height: 1.6;
+  font-size: 0.9375rem; /* 15px */
+  line-height: 1.5;
+  letter-spacing: -0.01em;
 }
 
-/* Typography Scale */
-.text-xs { font-size: 0.75rem; line-height: 1rem; }
-.text-sm { font-size: 0.875rem; line-height: 1.25rem; }
-.text-base { font-size: 1rem; line-height: 1.5rem; }
-.text-lg { font-size: 1.125rem; line-height: 1.75rem; }
-.text-xl { font-size: 1.25rem; line-height: 1.75rem; }
-.text-2xl { font-size: 1.5rem; line-height: 2rem; }
-.text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+/* Typography Scale - Updated for better readability */
+.text-xs { font-size: 0.75rem; line-height: 1rem; letter-spacing: -0.01em; }
+.text-sm { font-size: 0.8125rem; line-height: 1.2rem; letter-spacing: -0.01em; } /* 13px - meta info */
+.text-base { font-size: 0.9375rem; line-height: 1.4rem; letter-spacing: -0.01em; } /* 15px - body text */
+.text-lg { font-size: 1.0625rem; line-height: 1.5rem; letter-spacing: -0.015em; } /* 17px - card titles */
+.text-xl { font-size: 1.1875rem; line-height: 1.65rem; letter-spacing: -0.015em; } /* 19px */
+.text-2xl { font-size: 1.375rem; line-height: 1.8rem; letter-spacing: -0.02em; } /* 22px - main titles */
+.text-3xl { font-size: 1.75rem; line-height: 2.1rem; letter-spacing: -0.02em; } /* 28px */
 
 /* Component Utilities */
 .surface {

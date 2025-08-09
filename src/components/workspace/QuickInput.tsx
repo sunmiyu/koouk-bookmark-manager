@@ -117,30 +117,74 @@ export default function QuickInput({
 
   const selectedFolder = folders.find(f => f.id === selectedFolderId)
 
+  // Helper functions for hierarchical display
+  const getFolderIndentLevel = (folder: FolderType): number => {
+    let level = 0
+    let currentFolder = folder
+    while (currentFolder.parentId) {
+      level++
+      const parentFolder = folders.find(f => f.id === currentFolder.parentId)
+      if (!parentFolder) break
+      currentFolder = parentFolder
+    }
+    return level
+  }
+
+  const renderFolderHierarchy = () => {
+    // Sort folders by hierarchy (parent folders first, then children)
+    const sortedFolders = [...folders].sort((a, b) => {
+      // First, sort by parent-child relationship
+      if (a.parentId === b.id) return 1
+      if (b.parentId === a.id) return -1
+      
+      // Then by hierarchy level
+      const aLevel = getFolderIndentLevel(a)
+      const bLevel = getFolderIndentLevel(b)
+      if (aLevel !== bLevel) return aLevel - bLevel
+      
+      // Finally by name
+      return a.name.localeCompare(b.name)
+    })
+
+    return sortedFolders.map(folder => {
+      const indentLevel = getFolderIndentLevel(folder)
+      const hasParent = folder.parentId !== undefined
+      
+      return (
+        <button
+          key={folder.id}
+          onClick={() => {
+            onSelectFolder(folder.id)
+            setShowFolderPicker(false)
+          }}
+          className={`w-full text-left px-2 py-1 rounded text-sm flex items-center ${
+            selectedFolderId === folder.id
+              ? 'bg-accent text-accent-foreground'
+              : 'hover:bg-surface-hover'
+          }`}
+          style={{ paddingLeft: `${8 + indentLevel * 16}px` }}
+        >
+          {hasParent && (
+            <span className="text-muted mr-1" style={{ fontSize: '10px' }}>
+              └─
+            </span>
+          )}
+          <Folder className="w-3 h-3 mr-2 flex-shrink-0" />
+          <span className="truncate">{folder.name}</span>
+        </button>
+      )
+    })
+  }
+
   return (
     <div className="fixed bottom-0 left-64 right-0 p-4 bg-background border-t border-default">
       <div className="container max-w-4xl">
         {/* Folder Picker */}
         {showFolderPicker && (
-          <div className="mb-3 surface rounded-lg p-3 max-h-32 overflow-y-auto">
+          <div className="mb-3 surface rounded-lg p-3 max-h-40 overflow-y-auto">
             <p className="text-xs text-muted mb-2">Select folder:</p>
             <div className="space-y-1">
-              {folders.map(folder => (
-                <button
-                  key={folder.id}
-                  onClick={() => {
-                    onSelectFolder(folder.id)
-                    setShowFolderPicker(false)
-                  }}
-                  className={`w-full text-left px-2 py-1 rounded text-sm ${
-                    selectedFolderId === folder.id
-                      ? 'bg-accent text-accent-foreground'
-                      : 'hover:bg-surface-hover'
-                  }`}
-                >
-                  {folder.name}
-                </button>
-              ))}
+              {renderFolderHierarchy()}
             </div>
           </div>
         )}
@@ -165,8 +209,8 @@ export default function QuickInput({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
-                placeholder="Type anything - notes, links, ideas... (Ctrl+Enter to save)"
-                className="w-full resize-none border-none outline-none bg-transparent text-sm"
+                placeholder="Paste URLs, write notes, or add any content. Ctrl+Enter to save quickly."
+                className="w-full resize-none border-none outline-none bg-transparent text-base"
                 style={{ minHeight: '20px', maxHeight: '120px' }}
                 rows={1}
               />
@@ -193,12 +237,6 @@ export default function QuickInput({
           </div>
         </div>
 
-        {/* Hint */}
-        {!input && (
-          <p className="text-xs text-muted mt-2 text-center">
-            Paste URLs, write notes, or add any content. Ctrl+Enter to save quickly.
-          </p>
-        )}
       </div>
     </div>
   )

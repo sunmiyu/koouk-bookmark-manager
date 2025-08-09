@@ -516,31 +516,37 @@ const FolderContent = ({
         <div className="space-y-8">
           {Object.entries(sortedGroups).map(([type, items]) => (
             <div key={type} className="">
-              {/* Type header */}
+              {/* Type header - Simplified */}
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex items-center gap-2">
-                  {type === 'video' && <Video className="w-5 h-5 text-red-500" />}
-                  {type === 'image' && <ImageIcon className="w-5 h-5 text-green-500" />}
-                  {type === 'url' && <Link className="w-5 h-5 text-blue-500" />}
-                  {type === 'document' && <FileText className="w-5 h-5 text-blue-600" />}
-                  {type === 'memo' && <StickyNote className="w-5 h-5 text-yellow-500" />}
-                  <h4 className="font-medium text-gray-900 capitalize">
+                  {type === 'video' && <Video className="w-4 h-4 text-accent" />}
+                  {type === 'image' && <ImageIcon className="w-4 h-4 text-accent" />}
+                  {type === 'url' && <Link className="w-4 h-4 text-accent" />}
+                  {type === 'document' && <FileText className="w-4 h-4 text-accent" />}
+                  {type === 'memo' && <StickyNote className="w-4 h-4 text-accent" />}
+                  <h4 className="font-medium text-primary">
                     {type === 'url' ? 'Links' : type === 'document' ? 'Documents' : type === 'memo' ? 'Memos' : type === 'image' ? 'Images' : 'Videos'}
                   </h4>
-                  <span className="text-sm text-gray-500">({items.length})</span>
+                  <span className="text-xs text-muted bg-surface px-2 py-1 rounded-full">
+                    {items.length}
+                  </span>
                 </div>
               </div>
               
-              {/* Horizontal scrollable items */}
-              <div className="overflow-x-auto">
-                <div className="flex gap-4 pb-2" style={{ minWidth: 'fit-content' }}>
-                  {items.map((item) => (
-                    <div key={item.id} className="flex-shrink-0 w-64">
-                      <ItemCard item={item} viewMode={viewMode} />
-                    </div>
-                  ))}
-                </div>
+              {/* Grid layout - Better UX */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {items.slice(0, 8).map((item) => (
+                  <ItemCard key={item.id} item={item} viewMode={viewMode} />
+                ))}
               </div>
+              
+              {/* Show more button if there are more items */}
+              {items.length > 8 && (
+                <button className="mt-4 text-sm text-accent hover:text-accent-hover flex items-center gap-1">
+                  <span>더보기 ({items.length - 8}개)</span>
+                  <Plus className="w-3 h-3" />
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -578,18 +584,31 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
     }
   }
 
-  // 타입별 카드 렌더링
-  const renderVideoCard = () => {
-    const thumbnail = getYouTubeThumbnail(item.content) || item.metadata?.thumbnail
+  // Unified card design for all types
+  const renderUnifiedCard = () => {
+    const thumbnail = item.type === 'video' ? (getYouTubeThumbnail(item.content) || item.metadata?.thumbnail) : 
+                     item.type === 'image' ? item.content : null
+    
+    // Type-specific icon and color
+    const getTypeIcon = () => {
+      switch(item.type) {
+        case 'video': return <Video className="w-4 h-4" />
+        case 'image': return <ImageIcon className="w-4 h-4" />
+        case 'url': return <Link className="w-4 h-4" />
+        case 'document': return <FileText className="w-4 h-4" />
+        case 'memo': return <StickyNote className="w-4 h-4" />
+        default: return <FileText className="w-4 h-4" />
+      }
+    }
+
     return (
       <motion.div
-        className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
-        whileHover={{ y: -2 }}
-        whileTap={{ scale: 0.98 }}
+        className="bg-surface border border-default rounded-lg overflow-hidden hover:shadow-sm transition-all duration-200 cursor-pointer group"
+        whileHover={{ y: -1 }}
       >
-        {/* 영상 썸네일 */}
-        <div className="relative bg-gray-900 aspect-video">
-          {thumbnail ? (
+        {/* Unified preview area */}
+        <div className="relative bg-background aspect-video">
+          {thumbnail && (item.type === 'video' || item.type === 'image') ? (
             <img 
               src={thumbnail} 
               alt={item.name}
@@ -597,25 +616,31 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <Video className="w-12 h-12 text-gray-400" />
+              <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center text-accent">
+                {getTypeIcon()}
+              </div>
             </div>
           )}
-          <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs">
-            <Video className="w-3 h-3 inline mr-1" />
-            Video
+          
+          {/* Type badge */}
+          <div className="absolute top-2 right-2 bg-accent/10 backdrop-blur-sm text-accent px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+            {getTypeIcon()}
+            <span className="capitalize">{item.type === 'url' ? 'Link' : item.type}</span>
           </div>
         </div>
         
-        {/* 콘텐츠 */}
-        <div className="p-4">
-          <h4 className="font-semibold text-gray-900 line-clamp-2 mb-2">
+        {/* Content */}
+        <div className="p-3">
+          <h4 className="font-medium text-primary line-clamp-2 mb-1 text-sm">
             {item.name}
           </h4>
-          <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-            {getDomain(item.content)}
+          <p className="text-xs text-muted line-clamp-1 mb-2">
+            {item.type === 'url' ? getDomain(item.content) : 
+             item.type === 'memo' ? item.content.substring(0, 50) + '...' : 
+             item.content.length > 50 ? item.content.substring(0, 50) + '...' : item.content}
           </p>
-          <div className="text-xs text-gray-400">
-            {new Date(item.updatedAt).toLocaleDateString()}
+          <div className="text-xs text-muted">
+            {new Date(item.updatedAt).toLocaleDateString('ko-KR')}
           </div>
         </div>
       </motion.div>
@@ -764,56 +789,37 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
     )
   }
 
-  // List 모드일 때는 간단한 형식
+  // List mode - simplified unified design
   if (viewMode === 'list') {
     return (
-      <motion.div
-        className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-all duration-200 cursor-pointer bg-white"
-        whileHover={{ scale: 1.01 }}
-        whileTap={{ scale: 0.99 }}
-      >
-        <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 bg-gray-50">
-          {item.type === 'video' && <Video className="w-5 h-5 text-red-500" />}
-          {item.type === 'image' && <ImageIcon className="w-5 h-5 text-green-500" />}
-          {item.type === 'url' && <Link className="w-5 h-5 text-blue-500" />}
-          {item.type === 'memo' && <StickyNote className="w-5 h-5 text-yellow-500" />}
-          {item.type === 'document' && <FileText className="w-5 h-5 text-blue-600" />}
+      <div className="flex items-center gap-4 p-3 bg-surface border border-default rounded-lg hover:shadow-sm transition-all cursor-pointer">
+        <div className="flex-shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center text-accent">
+            {item.type === 'video' && <Video className="w-4 h-4" />}
+            {item.type === 'image' && <ImageIcon className="w-4 h-4" />}
+            {item.type === 'url' && <Link className="w-4 h-4" />}
+            {item.type === 'document' && <FileText className="w-4 h-4" />}
+            {item.type === 'memo' && <StickyNote className="w-4 h-4" />}
+          </div>
         </div>
-        
         <div className="flex-1 min-w-0">
-          <h4 className="font-medium truncate mb-1 text-gray-900">
+          <h4 className="font-medium text-primary truncate text-sm">
             {item.name}
           </h4>
-          <p className="text-sm text-gray-600 truncate">
-            {item.content.substring(0, 100)}
+          <p className="text-xs text-muted truncate">
+            {item.type === 'url' ? getDomain(item.content) : 
+             item.content.length > 80 ? item.content.substring(0, 80) + '...' : item.content}
           </p>
         </div>
-        
-        <div className="text-xs text-gray-500 flex items-center gap-2">
-          <span className="capitalize px-2 py-1 bg-gray-100 rounded text-xs">
-            {item.type}
-          </span>
-          <span>{new Date(item.updatedAt).toLocaleDateString()}</span>
+        <div className="text-xs text-muted">
+          {new Date(item.updatedAt).toLocaleDateString('ko-KR')}
         </div>
-      </motion.div>
+      </div>
     )
   }
 
-  // Grid 모드에서 타입별 카드 렌더링
-  switch (item.type) {
-    case 'video':
-      return renderVideoCard()
-    case 'image':
-      return renderImageCard()
-    case 'url':
-      return renderLinkCard()
-    case 'memo':
-      return renderMemoCard()
-    case 'document':
-      return renderDocumentCard()
-    default:
-      return renderDocumentCard()
-  }
+  // Grid mode uses unified card design
+  return renderUnifiedCard()
 }
 
 // 유틸리티 함수들

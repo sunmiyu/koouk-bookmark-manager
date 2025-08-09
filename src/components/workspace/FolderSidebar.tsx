@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Folder, FolderOpen, Plus, MoreHorizontal, Trash2 } from 'lucide-react'
+import { Folder, FolderOpen, Plus, MoreHorizontal, Trash2, Share } from 'lucide-react'
 import { Folder as FolderType } from '@/types/core'
 
 interface FolderSidebarProps {
@@ -10,6 +10,7 @@ interface FolderSidebarProps {
   onSelectFolder: (folderId: string) => void
   onCreateFolder: (name: string, parentId?: string) => void
   onDeleteFolder: (folderId: string) => void
+  onShareFolder?: (folderId: string) => void
 }
 
 export default function FolderSidebar({
@@ -17,18 +18,30 @@ export default function FolderSidebar({
   selectedFolderId,
   onSelectFolder,
   onCreateFolder,
-  onDeleteFolder
+  onDeleteFolder,
+  onShareFolder
 }: FolderSidebarProps) {
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
+  const [createParentId, setCreateParentId] = useState<string | undefined>()
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
 
   const handleCreateFolder = (e: React.FormEvent) => {
     e.preventDefault()
     if (newFolderName.trim()) {
-      onCreateFolder(newFolderName.trim())
+      onCreateFolder(newFolderName.trim(), createParentId)
       setNewFolderName('')
       setShowCreateForm(false)
+      setCreateParentId(undefined)
+    }
+  }
+
+  const startCreateFolder = (parentId?: string) => {
+    setCreateParentId(parentId)
+    setShowCreateForm(true)
+    if (parentId) {
+      // 부모 폴더 확장
+      setExpandedFolders(prev => new Set([...prev, parentId]))
     }
   }
 
@@ -54,7 +67,7 @@ export default function FolderSidebar({
     return (
       <div key={folder.id}>
         <div
-          className={`flex items-center space-x-2 px-3 py-2 text-sm cursor-pointer rounded-lg ${
+          className={`group flex items-center space-x-2 px-3 py-2 text-sm cursor-pointer rounded-lg ${
             isSelected 
               ? 'bg-accent text-accent-foreground' 
               : 'text-secondary hover:text-primary hover:bg-surface-hover'
@@ -85,8 +98,34 @@ export default function FolderSidebar({
           
           <div className="opacity-0 group-hover:opacity-100 flex items-center space-x-1">
             <button
-              onClick={() => onDeleteFolder(folder.id)}
+              onClick={(e) => {
+                e.stopPropagation()
+                startCreateFolder(folder.id)
+              }}
+              className="p-1 hover:bg-surface-hover rounded text-secondary"
+              title="Add subfolder"
+            >
+              <Plus className="w-3 h-3" />
+            </button>
+            {onShareFolder && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onShareFolder(folder.id)
+                }}
+                className="p-1 hover:bg-blue-100 rounded text-blue-600"
+                title="Share to Market Place"
+              >
+                <Share className="w-3 h-3" />
+              </button>
+            )}
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onDeleteFolder(folder.id)
+              }}
               className="p-1 hover:bg-red-100 rounded text-red-600"
+              title="Delete folder"
             >
               <Trash2 className="w-3 h-3" />
             </button>
@@ -108,7 +147,7 @@ export default function FolderSidebar({
       <div className="mb-4">
         {!showCreateForm ? (
           <button
-            onClick={() => setShowCreateForm(true)}
+            onClick={() => startCreateFolder()}
             className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-secondary hover:text-primary hover:bg-surface-hover rounded-lg"
           >
             <Plus className="w-4 h-4" />
@@ -116,11 +155,16 @@ export default function FolderSidebar({
           </button>
         ) : (
           <form onSubmit={handleCreateFolder} className="space-y-2">
+            {createParentId && (
+              <div className="text-xs text-muted px-2">
+                Creating subfolder in: <strong>{folders.find(f => f.id === createParentId)?.name}</strong>
+              </div>
+            )}
             <input
               type="text"
               value={newFolderName}
               onChange={(e) => setNewFolderName(e.target.value)}
-              placeholder="Folder name"
+              placeholder={createParentId ? "Subfolder name" : "Folder name"}
               className="input text-sm"
               autoFocus
             />
@@ -136,6 +180,7 @@ export default function FolderSidebar({
                 onClick={() => {
                   setShowCreateForm(false)
                   setNewFolderName('')
+                  setCreateParentId(undefined)
                 }}
                 className="btn-secondary text-xs px-3 py-1"
               >

@@ -59,11 +59,9 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
       className="h-screen flex flex-col"
       style={{ backgroundColor: 'var(--bg-primary)' }}
     >
-      {/* 전체 컨테이너를 중앙 정렬하고 max-width 설정 */}
-      <div className="w-full max-w-[1400px] mx-auto h-full flex flex-col">
       {/* 상단 헤더 - Vercel 스타일 */}
       <motion.header 
-        className="flex items-center justify-between px-6 py-4 border-b backdrop-blur-sm"
+        className="flex items-center justify-between px-6 py-4 border-b backdrop-blur-sm w-full"
         style={{
           backgroundColor: 'rgba(255, 255, 255, 0.8)',
           borderColor: 'var(--border-light)',
@@ -221,7 +219,7 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
       </motion.header>
 
       {/* 메인 작업 영역 */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden w-full max-w-[1400px] mx-auto">
         {/* 좌측 사이드바 - Vercel 스타일 */}
         <AnimatePresence>
           {(!sidebarCollapsed || mobileMenuOpen) && (
@@ -320,7 +318,6 @@ export default function WorkspaceLayout(props: WorkspaceLayoutProps) {
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
-      </div> {/* 전체 컨테이너 닫기 */}
     </div>
   )
 }

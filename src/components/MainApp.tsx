@@ -97,18 +97,7 @@ export default function MainApp() {
 
   // Handle multiple file uploads from drag & drop
   const handleFilesUploaded = (newContents: Content[]) => {
-    // Save to storage
-    newContents.forEach(content => {
-      contentStorage.create({
-        ...content,
-        id: content.id, // Keep the generated ID
-        createdAt: content.createdAt,
-        updatedAt: content.updatedAt,
-        userId: content.userId,
-        position: content.position
-      })
-    })
-
+    // Contents are already processed and have IDs, just add to state
     const updatedContents = [...contents, ...newContents]
     setContents(updatedContents)
     searchEngine.indexContent(updatedContents)

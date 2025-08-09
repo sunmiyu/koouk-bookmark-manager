@@ -35,9 +35,9 @@ export default function QuickInput({
     const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/
     
     if (youtubeRegex.test(text)) return 'video'
-    if (urlRegex.test(text)) return 'link'
-    if (text.length < 200) return 'note'
-    return 'document'
+    if (urlRegex.test(text)) return 'website'
+    if (text.length < 300) return 'memo'  // Short text becomes memo
+    return 'text'  // Longer text becomes text file
   }
 
   const handleSubmit = async () => {
@@ -47,14 +47,56 @@ export default function QuickInput({
     
     try {
       const type = detectContentType(input.trim())
-      const isUrl = type === 'link' || type === 'video'
+      const text = input.trim()
       
-      const newContent = {
-        title: isUrl ? 'Link' : input.trim().split('\n')[0].substring(0, 50),
-        body: input.trim(),
-        type,
+      const newContent: Omit<Content, 'id' | 'createdAt' | 'updatedAt' | 'userId' | 'position'> = {
+        title: '',
+        body: '',
         folderId: selectedFolderId,
-        metadata: isUrl ? { url: input.trim() } : undefined
+        type,
+        metadata: {}
+      }
+
+      // Handle different content types
+      switch (type) {
+        case 'website':
+          newContent.title = 'Website Link'
+          newContent.body = text
+          newContent.metadata = { url: text, mimeType: 'text/uri-list' }
+          break
+          
+        case 'video':
+          newContent.title = 'Video Link'  
+          newContent.body = text
+          newContent.metadata = { url: text, mimeType: 'video/url' }
+          break
+          
+        case 'memo':
+          const lines = text.split('\n').filter(line => line.trim())
+          const preview = lines.slice(0, 3).join('\n')
+          newContent.title = lines[0] ? lines[0].substring(0, 30) + (lines[0].length > 30 ? '...' : '') : 'Quick Note'
+          newContent.body = preview
+          newContent.metadata = { 
+            memoContent: text, 
+            createdDate: new Date().toLocaleDateString(),
+            mimeType: 'text/memo' 
+          }
+          break
+          
+        case 'text':
+          newContent.title = text.split('\n')[0].substring(0, 50) || 'Text Document'
+          newContent.body = text.substring(0, 100) + (text.length > 100 ? '...' : '')
+          newContent.metadata = { 
+            textContent: text, 
+            textType: 'text/plain',
+            mimeType: 'text/plain' 
+          }
+          break
+          
+        default:
+          newContent.title = text.split('\n')[0].substring(0, 50) || 'Content'
+          newContent.body = text
+          break
       }
       
       onCreateContent(newContent)

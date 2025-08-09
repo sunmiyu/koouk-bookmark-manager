@@ -36,11 +36,9 @@ export class SearchEngine {
       this.addToWordIndex(content.id, content.title, 'content')
       this.addToWordIndex(content.id, content.body, 'content')
       
-      // Index metadata tags
-      if (content.metadata?.tags) {
-        content.metadata.tags.forEach(tag => {
-          this.addToWordIndex(content.id, tag, 'content')
-        })
+      // Index additional metadata fields
+      if (content.metadata?.fileName) {
+        this.addToWordIndex(content.id, content.metadata.fileName, 'content')
       }
     })
   }

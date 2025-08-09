@@ -22,7 +22,7 @@ export interface Folder {
 }
 
 // Updated Content Types for Cover Flow System
-export type ContentType = 'image' | 'video' | 'text' | 'website'
+export type ContentType = 'image' | 'video' | 'text' | 'website' | 'memo'
 
 export interface Content {
   id: string
@@ -48,6 +48,10 @@ export interface Content {
     // For websites
     url?: string // website URL
     preview?: string // iframe preview or screenshot
+    
+    // For memos
+    memoContent?: string // memo text content
+    createdDate?: string // memo creation date for display
     
     // Common metadata
     fileSize?: number

@@ -1,8 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/components/auth/AuthContext'
 import { useRouter } from 'next/navigation'
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
 
 export default function AccountPage() {
   const { user, signOut } = useAuth()
@@ -96,7 +99,7 @@ export default function AccountPage() {
                 backgroundColor: 'var(--bg-secondary)',
                 color: 'var(--text-primary)'
               }}>
-                {user.created_at ? new Date(user.created_at).toLocaleDateString('ko-KR') : '정보 없음'}
+                {user.createdAt ? new Date(user.createdAt).toLocaleDateString('ko-KR') : '정보 없음'}
               </div>
             </div>
           </div>

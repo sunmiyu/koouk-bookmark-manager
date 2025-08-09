@@ -218,5 +218,34 @@ export const initializeSampleData = (userId: string) => {
         textType: 'text/markdown'
       }
     })
+
+    // Add sample memo
+    contentStorage.create({
+      title: 'Meeting Notes',
+      body: 'Project kickoff meeting\nDiscussed cover flow design\nNext: implement drag & drop',
+      type: 'memo',
+      folderId: workFolder.id,
+      userId,
+      position: 3,
+      metadata: {
+        memoContent: 'Project kickoff meeting\nDiscussed cover flow design\nNext: implement drag & drop\n\nKey decisions:\n- Use typography-focused cards\n- White background for memos\n- Show creation date in footer',
+        createdDate: new Date().toLocaleDateString(),
+        mimeType: 'text/memo'
+      }
+    })
+
+    contentStorage.create({
+      title: 'Shopping List',
+      body: '🛒 Grocery Shopping\n• Milk, eggs, bread\n• Fresh vegetables',
+      type: 'memo',
+      folderId: personalFolder.id,
+      userId,
+      position: 1,
+      metadata: {
+        memoContent: '🛒 Grocery Shopping\n• Milk, eggs, bread\n• Fresh vegetables\n• Seasonal fruits\n• Pasta and sauce\n• Coffee beans',
+        createdDate: new Date().toLocaleDateString(),
+        mimeType: 'text/memo'
+      }
+    })
   }
 }

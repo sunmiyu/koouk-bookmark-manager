@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Trash2, ExternalLink, Eye, FileText, Globe, Image as ImageIcon, Video } from 'lucide-react'
+import { Trash2, ExternalLink, Eye, FileText, Globe, Image as ImageIcon, Video, Edit3 } from 'lucide-react'
 import { Content } from '@/types/core'
 
 interface CoverFlowCardProps {
@@ -144,6 +144,50 @@ export default function CoverFlowCard({ content, index, onDelete, onClick }: Cov
           </div>
         )
 
+      case 'memo':
+        const memoContent = content.metadata?.memoContent || content.body
+        const previewLines = memoContent.split('\n').slice(0, 3).join('\n')
+        
+        return (
+          <div className="content-preview-memo">
+            <div
+              style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                padding: '16px',
+                minHeight: '180px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-start'
+              }}
+            >
+              {/* Memo content with typography focus */}
+              <div
+                style={{
+                  fontSize: '16px',
+                  lineHeight: '1.5',
+                  fontWeight: '400',
+                  color: 'var(--text-primary)',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                  fontFamily: 'inherit' // Clean typography
+                }}
+              >
+                {previewLines.length > 120 ? previewLines.substring(0, 120) + '...' : previewLines}
+              </div>
+              
+              {/* Memo indicator */}
+              <div className="mt-auto pt-3 border-t border-gray-100">
+                <div className="flex items-center space-x-2 text-muted">
+                  <Edit3 className="w-4 h-4" />
+                  <span className="text-xs">Quick Note</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+
       default:
         return (
           <div className="content-preview-fallback">
@@ -160,6 +204,7 @@ export default function CoverFlowCard({ content, index, onDelete, onClick }: Cov
       case 'video': return <Video className="w-4 h-4" />
       case 'text': return <FileText className="w-4 h-4" />
       case 'website': return <Globe className="w-4 h-4" />
+      case 'memo': return <Edit3 className="w-4 h-4" />
       default: return <FileText className="w-4 h-4" />
     }
   }
@@ -233,7 +278,12 @@ export default function CoverFlowCard({ content, index, onDelete, onClick }: Cov
         )}
         
         <div className="flex items-center justify-between mt-2 text-xs text-muted">
-          <span>{new Date(content.updatedAt).toLocaleDateString()}</span>
+          <span>
+            {content.type === 'memo' 
+              ? (content.metadata?.createdDate || new Date(content.createdAt).toLocaleDateString())
+              : new Date(content.updatedAt).toLocaleDateString()
+            }
+          </span>
           {content.metadata?.fileSize && (
             <span>{formatFileSize(content.metadata.fileSize)}</span>
           )}

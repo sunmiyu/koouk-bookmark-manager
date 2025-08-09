@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { FileText, Link, Image, Video, StickyNote, Trash2, ExternalLink } from 'lucide-react'
+import { FileText, Link, Image, Video, StickyNote, Trash2, ExternalLink, Edit3 } from 'lucide-react'
 import { Content, ContentType } from '@/types/core'
 
 interface ContentGridProps {
@@ -44,7 +44,7 @@ export default function ContentGrid({ contents, viewMode, onDelete }: ContentGri
 
 function ContentCard({ content, onDelete }: { content: Content; onDelete: (id: string) => void }) {
   const handleClick = () => {
-    if (content.type === 'link' && content.metadata?.url) {
+    if (content.type === 'website' && content.metadata?.url) {
       window.open(content.metadata.url, '_blank')
     }
   }
@@ -67,7 +67,7 @@ function ContentCard({ content, onDelete }: { content: Content; onDelete: (id: s
       <h3 className="font-medium text-primary mb-2 line-clamp-2">{content.title}</h3>
       
       <div className="text-sm text-secondary line-clamp-3 mb-3">
-        {content.type === 'link' ? content.metadata?.url : content.body}
+        {content.type === 'website' ? content.metadata?.url : content.body}
       </div>
       
       <div className="flex items-center justify-between text-xs text-muted">
@@ -82,7 +82,7 @@ function ContentCard({ content, onDelete }: { content: Content; onDelete: (id: s
 
 function ContentListItem({ content, onDelete }: { content: Content; onDelete: (id: string) => void }) {
   const handleClick = () => {
-    if (content.type === 'link' && content.metadata?.url) {
+    if (content.type === 'website' && content.metadata?.url) {
       window.open(content.metadata.url, '_blank')
     }
   }
@@ -94,7 +94,7 @@ function ContentListItem({ content, onDelete }: { content: Content; onDelete: (i
       <div className="flex-1 min-w-0">
         <h3 className="font-medium text-primary truncate mb-1">{content.title}</h3>
         <p className="text-sm text-secondary truncate">
-          {content.type === 'link' ? content.metadata?.url : content.body}
+          {content.type === 'website' ? content.metadata?.url : content.body}
         </p>
       </div>
       
@@ -121,16 +121,16 @@ function ContentTypeIcon({ type }: { type: ContentType }) {
   const iconClass = "w-5 h-5"
   
   switch (type) {
-    case 'note':
-      return <StickyNote className={`${iconClass} type-note`} />
-    case 'link':
+    case 'memo':
+      return <Edit3 className={`${iconClass} type-note`} />
+    case 'text':
+      return <FileText className={`${iconClass} type-document`} />
+    case 'website':
       return <Link className={`${iconClass} type-link`} />
     case 'image':
       return <Image className={`${iconClass} type-image`} />
     case 'video':
       return <Video className={`${iconClass} type-video`} />
-    case 'document':
-      return <FileText className={`${iconClass} type-document`} />
     default:
       return <FileText className={`${iconClass} type-document`} />
   }

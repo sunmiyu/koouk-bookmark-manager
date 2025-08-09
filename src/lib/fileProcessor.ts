@@ -3,16 +3,20 @@ import { Content, ContentType, DropItem, FileUploadResult } from '@/types/core'
 
 export class FileProcessor {
   // Detect content type from file or URL
-  static detectContentType(item: File | string): ContentType {
+  static detectContentType(item: File | string, forceMemo = false): ContentType {
     if (typeof item === 'string') {
       // URL detection
       try {
         new URL(item)
         return 'website'
       } catch {
-        return 'text'
+        // Short text strings become memos
+        return item.length < 500 ? 'memo' : 'text'
       }
     }
+
+    // Force memo type for manual creation
+    if (forceMemo) return 'memo'
 
     // File type detection
     const mimeType = item.type
@@ -119,6 +123,23 @@ export class FileProcessor {
     }
   }
 
+  // Process memo content
+  static async processMemo(text: string, title?: string): Promise<Partial<Content>> {
+    const lines = text.split('\n').filter(line => line.trim())
+    const preview = lines.slice(0, 3).join('\n') // First 2-3 lines for preview
+    
+    return {
+      title: title || (lines[0] ? lines[0].substring(0, 30) + (lines[0].length > 30 ? '...' : '') : 'Quick Note'),
+      body: preview,
+      type: 'memo',
+      metadata: {
+        memoContent: text,
+        createdDate: new Date().toLocaleDateString(),
+        mimeType: 'text/memo'
+      }
+    }
+  }
+
   // Main processing function
   static async processDropItem(
     item: File | string,
@@ -141,6 +162,9 @@ export class FileProcessor {
           break
         case 'website':
           partialContent = await this.processWebsite(item as string)
+          break
+        case 'memo':
+          partialContent = await this.processMemo(item as string)
           break
         default:
           throw new Error('Unsupported content type')

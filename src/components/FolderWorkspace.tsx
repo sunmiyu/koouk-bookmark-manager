@@ -21,16 +21,12 @@ import { DragDropProvider } from '@/contexts/DragDropContext'
 import { FolderItem, StorageItem, createFolder, createStorageItem, defaultFolderTemplates, createDummyFolders } from '@/types/folder'
 import { searchEngine } from '@/lib/search-engine'
 
-// interface FolderWorkspaceProps {
-//   className?: string
-// }
-
 export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: string }) {
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
-  const [sidebarVisible, setSidebarVisible] = useState(true) // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [sidebarVisible, setSidebarVisible] = useState(true)
 
   // localStorage에서 데이터 로드 - 클라이언트 사이드에서만 실행
   useEffect(() => {
@@ -216,7 +212,6 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
     alert(`"${title}" 폴더가 Market Place에 공유되었습니다! 🎉\n다른 사용자들이 이제 이 폴더를 발견하고 활용할 수 있습니다.`)
   }
 
-
   const handleCreateItem = (type: StorageItem['type'], folderId: string) => {
     const typeLabels = {
       document: '문서',
@@ -280,61 +275,81 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
       initialFolders={folders}
       onFoldersChange={handleFoldersChange}
     >
-      {/* Vercel 스타일 컨테이너로 센터링 */}
-      <div className="vercel-container">
-        <div className="flex h-full max-w-none">
-          {/* Vercel 스타일 사이드바 */}
-          <div className="w-72 border-r border-gray-100 bg-white">
-            {/* 헤더 영역 */}
-            <div className="px-6 py-5 border-b border-gray-100">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-semibold text-gray-900">My Workspace</h2>
-                <button 
-                  onClick={() => handleCreateFolder()}
-                  className="p-1.5 hover:bg-gray-50 rounded-md transition-colors"
-                  title="새 폴더 만들기"
-                >
-                  <Plus className="w-4 h-4 text-gray-500" />
-                </button>
-              </div>
-              
-              <button
-                onClick={handleClearAll}
-                className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 
-                           text-sm font-medium text-gray-700 hover:text-gray-900 
-                           hover:bg-gray-50 rounded-lg transition-all duration-150
-                           border border-gray-200 hover:border-gray-300 hover:shadow-sm"
+      {/* 모바일 반응형 컨테이너 */}
+      <div className="flex h-full relative">
+        {/* 모바일 메뉴 토글 버튼 */}
+        <button
+          onClick={() => setSidebarVisible(!sidebarVisible)}
+          className="fixed top-20 left-4 z-50 p-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all lg:hidden"
+        >
+          <Menu className="w-5 h-5 text-gray-600" />
+        </button>
+
+        {/* 사이드바 */}
+        <div className={`
+          ${sidebarVisible ? 'translate-x-0' : '-translate-x-full'}
+          fixed lg:relative lg:translate-x-0
+          w-72 h-full border-r border-gray-100 bg-white
+          transition-transform duration-300 ease-in-out
+          z-40 lg:z-auto
+        `}>
+          {/* 헤더 영역 */}
+          <div className="px-6 py-5 border-b border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-semibold text-gray-900">My Workspace</h2>
+              <button 
+                onClick={() => handleCreateFolder()}
+                className="p-1.5 hover:bg-gray-50 rounded-md transition-colors"
+                title="새 폴더 만들기"
               >
-                <Trash2 className="w-4 h-4" />
-                Clear All
+                <Plus className="w-4 h-4 text-gray-500" />
               </button>
             </div>
-
-            {/* 폴더 트리 영역 */}
-            <div className="px-4 py-2">
-              <FolderTree
-                folders={folders}
-                selectedFolderId={selectedFolderId}
-                expandedFolders={expandedFolders}
-                onFolderSelect={handleFolderSelect}
-                onFolderToggle={handleFolderToggle}
-                onCreateFolder={handleCreateFolder}
-                onRenameFolder={handleRenameFolder}
-                onDeleteFolder={handleDeleteFolder}
-                onShareFolder={handleShareFolder}
-                onCreateItem={handleCreateItem}
-              />
-            </div>
+            
+            <button
+              onClick={handleClearAll}
+              className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 
+                         text-sm font-medium text-gray-700 hover:text-gray-900 
+                         hover:bg-gray-50 rounded-lg transition-all duration-150
+                         border border-gray-200 hover:border-gray-300 hover:shadow-sm"
+            >
+              <Trash2 className="w-4 h-4" />
+              Clear All
+            </button>
           </div>
 
-          {/* Main Content Area */}
-          <div className="flex-1 bg-white">
-            <FolderContent 
-              items={getSelectedFolderItems()}
-              onCreateItem={(type) => selectedFolderId && handleCreateItem(type, selectedFolderId)}
-              searchQuery={searchQuery}
+          {/* 폴더 트리 영역 */}
+          <div className="px-4 py-2 overflow-y-auto h-[calc(100%-140px)]">
+            <FolderTree
+              folders={folders}
+              selectedFolderId={selectedFolderId}
+              expandedFolders={expandedFolders}
+              onFolderSelect={handleFolderSelect}
+              onFolderToggle={handleFolderToggle}
+              onCreateFolder={handleCreateFolder}
+              onRenameFolder={handleRenameFolder}
+              onDeleteFolder={handleDeleteFolder}
+              onShareFolder={handleShareFolder}
+              onCreateItem={handleCreateItem}
             />
           </div>
+        </div>
+
+        {/* 모바일 오버레이 */}
+        {sidebarVisible && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+            onClick={() => setSidebarVisible(false)}
+          />
+        )}
+
+        {/* Main Content Area */}
+        <div className="flex-1 bg-white overflow-y-auto">
+          <FolderContent 
+            items={getSelectedFolderItems()}
+            onCreateItem={(type) => selectedFolderId && handleCreateItem(type, selectedFolderId)}
+            searchQuery={searchQuery}
+          />
         </div>
       </div>
     </DragDropProvider>
@@ -412,7 +427,7 @@ const FolderContent = ({
   if (items.length === 0) {
     return (
       <motion.div 
-        className="flex-1 flex flex-col items-center justify-center text-center p-8"
+        className="flex-1 flex flex-col items-center justify-center text-center p-8 min-h-[400px]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
@@ -447,7 +462,7 @@ const FolderContent = ({
   if (searchQuery.trim() && filteredItems.length === 0) {
     return (
       <motion.div 
-        className="flex-1 flex flex-col items-center justify-center text-center p-8"
+        className="flex-1 flex flex-col items-center justify-center text-center p-8 min-h-[400px]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
@@ -463,9 +478,9 @@ const FolderContent = ({
   }
 
   return (
-    <div className="flex-1 p-6">
+    <div className="flex-1 p-4 lg:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h3 className="text-lg font-medium text-black">
             {filteredItems.length} items
@@ -514,19 +529,19 @@ const FolderContent = ({
       {viewMode === 'grid' ? (
         <div className="space-y-8">
           {Object.entries(sortedGroups).map(([type, items]) => (
-            <div key={type} className="">
-              {/* Type header - Simplified */}
+            <div key={type}>
+              {/* Type header */}
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex items-center gap-2">
-                  {type === 'video' && <Video className="w-4 h-4 text-accent" />}
-                  {type === 'image' && <ImageIcon className="w-4 h-4 text-accent" />}
-                  {type === 'url' && <Link className="w-4 h-4 text-accent" />}
-                  {type === 'document' && <FileText className="w-4 h-4 text-accent" />}
-                  {type === 'memo' && <StickyNote className="w-4 h-4 text-accent" />}
-                  <h4 className="font-medium text-primary">
+                  {type === 'video' && <Video className="w-4 h-4 text-blue-600" />}
+                  {type === 'image' && <ImageIcon className="w-4 h-4 text-green-600" />}
+                  {type === 'url' && <Link className="w-4 h-4 text-purple-600" />}
+                  {type === 'document' && <FileText className="w-4 h-4 text-orange-600" />}
+                  {type === 'memo' && <StickyNote className="w-4 h-4 text-yellow-600" />}
+                  <h4 className="font-medium text-gray-900">
                     {type === 'url' ? 'Links' : type === 'document' ? 'Documents' : type === 'memo' ? 'Memos' : type === 'image' ? 'Images' : 'Videos'}
                   </h4>
-                  <span className="text-xs text-muted bg-surface px-2 py-1 rounded-full">
+                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                     {items.length}
                   </span>
                 </div>
@@ -534,15 +549,15 @@ const FolderContent = ({
               
               {/* Grid layout - Mobile 2 cols, Desktop up to 6 cols */}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                {items.slice(0, 8).map((item) => (
+                {items.slice(0, 12).map((item) => (
                   <ItemCard key={item.id} item={item} viewMode={viewMode} />
                 ))}
               </div>
               
-              {/* Show more button if there are more items */}
-              {items.length > 8 && (
-                <button className="mt-4 text-sm text-accent hover:text-accent-hover flex items-center gap-1">
-                  <span>더보기 ({items.length - 8}개)</span>
+              {/* Show more button */}
+              {items.length > 12 && (
+                <button className="mt-4 text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                  <span>더보기 ({items.length - 12}개)</span>
                   <Plus className="w-3 h-3" />
                 </button>
               )}
@@ -550,8 +565,8 @@ const FolderContent = ({
           ))}
         </div>
       ) : (
-        <div className="space-y-3">
-          {Object.entries(sortedGroups).flatMap(([type, items]) => 
+        <div className="space-y-2">
+          {Object.entries(sortedGroups).flatMap(([, items]) => 
             items.map((item) => (
               <ItemCard key={item.id} item={item} viewMode={viewMode} />
             ))
@@ -562,7 +577,7 @@ const FolderContent = ({
   )
 }
 
-// 아이템 카드 컴포넌트 - 타입별 특화 카드
+// 아이템 카드 컴포넌트
 const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'list' }) => {
   // YouTube 썸네일 추출
   const getYouTubeThumbnail = (url: string): string | null => {
@@ -583,12 +598,10 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
     }
   }
 
-  // Unified card design for all types
-  const renderUnifiedCard = () => {
-    // Enhanced thumbnail logic
+  // Grid 모드 - 통합 카드 디자인
+  if (viewMode === 'grid') {
     const getThumbnail = () => {
       if (item.type === 'video') {
-        // 우선순위: metadata.thumbnail > YouTube extraction
         if (item.metadata?.thumbnail) return item.metadata.thumbnail
         return getYouTubeThumbnail(item.content)
       }
@@ -600,7 +613,6 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
 
     const thumbnail = getThumbnail()
     
-    // Type-specific icon and color
     const getTypeIcon = () => {
       switch(item.type) {
         case 'video': return <Video className="w-4 h-4" />
@@ -612,98 +624,57 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
       }
     }
 
-    // Enhanced metadata display
-    const getMetadataInfo = () => {
-      switch(item.type) {
-        case 'video':
-          if (item.metadata?.duration) {
-            const minutes = Math.floor(item.metadata.duration / 60)
-            const seconds = item.metadata.duration % 60
-            return `${minutes}:${seconds.toString().padStart(2, '0')}`
-          }
-          return null
-        case 'image':
-          if (item.metadata?.dimensions) {
-            return `${item.metadata.dimensions.width}×${item.metadata.dimensions.height}`
-          }
-          return null
-        case 'document':
-          if (item.metadata?.wordCount) {
-            return `${item.metadata.wordCount}자`
-          }
-          return null
-        case 'url':
-          return getDomain(item.content)
-        default:
-          return null
-      }
-    }
-
     return (
       <motion.div
-        className="bg-white border border-gray-100 rounded-lg overflow-hidden hover:shadow-md hover:shadow-gray-100/50 transition-all duration-300 cursor-pointer group"
-        whileHover={{ y: -1 }}
+        className="bg-white border border-gray-100 rounded-lg overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer group"
+        whileHover={{ y: -2 }}
         whileTap={{ scale: 0.98 }}
       >
-        {/* Compact preview area */}
+        {/* Preview area */}
         <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 aspect-[4/3] overflow-hidden">
           {thumbnail ? (
-            <div className="w-full h-full">
-              <img 
-                src={thumbnail} 
-                alt={item.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                onError={(e) => {
-                  // Fallback when image fails to load
-                  const target = e.target as HTMLImageElement
-                  target.style.display = 'none'
-                  const fallback = target.nextElementSibling as HTMLElement
-                  if (fallback) fallback.style.display = 'flex'
-                }}
-              />
-              {/* Fallback icon (hidden by default) */}
-              <div className="w-full h-full absolute inset-0 flex items-center justify-center" style={{ display: 'none' }}>
-                <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center text-accent">
-                  {getTypeIcon()}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center text-accent group-hover:scale-110 transition-transform duration-300">
-                {getTypeIcon()}
-              </div>
-            </div>
-          )}
+            <img 
+              src={thumbnail} 
+              alt={item.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement
+                target.style.display = 'none'
+                const fallback = target.nextElementSibling as HTMLElement
+                if (fallback) fallback.style.display = 'flex'
+              }}
+            />
+          ) : null}
           
-          {/* Compact type badge */}
-          <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded-full text-[10px] font-medium flex items-center gap-1 shadow-sm">
-            <div className="text-accent">
-              <div className="w-3 h-3">
-                {item.type === 'video' && <Video className="w-3 h-3" />}
-                {item.type === 'image' && <ImageIcon className="w-3 h-3" />}
-                {item.type === 'url' && <Link className="w-3 h-3" />}
-                {item.type === 'document' && <FileText className="w-3 h-3" />}
-                {item.type === 'memo' && <StickyNote className="w-3 h-3" />}
-              </div>
+          {/* Fallback or no thumbnail */}
+          <div 
+            className="w-full h-full absolute inset-0 flex items-center justify-center" 
+            style={{ display: thumbnail ? 'none' : 'flex' }}
+          >
+            <div className="w-10 h-10 rounded-lg bg-white/50 flex items-center justify-center text-gray-600 group-hover:scale-110 transition-transform duration-300">
+              {getTypeIcon()}
             </div>
-            <span className="capitalize text-white hidden sm:inline">
+          </div>
+          
+          {/* Type badge */}
+          <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-[10px] font-medium flex items-center gap-1">
+            {getTypeIcon()}
+            <span className="hidden sm:inline capitalize">
               {item.type === 'url' ? 'Link' : item.type}
             </span>
           </div>
 
-          {/* Duration overlay for videos */}
-          {item.type === 'video' && getMetadataInfo() && (
-            <div className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-[10px] font-medium">
-              {getMetadataInfo()}
+          {/* Duration for videos */}
+          {item.type === 'video' && item.metadata?.duration && (
+            <div className="absolute bottom-2 right-2 bg-black/80 text-white px-1.5 py-0.5 rounded text-[10px] font-medium">
+              {Math.floor(item.metadata.duration / 60)}:{(item.metadata.duration % 60).toString().padStart(2, '0')}
             </div>
           )}
         </div>
         
-        {/* Very minimal content section */}
-        <div className="p-1.5">
-          {/* Title only */}
-          <h4 className="font-medium text-gray-900 line-clamp-2 text-[11px] leading-tight group-hover:text-accent transition-colors duration-200">
+        {/* Content */}
+        <div className="p-2">
+          <h4 className="font-medium text-gray-900 line-clamp-2 text-xs leading-tight group-hover:text-blue-600 transition-colors">
             {item.name}
           </h4>
         </div>
@@ -711,183 +682,35 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
     )
   }
 
-  const renderImageCard = () => {
-    return (
-      <motion.div
-        className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
-        whileHover={{ y: -2 }}
-        whileTap={{ scale: 0.98 }}
-      >
-        {/* 이미지 썸네일 */}
-        <div className="relative bg-gray-100 aspect-square">
-          {item.content.startsWith('http') || item.content.startsWith('/') ? (
-            <img 
-              src={item.content} 
-              alt={item.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <ImageIcon className="w-12 h-12 text-gray-400" />
-            </div>
-          )}
-          <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs">
-            <ImageIcon className="w-3 h-3 inline mr-1" />
-            Image
-          </div>
-        </div>
-        
-        {/* 콘텐츠 */}
-        <div className="p-4">
-          <h4 className="font-semibold text-gray-900 line-clamp-2 mb-2">
-            {item.name}
-          </h4>
-          <div className="text-xs text-gray-400">
-            {new Date(item.updatedAt).toLocaleDateString()}
-          </div>
-        </div>
-      </motion.div>
-    )
-  }
-
-  const renderLinkCard = () => {
-    return (
-      <motion.div
-        className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
-        whileHover={{ y: -2 }}
-        whileTap={{ scale: 0.98 }}
-      >
-        {/* 링크 썸네일 (임시로 파비콘 사용) */}
-        <div className="relative bg-gradient-to-br from-blue-50 to-purple-50 aspect-video flex items-center justify-center">
-          <div className="text-center">
-            <Link className="w-12 h-12 text-blue-500 mx-auto mb-2" />
-            <div className="text-sm font-medium text-gray-700">
-              {getDomain(item.content)}
-            </div>
-          </div>
-          <div className="absolute bottom-2 right-2 bg-blue-500 bg-opacity-90 text-white px-2 py-1 rounded text-xs">
-            <Link className="w-3 h-3 inline mr-1" />
-            Link
-          </div>
-        </div>
-        
-        {/* 콘텐츠 */}
-        <div className="p-4">
-          <h4 className="font-semibold text-gray-900 line-clamp-2 mb-2">
-            {item.name}
-          </h4>
-          <p className="text-sm text-blue-600 hover:text-blue-800 truncate mb-2">
-            {item.content}
-          </p>
-          <div className="text-xs text-gray-400">
-            {new Date(item.updatedAt).toLocaleDateString()}
-          </div>
-        </div>
-      </motion.div>
-    )
-  }
-
-  const renderMemoCard = () => {
-    return (
-      <motion.div
-        className="bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
-        whileHover={{ y: -2 }}
-        whileTap={{ scale: 0.98 }}
-      >
-        {/* 메모 헤더 */}
-        <div className="bg-yellow-400 bg-opacity-20 p-3 border-b border-yellow-200">
-          <div className="flex items-center gap-2">
-            <StickyNote className="w-5 h-5 text-yellow-600" />
-            <span className="text-sm font-medium text-yellow-800">Memo</span>
-          </div>
-        </div>
-        
-        {/* 메모 내용 */}
-        <div className="p-4">
-          <h4 className="font-semibold text-gray-900 line-clamp-1 mb-3">
-            {item.name}
-          </h4>
-          <div className="text-sm text-gray-700 line-clamp-4 whitespace-pre-wrap mb-3">
-            {item.content}
-          </div>
-          <div className="text-xs text-gray-500">
-            {new Date(item.updatedAt).toLocaleDateString()}
-          </div>
-        </div>
-      </motion.div>
-    )
-  }
-
-  const renderDocumentCard = () => {
-    const wordCount = item.content.split(' ').length
-    return (
-      <motion.div
-        className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
-        whileHover={{ y: -2 }}
-        whileTap={{ scale: 0.98 }}
-      >
-        {/* 문서 헤더 */}
-        <div className="bg-blue-50 p-3 border-b border-blue-100">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-blue-600" />
-              <span className="text-sm font-medium text-blue-800">Document</span>
-            </div>
-            <span className="text-xs text-blue-600">{wordCount} words</span>
-          </div>
-        </div>
-        
-        {/* 문서 내용 */}
-        <div className="p-4">
-          <h4 className="font-semibold text-gray-900 line-clamp-2 mb-3">
-            {item.name}
-          </h4>
-          <div className="text-sm text-gray-600 line-clamp-4 mb-3">
-            {item.content}
-          </div>
-          <div className="text-xs text-gray-500">
-            {new Date(item.updatedAt).toLocaleDateString()}
-          </div>
-        </div>
-      </motion.div>
-    )
-  }
-
-  // List mode - simplified unified design
-  if (viewMode === 'list') {
-    return (
-      <div className="flex items-center gap-4 p-3 bg-surface border border-default rounded-lg hover:shadow-sm transition-all cursor-pointer">
-        <div className="flex-shrink-0">
-          <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center text-accent">
-            {item.type === 'video' && <Video className="w-4 h-4" />}
-            {item.type === 'image' && <ImageIcon className="w-4 h-4" />}
-            {item.type === 'url' && <Link className="w-4 h-4" />}
-            {item.type === 'document' && <FileText className="w-4 h-4" />}
-            {item.type === 'memo' && <StickyNote className="w-4 h-4" />}
-          </div>
-        </div>
-        <div className="flex-1 min-w-0">
-          <h4 className="font-medium text-primary truncate text-sm">
-            {item.name}
-          </h4>
-          <p className="text-xs text-muted truncate">
-            {item.type === 'url' ? getDomain(item.content) : 
-             item.content.length > 80 ? item.content.substring(0, 80) + '...' : item.content}
-          </p>
-        </div>
-        <div className="text-xs text-muted">
-          {new Date(item.updatedAt).toLocaleDateString('ko-KR')}
+  // List 모드
+  return (
+    <div className="flex items-center gap-4 p-3 bg-white border border-gray-100 rounded-lg hover:shadow-sm transition-all cursor-pointer">
+      <div className="flex-shrink-0">
+        <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center">
+          {item.type === 'video' && <Video className="w-4 h-4 text-blue-600" />}
+          {item.type === 'image' && <ImageIcon className="w-4 h-4 text-green-600" />}
+          {item.type === 'url' && <Link className="w-4 h-4 text-purple-600" />}
+          {item.type === 'document' && <FileText className="w-4 h-4 text-orange-600" />}
+          {item.type === 'memo' && <StickyNote className="w-4 h-4 text-yellow-600" />}
         </div>
       </div>
-    )
-  }
-
-  // Grid mode uses unified card design
-  return renderUnifiedCard()
+      <div className="flex-1 min-w-0">
+        <h4 className="font-medium text-gray-900 truncate text-sm">
+          {item.name}
+        </h4>
+        <p className="text-xs text-gray-500 truncate">
+          {item.type === 'url' ? getDomain(item.content) : 
+           item.content.length > 80 ? item.content.substring(0, 80) + '...' : item.content}
+        </p>
+      </div>
+      <div className="text-xs text-gray-400">
+        {new Date(item.updatedAt).toLocaleDateString('ko-KR')}
+      </div>
+    </div>
+  )
 }
 
 // 유틸리티 함수들
-
 function findFolderById(folders: FolderItem[], folderId: string): FolderItem | null {
   for (const folder of folders) {
     if (folder.id === folderId) {

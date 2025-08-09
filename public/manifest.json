@@ -1,23 +1,51 @@
 {
-  "name": "Koouk - Personal Life Hub",
-  "short_name": "Koouk",
-  "description": "Your personal life hub - manage bookmarks, daily info, and lifestyle in one place",
+  "name": "KOOUK - Personal Knowledge Management",
+  "short_name": "KOOUK",
+  "description": "정보를 지식으로, 지식을 자산으로 - AI가 줄 수 없는 개인 경험의 가치",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "theme_color": "#2c3e50",
   "orientation": "portrait-primary",
   "scope": "/",
-  "categories": ["productivity", "lifestyle", "utilities"],
-  "lang": "ko",
+  "categories": ["productivity", "education", "utilities"],
+  "lang": "ko-KR",
   "dir": "ltr",
   "prefer_related_applications": false,
+  "share_target": {
+    "action": "/share-receiver",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [{
+        "name": "files",
+        "accept": ["image/*", "text/plain", "application/pdf", "text/html", "video/*"]
+      }]
+    }
+  },
   "shortcuts": [
     {
-      "name": "Today",
-      "short_name": "Today",
-      "description": "오늘의 정보 보기",
-      "url": "/",
+      "name": "빠른 메모",
+      "short_name": "메모",
+      "description": "새 메모를 빠르게 추가하기",
+      "url": "/quick-memo",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "URL 저장",
+      "short_name": "URL",
+      "description": "웹페이지를 빠르게 저장하기",
+      "url": "/quick-url",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "My Workspace",
+      "short_name": "워크스페이스",
+      "description": "내 작업공간으로 바로가기",
+      "url": "/workspace",
       "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     }
   ],

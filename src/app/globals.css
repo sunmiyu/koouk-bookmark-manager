@@ -39,6 +39,159 @@
   --shadow-lg: 0 10px 24px rgba(0, 0, 0, 0.15);
 }
 
+/* Apple Design Tokens (Light) */
+.apple-theme {
+  --apple-bg-start: #f5f7fb;
+  --apple-bg-mid: #ffffff;
+  --apple-bg-end: #f7f9ff;
+  --apple-surface: rgba(255, 255, 255, 0.72);
+  --apple-surface-strong: rgba(255, 255, 255, 0.92);
+  --apple-text: rgba(0, 0, 0, 0.85);
+  --apple-text-secondary: rgba(0, 0, 0, 0.55);
+  --apple-border: rgba(0, 0, 0, 0.08);
+  --apple-border-strong: rgba(0, 0, 0, 0.12);
+  --apple-blue: #007aff; /* iOS Blue */
+  --apple-blue-strong: #0071e3; /* macOS Accent */
+  --apple-blue-hover: #0066d6;
+  --apple-radius: 12px;
+  --apple-radius-pill: 9999px;
+  --apple-shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.06);
+  --apple-shadow-card: 0 8px 20px rgba(0, 0, 0, 0.06), 0 1px 0 rgba(255,255,255,0.6) inset;
+}
+
+/* Apple base typography tuning */
+.apple-theme body,
+.apple-theme .apple-typography {
+  color: var(--apple-text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Pretendard", "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  letter-spacing: -0.015em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Apple page background */
+.apple-page {
+  background: linear-gradient(180deg, var(--apple-bg-start) 0%, var(--apple-bg-mid) 60%, var(--apple-bg-end) 100%);
+  position: relative;
+}
+
+/* Subtle noise overlay for depth (optional) */
+.apple-noise::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(0,0,0,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.4;
+}
+
+/* Frosted header */
+.apple-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--apple-surface);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--apple-border);
+}
+
+/* Cards */
+.apple-card {
+  background: var(--apple-surface-strong);
+  border: 1px solid var(--apple-border);
+  border-radius: var(--apple-radius);
+  box-shadow: var(--apple-shadow-card);
+}
+
+/* Buttons */
+.apple-button-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #fff;
+  background: linear-gradient(180deg, var(--apple-blue) 0%, var(--apple-blue-strong) 100%);
+  border: 1px solid var(--apple-blue-strong);
+  border-radius: var(--apple-radius);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.35) inset, 0 10px 18px rgba(0, 113, 227, 0.18);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease, filter 0.2s ease;
+}
+.apple-button-primary:hover {
+  filter: saturate(1.05);
+  background: linear-gradient(180deg, var(--apple-blue-strong) 0%, var(--apple-blue-hover) 100%);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.35) inset, 0 14px 26px rgba(0, 102, 214, 0.22);
+}
+.apple-button-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.apple-button-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--apple-text);
+  background: rgba(255,255,255,0.6);
+  border: 1px solid var(--apple-border);
+  border-radius: var(--apple-radius-pill);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  backdrop-filter: saturate(180%) blur(12px);
+  transition: background 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
+}
+.apple-button-ghost:hover {
+  background: #ffffff;
+  border-color: var(--apple-border-strong);
+}
+
+/* Inputs */
+.apple-input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.95rem;
+  color: var(--apple-text);
+  background: var(--apple-surface-strong);
+  border: 1px solid var(--apple-border);
+  border-radius: var(--apple-radius);
+  outline: none;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.apple-input:focus {
+  border-color: var(--apple-blue-strong);
+  box-shadow: 0 0 0 3px rgba(0,113,227,0.18);
+}
+
+/* Typography */
+.apple-heading-xl {
+  font-size: clamp(2.25rem, 5vw, 3rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--apple-text);
+}
+.apple-subtitle {
+  font-size: 1.125rem;
+  color: var(--apple-text-secondary);
+}
+
+/* Dividers */
+.apple-divider {
+  border-color: var(--apple-border) !important;
+}
+
+/* Subtle elevation */
+.apple-elevated {
+  box-shadow: var(--apple-shadow-soft);
+}
+
 /* 전역 스타일 재설정 */
 * {
   box-sizing: border-box;

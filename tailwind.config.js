@@ -1,7 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // 빌드 성능 최적화
-  mode: 'jit', // Just-In-Time 컴파일
   darkMode: 'class', // 클래스 기반 다크모드 활성화
   
   // 컨텐츠 경로 최적화 - 더 정확한 경로 지정
@@ -10,8 +8,7 @@ module.exports = {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/contexts/**/*.{js,ts,jsx,tsx,mdx}',
     './src/lib/**/*.{js,ts}',
-    './src/types/**/*.{ts}',
-    // pages 디렉토리는 사용하지 않으므로 제거
+    './src/types/**/*.ts',
   ],
   
   // 사용하지 않는 클래스 제거 최적화
@@ -67,11 +64,6 @@ module.exports = {
   // 성능 최적화 플러그인 및 설정
   plugins: [],
   
-  // 추가 최적화 설정
-  experimental: {
-    // 최신 CSS 기능 최적화
-    optimizeUniversalDefaults: true,
-  },
   
   // 개발/프로덕션 최적화
   future: {

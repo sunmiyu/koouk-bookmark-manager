@@ -147,17 +147,34 @@ export default function MainApp() {
   const filteredContent = getFilteredContent()
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <header className="page-header">
-        <div className="container">
-          <div className="flex items-center justify-between py-4">
-            <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-2">
-                <div className="w-6 h-6 bg-accent text-accent-foreground rounded flex items-center justify-center font-bold text-sm">
+      <header className="page-header" style={{ 
+        borderBottom: '1px solid var(--border)', 
+        background: 'var(--background)', 
+        position: 'sticky', 
+        top: 0, 
+        zIndex: 50 
+      }}>
+        <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div style={{ 
+                  width: '1.5rem', 
+                  height: '1.5rem', 
+                  background: 'var(--accent)', 
+                  color: 'var(--accent-foreground)', 
+                  borderRadius: '0.25rem', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  fontWeight: 'bold', 
+                  fontSize: '0.875rem' 
+                }}>
                   K
                 </div>
-                <span className="font-semibold">Koouk</span>
+                <span style={{ fontWeight: '600' }}>Koouk</span>
               </div>
               
               {/* Tab Navigation */}
@@ -230,10 +247,16 @@ export default function MainApp() {
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 flex">
+      <div style={{ flex: '1 1 0%', display: 'flex' }}>
         {/* Sidebar - Only show for workspace */}
         {activeTab === 'workspace' && (
-          <div className="w-64 sidebar">
+          <div style={{ 
+            width: '16rem', 
+            background: 'var(--surface)', 
+            borderRight: '1px solid var(--border)', 
+            height: '100vh', 
+            overflowY: 'auto' 
+          }}>
             <FolderSidebar
               folders={folders}
               selectedFolderId={selectedFolderId}
@@ -245,7 +268,12 @@ export default function MainApp() {
         )}
 
         {/* Content Area */}
-        <div className="flex-1 main-content">
+        <div style={{ 
+          flex: '1 1 0%', 
+          background: 'var(--background)', 
+          minHeight: '100vh', 
+          padding: '1.5rem' 
+        }}>
           {activeTab === 'workspace' ? (
             <>
               {/* Workspace Header */}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { 
@@ -11,8 +11,7 @@ import {
   Video,
   StickyNote,
   Check,
-  X,
-  Folder
+  X
 } from 'lucide-react'
 
 interface SharedContent {
@@ -23,7 +22,7 @@ interface SharedContent {
   type?: 'url' | 'text' | 'image' | 'video' | 'document' | 'memo'
 }
 
-export default function ShareReceiver() {
+function ShareReceiverContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [sharedContent, setSharedContent] = useState<SharedContent>({})
@@ -281,5 +280,20 @@ export default function ShareReceiver() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ShareReceiver() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-sm text-gray-500">Loading...</p>
+        </div>
+      </div>
+    }>
+      <ShareReceiverContent />
+    </Suspense>
   )
 }

@@ -64,7 +64,29 @@
 }
 
 html {
+  font-size: 17px; /* 16px → 17px (PC도 조금 키움) */
   scroll-behavior: smooth;
+}
+
+/* 모바일 기본 - 적당히 큰 크기 */
+@media (max-width: 640px) {
+  html {
+    font-size: 16px; /* 18px → 16px (조금 줄임) */
+  }
+}
+
+/* 태블릿 */
+@media (min-width: 641px) and (max-width: 1024px) {
+  html {
+    font-size: 16.5px; /* 17px → 16.5px */
+  }
+}
+
+/* 데스크톱 */
+@media (min-width: 1025px) {
+  html {
+    font-size: 17px; /* 16px → 17px (PC도 키움) */
+  }
 }
 
 body {
@@ -72,7 +94,6 @@ body {
   color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-feature-settings: "rlig" 1, "calt" 1;
-  font-size: 0.9375rem; /* 15px */
   line-height: 1.5;
   letter-spacing: -0.01em;
 }
@@ -410,7 +431,7 @@ body {
   line-height: 1.25rem;
 }
 
-/* Responsive */
+/* Mobile Enhancements */
 @media (max-width: 768px) {
   .container {
     padding: 0 0.75rem;
@@ -422,5 +443,55 @@ body {
   
   .w-64 {
     width: 12rem;
+  }
+  
+  /* 모바일 입력 요소 스타일 개선 */
+  input[type="text"], 
+  input[type="email"], 
+  input[type="password"], 
+  textarea {
+    font-size: 1rem !important; /* 1.125rem → 1rem (조금 줄임) */
+    padding: 0.875rem !important; /* 1rem → 0.875rem */
+    min-height: 48px; /* 52px → 48px */
+  }
+  
+  /* 버튼 스타일 개선 */
+  button {
+    font-size: 0.95rem !important; /* 1rem → 0.95rem */
+    padding: 0.75rem 1rem !important; /* 조금 줄임 */
+    min-height: 44px; /* 48px → 44px */
+  }
+  
+  /* 탭 네비게이션 스타일 개선 */
+  .tab-button {
+    font-size: 0.95rem !important;
+    padding: 0.875rem !important;
+    min-height: 52px; /* 56px → 52px */
+  }
+  
+  /* 카드 및 리스트 아이템 */
+  .card, .list-item {
+    padding: 1rem !important;
+    min-height: 60px;
+  }
+  
+  /* 타이틀 및 헤딩 */
+  h1, h2, h3, h4, h5, h6 {
+    font-size: clamp(1.1rem, 5vw, 1.6rem) !important; /* 조금 줄임 */
+  }
+  
+  /* 일반 텍스트 */
+  p, span, div {
+    font-size: 0.95rem !important; /* 1rem → 0.95rem */
+    line-height: 1.5 !important; /* 1.6 → 1.5 */
+  }
+  
+  /* 작은 텍스트도 읽기 쉽게 */
+  .text-xs {
+    font-size: 0.8rem !important; /* 0.875rem → 0.8rem */
+  }
+  
+  .text-sm {
+    font-size: 0.9rem !important; /* 1rem → 0.9rem */
   }
 }

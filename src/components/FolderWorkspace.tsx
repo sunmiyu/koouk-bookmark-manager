@@ -630,8 +630,8 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
         whileHover={{ y: -2 }}
         whileTap={{ scale: 0.98 }}
       >
-        {/* Preview area */}
-        <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 aspect-[4/3] overflow-hidden">
+        {/* Preview area - 더 컴팩트한 비율 */}
+        <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 aspect-[3/2] overflow-hidden">
           {thumbnail ? (
             <img 
               src={thumbnail} 
@@ -651,30 +651,29 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
             className="w-full h-full absolute inset-0 flex items-center justify-center" 
             style={{ display: thumbnail ? 'none' : 'flex' }}
           >
-            <div className="w-10 h-10 rounded-lg bg-white/50 flex items-center justify-center text-gray-600 group-hover:scale-110 transition-transform duration-300">
+            <div className="w-8 h-8 rounded-lg bg-white/50 flex items-center justify-center text-gray-600 group-hover:scale-110 transition-transform duration-300">
               {getTypeIcon()}
             </div>
           </div>
           
-          {/* Type badge */}
-          <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-[10px] font-medium flex items-center gap-1">
-            {getTypeIcon()}
-            <span className="hidden sm:inline capitalize">
+          {/* Type badge - 더 작게 */}
+          <div className="absolute top-1.5 right-1.5 bg-black/60 backdrop-blur-sm text-white px-1 py-0.5 rounded text-[9px] font-medium">
+            <span className="capitalize">
               {item.type === 'url' ? 'Link' : item.type}
             </span>
           </div>
 
           {/* Duration for videos */}
           {item.type === 'video' && item.metadata?.duration && (
-            <div className="absolute bottom-2 right-2 bg-black/80 text-white px-1.5 py-0.5 rounded text-[10px] font-medium">
+            <div className="absolute bottom-1.5 right-1.5 bg-black/80 text-white px-1 py-0.5 rounded text-[9px] font-medium">
               {Math.floor(item.metadata.duration / 60)}:{(item.metadata.duration % 60).toString().padStart(2, '0')}
             </div>
           )}
         </div>
         
-        {/* Content */}
-        <div className="p-2">
-          <h4 className="font-medium text-gray-900 line-clamp-2 text-xs leading-tight group-hover:text-blue-600 transition-colors">
+        {/* Content - 상당히 줄어든 하단 영역 */}
+        <div className="px-2 py-1">
+          <h4 className="font-medium text-gray-900 truncate text-[10px] leading-tight group-hover:text-blue-600 transition-colors">
             {item.name}
           </h4>
         </div>

@@ -1,9 +1,8 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { User } from '@/types/core'
-import { userStorage, initializeSampleData } from '@/lib/storage'
 import { supabase } from '@/lib/supabase'
+import type { User } from '@supabase/supabase-js'
 
 interface AuthContextType {
   user: User | null
@@ -23,30 +22,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
-        
-        if (session?.user) {
-          const userData: User = {
-            id: session.user.id,
-            email: session.user.email || '',
-            name: session.user.user_metadata?.name || 'User',
-            avatar: session.user.user_metadata?.avatar_url,
-            plan: 'free',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          }
-          
-          setUser(userData)
-          userStorage.set(userData)
-          initializeSampleData(userData.id)
-        } else {
-          // Check local storage for user
-          const localUser = userStorage.get()
-          if (localUser) {
-            setUser(localUser)
-          }
-        }
+        setUser(session?.user ?? null)
       } catch (error) {
-        console.error('Auth initialization failed:', error)
+        console.error('Auth initialization error:', error)
       } finally {
         setLoading(false)
       }
@@ -57,24 +35,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (event === 'SIGNED_IN' && session?.user) {
-          const userData: User = {
-            id: session.user.id,
-            email: session.user.email || '',
-            name: session.user.user_metadata?.name || 'User',
-            avatar: session.user.user_metadata?.avatar_url,
-            plan: 'free',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          }
-          
-          setUser(userData)
-          userStorage.set(userData)
-          initializeSampleData(userData.id)
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null)
-          userStorage.clear()
-        }
+        setUser(session?.user ?? null)
+        setLoading(false)
       }
     )
 
@@ -82,18 +44,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signIn = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`
-      }
-    })
+    try {
+      setLoading(true)
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      })
+      
+      if (error) throw error
+    } catch (error) {
+      console.error('Sign in error:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
-    userStorage.clear()
+    try {
+      setLoading(true)
+      const { error } = await supabase.auth.signOut()
+      if (error) throw error
+      setUser(null)
+    } catch (error) {
+      console.error('Sign out error:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

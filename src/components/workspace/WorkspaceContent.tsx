@@ -16,12 +16,11 @@ import {
   Plus,
   Menu
 } from 'lucide-react'
-import FolderTree from './FolderTree'
-import { DragDropProvider } from '@/contexts/DragDropContext'
+import FolderTree from '../ui/FolderTree'
 import { FolderItem, StorageItem, createFolder, createStorageItem, defaultFolderTemplates, createDummyFolders } from '@/types/folder'
 import { searchEngine } from '@/lib/search-engine'
 
-export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: string }) {
+export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: string }) {
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
@@ -271,10 +270,7 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
   }
 
   return (
-    <DragDropProvider 
-      initialFolders={folders}
-      onFoldersChange={handleFoldersChange}
-    >
+    <div>
       {/* 모바일 반응형 컨테이너 */}
       <div className="flex h-full relative">
         {/* 모바일 메뉴 토글 버튼 */}
@@ -352,7 +348,7 @@ export default function FolderWorkspace({ searchQuery = '' }: { searchQuery?: st
           />
         </div>
       </div>
-    </DragDropProvider>
+    </div>
   )
 }
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
-import { useAuth } from './auth/AuthContext'
+import { useAuth } from '../auth/AuthContext'
 
 export default function LandingPage() {
   const { signIn, loading } = useAuth()

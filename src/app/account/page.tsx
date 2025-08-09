@@ -99,7 +99,7 @@ export default function AccountPage() {
                 backgroundColor: 'var(--bg-secondary)',
                 color: 'var(--text-primary)'
               }}>
-                {user.createdAt ? new Date(user.createdAt).toLocaleDateString('ko-KR') : '정보 없음'}
+                {user.created_at ? new Date(user.created_at).toLocaleDateString('ko-KR') : '정보 없음'}
               </div>
             </div>
           </div>

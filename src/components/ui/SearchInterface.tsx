@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X, Clock, TrendingUp, Globe, FileText, Folder, Share2 } from 'lucide-react'
 import { searchEngine } from '@/lib/search-engine'
-import { translationService, t } from '@/lib/translation'
 
 interface SearchResult {
   id: string
@@ -71,20 +70,21 @@ export default function SearchInterface({
         const searchResults = searchEngine.search(searchQuery, searchOptions)
         setResults(searchResults)
 
-        // 번역 제안 (한국어 ↔ 영어)
-        if (searchQuery.trim().length > 1) {
-          const detectedLang = translationService.detectLanguage(searchQuery)
-          if ((detectedLang === 'ko' && language === 'en') || (detectedLang === 'en' && language === 'ko')) {
-            const translated = detectedLang === 'ko' 
-              ? await translationService.toEnglish(searchQuery)
-              : await translationService.toKorean(searchQuery)
-            
-            if (translated !== searchQuery) {
-              setTranslatedQuery(translated)
-              setShowTranslation(true)
-            }
-          }
-        }
+        // 번역 제안 (한국어 ↔ 영어) - 임시 비활성화
+        // TODO: Implement translation service
+        // if (searchQuery.trim().length > 1) {
+        //   const detectedLang = translationService.detectLanguage(searchQuery)
+        //   if ((detectedLang === 'ko' && language === 'en') || (detectedLang === 'en' && language === 'ko')) {
+        //     const translated = detectedLang === 'ko' 
+        //       ? await translationService.toEnglish(searchQuery)
+        //       : await translationService.toKorean(searchQuery)
+        //     
+        //     if (translated !== searchQuery) {
+        //       setTranslatedQuery(translated)
+        //       setShowTranslation(true)
+        //     }
+        //   }
+        // }
       } catch (error) {
         console.error('Search failed:', error)
       } finally {
@@ -209,7 +209,7 @@ export default function SearchInterface({
                 >
                   <Globe className="w-4 h-4" />
                   <span className="flex-1">
-                    {t('search_in', language)}: &ldquo;<span className="font-medium">{translatedQuery}</span>&rdquo;
+                    검색: &ldquo;<span className="font-medium">{translatedQuery}</span>&rdquo;
                   </span>
                 </button>
               </div>
@@ -220,7 +220,7 @@ export default function SearchInterface({
               {isSearching && (
                 <div className="flex items-center justify-center py-8">
                   <div className="w-5 h-5 border-2 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
-                  <span className="ml-2 text-sm text-gray-500">{t('searching', language)}...</span>
+                  <span className="ml-2 text-sm text-gray-500">검색중...</span>
                 </div>
               )}
 
@@ -228,7 +228,7 @@ export default function SearchInterface({
               {!isSearching && results.length > 0 && (
                 <div className="py-2">
                   <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    {t('search_results', language)} ({results.length})
+                    검색 결과 ({results.length})
                   </div>
                   {results.map((result) => (
                     <button
@@ -268,7 +268,7 @@ export default function SearchInterface({
               {!isSearching && searchQuery && suggestions.length > 0 && (
                 <div className="py-2 border-t border-gray-100">
                   <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    {t('suggestions', language)}
+                    추천 검색어
                   </div>
                   {suggestions.map((suggestion, index) => (
                     <button
@@ -287,10 +287,10 @@ export default function SearchInterface({
               {!isSearching && searchQuery && results.length === 0 && (
                 <div className="py-8 text-center">
                   <div className="text-sm text-gray-500 mb-2">
-                    {t('no_results', language)}
+                    검색 결과가 없습니다
                   </div>
                   <div className="text-xs text-gray-400">
-                    {t('try_different_keywords', language)}
+                    다른 키워드로 검색해보세요
                   </div>
                 </div>
               )}
@@ -299,7 +299,7 @@ export default function SearchInterface({
               {!searchQuery && recentSearches.length > 0 && (
                 <div className="py-2">
                   <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    {t('recent_searches', language)}
+                    최근 검색어
                   </div>
                   {recentSearches.map((search, index) => (
                     <button
@@ -318,7 +318,7 @@ export default function SearchInterface({
               {!searchQuery && popularQueries.length > 0 && (
                 <div className="py-2 border-t border-gray-100">
                   <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    {t('popular_searches', language)}
+                    인기 검색어
                   </div>
                   {popularQueries.map((query, index) => (
                     <button

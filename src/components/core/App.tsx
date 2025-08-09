@@ -3,13 +3,13 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Search, User, Settings, LogOut, MessageCircle } from 'lucide-react'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '../auth/AuthContext'
 import { supabase } from '@/lib/supabase'
-import FolderWorkspace from './FolderWorkspace'
-import SharePlace from './SharePlace'
-import SearchInterface from './SearchInterface'
+import WorkspaceContent from '../workspace/WorkspaceContent'
+import SharePlace from '../workspace/SharePlace'
+import SearchInterface from '../ui/SearchInterface'
 
-export default function MainWorkspace() {
+export default function App() {
   const [activeTab, setActiveTab] = useState<'my-folder' | 'share-place'>('my-folder')
   const [searchQuery, setSearchQuery] = useState('')
   const [showUserMenu, setShowUserMenu] = useState(false)
@@ -73,7 +73,7 @@ export default function MainWorkspace() {
                       className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2"
                     >
                       <div className="px-4 py-3 border-b border-gray-100">
-                        <div className="text-sm font-medium text-black">{user?.user_metadata?.name || 'User'}</div>
+                        <div className="text-sm font-medium text-black">{user?.email?.split('@')[0] || 'User'}</div>
                         <div className="text-xs text-gray-500">{user?.email}</div>
                       </div>
                       
@@ -134,7 +134,7 @@ export default function MainWorkspace() {
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-8 pt-16 pb-8">
         {activeTab === 'my-folder' ? (
-          <FolderWorkspace searchQuery={searchQuery} />
+          <WorkspaceContent searchQuery={searchQuery} />
         ) : (
           <SharePlace searchQuery={searchQuery} />
         )}

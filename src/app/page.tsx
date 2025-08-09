@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { useAuth } from '@/components/auth/AuthContext'
-import LandingPage from '@/components/LandingPage'
-import MainApp from '@/components/MainApp'
+import LandingPage from '@/components/core/LandingPage'
+import App from '@/components/core/App'
 
 export default function HomePage() {
   const { user, loading } = useAuth()
@@ -19,5 +19,5 @@ export default function HomePage() {
     )
   }
 
-  return user ? <MainApp /> : <LandingPage />
+  return user ? <App /> : <LandingPage />
 }

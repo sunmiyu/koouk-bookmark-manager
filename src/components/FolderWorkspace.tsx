@@ -630,8 +630,8 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
         whileHover={{ y: -2 }}
         whileTap={{ scale: 0.98 }}
       >
-        {/* Preview area - 더 컴팩트한 비율 */}
-        <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 aspect-[3/2] overflow-hidden">
+        {/* Preview area - 4:1 비율 (이미지 영역 유지, 하단만 최소화) */}
+        <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 aspect-[4/3] overflow-hidden">
           {thumbnail ? (
             <img 
               src={thumbnail} 
@@ -651,29 +651,29 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
             className="w-full h-full absolute inset-0 flex items-center justify-center" 
             style={{ display: thumbnail ? 'none' : 'flex' }}
           >
-            <div className="w-8 h-8 rounded-lg bg-white/50 flex items-center justify-center text-gray-600 group-hover:scale-110 transition-transform duration-300">
+            <div className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-gray-500 shadow-sm group-hover:scale-110 transition-all duration-300">
               {getTypeIcon()}
             </div>
           </div>
           
-          {/* Type badge - 더 작게 */}
-          <div className="absolute top-1.5 right-1.5 bg-black/60 backdrop-blur-sm text-white px-1 py-0.5 rounded text-[9px] font-medium">
+          {/* Type badge - 세련된 디자인 */}
+          <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm text-gray-700 px-2 py-1 rounded-full text-[10px] font-semibold shadow-sm border border-white/20">
             <span className="capitalize">
               {item.type === 'url' ? 'Link' : item.type}
             </span>
           </div>
 
-          {/* Duration for videos */}
+          {/* Duration for videos - 개선된 스타일 */}
           {item.type === 'video' && item.metadata?.duration && (
-            <div className="absolute bottom-1.5 right-1.5 bg-black/80 text-white px-1 py-0.5 rounded text-[9px] font-medium">
+            <div className="absolute bottom-2 right-2 bg-black/75 backdrop-blur-sm text-white px-2 py-1 rounded-full text-[10px] font-medium">
               {Math.floor(item.metadata.duration / 60)}:{(item.metadata.duration % 60).toString().padStart(2, '0')}
             </div>
           )}
         </div>
         
-        {/* Content - 상당히 줄어든 하단 영역 */}
-        <div className="px-2 py-1">
-          <h4 className="font-medium text-gray-900 truncate text-[10px] leading-tight group-hover:text-blue-600 transition-colors">
+        {/* Content - 극도로 압축된 하단 (1의 비율) */}
+        <div className="px-3 py-1.5 bg-white border-t border-gray-50">
+          <h4 className="font-medium text-gray-800 truncate text-xs leading-none tracking-tight">
             {item.name}
           </h4>
         </div>

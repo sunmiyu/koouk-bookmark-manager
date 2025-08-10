@@ -196,6 +196,7 @@ export default function MarketPlace({ searchQuery = '' }: { searchQuery?: string
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
+            <div className="flex aspect-[5/3]">
               {/* 왼쪽: 커버 이미지 (정사각형) */}
               <div className="flex-none w-[135px] h-[135px] relative bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
                 {sharedFolder.coverImage ? (

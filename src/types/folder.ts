@@ -149,15 +149,16 @@ export const createDummyFolders = (): FolderItem[] => {
   
   // 영어 교육 내용
   englishEduFolder.children = [
-    createStorageItem('파닉스 교육법', 'document', '단계별 파닉스 학습 방법과 교재 추천', englishEduFolder.id),
-    createStorageItem('영어 동화책 읽기', 'video', 'https://youtube.com/watch?v=english-story', englishEduFolder.id),
-    createStorageItem('영어 교육 앱 추천', 'memo', '• 링구아키즈\n• 키즈잉글리시\n• ABC마우스', englishEduFolder.id)
+    createStorageItem('파닉스 교육법 완전정리', 'document', '📚 단계별 파닉스 교육 가이드\n\n🎯 1단계 (4-5세): 알파벳 인식\n• 알파벳 노래 부르기\n• 대문자/소문자 구분하기\n• 알파벳 순서 외우기\n\n🎯 2단계 (5-6세): 기본 소리\n• a, e, i, o, u 모음 소리\n• b, c, d 등 자음 소리\n• CVC 단어 (cat, dog, sun)\n\n🎯 3단계 (6-7세): 조합 소리\n• ch, sh, th 소리\n• 이중모음 ai, oa, ee\n• 간단한 문장 읽기\n\n📖 추천 교재\n• Jolly Phonics 시리즈\n• Oxford Reading Tree\n• 리틀팩스 파닉스', englishEduFolder.id),
+    createStorageItem('영어 동화 읽어주기', 'video', 'https://www.youtube.com/watch?v=gqn6T7Lrisw', englishEduFolder.id),
+    createStorageItem('영어 교육 앱 추천', 'memo', '📱 아이 영어 교육 앱 베스트\n\n🏆 무료 앱\n• ABC Kids - 알파벳 학습\n• Khan Academy Kids - 종합학습\n• YouTube Kids - 영어 동영상\n\n💎 유료 앱 (월 구독)\n• 리틀팩스 - 동화책 + 게임\n• 페어리베이비 - 영어동요\n• 키즈잉글리시 - 파닉스 전문\n\n💡 사용 팁\n- 하루 15-20분 제한\n- 부모와 함께 사용\n- 아이가 좋아하는 캐릭터 찾기', englishEduFolder.id)
   ]
   
   // 수학 교육 내용
   mathEduFolder.children = [
-    createStorageItem('수학 놀이 활동', 'document', '연령별 수학 개념을 놀이로 배우는 방법', mathEduFolder.id),
-    createStorageItem('수학 교구 활용법', 'url', 'https://example.com/math-tools', mathEduFolder.id)
+    createStorageItem('연령별 수학 놀이 활동', 'document', '🔢 놀이로 배우는 수학 개념\n\n👶 3-4세: 기초 개념\n• 크기 비교: 큰 공, 작은 공\n• 색깔 분류: 빨간 블록, 파란 블록\n• 모양 인식: 동그라미, 세모, 네모\n• 1-5까지 세기\n\n🧒 5-6세: 수 개념\n• 1-20까지 순서대로 세기\n• 간단한 덧셈: 사탕 2개 + 1개 = 3개\n• 패턴 찾기: 빨강-파랑-빨강-파랑\n• 시계 읽기: 정각 개념\n\n👦 7-8세: 연산 기초\n• 10 이하 덧셈/뺄셈\n• 구구단 2,5,10단\n• 길이/무게 측정\n• 동전 계산하기\n\n🎮 추천 활동\n• 레고 블록으로 패턴 만들기\n• 요리하며 계량 배우기\n• 보드게임으로 수 세기', mathEduFolder.id),
+    createStorageItem('수학 교구 쇼핑몰', 'url', 'https://www.mathkit.co.kr', mathEduFolder.id),
+    createStorageItem('몬테소리 수학교구', 'image', 'https://search.pstatic.net/sunny/?src=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1503676260728-1c00da094a0b%3Fixlib%3Drb-4.0.3%26ixid%3DM3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%253D%253D&type=sc960_832', mathEduFolder.id)
   ]
   
   // 훈육법 내용

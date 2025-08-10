@@ -38,6 +38,7 @@ export interface SharedFolder {
   }
   folder: FolderItem
   thumbnail?: string
+  coverImage?: string
   featured?: boolean
   verified?: boolean
 }

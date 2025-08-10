@@ -8,11 +8,12 @@ import { useAuth } from '../auth/AuthContext'
 import { supabase } from '@/lib/supabase'
 import WorkspaceContent from '../workspace/WorkspaceContent'
 import MarketPlace from '../workspace/MarketPlace'
+import Bookmarks from '../workspace/Bookmarks'
 import SearchInterface from '../ui/SearchInterface'
 import FeedbackModal from '../modals/FeedbackModal'
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'my-folder' | 'marketplace'>('my-folder')
+  const [activeTab, setActiveTab] = useState<'my-folder' | 'marketplace' | 'bookmarks'>('my-folder')
   const [searchQuery, setSearchQuery] = useState('')
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
@@ -50,7 +51,7 @@ export default function App() {
                 <SearchInterface
                   searchQuery={searchQuery}
                   onSearchChange={setSearchQuery}
-                  searchScope={activeTab === 'my-folder' ? 'my-folder' : 'market-place'}
+                  searchScope={activeTab === 'my-folder' ? 'my-folder' : activeTab === 'marketplace' ? 'market-place' : 'bookmarks'}
                   placeholder="Search..."
                   language="ko"
                 />
@@ -129,6 +130,16 @@ export default function App() {
                 My Folder
               </button>
               <button
+                onClick={() => setActiveTab('bookmarks')}
+                className={`flex-1 py-3 px-6 border-b-2 font-medium text-xs text-center transition-colors ${
+                  activeTab === 'bookmarks'
+                    ? 'border-black text-black'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Bookmarks
+              </button>
+              <button
                 onClick={() => setActiveTab('marketplace')}
                 className={`flex-1 py-3 px-6 border-b-2 font-medium text-xs text-center transition-colors ${
                   activeTab === 'marketplace'
@@ -147,6 +158,8 @@ export default function App() {
       <main className="max-w-6xl mx-auto px-8 pt-6 pb-8">
         {activeTab === 'my-folder' ? (
           <WorkspaceContent searchQuery={searchQuery} />
+        ) : activeTab === 'bookmarks' ? (
+          <Bookmarks searchQuery={searchQuery} />
         ) : (
           <MarketPlace searchQuery={searchQuery} />
         )}

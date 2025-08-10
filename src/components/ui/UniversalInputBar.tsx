@@ -204,7 +204,7 @@ export default function UniversalInputBar({
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50">
+    <div className="fixed bottom-0 left-0 right-0 z-[60]">
       <div className="w-full max-w-6xl mx-auto px-8 pb-6">
         {/* 메모/노트 작성 버튼들 */}
         <div className="flex justify-end gap-3 mb-3">
@@ -242,7 +242,7 @@ export default function UniversalInputBar({
         <AnimatePresence>
           {showFolderSelector && (
             <motion.div
-              className="mb-4 p-4 rounded-xl shadow-lg"
+              className="mb-4 p-4 rounded-xl shadow-lg relative z-[100]"
               style={{
                 backgroundColor: 'var(--bg-card)',
                 border: '1px solid var(--border-light)'

@@ -163,25 +163,6 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote, folder
             }}
           />
 
-          {/* Folder Selection */}
-          <div className="mb-6 relative z-10">
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-              저장할 폴더:
-            </label>
-            <select
-              value={targetFolderId}
-              onChange={(e) => setTargetFolderId(e.target.value)}
-              className="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-lg text-slate-800 focus:outline-none focus:border-slate-500 shadow-sm"
-            >
-              <option value="">폴더를 선택하세요</option>
-              {allFolders.map((folder) => (
-                <option key={folder.id} value={folder.id}>
-                  {folder.depth > 0 && '└ '.repeat(folder.depth)}
-                  {folder.name}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
 
         {/* Footer */}
@@ -189,7 +170,21 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote, folder
           <div className="text-sm text-slate-600">
             📊 {content.trim().split(/\s+/).filter(word => word.length > 0).length} 단어 • {content.trim().length} 글자
           </div>
-          <div className="flex gap-3">
+          <div className="flex items-center gap-3">
+            {/* Folder Selection */}
+            <select
+              value={targetFolderId}
+              onChange={(e) => setTargetFolderId(e.target.value)}
+              className="px-3 py-2 bg-white border-2 border-slate-300 rounded-lg text-slate-800 focus:outline-none focus:border-slate-500 text-sm"
+            >
+              <option value="">폴더 선택</option>
+              {allFolders.map((folder) => (
+                <option key={folder.id} value={folder.id}>
+                  {folder.depth > 0 && '└ '.repeat(folder.depth)}
+                  {folder.name}
+                </option>
+              ))}
+            </select>
             <button
               onClick={onClose}
               className="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-medium transition-colors"

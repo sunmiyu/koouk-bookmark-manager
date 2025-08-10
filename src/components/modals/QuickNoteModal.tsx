@@ -99,7 +99,7 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
         <div className="flex items-center justify-between p-6 pb-4">
           <div className="flex items-center gap-2">
             <span className="text-2xl">📝</span>
-            <h2 className="text-lg font-bold text-amber-800" style={{ fontFamily: 'cursive' }}>
+            <h2 className="text-lg font-bold text-amber-800">
               {editNote ? '메모 수정' : '메모 작성'}
             </h2>
           </div>
@@ -123,7 +123,6 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
             onChange={(e) => setTitle(e.target.value)}
             onKeyPress={handleKeyPress}
             className="w-full mb-4 text-lg font-bold border-none outline-none bg-transparent text-amber-900 placeholder-amber-600"
-            style={{ fontFamily: 'cursive' }}
           />
 
           {/* Content - 포스트잇 스타일 */}
@@ -134,24 +133,27 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
             onKeyPress={handleKeyPress}
             className="w-full h-40 resize-none border-none outline-none bg-transparent text-amber-800 placeholder-amber-500 leading-relaxed"
             style={{ 
-              fontFamily: 'cursive',
               fontSize: '16px',
               lineHeight: '1.8'
             }}
             autoFocus
           />
 
-          {/* Folder Selection */}
-          <div className="mt-6">
-            <label className="block text-sm font-medium text-amber-800 mb-2">
-              저장할 폴더:
-            </label>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between px-6 pb-6">
+          <div className="text-sm text-amber-700">
+            {content.trim().length} 글자
+          </div>
+          <div className="flex items-center gap-3">
+            {/* Folder Selection */}
             <select
               value={targetFolderId}
               onChange={(e) => setTargetFolderId(e.target.value)}
-              className="w-full px-3 py-2 bg-amber-50 border-2 border-amber-200 rounded-lg text-amber-800 focus:outline-none focus:border-amber-400"
+              className="px-3 py-2 bg-amber-50 border-2 border-amber-200 rounded-lg text-amber-800 focus:outline-none focus:border-amber-400 text-sm"
             >
-              <option value="">폴더를 선택하세요</option>
+              <option value="">폴더 선택</option>
               {allFolders.map((folder) => (
                 <option key={folder.id} value={folder.id}>
                   {folder.depth > 0 && '└ '.repeat(folder.depth)}
@@ -159,15 +161,6 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
                 </option>
               ))}
             </select>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between px-6 pb-6">
-          <div className="text-sm text-amber-700" style={{ fontFamily: 'cursive' }}>
-            {content.trim().length} 글자
-          </div>
-          <div className="flex gap-3">
             <button
               onClick={onClose}
               className="px-4 py-2 bg-amber-200 hover:bg-amber-300 text-amber-800 rounded-lg font-medium text-sm transition-colors"

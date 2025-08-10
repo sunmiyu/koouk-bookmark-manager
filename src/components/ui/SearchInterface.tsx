@@ -22,7 +22,7 @@ interface SearchInterfaceProps {
   onResultSelect?: (result: SearchResult) => void
   placeholder?: string
   showSuggestions?: boolean
-  searchScope?: 'my-folder' | 'market-place' | 'all'
+  searchScope?: 'my-folder' | 'market-place' | 'bookmarks' | 'all'
   language?: 'ko' | 'en'
 }
 

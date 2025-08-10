@@ -111,15 +111,15 @@ export const createDummyFolders = (): FolderItem[] => {
   
   // 주식 폴더 내용
   stockFolder.children = [
-    createStorageItem('삼성전자 분석 리포트', 'document', '삼성전자의 2024년 실적 분석과 투자 전망에 대한 상세 리포트입니다.', stockFolder.id),
-    createStorageItem('주식 투자 기본 가이드', 'url', 'https://example.com/stock-guide', stockFolder.id),
-    createStorageItem('테슬라 실적 발표 영상', 'video', 'https://youtube.com/watch?v=tesla-earnings', stockFolder.id)
+    createStorageItem('삼성전자 분석 리포트', 'document', '삼성전자 2024년 3분기 실적 분석\n\n■ 주요 성과\n• 매출: 79조 1,000억원 (전년 동기 대비 17.3% 증가)\n• 영업이익: 9조 1,800억원 (전년 동기 대비 277.4% 증가)\n• 반도체 부문 회복세 지속\n\n■ 투자 포인트\n1. 메모리 반도체 업황 개선\n2. AI 칩 수요 급증 대응\n3. 파운드리 사업 성장 가속화\n\n■ 목표주가: 95,000원 (기존 80,000원에서 상향)', stockFolder.id),
+    createStorageItem('한국투자증권 리서치 리포트', 'url', 'https://securities.koreainvestment.com', stockFolder.id),
+    createStorageItem('워렌 버핏 투자 철학', 'video', 'https://www.youtube.com/watch?v=PjTOnQ4PYSc', stockFolder.id)
   ]
   
   // 부동산 폴더 내용
   realEstateFolder.children = [
-    createStorageItem('부동산 시장 동향', 'document', '2024년 부동산 시장 분석 및 투자 포인트', realEstateFolder.id),
-    createStorageItem('아파트 매매 체크리스트', 'memo', '1. 입지 확인\n2. 교통 편의성\n3. 학군 정보\n4. 향후 개발 계획', realEstateFolder.id)
+    createStorageItem('2024 부동산 시장 전망', 'document', '2024년 부동산 시장 전망 및 투자 가이드\n\n📈 시장 현황\n• 수도권 아파트 평균 매매가: 7억 2,000만원\n• 전세 가격 상승률: 연 3.2%\n• 거래량: 전년 동기 대비 15% 증가\n\n🏢 지역별 특징\n- 강남3구: 안정적 상승세, 프리미엄 지속\n- 마포/용산: 재개발 호재로 상승 잠재력 높음\n- 송파/강동: 교통 인프라 개선으로 주목\n\n💡 투자 포인트\n1. 입지: 지하철역 10분 이내\n2. 교육: 학군 인프라 완비 지역\n3. 개발: 향후 5년 내 개발 계획 유무\n4. 인구: 젊은 층 유입이 활발한 지역', realEstateFolder.id),
+    createStorageItem('아파트 매매 체크리스트', 'memo', '🏠 아파트 매매 필수 체크리스트\n\n✅ 기본 정보\n• 준공년도: 15년 이내\n• 세대수: 500세대 이상 (관리비 분산)\n• 주차대수: 세대당 1.2대 이상\n• 층수/향: 중간층, 남향 선호\n\n✅ 입지 조건\n• 지하철역: 도보 10분 이내\n• 버스정류장: 5분 이내\n• 대형마트: 15분 이내\n• 병원: 종합병원 20분 이내\n\n✅ 교육 환경\n• 초등학교: 도보 10분 이내\n• 학원가: 중·고등학원 밀집 지역\n• 도서관: 구립/시립 도서관 접근성\n\n✅ 법적 체크\n• 등기부등본 확인\n• 건축물대장 열람\n• 토지이용계획 확인\n• 재개발/재건축 계획', realEstateFolder.id)
   ]
   
   investFolder.children = [stockFolder, realEstateFolder]
@@ -127,17 +127,18 @@ export const createDummyFolders = (): FolderItem[] => {
   // 패션 폴더
   const fashionFolder = createFolder('패션', undefined, { color: '#EC4899', icon: 'Shirt' })
   fashionFolder.children = [
-    createStorageItem('2024 봄 트렌드', 'url', 'https://example.com/fashion-trend', fashionFolder.id),
-    createStorageItem('코디 참고 이미지', 'image', '/images/fashion-coord.jpg', fashionFolder.id),
-    createStorageItem('패션 쇼핑몰 추천', 'memo', '• 무신사\n• 스타일쉐어\n• 브랜디\n• 29CM', fashionFolder.id)
+    createStorageItem('보그 2024 패션 트렌드', 'url', 'https://www.vogue.com/fashion/trends', fashionFolder.id),
+    createStorageItem('가을 코디 룩북', 'image', 'https://search.pstatic.net/sunny/?src=https%3A%2F%2Fi.pinimg.com%2Foriginals%2F4c%2F8f%2F0a%2F4c8f0a8d9e8c9f7d4b2a1e3c8d5f9e6b.jpg&type=sc960_832', fashionFolder.id),
+    createStorageItem('패션 쇼핑몰 추천', 'memo', '👕 온라인 쇼핑몰 베스트\n\n🔥 인기 브랜드몰\n• 무신사 - 스트릿/캐주얼 브랜드 집약\n• W컨셉 - 디자이너 브랜드 위주\n• 스타일난다 - 20-30대 트렌디 아이템\n• 29CM - 감성적이고 유니크한 브랜드\n\n💎 럭셔리/하이엔드\n• 네타포르테 - 해외 럭셔리 브랜드\n• 르봉마르셰 - 편집샵 스타일\n• 바이마 - 해외 직구 플랫폼\n\n💰 가성비 쇼핑몰\n• 브랜디 - 20대 여성 의류\n• 스타일쉐어 - 개인 브랜드 입점\n• 지그재그 - 할인 정보 모음', fashionFolder.id)
   ]
   
   // 뷰티 폴더
   const beautyFolder = createFolder('뷰티', undefined, { color: '#F97316', icon: 'Sparkles' })
   beautyFolder.children = [
-    createStorageItem('메이크업 튜토리얼', 'video', 'https://youtube.com/watch?v=makeup-tutorial', beautyFolder.id),
-    createStorageItem('스킨케어 루틴', 'document', '아침/저녁 스킨케어 단계별 가이드', beautyFolder.id),
-    createStorageItem('화장품 리뷰', 'url', 'https://example.com/cosmetic-review', beautyFolder.id)
+    createStorageItem('올리브영 메이크업 튜토리얼', 'video', 'https://www.youtube.com/watch?v=36YnV9STBqc', beautyFolder.id),
+    createStorageItem('뷰티 제품 비교 이미지', 'image', 'https://search.pstatic.net/sunny/?src=https%3A%2F%2Fcdn.pixabay.com%2Fphoto%2F2017%2F08%2F07%2F14%2F58%2Fmakeup-2604173_960_720.jpg&type=sc960_832', beautyFolder.id),
+    createStorageItem('스킨케어 루틴 가이드', 'document', '🧴 완벽한 스킨케어 루틴 가이드\n\n🌅 아침 루틴 (5단계)\n1. 폼 클렌징: 순한 성분의 폼클렌저\n2. 토너: 수분 공급용 토너 사용\n3. 에센스/세럼: 비타민C 세럼 (항산화)\n4. 수분크림: 가벼운 젤 타입\n5. 선크림: SPF30 이상 (필수!)\n\n🌙 저녁 루틴 (7단계)\n1. 첫 번째 클렌징: 오일/밤 클렌저\n2. 두 번째 클렌징: 폼 클렌저\n3. 토너: 진정/수분 토너\n4. 에센스: 회복/재생 에센스\n5. 세럼: 레티놀/나이아신아마이드\n6. 아이크림: 전용 아이크림\n7. 수분크림: 진한 영양크림\n\n💡 추천 브랜드\n• 토너: 라로슈포제, 아벤느\n• 세럼: 더오디너리, 폴라초이스\n• 크림: 세타필, 바닐라코', beautyFolder.id),
+    createStorageItem('올리브영 할인 정보', 'url', 'https://www.oliveyoung.co.kr/store/display/getMCategoryList.do?dispCatNo=100000100010001', beautyFolder.id)
   ]
   
   // 육아 폴더
@@ -171,9 +172,10 @@ export const createDummyFolders = (): FolderItem[] => {
   // 음식 레시피 폴더
   const recipeFolder = createFolder('음식 레시피', undefined, { color: '#10B981', icon: 'ChefHat' })
   recipeFolder.children = [
-    createStorageItem('김치찌개 레시피', 'document', '재료: 김치, 돼지고기, 두부...\n조리법: 1. 김치볶기 2. 물 붓기...', recipeFolder.id),
-    createStorageItem('파스타 만들기 영상', 'video', 'https://youtube.com/watch?v=pasta-recipe', recipeFolder.id),
-    createStorageItem('디저트 레시피 모음', 'url', 'https://example.com/dessert-recipes', recipeFolder.id)
+    createStorageItem('김치찌개 황금 레시피', 'document', '🍲 김치찌개 황금 레시피 (4인분)\n\n📝 재료\n주재료:\n• 신김치 300g (1/4포기)\n• 돼지삼겹살 200g\n• 두부 1/2모\n• 대파 1대\n• 양파 1/2개\n\n양념:\n• 고춧가루 1큰술\n• 다진마늘 1큰술\n• 간장 1큰술\n• 참기름 1작은술\n\n🔥 조리법\n1. 김치는 한입 크기로 자르고, 돼지고기는 한입 크기로 썰기\n2. 팬에 참기름을 두르고 돼지고기를 볶아 기름이 나올 때까지\n3. 김치를 넣고 함께 볶아 신맛을 날리기 (3-4분)\n4. 물 400ml 붓고 끓어오르면 고춧가루, 다진마늘, 간장 추가\n5. 20분 끓인 후 두부, 대파, 양파 넣고 5분 더 끓이기\n\n💡 포인트\n- 신김치일수록 맛있음\n- 돼지고기 기름이 국물 맛의 핵심\n- 마지막에 청양고추 추가하면 더 맛있음', recipeFolder.id),
+    createStorageItem('백종원 파스타 레시피', 'video', 'https://www.youtube.com/watch?v=V3AdEeMiKTk', recipeFolder.id),
+    createStorageItem('디저트 카페 이미지', 'image', 'https://search.pstatic.net/sunny/?src=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1551024506-0bccd828d307%3Fixlib%3Drb-4.0.3%26ixid%3DM3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%253D%253D&type=sc960_832', recipeFolder.id),
+    createStorageItem('만개의 레시피', 'url', 'https://www.10000recipe.com/', recipeFolder.id)
   ]
   
   // 지역 맛집 폴더
@@ -184,9 +186,10 @@ export const createDummyFolders = (): FolderItem[] => {
   
   // 서울 성북구 맛집
   seoulFolder.children = [
-    createStorageItem('성북동 맛있는 칼국수집', 'memo', '주소: 서울시 성북구\n메뉴: 칼국수 8000원\n특징: 진한 국물', seoulFolder.id),
-    createStorageItem('돈암동 고기집', 'url', 'https://example.com/seoul-bbq', seoulFolder.id),
-    createStorageItem('맛집 사진', 'image', '/images/restaurant-seoul.jpg', seoulFolder.id)
+    createStorageItem('성북동 손칼국수 맛집', 'memo', '🍜 성북동 할머니 손칼국수\n\n📍 기본 정보\n• 주소: 서울시 성북구 성북동 123-45\n• 전화: 02-123-4567\n• 영업시간: 오전 7시 - 오후 8시\n• 휴무일: 일요일\n\n🍽️ 메뉴 & 가격\n• 손칼국수: 8,000원\n• 들깨칼국수: 9,000원\n• 만두: 6,000원\n• 김치: 무료 무한리필\n\n⭐ 특징\n- 50년 전통의 손칼국수 전문점\n- 직접 뽑은 면발의 쫄깃함\n- 진짜 사골 우린 깊은 국물\n- 동네 숨은 맛집, 항상 대기줄\n\n💡 팁\n- 오전 11시 이전 방문 추천 (대기 적음)\n- 주차 어려움, 대중교통 이용\n- 현금 결제만 가능', seoulFolder.id),
+    createStorageItem('망원동 맛집 영상', 'video', 'https://www.youtube.com/watch?v=FLgKDgj_3Nw', seoulFolder.id),
+    createStorageItem('한옥마을 맛집 사진', 'image', 'https://search.pstatic.net/sunny/?src=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1551218808-94e220e084d2%3Fixlib%3Drb-4.0.3%26ixid%3DM3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%253D%253D&type=sc960_832', seoulFolder.id),
+    createStorageItem('성북구 맛집 지도', 'url', 'https://map.naver.com/p/search/%EC%84%B1%EB%B6%81%EA%B5%AC%20%EB%A7%9B%EC%A7%91', seoulFolder.id)
   ]
   
   // 인천 맛집

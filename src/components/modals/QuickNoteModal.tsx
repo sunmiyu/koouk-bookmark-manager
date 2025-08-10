@@ -51,6 +51,25 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
 
   // Removed unused functions addTag and removeTag
 
+  // 모든 폴더를 재귀적으로 수집 (하위 폴더 포함)
+  const getAllFolders = (folders: FolderItem[], depth: number = 0): Array<FolderItem & { depth: number }> => {
+    const result: Array<FolderItem & { depth: number }> = []
+    
+    for (const folder of folders) {
+      result.push({ ...folder, depth })
+      
+      // 하위 폴더들 수집
+      const subfolders = folder.children.filter(child => child.type === 'folder') as FolderItem[]
+      if (subfolders.length > 0) {
+        result.push(...getAllFolders(subfolders, depth + 1))
+      }
+    }
+    
+    return result
+  }
+
+  const allFolders = getAllFolders(folders)
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && e.metaKey) {
       handleSave()
@@ -64,7 +83,7 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
       <div 
-        className="w-full max-w-md rounded-2xl shadow-2xl transform rotate-1 relative"
+        className="w-full max-w-md rounded-2xl shadow-2xl relative"
         style={{
           backgroundColor: '#FEF3C7',
           border: '3px solid #F59E0B',
@@ -133,8 +152,9 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
               className="w-full px-3 py-2 bg-amber-50 border-2 border-amber-200 rounded-lg text-amber-800 focus:outline-none focus:border-amber-400"
             >
               <option value="">폴더를 선택하세요</option>
-              {folders.map((folder) => (
+              {allFolders.map((folder) => (
                 <option key={folder.id} value={folder.id}>
+                  {folder.depth > 0 && '└ '.repeat(folder.depth)}
                   {folder.name}
                 </option>
               ))}

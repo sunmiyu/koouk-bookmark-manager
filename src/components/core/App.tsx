@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Settings, LogOut, MessageCircle } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
@@ -87,13 +88,14 @@ export default function App() {
                         <div className="text-[10px] text-gray-500">{user?.email}</div>
                       </div>
                       
-                      <button
+                      <Link
+                        href="/settings"
                         onClick={() => setShowUserMenu(false)}
                         className="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
                       >
                         <Settings className="w-3.5 h-3.5" />
                         Settings
-                      </button>
+                      </Link>
                       
                       <button
                         onClick={handleSignOut}
@@ -142,7 +144,7 @@ export default function App() {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-8 pt-16 pb-8">
+      <main className="max-w-6xl mx-auto px-8 pt-6 pb-8">
         {activeTab === 'my-folder' ? (
           <WorkspaceContent searchQuery={searchQuery} />
         ) : (

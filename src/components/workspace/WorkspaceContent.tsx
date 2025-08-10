@@ -754,8 +754,8 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
           
           {/* Text preview for documents/memos */}
           {!thumbnail && getTextPreview() && (
-            <div className="absolute inset-0 p-4 flex flex-col justify-center">
-              <div className="text-xs text-gray-600 leading-relaxed line-clamp-6 bg-white/50 backdrop-blur-sm rounded-lg p-3">
+            <div className="absolute inset-0 p-3 flex flex-col justify-center">
+              <div className="text-xs text-gray-600 leading-relaxed line-clamp-6">
                 {getTextPreview()}
               </div>
             </div>

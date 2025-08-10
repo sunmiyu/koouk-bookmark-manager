@@ -54,6 +54,25 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote, folder
 
   // Removed unused functions addTag and removeTag
 
+  // 모든 폴더를 재귀적으로 수집 (하위 폴더 포함)
+  const getAllFolders = (folders: FolderItem[], depth: number = 0): Array<FolderItem & { depth: number }> => {
+    const result: Array<FolderItem & { depth: number }> = []
+    
+    for (const folder of folders) {
+      result.push({ ...folder, depth })
+      
+      // 하위 폴더들 수집
+      const subfolders = folder.children.filter(child => child.type === 'folder') as FolderItem[]
+      if (subfolders.length > 0) {
+        result.push(...getAllFolders(subfolders, depth + 1))
+      }
+    }
+    
+    return result
+  }
+
+  const allFolders = getAllFolders(folders)
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && e.metaKey) {
       handleSave()
@@ -155,8 +174,9 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote, folder
               className="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-lg text-slate-800 focus:outline-none focus:border-slate-500 shadow-sm"
             >
               <option value="">폴더를 선택하세요</option>
-              {folders.map((folder) => (
+              {allFolders.map((folder) => (
                 <option key={folder.id} value={folder.id}>
+                  {folder.depth > 0 && '└ '.repeat(folder.depth)}
                   {folder.name}
                 </option>
               ))}

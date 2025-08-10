@@ -91,7 +91,16 @@ export const createFolder = (name: string, parentId?: string, template?: { color
   icon: template?.icon || 'Folder'
 })
 
-// 더미 데이터
+// 초기화된 빈 폴더 생성 (온보딩 완료 후)
+export const createInitialFolders = (): FolderItem[] => {
+  return [
+    createFolder('Folder1', undefined, { color: '#3B82F6', icon: 'Folder' }),
+    createFolder('Folder2', undefined, { color: '#10B981', icon: 'Folder' }),
+    createFolder('Folder3', undefined, { color: '#F59E0B', icon: 'Folder' })
+  ]
+}
+
+// 더미 데이터 (샘플 학습용)
 export const createDummyFolders = (): FolderItem[] => {
   const folders: FolderItem[] = []
   

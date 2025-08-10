@@ -17,7 +17,11 @@ import {
   Menu
 } from 'lucide-react'
 import FolderTree from '../ui/FolderTree'
-import { FolderItem, StorageItem, createFolder, createStorageItem, defaultFolderTemplates, createDummyFolders } from '@/types/folder'
+import UniversalInputBar from '../ui/UniversalInputBar'
+import PWAInstallPrompt from '../ui/PWAInstallPrompt'
+import QuickNoteModal from '../modals/QuickNoteModal'
+import BigNoteModal from '../modals/BigNoteModal'
+import { FolderItem, StorageItem, createFolder, createStorageItem, defaultFolderTemplates, createDummyFolders, createInitialFolders } from '@/types/folder'
 import { searchEngine } from '@/lib/search-engine'
 
 export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: string }) {
@@ -26,6 +30,9 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
   const [sidebarVisible, setSidebarVisible] = useState(true)
+  const [isFirstTime, setIsFirstTime] = useState(false)
+  const [showQuickNoteModal, setShowQuickNoteModal] = useState(false)
+  const [showBigNoteModal, setShowBigNoteModal] = useState(false)
 
   // localStorage에서 데이터 로드 - 클라이언트 사이드에서만 실행
   useEffect(() => {
@@ -49,9 +56,10 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
             setSelectedFolderId(parsedFolders[0].id)
           }
         } else {
-          // 첫 방문 시 더미 데이터 생성
+          // 첫 방문 시 더미 데이터 생성 및 첫 방문 플래그 설정
           const initialFolders = createDummyFolders()
           setFolders(initialFolders)
+          setIsFirstTime(true)
           if (initialFolders.length > 0) {
             setSelectedFolderId(initialFolders[0].id)
           }
@@ -173,25 +181,27 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
     }
   }
 
-  const handleClearAll = () => {
-    if (!confirm('모든 폴더와 내용을 삭제하고 새로 시작하시겠습니까?')) {
+  const handleStartMyWorkspace = () => {
+    if (!confirm('샘플 폴더들을 정리하고 나만의 워크스페이스를 시작하시겠습니까?')) {
       return
     }
     
+    // 초기 빈 폴더들로 설정
+    const initialFolders = createInitialFolders()
+    setFolders(initialFolders)
+    setSelectedFolderId(initialFolders[0].id)
+    setExpandedFolders(new Set())
+    setIsFirstTime(false)
+    
+    // localStorage에 저장
     if (typeof window !== 'undefined') {
-      // localStorage 클리어
-      localStorage.removeItem('koouk-folders')
-      localStorage.removeItem('koouk-selected-folder')
-      localStorage.removeItem('koouk-expanded-folders')
+      localStorage.setItem('koouk-folders', JSON.stringify(initialFolders))
+      localStorage.setItem('koouk-selected-folder', initialFolders[0].id)
+      localStorage.setItem('koouk-expanded-folders', JSON.stringify([]))
     }
     
-    // 빈 상태로 초기화
-    setFolders([])
-    setSelectedFolderId(undefined)
-    setExpandedFolders(new Set())
-    
-    // 검색 엔진도 클리어
-    searchEngine.indexFolders([])
+    // 검색 엔진 업데이트
+    searchEngine.indexFolders(initialFolders)
   }
 
   const handleShareFolder = (folderId: string) => {
@@ -258,6 +268,19 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
     return findItems(folders)
   }
 
+  // 모달 핸들러들
+  const handleSaveMemo = (memo: Omit<StorageItem, 'id' | 'createdAt' | 'updatedAt'>, folderId: string) => {
+    const newMemo = createStorageItem(memo.name, memo.type, memo.content, folderId, memo.metadata)
+    const updatedFolders = addItemToFolder(folders, folderId, newMemo)
+    handleFoldersChange(updatedFolders)
+  }
+
+  const handleSaveNote = (note: Omit<StorageItem, 'id' | 'createdAt' | 'updatedAt'>, folderId: string) => {
+    const newNote = createStorageItem(note.name, note.type, note.content, folderId, note.metadata)
+    const updatedFolders = addItemToFolder(folders, folderId, newNote)
+    handleFoldersChange(updatedFolders)
+  }
+
   if (isLoading) {
     return (
       <div className="h-96 flex items-center justify-center">
@@ -285,14 +308,14 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
         <div className={`
           ${sidebarVisible ? 'translate-x-0' : '-translate-x-full'}
           fixed lg:relative lg:translate-x-0
-          w-72 h-full border-r border-gray-100 bg-white
+          w-64 h-full border-r border-gray-100 bg-white
           transition-transform duration-300 ease-in-out
           z-40 lg:z-auto
         `}>
           {/* 헤더 영역 */}
-          <div className="px-6 py-5 border-b border-gray-100">
+          <div className="px-4 py-4 border-b border-gray-100">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-gray-900">My Workspace</h2>
+              <h2 className="text-xs font-semibold text-gray-900">My Workspace</h2>
               <button 
                 onClick={() => handleCreateFolder()}
                 className="p-1.5 hover:bg-gray-50 rounded-md transition-colors"
@@ -302,20 +325,55 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
               </button>
             </div>
             
-            <button
-              onClick={handleClearAll}
-              className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 
-                         text-sm font-medium text-gray-700 hover:text-gray-900 
-                         hover:bg-gray-50 rounded-lg transition-all duration-150
-                         border border-gray-200 hover:border-gray-300 hover:shadow-sm"
-            >
-              <Trash2 className="w-4 h-4" />
-              Clear All
-            </button>
+            {isFirstTime ? (
+              <div className="space-y-3">
+                <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-start gap-2 mb-2">
+                    <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-xs">🎓</span>
+                    </div>
+                    <div>
+                      <h3 className="text-xs font-semibold text-blue-900 mb-1">샘플로 학습해보세요!</h3>
+                      <p className="text-[10px] text-blue-700 leading-relaxed">
+                        현재 보이는 폴더들은 KOOUK 사용법을 익힐 수 있는 샘플 데이터입니다. 
+                        각 폴더를 클릭해서 다양한 콘텐츠 타입을 확인해보세요.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <button
+                  onClick={handleStartMyWorkspace}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 
+                             text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 
+                             hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-200
+                             shadow-sm hover:shadow-md"
+                >
+                  <span>✨</span>
+                  <span>나만의 워크스페이스 시작하기</span>
+                </button>
+                
+                <p className="text-[10px] text-gray-500 text-center leading-relaxed">
+                  버튼을 누르면 샘플 데이터가 정리되고<br/>
+                  Folder1, Folder2, Folder3으로 새롭게 시작됩니다
+                </p>
+              </div>
+            ) : (
+              <button
+                onClick={() => handleCreateFolder()}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 
+                           text-xs font-medium text-gray-700 hover:text-gray-900 
+                           hover:bg-gray-50 rounded-lg transition-all duration-150
+                           border border-gray-200 hover:border-gray-300 hover:shadow-sm"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                새 폴더 만들기
+              </button>
+            )}
           </div>
 
           {/* 폴더 트리 영역 */}
-          <div className="px-4 py-2 overflow-y-auto h-[calc(100%-140px)]">
+          <div className="px-3 py-2 overflow-y-auto h-[calc(100%-130px)]">
             <FolderTree
               folders={folders}
               selectedFolderId={selectedFolderId}
@@ -329,6 +387,9 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
               onCreateItem={handleCreateItem}
             />
           </div>
+
+          {/* PWA Install Prompt - 사이드바 하단 */}
+          <PWAInstallPrompt />
         </div>
 
         {/* 모바일 오버레이 */}
@@ -348,6 +409,36 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
           />
         </div>
       </div>
+
+      {/* Universal Input Bar - 고정 하단 입력란 */}
+      <UniversalInputBar
+        folders={folders}
+        selectedFolderId={selectedFolderId}
+        onAddItem={(item, folderId) => {
+          const updatedFolders = addItemToFolder(folders, folderId, item)
+          handleFoldersChange(updatedFolders)
+        }}
+        onFolderSelect={handleFolderSelect}
+        onOpenMemo={() => setShowQuickNoteModal(true)}
+        onOpenNote={() => setShowBigNoteModal(true)}
+      />
+
+      {/* Modal Components */}
+      <QuickNoteModal
+        isOpen={showQuickNoteModal}
+        onClose={() => setShowQuickNoteModal(false)}
+        onSave={handleSaveMemo}
+        folders={folders}
+        selectedFolderId={selectedFolderId}
+      />
+
+      <BigNoteModal
+        isOpen={showBigNoteModal}
+        onClose={() => setShowBigNoteModal(false)}
+        onSave={handleSaveNote}
+        folders={folders}
+        selectedFolderId={selectedFolderId}
+      />
     </div>
   )
 }
@@ -430,8 +521,8 @@ const FolderContent = ({
         <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
           <FolderOpen className="w-8 h-8 text-gray-400" />
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Empty Folder</h3>
-        <p className="text-gray-500 mb-6 max-w-sm">
+        <h3 className="text-sm font-medium text-gray-900 mb-2">Empty Folder</h3>
+        <p className="text-xs text-gray-500 mb-6 max-w-sm">
           This folder is empty. Add some content to get started.
         </p>
         
@@ -440,7 +531,7 @@ const FolderContent = ({
             <button
               key={type}
               onClick={() => onCreateItem(type)}
-              className="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+              className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-1.5"
             >
               {type === 'memo' && <StickyNote className="w-4 h-4" />}
               {type === 'document' && <FileText className="w-4 h-4" />}
@@ -474,14 +565,14 @@ const FolderContent = ({
   }
 
   return (
-    <div className="flex-1 p-4 lg:p-6">
+    <div className="flex-1 p-3 lg:p-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div>
-          <h3 className="text-lg font-medium text-black">
+          <h3 className="text-sm font-medium text-black">
             {filteredItems.length} items
           </h3>
-          <p className="text-sm text-gray-500">
+          <p className="text-xs text-gray-500">
             {getSortLabel()}
           </p>
         </div>
@@ -491,7 +582,7 @@ const FolderContent = ({
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+            className="px-2.5 py-1.5 border border-gray-200 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
           >
             <option value="recent">Recent</option>
             <option value="oldest">Oldest</option>
@@ -543,8 +634,8 @@ const FolderContent = ({
                 </div>
               </div>
               
-              {/* Grid layout - Mobile 2 cols, Desktop up to 6 cols */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+              {/* Grid layout - Mobile 2 cols, Desktop up to 8 cols */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
                 {items.slice(0, 12).map((item) => (
                   <ItemCard key={item.id} item={item} viewMode={viewMode} />
                 ))}
@@ -604,6 +695,24 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
       if (item.type === 'image') {
         return item.content
       }
+      if (item.type === 'url') {
+        // 사용자가 직접 입력한 썸네일이 있으면 사용
+        if (item.metadata?.thumbnail) return item.metadata.thumbnail
+        // 없으면 파비콘 사용
+        try {
+          const domain = new URL(item.content).hostname
+          return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`
+        } catch {
+          return null
+        }
+      }
+      return null
+    }
+
+    const getTextPreview = () => {
+      if (item.type === 'document' || item.type === 'memo') {
+        return item.content.substring(0, 120) + (item.content.length > 120 ? '...' : '')
+      }
       return null
     }
 
@@ -632,7 +741,9 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
             <img 
               src={thumbnail} 
               alt={item.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className={`w-full h-full transition-transform duration-300 group-hover:scale-105 ${
+                item.type === 'url' ? 'object-contain p-6' : 'object-cover'
+              }`}
               onError={(e) => {
                 const target = e.target as HTMLImageElement
                 target.style.display = 'none'
@@ -642,22 +753,25 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
             />
           ) : null}
           
-          {/* Fallback or no thumbnail */}
+          {/* Text preview for documents/memos */}
+          {!thumbnail && getTextPreview() && (
+            <div className="absolute inset-0 p-4 flex flex-col justify-center">
+              <div className="text-xs text-gray-600 leading-relaxed line-clamp-6 bg-white/50 backdrop-blur-sm rounded-lg p-3">
+                {getTextPreview()}
+              </div>
+            </div>
+          )}
+          
+          {/* Fallback icon when no thumbnail or text preview */}
           <div 
             className="w-full h-full absolute inset-0 flex items-center justify-center" 
-            style={{ display: thumbnail ? 'none' : 'flex' }}
+            style={{ display: (thumbnail || getTextPreview()) ? 'none' : 'flex' }}
           >
             <div className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-gray-500 shadow-sm group-hover:scale-110 transition-all duration-300">
               {getTypeIcon()}
             </div>
           </div>
           
-          {/* Type badge - 세련된 디자인 */}
-          <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm text-gray-700 px-2 py-1 rounded-full text-[10px] font-semibold shadow-sm border border-white/20">
-            <span className="capitalize">
-              {item.type === 'url' ? 'Link' : item.type}
-            </span>
-          </div>
 
           {/* Duration for videos - 개선된 스타일 */}
           {item.type === 'video' && item.metadata?.duration && (

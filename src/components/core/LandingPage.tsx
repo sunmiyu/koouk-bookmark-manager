@@ -480,9 +480,19 @@ export default function LandingPage() {
               <span style={{ fontWeight: '600', fontSize: '0.875rem' }}>Koouk</span>
             </div>
             
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              © 2024 Personal Knowledge Management
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                © 2024 Personal Knowledge Management
+              </p>
+              <a 
+                href="/privacy" 
+                style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textDecoration: 'none' }}
+                onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}
+              >
+                개인정보정책
+              </a>
+            </div>
           </div>
         </div>
       </footer>

@@ -6,15 +6,18 @@ import { StorageItem } from '@/types/folder'
 interface QuickNoteModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (note: Omit<StorageItem, 'id' | 'createdAt' | 'updatedAt'>) => void
+  onSave: (note: Omit<StorageItem, 'id' | 'createdAt' | 'updatedAt'>, folderId: string) => void
   editNote?: StorageItem | null
+  folders: any[]
+  selectedFolderId?: string
 }
 
-export default function QuickNoteModal({ isOpen, onClose, onSave, editNote }: QuickNoteModalProps) {
+export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, folders, selectedFolderId }: QuickNoteModalProps) {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
+  const [targetFolderId, setTargetFolderId] = useState(selectedFolderId || '')
 
   useEffect(() => {
     if (editNote) {
@@ -29,21 +32,22 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote }: Qu
   }, [editNote])
 
   const handleSave = () => {
-    if (!content.trim()) return
+    if (!content.trim() || !targetFolderId) return
 
     onSave({
       type: 'memo',
       name: title.trim() || 'Quick Memo',
       content: content.trim(),
-      folderId: '', // will be set by parent
+      folderId: targetFolderId,
       tags
-    })
+    }, targetFolderId)
 
     // Reset form
     setTitle('')
     setContent('')
     setTags([])
     setTagInput('')
+    setTargetFolderId(selectedFolderId || '')
     onClose()
   }
 
@@ -81,149 +85,105 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote }: Qu
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
       <div 
-        className="w-full max-w-md rounded-2xl shadow-2xl transform rotate-1"
+        className="w-full max-w-md rounded-2xl shadow-2xl transform rotate-1 relative"
         style={{
-          backgroundColor: randomColor.bg,
-          border: `3px solid ${randomColor.border}`,
-          minHeight: '400px'
+          backgroundColor: '#FEF3C7',
+          border: '3px solid #F59E0B',
+          minHeight: '500px',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
         }}
       >
+        {/* 포스트잇 상단 구멍 효과 */}
+        <div className="absolute top-2 left-4 w-3 h-3 bg-black bg-opacity-10 rounded-full"></div>
+        <div className="absolute top-2 right-4 w-3 h-3 bg-black bg-opacity-10 rounded-full"></div>
+        
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b-2" style={{ borderColor: randomColor.border }}>
+        <div className="flex items-center justify-between p-6 pb-4">
           <div className="flex items-center gap-2">
-            <span className="text-lg">📝</span>
-            <h2 className="text-lg font-semibold" style={{ color: '#2D3748' }}>
-              {editNote ? 'Edit Memo' : 'Quick Memo'}
+            <span className="text-2xl">📝</span>
+            <h2 className="text-lg font-bold text-amber-800" style={{ fontFamily: 'cursive' }}>
+              {editNote ? '메모 수정' : '메모 작성'}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-black hover:bg-opacity-10 rounded transition-colors"
+            className="p-1 hover:bg-amber-200 rounded-full transition-colors text-amber-700"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-4">
-          {/* Optional Title */}
+        <div className="px-6 pb-4">
+          {/* Title */}
           <input
             type="text"
-            placeholder="Title (optional)..."
+            placeholder="제목 (선택사항)..."
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="w-full mb-3 text-base font-medium border-none outline-none bg-transparent"
-            style={{ color: '#2D3748' }}
+            className="w-full mb-4 text-lg font-bold border-none outline-none bg-transparent text-amber-900 placeholder-amber-600"
+            style={{ fontFamily: 'cursive' }}
           />
 
-          {/* Content */}
+          {/* Content - 포스트잇 스타일 */}
           <textarea
-            placeholder="What's on your mind?"
+            placeholder="무엇을 메모하고 싶으신가요? ✨"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="w-full h-32 resize-none border-none outline-none bg-transparent text-sm leading-relaxed"
-            style={{ color: '#4A5568' }}
+            className="w-full h-40 resize-none border-none outline-none bg-transparent text-amber-800 placeholder-amber-500 leading-relaxed"
+            style={{ 
+              fontFamily: 'cursive',
+              fontSize: '16px',
+              lineHeight: '1.8'
+            }}
             autoFocus
           />
 
-          {/* Tags */}
-          <div className="mt-4">
-            <div className="flex flex-wrap gap-1 mb-2">
-              {tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="flex items-center gap-1 px-2 py-1 rounded text-xs"
-                  style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                    color: randomColor.border
-                  }}
-                >
-                  #{tag}
-                  <button
-                    onClick={() => removeTag(tag)}
-                    className="hover:text-red-500 text-xs"
-                  >
-                    ×
-                  </button>
-                </span>
+          {/* Folder Selection */}
+          <div className="mt-6">
+            <label className="block text-sm font-medium text-amber-800 mb-2">
+              저장할 폴더:
+            </label>
+            <select
+              value={targetFolderId}
+              onChange={(e) => setTargetFolderId(e.target.value)}
+              className="w-full px-3 py-2 bg-amber-50 border-2 border-amber-200 rounded-lg text-amber-800 focus:outline-none focus:border-amber-400"
+            >
+              <option value="">폴더를 선택하세요</option>
+              {folders.map((folder) => (
+                <option key={folder.id} value={folder.id}>
+                  {folder.name}
+                </option>
               ))}
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Add tag..."
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    addTag()
-                  }
-                }}
-                className="flex-1 px-2 py-1 rounded text-xs border-none outline-none"
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                  color: '#2D3748'
-                }}
-              />
-              <button
-                onClick={addTag}
-                className="px-2 py-1 rounded text-xs font-medium"
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                  color: randomColor.border
-                }}
-              >
-                +
-              </button>
-            </div>
+            </select>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between p-4 border-t-2" style={{ borderColor: randomColor.border }}>
-          <div className="text-xs" style={{ color: '#718096' }}>
-            {content.trim().length}/200 chars
+        <div className="flex items-center justify-between px-6 pb-6">
+          <div className="text-sm text-amber-700" style={{ fontFamily: 'cursive' }}>
+            {content.trim().length} 글자
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="px-3 py-1 rounded text-sm font-medium"
-              style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                color: '#718096'
-              }}
+              className="px-4 py-2 bg-amber-200 hover:bg-amber-300 text-amber-800 rounded-lg font-medium text-sm transition-colors"
             >
-              Cancel
+              취소
             </button>
             <button
               onClick={handleSave}
-              disabled={!content.trim()}
-              className="px-3 py-1 rounded text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                backgroundColor: randomColor.border,
-                color: 'white'
-              }}
+              disabled={!content.trim() || !targetFolderId}
+              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
             >
-              {editNote ? 'Update' : 'Save'}
+              {editNote ? '수정하기' : '💾 저장하기'}
             </button>
           </div>
         </div>
-
-        {/* 포스트잇 상단 구멍 효과 */}
-        <div
-          className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1"
-          style={{
-            width: '8px',
-            height: '8px',
-            backgroundColor: 'rgba(0, 0, 0, 0.1)',
-            borderRadius: '50%'
-          }}
-        />
       </div>
     </div>
   )

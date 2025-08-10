@@ -6,15 +6,18 @@ import { StorageItem } from '@/types/folder'
 interface BigNoteModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (note: Omit<StorageItem, 'id' | 'createdAt' | 'updatedAt'>) => void
+  onSave: (note: Omit<StorageItem, 'id' | 'createdAt' | 'updatedAt'>, folderId: string) => void
   editNote?: StorageItem | null
+  folders: any[]
+  selectedFolderId?: string
 }
 
-export default function BigNoteModal({ isOpen, onClose, onSave, editNote }: BigNoteModalProps) {
+export default function BigNoteModal({ isOpen, onClose, onSave, editNote, folders, selectedFolderId }: BigNoteModalProps) {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
+  const [targetFolderId, setTargetFolderId] = useState(selectedFolderId || '')
 
   useEffect(() => {
     if (editNote) {
@@ -29,7 +32,7 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote }: BigN
   }, [editNote])
 
   const handleSave = () => {
-    if (!title.trim() || !content.trim()) return
+    if (!title.trim() || !content.trim() || !targetFolderId) return
 
     const wordCount = content.trim().split(/\s+/).length
 
@@ -37,16 +40,17 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote }: BigN
       type: 'document',
       name: title.trim(),
       content: content.trim(),
-      folderId: '', // will be set by parent
+      folderId: targetFolderId,
       tags,
       metadata: { wordCount }
-    })
+    }, targetFolderId)
 
     // Reset form
     setTitle('')
     setContent('')
     setTags([])
     setTagInput('')
+    setTargetFolderId(selectedFolderId || '')
     onClose()
   }
 
@@ -72,139 +76,123 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote }: BigN
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
       <div 
-        className="w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl"
+        className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-xl relative"
         style={{
-          backgroundColor: 'var(--bg-card)',
-          border: '1px solid var(--border-light)'
+          backgroundColor: '#F8FAFC',
+          border: '3px solid #1E293B',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
         }}
       >
+        {/* 노트북 스파이럴 바인딩 효과 */}
+        <div className="absolute top-0 left-8 w-1 h-full bg-red-600 opacity-80"></div>
+        <div className="absolute top-0 left-12 w-px h-full bg-red-400"></div>
+        
+        {/* 구멍 효과들 */}
+        {Array.from({ length: 20 }, (_, i) => (
+          <div
+            key={i}
+            className="absolute w-3 h-3 bg-white border-2 border-gray-300 rounded-full"
+            style={{
+              left: '24px',
+              top: `${60 + i * 30}px`,
+              transform: 'translateX(-50%)'
+            }}
+          />
+        ))}
+        
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: 'var(--border-light)' }}>
-          <h2 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-            {editNote ? 'Edit Document' : 'New Document'}
-          </h2>
+        <div className="flex items-center justify-between p-8 pb-4">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">📔</span>
+            <h2 className="text-2xl font-bold text-slate-800">
+              {editNote ? '노트 수정' : '새 노트 작성'}
+            </h2>
+          </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-600"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[70vh]">
+        <div className="pl-20 pr-8 pb-8 overflow-y-auto max-h-[70vh] relative">
+          {/* 줄 효과 - 노트북 스타일 */}
+          <div className="absolute inset-0 pointer-events-none">
+            {Array.from({ length: 25 }, (_, i) => (
+              <div
+                key={i}
+                className="absolute w-full border-b border-blue-200"
+                style={{ top: `${80 + i * 28}px` }}
+              />
+            ))}
+          </div>
+          
           {/* Title */}
           <input
             type="text"
-            placeholder="Document title..."
+            placeholder="제목을 입력하세요..."
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="w-full mb-4 text-2xl font-bold border-none outline-none"
-            style={{
-              backgroundColor: 'transparent',
-              color: 'var(--text-primary)'
-            }}
+            className="w-full mb-6 text-2xl font-bold border-none outline-none bg-transparent text-slate-800 placeholder-slate-400 relative z-10"
             autoFocus
           />
 
-          {/* Content */}
+          {/* Content - 줄에 맞춘 텍스트 */}
           <textarea
-            placeholder="Start writing your document..."
+            placeholder="여기에 노트를 작성하세요... ✏️"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="w-full h-64 mb-4 resize-none border rounded-xl p-4 outline-none"
+            className="w-full h-80 mb-6 resize-none border-none outline-none bg-transparent text-slate-700 placeholder-slate-400 relative z-10"
             style={{
-              backgroundColor: 'var(--bg-secondary)',
-              borderColor: 'var(--border-light)',
-              color: 'var(--text-primary)'
+              lineHeight: '28px',
+              fontSize: '16px'
             }}
           />
 
-          {/* Tags */}
-          <div className="mb-4">
-            <div className="flex flex-wrap gap-2 mb-2">
-              {tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="flex items-center gap-1 px-3 py-1 rounded-full text-sm"
-                  style={{
-                    backgroundColor: 'var(--bg-secondary)',
-                    color: 'var(--text-secondary)'
-                  }}
-                >
-                  #{tag}
-                  <button
-                    onClick={() => removeTag(tag)}
-                    className="hover:text-red-500"
-                  >
-                    ×
-                  </button>
-                </span>
+          {/* Folder Selection */}
+          <div className="mb-6 relative z-10">
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              저장할 폴더:
+            </label>
+            <select
+              value={targetFolderId}
+              onChange={(e) => setTargetFolderId(e.target.value)}
+              className="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-lg text-slate-800 focus:outline-none focus:border-slate-500 shadow-sm"
+            >
+              <option value="">폴더를 선택하세요</option>
+              {folders.map((folder) => (
+                <option key={folder.id} value={folder.id}>
+                  {folder.name}
+                </option>
               ))}
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Add tag..."
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    addTag()
-                  }
-                }}
-                className="flex-1 px-3 py-2 rounded-lg border outline-none"
-                style={{
-                  backgroundColor: 'var(--bg-secondary)',
-                  borderColor: 'var(--border-light)',
-                  color: 'var(--text-primary)'
-                }}
-              />
-              <button
-                onClick={addTag}
-                className="px-4 py-2 rounded-lg font-medium"
-                style={{
-                  backgroundColor: 'var(--bg-secondary)',
-                  color: 'var(--text-secondary)'
-                }}
-              >
-                Add
-              </button>
-            </div>
+            </select>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between p-6 border-t" style={{ borderColor: 'var(--border-light)' }}>
-          <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-            {content.trim() ? `${content.trim().split(/\s+/).length} words` : '0 words'}
+        <div className="flex items-center justify-between px-8 pb-8">
+          <div className="text-sm text-slate-600">
+            📊 {content.trim().split(/\s+/).filter(word => word.length > 0).length} 단어 • {content.trim().length} 글자
           </div>
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="px-6 py-2 rounded-lg font-medium"
-              style={{
-                backgroundColor: 'var(--bg-secondary)',
-                color: 'var(--text-secondary)'
-              }}
+              className="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-medium transition-colors"
             >
-              Cancel
+              취소
             </button>
             <button
               onClick={handleSave}
-              disabled={!title.trim() || !content.trim()}
-              className="px-6 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                backgroundColor: 'var(--text-primary)',
-                color: 'var(--bg-card)'
-              }}
+              disabled={!title.trim() || !content.trim() || !targetFolderId}
+              className="px-6 py-3 bg-slate-700 hover:bg-slate-800 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
             >
-              {editNote ? 'Update' : 'Save'} Document
+              {editNote ? '수정하기' : '📝 저장하기'}
             </button>
           </div>
         </div>

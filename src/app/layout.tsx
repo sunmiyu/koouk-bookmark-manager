@@ -7,6 +7,22 @@ export const metadata: Metadata = {
   description: 'Store, organize, and find your information effortlessly. From notes to links, everything in one place.',
   keywords: ['knowledge management', 'notes', 'organization', 'productivity'],
   authors: [{ name: 'Koouk Team' }],
+  manifest: '/manifest.json',
+  themeColor: '#2c3e50',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Koouk',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 }
 
 export default function RootLayout({

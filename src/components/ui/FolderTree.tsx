@@ -180,7 +180,7 @@ const FolderNode = ({
               onClick={(e) => e.stopPropagation()}
             />
           ) : (
-            <span className="text-sm truncate">
+            <span className="text-xs truncate">
               {item.name}
             </span>
           )}

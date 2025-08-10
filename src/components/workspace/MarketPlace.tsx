@@ -10,13 +10,13 @@ import {
 import { SharedFolder, ShareCategory, categoryMetadata, createDummySharedFolders } from '@/types/share'
 import { createFolder } from '@/types/folder'
 
-interface SharePlaceProps {
+interface MarketPlaceProps {
   onBack: () => void
   onImportFolder?: (folder: SharedFolder) => void
   initialSearchQuery?: string
 }
 
-export default function SharePlace({ searchQuery = '' }: { searchQuery?: string }) {
+export default function MarketPlace({ searchQuery = '' }: { searchQuery?: string }) {
   const [sharedFolders, setSharedFolders] = useState<SharedFolder[]>([])
   const [filteredFolders, setFilteredFolders] = useState<SharedFolder[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
@@ -156,15 +156,27 @@ export default function SharePlace({ searchQuery = '' }: { searchQuery?: string 
   }
 
   return (
-    <div className="h-full">
+    <div className="flex-1 p-3 lg:p-4">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div>
+          <h3 className="text-sm font-medium text-black">
+            {filteredFolders.length} folders
+          </h3>
+          <p className="text-xs text-gray-500">
+            {selectedCategory === 'all' ? 'All Categories' : categories.find(cat => cat.value === selectedCategory)?.label}
+          </p>
+        </div>
+      </div>
+
       {/* Category Filter */}
-      <div className="mb-8 pb-4 border-b border-gray-200">
+      <div className="mb-6 pb-3 border-b border-gray-200">
         <div className="flex flex-wrap gap-2">
           {categories.map((category) => (
             <button
               key={category.value}
               onClick={() => setSelectedCategory(category.value)}
-              className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+              className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
                 selectedCategory === category.value
                   ? 'bg-black text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -176,83 +188,59 @@ export default function SharePlace({ searchQuery = '' }: { searchQuery?: string 
         </div>
       </div>
 
-      {/* Results Count */}
-      <div className="mb-6">
-        <p className="text-sm text-gray-500">
-          {filteredFolders.length} {filteredFolders.length === 1 ? 'folder' : 'folders'} found
-        </p>
-      </div>
-
-      {/* Market Place Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Market Place Grid - 최적화된 그리드 */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
         {filteredFolders.map((sharedFolder) => (
           <motion.div
             key={sharedFolder.id}
-            className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-300"
+            className="bg-white border border-gray-100 rounded-lg overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer group"
             whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.98 }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            {/* Category Badge */}
-            <div className="mb-3">
-              <span className="inline-block px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded uppercase tracking-wide">
+            {/* Preview area with gradient background */}
+            <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 aspect-[4/3] overflow-hidden">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-gray-500 shadow-sm group-hover:scale-110 transition-all duration-300">
+                  <Heart className="w-5 h-5" />
+                </div>
+              </div>
+              
+              {/* Category badge */}
+              <div className="absolute top-2 left-2 px-2 py-1 bg-black/80 backdrop-blur-sm text-white text-[10px] font-semibold rounded-full">
                 {categories.find(cat => cat.value === sharedFolder.category)?.label || sharedFolder.category}
-              </span>
-            </div>
+              </div>
 
-            {/* Title & Description */}
-            <h3 className="text-lg font-semibold text-black mb-2 line-clamp-2">
-              {sharedFolder.title}
-            </h3>
+              {/* Stats overlay */}
+              <div className="absolute bottom-2 right-2 flex items-center gap-2">
+                <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
+                  <Heart className="w-3 h-3 text-red-500" />
+                  <span className="text-[10px] font-medium text-gray-700">{sharedFolder.stats.likes}</span>
+                </div>
+              </div>
+            </div>
             
-            <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-              {sharedFolder.description}
-            </p>
-
-            {/* Tags */}
-            <div className="mb-4">
-              <div className="flex flex-wrap gap-1">
-                {sharedFolder.tags.slice(0, 3).map((tag, index) => (
-                  <span
-                    key={index}
-                    className="inline-block px-2 py-1 text-xs bg-gray-50 text-gray-600 rounded"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-                {sharedFolder.tags.length > 3 && (
-                  <span className="inline-block px-2 py-1 text-xs text-gray-400">
-                    +{sharedFolder.tags.length - 3} more
-                  </span>
-                )}
+            {/* Content area - compressed */}
+            <div className="px-3 py-2 bg-white">
+              <div className="mb-1">
+                <h4 className="font-medium text-gray-800 truncate text-xs leading-tight tracking-tight">
+                  {sharedFolder.title}
+                </h4>
               </div>
-            </div>
-
-            {/* Author & Stats */}
-            <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
-              <span>by {sharedFolder.author.name}</span>
-              <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1">
-                  <Heart className="w-3 h-3" />
-                  {sharedFolder.stats.likes}
+              
+              {/* Author info */}
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-gray-500 truncate">
+                  by {sharedFolder.author.name}
                 </span>
-                <span>
-                  {new Date(sharedFolder.createdAt).toLocaleDateString()}
-                </span>
+                <button
+                  onClick={() => handleImportFolder(sharedFolder)}
+                  className="px-2 py-1 bg-gray-900 text-white text-[10px] font-medium rounded hover:bg-gray-800 transition-colors"
+                >
+                  Add
+                </button>
               </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleImportFolder(sharedFolder)}
-                className="flex-1 px-4 py-2 bg-black text-white text-sm font-medium rounded hover:bg-gray-800 transition-colors"
-              >
-                Add to My Folder
-              </button>
-              <button className="px-3 py-2 border border-gray-200 text-gray-600 text-sm rounded hover:bg-gray-50 transition-colors">
-                <ExternalLink className="w-4 h-4" />
-              </button>
             </div>
           </motion.div>
         ))}
@@ -260,13 +248,13 @@ export default function SharePlace({ searchQuery = '' }: { searchQuery?: string 
 
       {/* Empty State */}
       {filteredFolders.length === 0 && (
-        <div className="text-center py-16">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Search className="w-8 h-8 text-gray-400" />
+        <div className="text-center py-12">
+          <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+            <Search className="w-6 h-6 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No folders found</h3>
-          <p className="text-gray-500 max-w-md mx-auto">
-            Try adjusting your search terms or category filter to find what you&apos;re looking for.
+          <h3 className="text-sm font-medium text-gray-900 mb-1">No folders found</h3>
+          <p className="text-xs text-gray-500 max-w-sm mx-auto">
+            Try adjusting your category filter to find what you&apos;re looking for.
           </p>
         </div>
       )}

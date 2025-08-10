@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,6 +12,15 @@ export async function POST(request: NextRequest) {
         { error: '피드백 내용이 필요합니다.' },
         { status: 400 }
       )
+    }
+
+    // API 키가 설정되지 않은 경우 개발 모드에서는 성공으로 처리
+    if (!resend) {
+      console.log('Feedback (development mode):', { feedback, email, category })
+      return NextResponse.json({ 
+        success: true, 
+        message: '피드백이 성공적으로 전송되었습니다! (개발 모드)' 
+      })
     }
 
     const categoryLabels = {

@@ -21,10 +21,13 @@ import PWAInstallPrompt from '../ui/PWAInstallPrompt'
 import QuickNoteModal from '../modals/QuickNoteModal'
 import BigNoteModal from '../modals/BigNoteModal'
 import DocumentViewModal from '../modals/DocumentViewModal'
+import MobileWorkspace from '../mobile/MobileWorkspace'
 import { FolderItem, StorageItem, createFolder, createStorageItem, defaultFolderTemplates, createDummyFolders, createInitialFolders } from '@/types/folder'
 import { searchEngine } from '@/lib/search-engine'
+import { useDevice } from '@/hooks/useDevice'
 
 export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: string }) {
+  const device = useDevice()
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
@@ -299,6 +302,41 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
     )
   }
 
+  // 모바일 환경에서는 MobileWorkspace 렌더링
+  if (device.isMobile) {
+    return (
+      <>
+        <MobileWorkspace 
+          folders={folders}
+        />
+        
+        {/* Modal Components */}
+        <QuickNoteModal
+          isOpen={showQuickNoteModal}
+          onClose={() => setShowQuickNoteModal(false)}
+          onSave={handleSaveMemo}
+          folders={folders}
+          selectedFolderId={selectedFolderId}
+        />
+
+        <BigNoteModal
+          isOpen={showBigNoteModal}
+          onClose={() => setShowBigNoteModal(false)}
+          onSave={handleSaveNote}
+          folders={folders}
+          selectedFolderId={selectedFolderId}
+        />
+
+        <DocumentViewModal
+          isOpen={showDocumentModal}
+          onClose={() => setShowDocumentModal(false)}
+          item={selectedDocument}
+        />
+      </>
+    )
+  }
+
+  // 데스크톱 환경에서는 기존 레이아웃 렌더링
   return (
     <div>
       {/* 모바일 반응형 컨테이너 */}

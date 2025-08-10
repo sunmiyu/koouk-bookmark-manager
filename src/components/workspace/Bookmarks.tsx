@@ -183,6 +183,34 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
             {selectedCategory === 'all' ? 'All Categories' : categories.find(cat => cat.value === selectedCategory)?.label}
           </p>
         </div>
+        
+        {/* Add Bookmark Button */}
+        <button
+          onClick={() => {
+            const url = prompt('북마크할 URL을 입력하세요:')
+            if (url) {
+              const title = prompt('제목을 입력하세요:', url) || url
+              const newBookmark: Bookmark = {
+                id: Date.now().toString(),
+                title,
+                url,
+                description: '',
+                tags: [],
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                category: 'personal',
+                isFavorite: false
+              }
+              setBookmarks(prev => [newBookmark, ...prev])
+            }
+          }}
+          className="px-4 py-2 bg-black text-white text-xs font-medium rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
+        >
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Add Bookmark
+        </button>
       </div>
 
       {/* Category Filter */}

@@ -20,6 +20,7 @@ import UniversalInputBar from '../ui/UniversalInputBar'
 import PWAInstallPrompt from '../ui/PWAInstallPrompt'
 import QuickNoteModal from '../modals/QuickNoteModal'
 import BigNoteModal from '../modals/BigNoteModal'
+import DocumentViewModal from '../modals/DocumentViewModal'
 import { FolderItem, StorageItem, createFolder, createStorageItem, defaultFolderTemplates, createDummyFolders, createInitialFolders } from '@/types/folder'
 import { searchEngine } from '@/lib/search-engine'
 
@@ -32,6 +33,8 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
   const [isFirstTime, setIsFirstTime] = useState(false)
   const [showQuickNoteModal, setShowQuickNoteModal] = useState(false)
   const [showBigNoteModal, setShowBigNoteModal] = useState(false)
+  const [showDocumentModal, setShowDocumentModal] = useState(false)
+  const [selectedDocument, setSelectedDocument] = useState<StorageItem | null>(null)
 
   // localStorage에서 데이터 로드 - 클라이언트 사이드에서만 실행
   useEffect(() => {
@@ -280,6 +283,11 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
     handleFoldersChange(updatedFolders)
   }
 
+  const handleDocumentOpen = (item: StorageItem) => {
+    setSelectedDocument(item)
+    setShowDocumentModal(true)
+  }
+
   if (isLoading) {
     return (
       <div className="h-96 flex items-center justify-center">
@@ -404,6 +412,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
           <FolderContent 
             items={getSelectedFolderItems()}
             onCreateItem={(type) => selectedFolderId && handleCreateItem(type, selectedFolderId)}
+            onDocumentOpen={handleDocumentOpen}
             searchQuery={searchQuery}
           />
         </div>
@@ -438,6 +447,12 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
         folders={folders}
         selectedFolderId={selectedFolderId}
       />
+
+      <DocumentViewModal
+        isOpen={showDocumentModal}
+        onClose={() => setShowDocumentModal(false)}
+        item={selectedDocument}
+      />
     </div>
   )
 }
@@ -446,10 +461,12 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
 const FolderContent = ({ 
   items, 
   onCreateItem,
+  onDocumentOpen,
   searchQuery = ''
 }: { 
   items: StorageItem[]
   onCreateItem: (type: StorageItem['type']) => void
+  onDocumentOpen: (item: StorageItem) => void
   searchQuery?: string
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
@@ -461,9 +478,8 @@ const FolderContent = ({
       // URL과 비디오는 새 탭에서 열기
       window.open(item.content, '_blank', 'noopener,noreferrer')
     } else if (item.type === 'document' || item.type === 'memo') {
-      // 문서와 메모는 모달에서 열기 (추후 구현)
-      console.log('Opening document/memo:', item.name)
-      alert(`"${item.name}" 내용:\n\n${item.content.substring(0, 200)}${item.content.length > 200 ? '...' : ''}`)
+      // 문서와 메모는 모달에서 열기
+      onDocumentOpen(item)
     } else if (item.type === 'image') {
       // 이미지는 새 탭에서 열기
       window.open(item.content, '_blank', 'noopener,noreferrer')
@@ -649,7 +665,7 @@ const FolderContent = ({
               </div>
               
               {/* Grid layout - Mobile 2 cols, Desktop up to 8 cols */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                 {items.slice(0, 12).map((item) => (
                   <ItemCard key={item.id} item={item} viewMode={viewMode} onItemClick={handleItemClick} />
                 ))}
@@ -712,6 +728,11 @@ const ItemCard = ({ item, viewMode, onItemClick }: { item: StorageItem; viewMode
       if (item.type === 'url') {
         // 사용자가 직접 입력한 썸네일이 있으면 사용
         if (item.metadata?.thumbnail) return item.metadata.thumbnail
+        
+        // YouTube URL이면 썸네일 사용
+        const youTubeThumbnail = getYouTubeThumbnail(item.content)
+        if (youTubeThumbnail) return youTubeThumbnail
+        
         // 없으면 파비콘 사용
         try {
           const domain = new URL(item.content).hostname

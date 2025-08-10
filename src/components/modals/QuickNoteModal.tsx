@@ -142,10 +142,7 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 pb-6">
-          <div className="text-sm text-amber-700">
-            {content.trim().length} 글자
-          </div>
+        <div className="flex items-center justify-end px-6 pb-6">
           <div className="flex items-center gap-3">
             {/* Folder Selection */}
             <select
@@ -172,7 +169,7 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
               disabled={!content.trim() || !targetFolderId}
               className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
             >
-              {editNote ? '수정하기' : '💾 저장하기'}
+              {editNote ? '수정하기' : '저장하기'}
             </button>
           </div>
         </div>

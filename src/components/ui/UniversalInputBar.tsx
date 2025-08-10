@@ -38,6 +38,7 @@ export default function UniversalInputBar({
   const [showFolderSelector, setShowFolderSelector] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [attachedFiles, setAttachedFiles] = useState<File[]>([])
+  const [pastedImages, setPastedImages] = useState<File[]>([])
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -184,9 +185,28 @@ export default function UniversalInputBar({
         onAddItem(item, selectedFolderId)
       }
 
+      // 붙여넣은 이미지 처리
+      for (const image of pastedImages) {
+        const item = createStorageItem(
+          `Pasted Image ${new Date().toISOString()}`,
+          'image',
+          URL.createObjectURL(image),
+          selectedFolderId
+        )
+
+        item.metadata = {
+          fileSize: image.size,
+          fileType: image.type,
+          fileName: `pasted-image-${Date.now()}.${image.type.split('/')[1]}`
+        }
+
+        onAddItem(item, selectedFolderId)
+      }
+
       // 초기화
       setInput('')
       setAttachedFiles([])
+      setPastedImages([])
     } catch (error) {
       console.error('콘텐츠 추가 실패:', error)
       alert('콘텐츠 추가에 실패했습니다.')
@@ -201,6 +221,28 @@ export default function UniversalInputBar({
       e.preventDefault()
       handleSubmit()
     }
+  }
+
+  // 이미지 붙여넣기 핸들러
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = Array.from(e.clipboardData.items)
+    const imageItems = items.filter(item => item.type.startsWith('image/'))
+    
+    if (imageItems.length > 0) {
+      e.preventDefault()
+      
+      imageItems.forEach(item => {
+        const file = item.getAsFile()
+        if (file) {
+          setPastedImages(prev => [...prev, file])
+        }
+      })
+    }
+  }
+
+  // 붙여넣은 이미지 제거
+  const removePastedImage = (index: number) => {
+    setPastedImages(prev => prev.filter((_, i) => i !== index))
   }
 
   return (
@@ -359,6 +401,7 @@ export default function UniversalInputBar({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
+                onPaste={handlePaste}
                 placeholder="링크, 메모, 문서 등 무엇이든 입력하세요... (Ctrl+Enter로 저장)"
                 className="w-full resize-none border-none outline-none bg-transparent text-xs leading-relaxed"
                 style={{ 
@@ -367,6 +410,27 @@ export default function UniversalInputBar({
                   maxHeight: '200px'
                 }}
               />
+
+              {/* 붙여넣은 이미지 미리보기 */}
+              {pastedImages.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {pastedImages.map((image, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={URL.createObjectURL(image)}
+                        alt="Pasted image"
+                        className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                      />
+                      <button
+                        onClick={() => removePastedImage(index)}
+                        className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* 액션 버튼들 */}
@@ -381,9 +445,9 @@ export default function UniversalInputBar({
 
               <button
                 onClick={handleSubmit}
-                disabled={(!input.trim() && attachedFiles.length === 0) || isProcessing || !selectedFolderId}
+                disabled={(!input.trim() && attachedFiles.length === 0 && pastedImages.length === 0) || isProcessing || !selectedFolderId}
                 className={`p-2 rounded-lg transition-all ${
-                  (!input.trim() && attachedFiles.length === 0) || isProcessing || !selectedFolderId
+                  (!input.trim() && attachedFiles.length === 0 && pastedImages.length === 0) || isProcessing || !selectedFolderId
                     ? 'opacity-50 cursor-not-allowed' 
                     : 'hover:scale-105 shadow-md'
                 }`}

@@ -454,6 +454,21 @@ const FolderContent = ({
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'name' | 'type'>('recent')
+
+  // 아이템 클릭 핸들러
+  const handleItemClick = (item: StorageItem) => {
+    if (item.type === 'url' || item.type === 'video') {
+      // URL과 비디오는 새 탭에서 열기
+      window.open(item.content, '_blank', 'noopener,noreferrer')
+    } else if (item.type === 'document' || item.type === 'memo') {
+      // 문서와 메모는 모달에서 열기 (추후 구현)
+      console.log('Opening document/memo:', item.name)
+      alert(`"${item.name}" 내용:\n\n${item.content.substring(0, 200)}${item.content.length > 200 ? '...' : ''}`)
+    } else if (item.type === 'image') {
+      // 이미지는 새 탭에서 열기
+      window.open(item.content, '_blank', 'noopener,noreferrer')
+    }
+  }
   
   // 검색 필터링
   const filteredItems = items.filter(item => {
@@ -636,7 +651,7 @@ const FolderContent = ({
               {/* Grid layout - Mobile 2 cols, Desktop up to 8 cols */}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
                 {items.slice(0, 12).map((item) => (
-                  <ItemCard key={item.id} item={item} viewMode={viewMode} />
+                  <ItemCard key={item.id} item={item} viewMode={viewMode} onItemClick={handleItemClick} />
                 ))}
               </div>
               
@@ -654,7 +669,7 @@ const FolderContent = ({
         <div className="space-y-2">
           {Object.entries(sortedGroups).flatMap(([, items]) => 
             items.map((item) => (
-              <ItemCard key={item.id} item={item} viewMode={viewMode} />
+              <ItemCard key={item.id} item={item} viewMode={viewMode} onItemClick={handleItemClick} />
             ))
           )}
         </div>
@@ -664,7 +679,7 @@ const FolderContent = ({
 }
 
 // 아이템 카드 컴포넌트
-const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'list' }) => {
+const ItemCard = ({ item, viewMode, onItemClick }: { item: StorageItem; viewMode: 'grid' | 'list'; onItemClick: (item: StorageItem) => void }) => {
   // YouTube 썸네일 추출
   const getYouTubeThumbnail = (url: string): string | null => {
     const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/
@@ -733,6 +748,7 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
         className="bg-white border border-gray-100 rounded-lg overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer group"
         whileHover={{ y: -2 }}
         whileTap={{ scale: 0.98 }}
+        onClick={() => onItemClick(item)}
       >
         {/* Preview area - 4:1 비율 (이미지 영역 유지, 하단만 최소화) */}
         <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 aspect-[4/3] overflow-hidden">
@@ -792,7 +808,7 @@ const ItemCard = ({ item, viewMode }: { item: StorageItem; viewMode: 'grid' | 'l
 
   // List 모드
   return (
-    <div className="flex items-center gap-4 p-3 bg-white border border-gray-100 rounded-lg hover:shadow-sm transition-all cursor-pointer">
+    <div className="flex items-center gap-4 p-3 bg-white border border-gray-100 rounded-lg hover:shadow-sm transition-all cursor-pointer" onClick={() => onItemClick(item)}>
       <div className="flex-shrink-0">
         <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center">
           {item.type === 'video' && <Video className="w-4 h-4 text-blue-600" />}

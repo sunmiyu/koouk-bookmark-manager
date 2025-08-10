@@ -16,7 +16,6 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [tags, setTags] = useState<string[]>([])
-  const [tagInput, setTagInput] = useState('')
   const [targetFolderId, setTargetFolderId] = useState(selectedFolderId || '')
 
   useEffect(() => {
@@ -46,7 +45,6 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
     setTitle('')
     setContent('')
     setTags([])
-    setTagInput('')
     setTargetFolderId(selectedFolderId || '')
     onClose()
   }

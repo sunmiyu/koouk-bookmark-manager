@@ -9,11 +9,7 @@ import {
 import { SharedFolder } from '@/types/share'
 import { createFolder } from '@/types/folder'
 
-interface MarketPlaceProps {
-  onBack: () => void
-  onImportFolder?: (folder: SharedFolder) => void
-  initialSearchQuery?: string
-}
+// Removed unused interface MarketPlaceProps
 
 export default function MarketPlace({ searchQuery = '' }: { searchQuery?: string }) {
   const [sharedFolders, setSharedFolders] = useState<SharedFolder[]>([])

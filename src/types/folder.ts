@@ -102,7 +102,7 @@ export const createInitialFolders = (): FolderItem[] => {
 
 // 더미 데이터 (샘플 학습용)
 export const createDummyFolders = (): FolderItem[] => {
-  const foldersList: FolderItem[] = [] // Renamed to avoid unused variable warning
+  // Initialize empty array for folders to be created
   
   // 재테크 폴더
   const investFolder = createFolder('재테크', undefined, { color: '#F59E0B', icon: 'TrendingUp' })

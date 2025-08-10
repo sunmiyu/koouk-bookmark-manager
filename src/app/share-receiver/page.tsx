@@ -16,7 +16,7 @@ import {
   Folder,
   FolderOpen
 } from 'lucide-react'
-import { FolderItem, createFolder, createStorageItem } from '@/types/folder'
+import { FolderItem, StorageItem, createFolder, createStorageItem } from '@/types/folder'
 
 interface SharedContent {
   title?: string
@@ -101,7 +101,7 @@ function ShareReceiverContent() {
   }
 
   // 실제 워크스페이스 폴더에 직접 저장
-  const addItemToFolder = (folders: FolderItem[], folderId: string, newItem: any): FolderItem[] => {
+  const addItemToFolder = (folders: FolderItem[], folderId: string, newItem: StorageItem): FolderItem[] => {
     return folders.map(folder => {
       if (folder.id === folderId) {
         return {

@@ -16,7 +16,6 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote, folder
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [tags, setTags] = useState<string[]>([])
-  const [tagInput, setTagInput] = useState('')
   const [targetFolderId, setTargetFolderId] = useState(selectedFolderId || '')
 
   useEffect(() => {
@@ -49,7 +48,6 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote, folder
     setTitle('')
     setContent('')
     setTags([])
-    setTagInput('')
     setTargetFolderId(selectedFolderId || '')
     onClose()
   }

@@ -1,14 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { StorageItem } from '@/types/folder'
+import { StorageItem, FolderItem } from '@/types/folder'
 
 interface BigNoteModalProps {
   isOpen: boolean
   onClose: () => void
   onSave: (note: Omit<StorageItem, 'id' | 'createdAt' | 'updatedAt'>, folderId: string) => void
   editNote?: StorageItem | null
-  folders: any[]
+  folders: FolderItem[]
   selectedFolderId?: string
 }
 
@@ -54,16 +54,7 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote, folder
     onClose()
   }
 
-  const addTag = () => {
-    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-      setTags([...tags, tagInput.trim()])
-      setTagInput('')
-    }
-  }
-
-  const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove))
-  }
+  // Removed unused functions addTag and removeTag
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && e.metaKey) {

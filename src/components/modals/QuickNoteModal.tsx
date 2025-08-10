@@ -1,14 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { StorageItem } from '@/types/folder'
+import { StorageItem, FolderItem } from '@/types/folder'
 
 interface QuickNoteModalProps {
   isOpen: boolean
   onClose: () => void
   onSave: (note: Omit<StorageItem, 'id' | 'createdAt' | 'updatedAt'>, folderId: string) => void
   editNote?: StorageItem | null
-  folders: any[]
+  folders: FolderItem[]
   selectedFolderId?: string
 }
 
@@ -51,16 +51,7 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
     onClose()
   }
 
-  const addTag = () => {
-    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-      setTags([...tags, tagInput.trim()])
-      setTagInput('')
-    }
-  }
-
-  const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove))
-  }
+  // Removed unused functions addTag and removeTag
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && e.metaKey) {
@@ -70,17 +61,7 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
 
   if (!isOpen) return null
 
-  // 포스트잇 컬러 (BigNoteCard에서 사용하는 것과 동일)
-  const colors = [
-    { bg: '#FFF9C4', border: '#F9A825' }, // 노란색
-    { bg: '#E8F5E8', border: '#66BB6A' }, // 연한 초록
-    { bg: '#E3F2FD', border: '#42A5F5' }, // 연한 파란
-    { bg: '#FCE4EC', border: '#EC407A' }, // 연한 분홍
-    { bg: '#F3E5F5', border: '#AB47BC' }, // 연한 보라
-    { bg: '#FFF3E0', border: '#FFA726' }, // 연한 주황
-  ]
-  
-  const randomColor = colors[Math.floor(Math.random() * colors.length)]
+  // Removed unused color variables
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">

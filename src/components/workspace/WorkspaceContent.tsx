@@ -12,7 +12,6 @@ import {
   LayoutList,
   FolderOpen,
   Search,
-  Trash2,
   Plus,
   Menu
 } from 'lucide-react'

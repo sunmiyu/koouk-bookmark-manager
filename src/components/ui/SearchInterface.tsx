@@ -41,7 +41,7 @@ export default function SearchInterface({
   const [recentSearches, setRecentSearches] = useState<string[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [showTranslation, setShowTranslation] = useState(false)
-  const [translatedQuery, setTranslatedQuery] = useState('')
+  const [translatedQuery] = useState('') // Removed setTranslatedQuery as it was unused
   
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)

@@ -1,13 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { 
   Search, 
-  Heart,
-  ExternalLink
+  Heart
 } from 'lucide-react'
-import { SharedFolder, ShareCategory, categoryMetadata, createDummySharedFolders } from '@/types/share'
+import { SharedFolder } from '@/types/share'
 import { createFolder } from '@/types/folder'
 
 interface MarketPlaceProps {

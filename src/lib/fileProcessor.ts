@@ -1,5 +1,5 @@
 // File Processing for Cover Flow Drag & Drop System
-import { Content, ContentType, DropItem, FileUploadResult } from '@/types/core'
+import { Content, ContentType, FileUploadResult } from '@/types/core'
 
 export class FileProcessor {
   // Detect content type from file or URL
@@ -118,7 +118,7 @@ export class FileProcessor {
           mimeType: 'text/uri-list'
         }
       }
-    } catch (error) {
+    } catch {
       throw new Error('Invalid URL format')
     }
   }

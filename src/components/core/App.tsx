@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Search, User, Settings, LogOut, MessageCircle } from 'lucide-react'
+import { Settings, LogOut, MessageCircle } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import { supabase } from '@/lib/supabase'
 import WorkspaceContent from '../workspace/WorkspaceContent'

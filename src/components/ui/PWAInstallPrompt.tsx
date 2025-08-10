@@ -35,7 +35,7 @@ export default function PWAInstallPrompt() {
       }
       
       // iOS Safari 확인
-      if ('standalone' in window.navigator && (window.navigator as any).standalone === true) {
+      if ('standalone' in window.navigator && (window.navigator as { standalone?: boolean }).standalone === true) {
         setIsInstalled(true)
         return
       }

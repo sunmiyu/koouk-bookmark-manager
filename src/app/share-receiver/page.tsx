@@ -82,7 +82,7 @@ function ShareReceiverContent() {
       url,
       type: detectedType
     })
-  }, [searchParams])
+  }, [searchParams, selectedFolder])
 
   const handleCreateNewFolder = () => {
     if (!newFolderName.trim()) return

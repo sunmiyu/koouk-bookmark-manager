@@ -23,7 +23,7 @@ interface SharedContent {
   text?: string
   url?: string
   files?: File[]
-  type?: 'url' | 'text' | 'image' | 'video' | 'document' | 'memo'
+  type?: 'url' | 'image' | 'video' | 'document' | 'memo'
 }
 
 function ShareReceiverContent() {
@@ -130,7 +130,7 @@ function ShareReceiverContent() {
       const content = sharedContent.url || sharedContent.text || ''
       const newItem = createStorageItem(
         sharedContent.title || 'Shared Content',
-        sharedContent.type || 'memo',
+        (sharedContent.type as StorageItem['type']) || 'memo',
         content,
         selectedFolder
       )

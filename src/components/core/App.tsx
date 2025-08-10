@@ -49,7 +49,7 @@ export default function App() {
                 <SearchInterface
                   searchQuery={searchQuery}
                   onSearchChange={setSearchQuery}
-                  searchScope={activeTab === 'my-folder' ? 'my-folder' : 'marketplace'}
+                  searchScope={activeTab === 'my-folder' ? 'my-folder' : 'market-place'}
                   placeholder="Search..."
                   language="ko"
                 />

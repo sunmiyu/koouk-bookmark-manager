@@ -25,6 +25,7 @@ import MobileWorkspace from '../mobile/MobileWorkspace'
 import { FolderItem, StorageItem, createFolder, createStorageItem, defaultFolderTemplates, createDummyFolders, createInitialFolders } from '@/types/folder'
 import { searchEngine } from '@/lib/search-engine'
 import { useDevice } from '@/hooks/useDevice'
+import { isYouTubeUrl, getYouTubeThumbnail } from '@/utils/youtube'
 
 export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: string }) {
   const device = useDevice()
@@ -633,7 +634,7 @@ const FolderContent = ({
   }
 
   return (
-    <div className="flex-1 p-3 lg:p-4">
+    <div className="flex-1 px-2 py-3 sm:px-4 lg:p-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div>
@@ -703,7 +704,7 @@ const FolderContent = ({
               </div>
               
               {/* Grid layout - Mobile 2 cols, Desktop up to 8 cols */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3">
                 {items.slice(0, 12).map((item) => (
                   <ItemCard key={item.id} item={item} viewMode={viewMode} onItemClick={handleItemClick} />
                 ))}
@@ -734,15 +735,6 @@ const FolderContent = ({
 
 // 아이템 카드 컴포넌트
 const ItemCard = ({ item, viewMode, onItemClick }: { item: StorageItem; viewMode: 'grid' | 'list'; onItemClick: (item: StorageItem) => void }) => {
-  // YouTube 썸네일 추출
-  const getYouTubeThumbnail = (url: string): string | null => {
-    const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/
-    const match = url.match(regex)
-    if (match) {
-      return `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg`
-    }
-    return null
-  }
 
   // 링크에서 도메인 추출
   const getDomain = (url: string): string => {
@@ -758,7 +750,10 @@ const ItemCard = ({ item, viewMode, onItemClick }: { item: StorageItem; viewMode
     const getThumbnail = () => {
       if (item.type === 'video') {
         if (item.metadata?.thumbnail) return item.metadata.thumbnail
-        return getYouTubeThumbnail(item.content)
+        if (isYouTubeUrl(item.content)) {
+          return getYouTubeThumbnail(item.content)
+        }
+        return null
       }
       if (item.type === 'image') {
         return item.content
@@ -768,8 +763,9 @@ const ItemCard = ({ item, viewMode, onItemClick }: { item: StorageItem; viewMode
         if (item.metadata?.thumbnail) return item.metadata.thumbnail
         
         // YouTube URL이면 썸네일 사용
-        const youTubeThumbnail = getYouTubeThumbnail(item.content)
-        if (youTubeThumbnail) return youTubeThumbnail
+        if (isYouTubeUrl(item.content)) {
+          return getYouTubeThumbnail(item.content)
+        }
         
         // 없으면 파비콘 사용
         try {

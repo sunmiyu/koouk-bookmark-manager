@@ -82,7 +82,7 @@ export default function MobileFolderList({ folders, onFolderSelect, onItemSelect
         className="flex-1 overflow-y-auto"
         onScroll={handleScroll}
       >
-        <div className="p-4 space-y-3">
+        <div className="px-0 py-4 space-y-3">
           {folders.map((folder) => (
             <FolderCard 
               key={folder.id}
@@ -106,7 +106,7 @@ export default function MobileFolderList({ folders, onFolderSelect, onItemSelect
       className="flex-1 overflow-y-auto"
       onScroll={handleScroll}
     >
-      <div className="p-4 space-y-4">
+      <div className="px-0 py-4 space-y-4">
         {/* 하위 폴더들 */}
         {subFolders.length > 0 && (
           <div className="space-y-3">
@@ -126,15 +126,13 @@ export default function MobileFolderList({ folders, onFolderSelect, onItemSelect
           <div className="space-y-3">
             {subFolders.length > 0 && <div className="border-t border-gray-100 pt-4" />}
             <h3 className="text-sm font-medium text-gray-700 px-1">콘텐츠</h3>
-            <div className="grid grid-cols-2 gap-3">
-              {items.map((item) => (
-                <ItemCard 
-                  key={item.id}
-                  item={item}
-                  onSelect={() => handleItemSelect(item)}
-                />
-              ))}
-            </div>
+            {items.map((item) => (
+              <ItemCard 
+                key={item.id}
+                item={item}
+                onSelect={() => handleItemSelect(item)}
+              />
+            ))}
           </div>
         )}
 
@@ -151,51 +149,63 @@ export default function MobileFolderList({ folders, onFolderSelect, onItemSelect
   )
 }
 
-// 폴더 카드 컴포넌트
+// 폴더 카드 컴포넌트 - 모바일 최적화 컴팩트 디자인
 function FolderCard({ folder, onSelect }: { folder: FolderItem; onSelect: () => void }) {
   const itemCount = folder.children.length
   const folderCount = folder.children.filter(child => child.type === 'folder').length
   const contentCount = folder.children.filter(child => child.type !== 'folder').length
 
+  // 시간 차이 계산 (간단한 약어로)
+  const getTimeAgo = (dateString: string) => {
+    const diff = Date.now() - new Date(dateString).getTime()
+    const minutes = Math.floor(diff / 60000)
+    const hours = Math.floor(diff / 3600000)
+    const days = Math.floor(diff / 86400000)
+    
+    if (days > 0) return `${days}d`
+    if (hours > 0) return `${hours}h`
+    if (minutes > 0) return `${minutes}m`
+    return 'now'
+  }
+
   return (
     <motion.button
       onClick={onSelect}
-      className="w-full p-4 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors text-left"
+      className="w-full px-3 py-2.5 hover:bg-gray-50 transition-colors text-left border-b border-gray-100 last:border-b-0"
       whileTap={{ scale: 0.98 }}
-      style={{ minHeight: '44px' }}
+      style={{ minHeight: '40px' }}
     >
       <div className="flex items-center gap-3">
+        {/* 아이콘 - 더 작게 */}
         <div 
-          className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+          className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
           style={{ backgroundColor: folder.color + '20' }}
         >
-          <FolderOpen size={20} style={{ color: folder.color }} />
+          <FolderOpen size={16} style={{ color: folder.color }} />
         </div>
         
+        {/* 제목 */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-1">
-            <h3 className="font-medium text-gray-900 truncate">{folder.name}</h3>
-            <ChevronRight size={16} color="#9CA3AF" className="flex-shrink-0" />
-          </div>
-          
-          <div className="flex items-center gap-4 text-xs text-gray-500">
-            {folderCount > 0 && (
-              <span>{folderCount}개 폴더</span>
-            )}
-            {contentCount > 0 && (
-              <span>{contentCount}개 항목</span>
-            )}
-            {itemCount === 0 && (
-              <span>비어있음</span>
-            )}
-          </div>
+          <span className="font-medium text-gray-900 text-sm truncate block">{folder.name}</span>
         </div>
+        
+        {/* 메타정보 (약어 사용) - 한 줄에 */}
+        <div className="flex items-center gap-2 text-xs text-gray-500 flex-shrink-0">
+          {folderCount > 0 && <span>{folderCount}F</span>}
+          {contentCount > 0 && <span>{contentCount}I</span>}
+          {itemCount === 0 && <span>Empty</span>}
+          <span>•</span>
+          <span>{getTimeAgo(folder.updatedAt)}</span>
+        </div>
+        
+        {/* 화살표 */}
+        <ChevronRight size={14} color="#9CA3AF" className="flex-shrink-0" />
       </div>
     </motion.button>
   )
 }
 
-// 아이템 카드 컴포넌트
+// 아이템 카드 컴포넌트 - 모바일 최적화 컴팩트 디자인
 function ItemCard({ item, onSelect }: { item: StorageItem; onSelect: () => void }) {
   const getIcon = (type: StorageItem['type']) => {
     switch (type) {
@@ -219,35 +229,63 @@ function ItemCard({ item, onSelect }: { item: StorageItem; onSelect: () => void 
     }
   }
 
+  const getTypeLabel = (type: StorageItem['type']) => {
+    switch (type) {
+      case 'document': return 'Doc'
+      case 'image': return 'Img'
+      case 'video': return 'Vid'
+      case 'url': return 'Link'
+      case 'memo': return 'Note'
+      default: return 'File'
+    }
+  }
+
+  // 시간 차이 계산 (간단한 약어로)
+  const getTimeAgo = (dateString: string) => {
+    const diff = Date.now() - new Date(dateString).getTime()
+    const minutes = Math.floor(diff / 60000)
+    const hours = Math.floor(diff / 3600000)
+    const days = Math.floor(diff / 86400000)
+    
+    if (days > 0) return `${days}d`
+    if (hours > 0) return `${hours}h`
+    if (minutes > 0) return `${minutes}m`
+    return 'now'
+  }
+
   const Icon = getIcon(item.type)
   const typeColor = getTypeColor(item.type)
 
   return (
     <motion.button
       onClick={onSelect}
-      className="p-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors text-left"
+      className="w-full px-3 py-2.5 hover:bg-gray-50 transition-colors text-left border-b border-gray-100 last:border-b-0"
       whileTap={{ scale: 0.98 }}
-      style={{ minHeight: '44px' }}
+      style={{ minHeight: '40px' }}
     >
-      <div className="flex flex-col gap-2">
-        <div className="flex items-start gap-2">
-          <div 
-            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: typeColor + '20' }}
-          >
-            <Icon size={16} style={{ color: typeColor }} />
-          </div>
-          
-          <div className="flex-1 min-w-0">
-            <h4 className="font-medium text-gray-900 text-sm truncate">{item.name}</h4>
-            <div className="flex items-center gap-1 mt-1">
-              <Clock size={10} color="#9CA3AF" />
-              <span className="text-xs text-gray-500">
-                {new Date(item.updatedAt).toLocaleDateString('ko-KR')}
-              </span>
-            </div>
-          </div>
+      <div className="flex items-center gap-3">
+        {/* 아이콘 - 더 작게 */}
+        <div 
+          className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+          style={{ backgroundColor: typeColor + '20' }}
+        >
+          <Icon size={16} style={{ color: typeColor }} />
         </div>
+        
+        {/* 제목 */}
+        <div className="flex-1 min-w-0">
+          <span className="font-medium text-gray-900 text-sm truncate block">{item.name}</span>
+        </div>
+        
+        {/* 메타정보 (약어 사용) - 한 줄에 */}
+        <div className="flex items-center gap-2 text-xs text-gray-500 flex-shrink-0">
+          <span>{getTypeLabel(item.type)}</span>
+          <span>•</span>
+          <span>{getTimeAgo(item.updatedAt)}</span>
+        </div>
+        
+        {/* 화살표 */}
+        <ChevronRight size={14} color="#9CA3AF" className="flex-shrink-0" />
       </div>
     </motion.button>
   )

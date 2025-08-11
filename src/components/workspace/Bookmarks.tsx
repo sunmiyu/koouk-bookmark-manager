@@ -172,7 +172,7 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
   }
 
   return (
-    <div className="flex-1 p-3 lg:p-4">
+    <div className="flex-1 px-2 py-3 sm:px-4 lg:p-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div>
@@ -232,110 +232,92 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
         </div>
       </div>
 
-      {/* Bookmarks Grid - 2xN PC, 1xN Mobile */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* Bookmarks List - Unified Compact Design for Mobile and PC */}
+      <div className="space-y-0">
         {filteredBookmarks.map((bookmark) => (
-          <motion.div
+          <motion.button
             key={bookmark.id}
-            className="bg-white border border-gray-100 rounded-lg overflow-hidden hover:shadow-md transition-all duration-300 group relative"
-            whileHover={{ y: -2 }}
+            onClick={() => handleOpenBookmark(bookmark)}
+            className="w-full px-3 py-2.5 hover:bg-gray-50 transition-colors text-left border-b border-gray-100 last:border-b-0"
             whileTap={{ scale: 0.98 }}
+            style={{ minHeight: '44px' }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="p-4">
-              {/* Header with favicon and actions */}
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="flex-shrink-0">
-                    {bookmark.favicon ? (
-                      <img 
-                        src={bookmark.favicon} 
-                        alt={bookmark.title}
-                        className="w-4 h-4"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = `https://www.google.com/s2/favicons?domain=${new URL(bookmark.url).hostname}&sz=16`
-                        }}
-                      />
-                    ) : (
-                      <LinkIcon className="w-4 h-4 text-gray-400" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold text-gray-900 truncate">
-                      {bookmark.title}
-                    </h3>
-                    <p className="text-xs text-gray-500 truncate">
-                      {new URL(bookmark.url).hostname}
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Action buttons */}
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleToggleFavorite(bookmark.id)
+            {/* 통합된 컴팩트 레이아웃 - 모바일과 PC 동일 */}
+            <div className="flex items-center gap-3">
+              {/* 파비콘 */}
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-gray-50 border border-gray-100">
+                {bookmark.favicon ? (
+                  <img 
+                    src={bookmark.favicon} 
+                    alt={bookmark.title}
+                    className="w-4 h-4"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = `https://www.google.com/s2/favicons?domain=${new URL(bookmark.url).hostname}&sz=16`
                     }}
-                    className={`p-1 rounded hover:bg-gray-100 transition-colors ${
-                      bookmark.isFavorite ? 'text-yellow-500' : 'text-gray-400'
-                    }`}
-                    title={bookmark.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-                  >
-                    <Star className={`w-3 h-3 ${bookmark.isFavorite ? 'fill-current' : ''}`} />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleOpenBookmark(bookmark)
-                    }}
-                    className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-                    title="Open in new tab"
-                  >
-                    <ExternalLink className="w-3 h-3" />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleDeleteBookmark(bookmark.id)
-                    }}
-                    className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-500 transition-colors"
-                    title="Delete bookmark"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </button>
-                </div>
+                  />
+                ) : (
+                  <LinkIcon className="w-4 h-4 text-gray-400" />
+                )}
               </div>
-
-              {/* Description */}
-              {bookmark.description && (
-                <p className="text-xs text-gray-600 mb-3 line-clamp-2 leading-relaxed">
-                  {bookmark.description}
-                </p>
-              )}
-
-              {/* Tags and date */}
-              <div className="flex items-center justify-between">
-                <div className="flex flex-wrap gap-1">
-                  {bookmark.tags.slice(0, 3).map((tag) => (
-                    <span key={tag} className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-                <span className="text-xs text-gray-400">
+              
+              {/* 제목 */}
+              <div className="flex-1 min-w-0">
+                <span className="font-medium text-gray-900 text-sm truncate block">{bookmark.title}</span>
+              </div>
+              
+              {/* URL 도메인 - PC에서 더 넓게 */}
+              <div className="hidden sm:block text-xs text-gray-500 w-24 truncate flex-shrink-0">
+                {new URL(bookmark.url).hostname.replace('www.', '')}
+              </div>
+              
+              {/* 태그들 - PC에서만 표시 */}
+              <div className="hidden lg:flex items-center gap-1 flex-shrink-0">
+                {bookmark.tags.slice(0, 2).map((tag) => (
+                  <span key={tag} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+              
+              {/* 메타정보 */}
+              <div className="flex items-center gap-2 text-xs text-gray-500 flex-shrink-0">
+                {bookmark.isFavorite && <Star className="w-3 h-3 text-yellow-500 fill-current" />}
+                <span className="hidden sm:inline">
                   {new Date(bookmark.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
                 </span>
               </div>
+              
+              {/* Actions - PC에서만 표시 */}
+              <div className="hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleToggleFavorite(bookmark.id)
+                  }}
+                  className={`p-1 rounded hover:bg-gray-100 transition-colors ${
+                    bookmark.isFavorite ? 'text-yellow-500' : 'text-gray-400'
+                  }`}
+                  title={bookmark.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                >
+                  <Star className={`w-3 h-3 ${bookmark.isFavorite ? 'fill-current' : ''}`} />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleDeleteBookmark(bookmark.id)
+                  }}
+                  className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-500 transition-colors"
+                  title="Delete bookmark"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </div>
+              
+              <ExternalLink size={14} color="#9CA3AF" className="flex-shrink-0" />
             </div>
-
-            {/* Click overlay */}
-            <div 
-              className="absolute inset-0 cursor-pointer"
-              onClick={() => handleOpenBookmark(bookmark)}
-            />
-          </motion.div>
+          </motion.button>
         ))}
       </div>
 

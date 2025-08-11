@@ -1,4 +1,5 @@
 import { StorageItem } from '@/types/folder'
+import { isYouTubeUrl, getYouTubeThumbnail } from '@/utils/youtube'
 
 const STORAGE_KEY = 'koouk-storage-items'
 
@@ -95,12 +96,11 @@ export const storageUtils = {
       let type: 'url' | 'video' | 'image' = 'url'
       let thumbnail = ''
       
-      if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      if (isYouTubeUrl(url)) {
         type = 'video'
-        // YouTube 썸네일 추출
-        const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)
-        if (videoId) {
-          thumbnail = `https://img.youtube.com/vi/${videoId[1]}/maxresdefault.jpg`
+        const youtubeThumbnail = getYouTubeThumbnail(url)
+        if (youtubeThumbnail) {
+          thumbnail = youtubeThumbnail
         }
       } else if (url.includes('instagram.com')) {
         type = 'image'

@@ -56,7 +56,7 @@ export default function QuickAccessBar({ onFolderSelect }: QuickAccessBarProps) 
 
   return (
     <div className="bg-white border-b border-gray-100">
-      <div className="px-4 py-3">
+      <div className="px-0 py-3">
         {/* 헤더 */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">

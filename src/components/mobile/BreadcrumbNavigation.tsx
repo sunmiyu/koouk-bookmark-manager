@@ -82,7 +82,7 @@ export default function BreadcrumbNavigation({ onNavigate }: BreadcrumbNavigatio
     <div className="bg-white border-b border-gray-100 sticky top-0 z-50">
       <div 
         ref={scrollRef}
-        className="flex items-center gap-1 px-4 py-3 overflow-x-auto scrollbar-none"
+        className="flex items-center gap-1 px-0 py-3 overflow-x-auto scrollbar-none"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {/* 홈 버튼 */}

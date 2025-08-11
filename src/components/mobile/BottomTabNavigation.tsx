@@ -6,10 +6,11 @@ import { useCrossPlatformState } from '@/hooks/useCrossPlatformState'
 import { useDevice } from '@/hooks/useDevice'
 
 interface BottomTabNavigationProps {
+  activeTab?: 'my-folder' | 'bookmarks' | 'marketplace'
   onTabChange?: (tab: 'my-folder' | 'bookmarks' | 'market-place') => void
 }
 
-export default function BottomTabNavigation({ onTabChange }: BottomTabNavigationProps) {
+export default function BottomTabNavigation({ activeTab, onTabChange }: BottomTabNavigationProps) {
   const { state, updateNavigation } = useCrossPlatformState()
   const device = useDevice()
 
@@ -61,16 +62,22 @@ export default function BottomTabNavigation({ onTabChange }: BottomTabNavigation
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[70] bg-white border-t border-gray-200 safe-area-bottom">
-      <div className="flex items-center justify-around px-4 py-2">
+      <div className="flex items-center justify-around px-2 py-1">
         {tabs.map((tab) => {
-          const isActive = state.navigation.activeTab === tab.id
+          // App.tsx의 activeTab 상태를 우선 사용
+          const appTabMap = {
+            'my-folder': 'my-folder',
+            'bookmarks': 'bookmarks', 
+            'marketplace': 'market-place'
+          }
+          const isActive = activeTab ? appTabMap[activeTab] === tab.id : state.navigation.activeTab === tab.id
           const Icon = tab.icon
 
           return (
             <motion.button
               key={tab.id}
               onClick={() => handleTabPress(tab.id)}
-              className="flex flex-col items-center justify-center min-h-[60px] px-3 py-2 relative"
+              className="flex items-center justify-center min-h-[44px] px-3 py-1.5 relative"
               whileTap={{ scale: 0.95 }}
               style={{ minWidth: '44px' }} // 최소 터치 영역 보장
             >
@@ -88,31 +95,22 @@ export default function BottomTabNavigation({ onTabChange }: BottomTabNavigation
                 />
               )}
               
-              {/* 아이콘 */}
-              <div className="relative z-10 mb-1">
-                <Icon 
-                  size={22} 
-                  color={isActive ? tab.activeColor : '#9CA3AF'}
-                  strokeWidth={isActive ? 2.5 : 2}
-                />
-              </div>
-              
-              {/* 라벨 */}
+              {/* 라벨만 표시 (아이콘 제거) */}
               <span 
-                className={`text-[10px] font-medium relative z-10 ${
+                className={`text-sm font-medium relative z-10 ${
                   isActive ? 'text-gray-900' : 'text-gray-500'
                 }`}
               >
                 {tab.label}
               </span>
               
-              {/* 활성 인디케이터 점 */}
+              {/* 활성 인디케이터 언더라인 */}
               {isActive && (
                 <motion.div
-                  className="absolute -top-1 w-1 h-1 rounded-full"
+                  className="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2 h-0.5 w-8 rounded-full"
                   style={{ backgroundColor: tab.activeColor }}
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
                   transition={{ delay: 0.1 }}
                 />
               )}

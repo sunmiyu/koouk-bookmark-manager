@@ -11,6 +11,7 @@ import MarketPlace from '../workspace/MarketPlace'
 import Bookmarks from '../workspace/Bookmarks'
 import SearchInterface from '../ui/SearchInterface'
 import FeedbackModal from '../modals/FeedbackModal'
+import BottomTabNavigation from '../mobile/BottomTabNavigation'
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'my-folder' | 'marketplace' | 'bookmarks'>('my-folder')
@@ -25,11 +26,11 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-white px-4">
+    <div className="min-h-screen bg-white px-0 sm:px-4">
       {/* Vercel-style Header */}
       <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
         <div className="w-full bg-white">
-          <div className="max-w-6xl mx-auto px-8">
+          <div className="w-full px-4 sm:px-8 sm:max-w-6xl sm:mx-auto">
             <div className="flex items-center justify-between h-16">
               {/* Logo */}
               <div className="flex items-center">
@@ -46,7 +47,7 @@ export default function App() {
               </div>
 
               {/* Right side elements */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1 sm:gap-3">
                 {/* Enhanced Search Interface */}
                 <SearchInterface
                   searchQuery={searchQuery}
@@ -56,13 +57,14 @@ export default function App() {
                   language="ko"
                 />
 
-                {/* Feedback Button */}
+                {/* Feedback Button - 모바일에서는 아이콘만 */}
                 <button 
                   onClick={() => setShowFeedbackModal(true)}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+                  className="flex items-center justify-center w-8 h-8 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:w-auto sm:h-auto"
+                  title="Feedback"
                 >
                   <MessageCircle className="w-3.5 h-3.5" />
-                  <span>Feedback</span>
+                  <span className="hidden sm:inline">Feedback</span>
                 </button>
 
                 {/* User Account */}
@@ -114,14 +116,14 @@ export default function App() {
         </div>
       </header>
 
-      {/* Navigation Tabs */}
-      <nav className="border-b border-gray-200 bg-white">
+      {/* Navigation Tabs - 모바일에서는 숨김 */}
+      <nav className="border-b border-gray-200 bg-white hidden sm:block">
         <div className="w-full bg-white">
-          <div className="max-w-6xl mx-auto px-8">
+          <div className="w-full px-2 sm:px-8 sm:max-w-6xl sm:mx-auto">
             <div className="flex w-full">
               <button
                 onClick={() => setActiveTab('my-folder')}
-                className={`flex-1 py-3 px-6 border-b-2 font-medium text-xs text-center transition-colors ${
+                className={`flex-1 py-3 px-2 sm:px-6 border-b-2 font-medium text-xs text-center transition-colors ${
                   activeTab === 'my-folder'
                     ? 'border-black text-black'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -131,7 +133,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => setActiveTab('bookmarks')}
-                className={`flex-1 py-3 px-6 border-b-2 font-medium text-xs text-center transition-colors ${
+                className={`flex-1 py-3 px-2 sm:px-6 border-b-2 font-medium text-xs text-center transition-colors ${
                   activeTab === 'bookmarks'
                     ? 'border-black text-black'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -141,7 +143,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => setActiveTab('marketplace')}
-                className={`flex-1 py-3 px-6 border-b-2 font-medium text-xs text-center transition-colors ${
+                className={`flex-1 py-3 px-2 sm:px-6 border-b-2 font-medium text-xs text-center transition-colors ${
                   activeTab === 'marketplace'
                     ? 'border-black text-black'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -155,7 +157,7 @@ export default function App() {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-8 pt-6 pb-8">
+      <main className="w-full px-0 sm:px-8 sm:max-w-6xl sm:mx-auto pt-3 sm:pt-6 pb-8">
         {activeTab === 'my-folder' ? (
           <WorkspaceContent searchQuery={searchQuery} />
         ) : activeTab === 'bookmarks' ? (
@@ -172,6 +174,19 @@ export default function App() {
           onClick={() => setShowUserMenu(false)}
         />
       )}
+
+      {/* Mobile Bottom Navigation */}
+      <BottomTabNavigation 
+        activeTab={activeTab}
+        onTabChange={(tab) => {
+          const tabMap = {
+            'my-folder': 'my-folder' as const,
+            'bookmarks': 'bookmarks' as const, 
+            'market-place': 'marketplace' as const
+          }
+          setActiveTab(tabMap[tab])
+        }}
+      />
 
       {/* Feedback Modal */}
       <FeedbackModal 

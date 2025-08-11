@@ -175,7 +175,7 @@ export default function SearchInterface({
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           onFocus={() => setIsOpen(true)}
-          className="w-72 pl-4 pr-11 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+          className="w-32 sm:w-72 pl-4 pr-11 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
         />
         {searchQuery && (
           <button

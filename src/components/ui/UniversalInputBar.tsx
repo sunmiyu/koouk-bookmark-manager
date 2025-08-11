@@ -16,6 +16,7 @@ import {
   NotebookPen
 } from 'lucide-react'
 import { FolderItem, StorageItem, createStorageItem } from '@/types/folder'
+import { isYouTubeUrl, getYouTubeThumbnail } from '@/utils/youtube'
 
 interface UniversalInputBarProps {
   folders: FolderItem[]
@@ -75,11 +76,10 @@ export default function UniversalInputBar({
   // 콘텐츠 타입 자동 감지
   const detectContentType = (content: string): StorageItem['type'] => {
     const urlRegex = /^https?:\/\/.+/i
-    const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/
     const imageExtensions = /\.(jpg|jpeg|png|gif|webp|svg)$/i
     const videoExtensions = /\.(mp4|avi|mov|wmv|flv|webm)$/i
 
-    if (youtubeRegex.test(content)) {
+    if (isYouTubeUrl(content)) {
       return 'video'
     } else if (urlRegex.test(content)) {
       if (imageExtensions.test(content)) return 'image'
@@ -92,23 +92,16 @@ export default function UniversalInputBar({
     }
   }
 
-  // YouTube 썸네일 추출
-  const getYouTubeThumbnail = (url: string): string | null => {
-    const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/
-    const match = url.match(regex)
-    if (match) {
-      return `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg`
-    }
-    return null
-  }
-
   // 메타데이터 추출
   const extractMetadata = async (content: string, type: StorageItem['type']) => {
     const metadata: Record<string, unknown> = {}
 
-    if (type === 'video' && content.includes('youtube.com')) {
-      metadata.thumbnail = getYouTubeThumbnail(content)
-      metadata.platform = 'youtube'
+    if (type === 'video' && isYouTubeUrl(content)) {
+      const thumbnail = getYouTubeThumbnail(content)
+      if (thumbnail) {
+        metadata.thumbnail = thumbnail
+        metadata.platform = 'youtube'
+      }
     }
 
     return metadata

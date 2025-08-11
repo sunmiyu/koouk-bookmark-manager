@@ -153,7 +153,7 @@ export default function MarketPlace({ searchQuery = '' }: { searchQuery?: string
   }
 
   return (
-    <div className="flex-1 p-3 lg:p-4">
+    <div className="flex-1 px-2 py-3 sm:px-4 lg:p-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div>
@@ -185,103 +185,131 @@ export default function MarketPlace({ searchQuery = '' }: { searchQuery?: string
         </div>
       </div>
 
-      {/* Market Place Cards - 2xN PC, 1xN Mobile */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* Market Place Cards - Optimized Grid */}
+      <div className="space-y-0 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-3 sm:space-y-0">
         {filteredFolders.map((sharedFolder) => (
-          <motion.div
+          <motion.button
             key={sharedFolder.id}
-            className="bg-white border border-gray-100 rounded-lg overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer group relative"
-            whileHover={{ y: -2 }}
+            onClick={() => handleImportFolder(sharedFolder)}
+            className="w-full px-3 py-2.5 hover:bg-gray-50 transition-colors text-left border-b border-gray-100 last:border-b-0 sm:border sm:rounded-lg sm:p-0 sm:hover:shadow-md sm:overflow-hidden group"
             whileTap={{ scale: 0.98 }}
+            style={{ minHeight: '40px' }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            {/* 커버 이미지 */}
-            <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 aspect-video overflow-hidden">
-              {sharedFolder.coverImage ? (
-                <img 
-                  src={sharedFolder.coverImage}
-                  alt={sharedFolder.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-12 h-12 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-gray-500 shadow-sm">
-                    <Heart className="w-6 h-6" />
+            {/* 모바일용 컴팩트 레이아웃 */}
+            <div className="flex items-center gap-3 sm:hidden">
+              {/* 카테고리 아이콘 */}
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 bg-gray-100">
+                <Heart className="w-4 h-4 text-gray-400" />
+              </div>
+              
+              {/* 제목 */}
+              <div className="flex-1 min-w-0">
+                <span className="font-medium text-gray-900 text-sm truncate block">📁 {sharedFolder.title}</span>
+              </div>
+              
+              {/* 메타정보 */}
+              <div className="flex items-center gap-2 text-xs text-gray-500 flex-shrink-0">
+                <span>{sharedFolder.stats.likes}❤</span>
+                <span>•</span>
+                <span>{sharedFolder.stats.downloads}📥</span>
+              </div>
+              
+              <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+            </div>
+
+            {/* 데스크톱용 카드 레이아웃 */}
+            <div className="hidden sm:block">
+              {/* 커버 이미지 - 더 컴팩트한 비율 */}
+              <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 aspect-[4/3] overflow-hidden">
+                {sharedFolder.coverImage ? (
+                  <img 
+                    src={sharedFolder.coverImage}
+                    alt={sharedFolder.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-gray-500 shadow-sm">
+                      <Heart className="w-6 h-6" />
+                    </div>
                   </div>
+                )}
+                
+                {/* Category badge */}
+                <div className="absolute top-3 left-3 px-2 py-1 bg-black/80 backdrop-blur-sm text-white text-xs font-semibold rounded-full">
+                  {categories.find(cat => cat.value === sharedFolder.category)?.label || sharedFolder.category}
                 </div>
-              )}
-              
-              {/* Category badge */}
-              <div className="absolute top-3 left-3 px-2 py-1 bg-black/80 backdrop-blur-sm text-white text-xs font-semibold rounded-full">
-                {categories.find(cat => cat.value === sharedFolder.category)?.label || sharedFolder.category}
+
+                {/* Add 버튼 - 작은 + 아이콘 */}
+                <div className="absolute top-3 right-3">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleImportFolder(sharedFolder)
+                    }}
+                    className="w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-700 hover:bg-white hover:text-black transition-all shadow-sm group/btn"
+                    title="Add to My Folders"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    
+                    {/* Tooltip */}
+                    <div className="absolute -bottom-8 right-0 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover/btn:opacity-100 transition-opacity whitespace-nowrap">
+                      Add to My Folders
+                    </div>
+                  </button>
+                </div>
               </div>
 
-              {/* Add 버튼 - 작은 + 아이콘 */}
-              <div className="absolute top-3 right-3">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleImportFolder(sharedFolder)
-                  }}
-                  className="w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-700 hover:bg-white hover:text-black transition-all shadow-sm group/btn"
-                  title="Add to My Folders"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  
-                  {/* Tooltip */}
-                  <div className="absolute -bottom-8 right-0 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover/btn:opacity-100 transition-opacity whitespace-nowrap">
-                    Add to My Folders
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            {/* 정보 영역 */}
-            <div className="p-4">
-              <h3 className="text-sm font-semibold text-gray-900 mb-2 leading-tight">
-                📁 {sharedFolder.title}
-              </h3>
-              <p className="text-xs text-gray-600 mb-3 leading-relaxed line-clamp-2">
-                {sharedFolder.description}
-              </p>
-              
-              {/* 메타데이터 */}
-              <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
-                <span className="flex items-center gap-1">
-                  <Heart className="w-3 h-3" />
-                  {sharedFolder.stats.likes}
-                </span>
-                <span className="flex items-center gap-1">
-                  📥 {sharedFolder.stats.downloads}
-                </span>
-                <span className="flex items-center gap-1">
-                  📁 {sharedFolder.folder.children.length}개 항목
-                </span>
-              </div>
-
-              {/* 하단: 공유자 + 태그 */}
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-gray-500">
-                  by @{sharedFolder.author.name} {sharedFolder.author.verified && '✓'}
-                </span>
-                <span className="text-xs text-gray-400">
-                  {new Date(sharedFolder.updatedAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
-                </span>
-              </div>
-              
-              {/* 태그들 */}
-              <div className="flex flex-wrap gap-1">
-                {sharedFolder.tags.slice(0, 3).map((tag) => (
-                  <span key={tag} className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">
-                    #{tag}
+              {/* 정보 영역 - 더 컴팩트한 패딩 */}
+              <div className="p-3">
+                <h3 className="text-xs font-semibold text-gray-900 mb-1.5 leading-tight">
+                  📁 {sharedFolder.title}
+                </h3>
+                <p className="text-xs text-gray-600 mb-2 leading-relaxed line-clamp-2">
+                  {sharedFolder.description}
+                </p>
+                
+                {/* 메타데이터 */}
+                <div className="flex items-center gap-3 text-xs text-gray-500 mb-2">
+                  <span className="flex items-center gap-1">
+                    <Heart className="w-3 h-3" />
+                    {sharedFolder.stats.likes}
                   </span>
-                ))}
+                  <span className="flex items-center gap-1">
+                    📥 {sharedFolder.stats.downloads}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    📁 {sharedFolder.folder.children.length}개 항목
+                  </span>
+                </div>
+
+                {/* 하단: 공유자 + 태그 */}
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs text-gray-500 truncate">
+                    by @{sharedFolder.author.name} {sharedFolder.author.verified && '✓'}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    {new Date(sharedFolder.updatedAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
+                  </span>
+                </div>
+                
+                {/* 태그들 - 더 작게 */}
+                <div className="flex flex-wrap gap-1">
+                  {sharedFolder.tags.slice(0, 3).map((tag) => (
+                    <span key={tag} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
-          </motion.div>
+          </motion.button>
         ))}
       </div>
 

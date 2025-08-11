@@ -1,6 +1,5 @@
-import { redirect } from 'next/navigation'
-
+// Root page - redirects to locale-specific page
 export default function RootPage() {
-  // 루트 경로 접근 시 기본 로케일(한국어)로 리다이렉트
-  redirect('/ko')
+  // This page should not render - middleware handles the redirect
+  return null
 }

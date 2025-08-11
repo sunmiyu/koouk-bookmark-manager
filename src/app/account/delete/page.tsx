@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
 
@@ -291,12 +292,12 @@ export default function DeleteAccount() {
               <a href="mailto:support@koouk.com" className="text-blue-400 hover:text-blue-300">
                 Contact Support
               </a>
-              <a href="/privacy" className="text-blue-400 hover:text-blue-300">
+              <Link href="/privacy" className="text-blue-400 hover:text-blue-300">
                 Privacy Policy
-              </a>
-              <a href="/terms" className="text-blue-400 hover:text-blue-300">
+              </Link>
+              <Link href="/terms" className="text-blue-400 hover:text-blue-300">
                 Terms of Service
-              </a>
+              </Link>
             </div>
           </div>
         </div>

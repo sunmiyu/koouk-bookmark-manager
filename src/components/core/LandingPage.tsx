@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
@@ -173,12 +174,12 @@ export default function LandingPage() {
               <span className="text-xs text-gray-400">
                 © 2025 Koouk
               </span>
-              <a 
+              <Link 
                 href="/privacy" 
                 className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
               >
                 개인정보정책
-              </a>
+              </Link>
             </div>
           </div>
         </div>

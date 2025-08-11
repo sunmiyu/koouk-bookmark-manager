@@ -59,11 +59,14 @@ export default function TopNavigation({ activeTab, onTabChange }: TopNavigationP
       {/* 헤더 영역 */}
       <div className="px-4 py-3">
         <div className="flex items-center justify-between">
-          {/* 로고 */}
+          {/* 로고 - 클릭 시 My Folder로 이동 */}
           <div className="flex items-center">
-            <h1 className="text-lg font-semibold tracking-wide text-black">
+            <button 
+              onClick={() => handleTabPress('my-folder')}
+              className="text-lg font-semibold tracking-wide text-black hover:opacity-80 transition-opacity"
+            >
               KOOUK
-            </h1>
+            </button>
           </div>
           
           {/* 우측 액션 버튼들 */}

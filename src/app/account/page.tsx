@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useAuth } from '@/components/auth/AuthContext'
 import { useRouter } from 'next/navigation'
 
@@ -140,7 +141,7 @@ export default function AccountPage() {
               </div>
             </a>
             
-            <a
+            <Link
               href="/account/delete"
               className="block p-3 rounded-lg hover:bg-red-50 transition-colors border border-red-200"
               style={{ 
@@ -161,7 +162,7 @@ export default function AccountPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>
-            </a>
+            </Link>
           </div>
         </div>
 

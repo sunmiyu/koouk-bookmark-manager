@@ -1,11 +1,10 @@
 // KOOUK Service Worker - 최신 PWA 표준
-const CACHE_NAME = 'koouk-v1.3.0';
-const STATIC_CACHE = 'koouk-static-v1.3.0';
-const DYNAMIC_CACHE = 'koouk-dynamic-v1.3.0';
+const CACHE_NAME = 'koouk-v1.3.1';
+const STATIC_CACHE = 'koouk-static-v1.3.1';
+const DYNAMIC_CACHE = 'koouk-dynamic-v1.3.1';
 
 // 캐시할 정적 리소스들 - 실제 존재하는 파일들만
 const STATIC_ASSETS = [
-  '/',
   '/manifest.json',
   '/icon-192x192.png', 
   '/icon-512x512.png',

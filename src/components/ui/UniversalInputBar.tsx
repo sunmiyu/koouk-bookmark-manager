@@ -455,6 +455,7 @@ export default function UniversalInputBar({
                 <div className="mt-3 flex flex-wrap gap-2">
                   {pastedImages.map((image, index) => (
                     <div key={index} className="relative group">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={URL.createObjectURL(image)}
                         alt="Pasted image"

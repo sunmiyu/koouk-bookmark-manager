@@ -1,33 +1,41 @@
 // KOOUK Service Worker - 최신 PWA 표준
-const CACHE_NAME = 'koouk-v1.2.0';
-const STATIC_CACHE = 'koouk-static-v1.2.0';
-const DYNAMIC_CACHE = 'koouk-dynamic-v1.2.0';
+const CACHE_NAME = 'koouk-v1.3.0';
+const STATIC_CACHE = 'koouk-static-v1.3.0';
+const DYNAMIC_CACHE = 'koouk-dynamic-v1.3.0';
 
-// 캐시할 정적 리소스들
+// 캐시할 정적 리소스들 - 실제 존재하는 파일들만
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
   '/icon-192x192.png', 
   '/icon-512x512.png',
-  // 핵심 페이지들
-  '/',
-  '/marketplace',
-  // 오프라인 페이지
-  '/offline'
+  '/koouk-logo.svg',
+  '/apple-touch-icon.png',
+  '/favicon-16x16.png',
+  '/favicon-32x32.png'
 ];
 
-// 설치 이벤트
+// 설치 이벤트 - 안전한 캐시 설치
 self.addEventListener('install', (event) => {
   console.log('🚀 KOOUK Service Worker installing...');
   
   event.waitUntil(
     caches.open(STATIC_CACHE)
-      .then(cache => {
+      .then(async (cache) => {
         console.log('📦 Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
-      })
-      .then(() => {
-        console.log('✅ Static assets cached successfully');
+        
+        // 각 리소스를 개별적으로 캐시 (404 에러 방지)
+        const cachePromises = STATIC_ASSETS.map(async (asset) => {
+          try {
+            await cache.add(asset);
+            console.log('✅ Cached:', asset);
+          } catch (error) {
+            console.warn('⚠️ Failed to cache:', asset, error.message);
+          }
+        });
+        
+        await Promise.all(cachePromises);
+        console.log('✅ Static assets caching completed');
         return self.skipWaiting();
       })
       .catch(error => {

@@ -181,20 +181,21 @@ export default function MobileWorkspace({
           <QuickNoteModal
             isOpen={showQuickNoteModal}
             onClose={() => setShowQuickNoteModal(false)}
-            onSave={(content: string) => {
-              if (!selectedFolderId) return
-              
+            folders={folders}
+            selectedFolderId={selectedFolderId}
+            onSave={(note, folderId) => {
               const item: StorageItem = {
                 id: Date.now().toString(),
-                name: content.slice(0, 50) + (content.length > 50 ? '...' : ''),
-                type: 'memo',
-                content,
-                folderId: selectedFolderId,
+                name: note.name,
+                type: note.type,
+                content: note.content,
+                folderId: folderId,
+                tags: note.tags || [],
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
               }
               
-              handleAddItem(item, selectedFolderId)
+              handleAddItem(item, folderId)
               setShowQuickNoteModal(false)
             }}
           />
@@ -206,20 +207,22 @@ export default function MobileWorkspace({
           <BigNoteModal
             isOpen={showBigNoteModal}
             onClose={() => setShowBigNoteModal(false)}
-            onSave={(title: string, content: string) => {
-              if (!selectedFolderId) return
-              
+            folders={folders}
+            selectedFolderId={selectedFolderId}
+            onSave={(note, folderId) => {
               const item: StorageItem = {
                 id: Date.now().toString(),
-                name: title || 'Untitled Document',
-                type: 'document',
-                content,
-                folderId: selectedFolderId,
+                name: note.name,
+                type: note.type,
+                content: note.content,
+                folderId: folderId,
+                tags: note.tags || [],
+                metadata: note.metadata,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
               }
               
-              handleAddItem(item, selectedFolderId)
+              handleAddItem(item, folderId)
               setShowBigNoteModal(false)
             }}
           />

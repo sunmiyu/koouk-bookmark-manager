@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import { 
   Search, 
   Heart,
@@ -12,7 +13,12 @@ import { createFolder } from '@/types/folder'
 
 // Removed unused interface MarketPlaceProps
 
-export default function MarketPlace({ searchQuery = '' }: { searchQuery?: string }) {
+interface MarketPlaceProps {
+  searchQuery?: string
+  onImportFolder?: (sharedFolder: SharedFolder) => void
+}
+
+export default function MarketPlace({ searchQuery = '', onImportFolder }: MarketPlaceProps) {
   const [sharedFolders, setSharedFolders] = useState<SharedFolder[]>([])
   const [filteredFolders, setFilteredFolders] = useState<SharedFolder[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
@@ -136,10 +142,15 @@ export default function MarketPlace({ searchQuery = '' }: { searchQuery?: string
   }, [sharedFolders, selectedCategory, searchQuery])
 
   const handleImportFolder = (sharedFolder: SharedFolder) => {
-    if (confirm(`&quot;${sharedFolder.title}&quot; 폴더를 내 워크스페이스에 추가하시겠습니까?`)) {
-      // 실제로는 props로 받은 onImportFolder 호출
-      console.log('Importing folder:', sharedFolder.title)
-      alert(`&quot;${sharedFolder.title}&quot; 폴더가 My Folder에 추가되었습니다!`)
+    if (confirm(`"${sharedFolder.title}" 폴더를 내 폴더에 추가하시겠습니까?`)) {
+      if (onImportFolder) {
+        onImportFolder(sharedFolder)
+        alert(`"${sharedFolder.title}" 폴더가 My Folder에 추가되었습니다!`)
+      } else {
+        // 폴백: onImportFolder가 없을 때
+        console.log('Importing folder:', sharedFolder.title)
+        alert(`"${sharedFolder.title}" 폴더가 My Folder에 추가되었습니다!`)
+      }
     }
   }
 
@@ -156,22 +167,9 @@ export default function MarketPlace({ searchQuery = '' }: { searchQuery?: string
 
   return (
     <div className="flex-1 px-2 py-3 sm:px-4 lg:p-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-        <div>
-          <h3 className="text-sm font-medium text-black">
-            {filteredFolders.length} folders
-          </h3>
-          <p className="text-xs text-gray-500">
-            {selectedCategory === 'all' ? 'All Categories' : categories.find(cat => cat.value === selectedCategory)?.label}
-          </p>
-        </div>
-      </div>
-
-      {/* Category Filter */}
-      <div className="mb-6 pb-3 border-b border-gray-200">
-        {/* 모바일: 드롭다운 */}
-        <div className="block sm:hidden relative">
+      {/* 모바일: 드롭다운만 */}
+      <div className="block sm:hidden mb-4">
+        <div className="relative">
           <button
             onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
             className="w-full flex items-center justify-between px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
@@ -180,6 +178,7 @@ export default function MarketPlace({ searchQuery = '' }: { searchQuery?: string
             <ChevronDown className={`w-4 h-4 transition-transform ${showCategoryDropdown ? 'rotate-180' : ''}`} />
           </button>
           
+          {/* 드롭다운 메뉴 */}
           {showCategoryDropdown && (
             <motion.div
               initial={{ opacity: 0, y: -5 }}
@@ -205,9 +204,24 @@ export default function MarketPlace({ searchQuery = '' }: { searchQuery?: string
             </motion.div>
           )}
         </div>
+      </div>
+      
+      {/* 데스크톱: 기존 헤더 */}
+      <div className="hidden sm:flex sm:items-center sm:justify-between gap-3 mb-4">
+        <div>
+          <h3 className="text-sm font-medium text-black">
+            {filteredFolders.length} folders
+          </h3>
+          <p className="text-xs text-gray-500">
+            {selectedCategory === 'all' ? 'All Categories' : categories.find(cat => cat.value === selectedCategory)?.label}
+          </p>
+        </div>
+      </div>
 
-        {/* 데스크톱: 기존 버튼 그룹 */}
-        <div className="hidden sm:flex flex-wrap gap-2">
+      {/* Category Filter - 데스크톱용만 */}
+      <div className="hidden sm:block mb-6 pb-3 border-b border-gray-200">
+          
+        <div className="flex flex-wrap gap-2">
           {categories.map((category) => (
             <button
               key={category.value}
@@ -240,10 +254,11 @@ export default function MarketPlace({ searchQuery = '' }: { searchQuery?: string
               {/* 커버 이미지 - 더 컴팩트한 비율 */}
               <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 aspect-[4/3] overflow-hidden">
                 {sharedFolder.coverImage ? (
-                  <img 
+                  <Image 
                     src={sharedFolder.coverImage}
                     alt={sharedFolder.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">

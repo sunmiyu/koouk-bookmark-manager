@@ -10,7 +10,7 @@ const STATIC_ASSETS = [
   '/icon-192x192.png', 
   '/icon-512x512.png',
   // 핵심 페이지들
-  '/workspace',
+  '/',
   '/marketplace',
   // 오프라인 페이지
   '/offline'
@@ -177,7 +177,7 @@ self.addEventListener('notificationclick', (event) => {
 
   if (event.action === 'explore') {
     event.waitUntil(
-      clients.openWindow('/workspace')
+      clients.openWindow('/')
     );
   }
 });

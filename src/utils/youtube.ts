@@ -75,7 +75,7 @@ export async function getValidYouTubeThumbnail(url: string): Promise<string | nu
       if (response.ok) {
         return thumbnailUrl
       }
-    } catch (error) {
+    } catch {
       continue
     }
   }
@@ -95,8 +95,52 @@ export async function fetchYouTubeTitle(url: string): Promise<string | null> {
     
     const data = await response.json()
     return data.title || null
-  } catch (error) {
-    console.error('Error fetching YouTube title:', error)
+  } catch {
     return null
+  }
+}
+
+/**
+ * YouTube URL에서 완전한 메타데이터를 가져오는 통합 함수
+ */
+export async function getYouTubeMetadata(url: string) {
+  const videoId = extractYouTubeVideoId(url)
+  if (!videoId) return null
+
+  try {
+    const response = await fetch(`/api/youtube?url=${encodeURIComponent(url)}`)
+    if (!response.ok) {
+      // API 실패 시 폴백 데이터 반환
+      return {
+        videoId,
+        title: `YouTube Video ${videoId}`,
+        thumbnail: getYouTubeThumbnail(url),
+        url
+      }
+    }
+
+    const data = await response.json()
+    
+    // 병렬로 썸네일 유효성 검사
+    const validThumbnail = await getValidYouTubeThumbnail(url)
+    
+    return {
+      videoId,
+      title: data.title || `YouTube Video ${videoId}`,
+      description: data.description,
+      thumbnail: validThumbnail || data.thumbnail || getYouTubeThumbnail(url),
+      channelTitle: data.channelTitle,
+      duration: data.duration,
+      publishedAt: data.publishedAt,
+      url
+    }
+  } catch (error) {
+    console.error('Error fetching YouTube metadata:', error)
+    return {
+      videoId,
+      title: `YouTube Video ${videoId}`,
+      thumbnail: getYouTubeThumbnail(url),
+      url
+    }
   }
 }

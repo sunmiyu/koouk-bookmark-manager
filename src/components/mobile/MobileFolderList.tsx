@@ -1,20 +1,20 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { FolderOpen, ChevronRight, ChevronDown, FileText, Image, Video, Link, StickyNote, Folder } from 'lucide-react'
+import { ChevronRight, ChevronDown, FileText, Image, Video, Link, StickyNote, Folder } from 'lucide-react'
 import { FolderItem, StorageItem } from '@/types/folder'
 import { useCrossPlatformState } from '@/hooks/useCrossPlatformState'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 
 interface MobileFolderListProps {
   folders: FolderItem[]
-  onFolderSelect?: (folderId: string, folderName: string) => void
+  onFolderSelect?: (folderId: string) => void
   onItemSelect?: (item: StorageItem) => void
 }
 
 export default function MobileFolderList({ folders, onFolderSelect, onItemSelect }: MobileFolderListProps) {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
-  const { state, updateQuickAccess } = useCrossPlatformState()
+  const { updateQuickAccess } = useCrossPlatformState()
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // 폴더 확장/축소 토글
@@ -35,14 +35,28 @@ export default function MobileFolderList({ folders, onFolderSelect, onItemSelect
   }
 
   // 폴더 선택 핸들러 (Quick Access 업데이트용)
-  const handleFolderSelect = (folder: FolderItem) => {
+  const handleFolderSelect = (folderId: string) => {
     if ('vibrate' in navigator) {
       navigator.vibrate(5)
     }
     
-    // Quick Access 빈도 업데이트
-    updateQuickAccess(folder.id, folder.name)
-    onFolderSelect?.(folder.id, folder.name)
+    // Quick Access 빈도 업데이트 - 폴더를 찾아서 이름 가져오기
+    const findFolder = (folders: FolderItem[], id: string): FolderItem | null => {
+      for (const folder of folders) {
+        if (folder.id === id) return folder
+        const subFolders = folder.children.filter(child => child.type === 'folder') as FolderItem[]
+        const found = findFolder(subFolders, id)
+        if (found) return found
+      }
+      return null
+    }
+    
+    const folder = findFolder(folders, folderId)
+    if (folder) {
+      updateQuickAccess(folder.id, folder.name)
+    }
+    
+    onFolderSelect?.(folderId)
   }
 
   // 아이템 선택 핸들러
@@ -99,7 +113,7 @@ function FolderTreeNode({
   level: number
   expandedFolders: Set<string>
   onToggle: (folderId: string) => void
-  onFolderSelect: (folder: FolderItem) => void
+  onFolderSelect: (folderId: string) => void
   onItemSelect: (item: StorageItem) => void
 }) {
   const isExpanded = expandedFolders.has(folder.id)
@@ -140,7 +154,7 @@ function FolderTreeNode({
 
         {/* 폴더 정보 - 클릭 가능한 영역 */}
         <button
-          onClick={() => onFolderSelect(folder)}
+          onClick={() => onFolderSelect?.(folder.id)}
           className="flex-1 flex items-center gap-3 p-4 pl-2 hover:bg-gray-50 transition-colors text-left min-h-16"
         >
           {/* 폴더 아이콘 */}

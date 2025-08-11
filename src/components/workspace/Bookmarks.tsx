@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import { 
   Search, 
   Star,
@@ -157,7 +158,7 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
           id: '8',
           title: 'Notion',
           url: 'https://www.notion.so',
-          description: 'One workspace. Every team.',
+          description: 'One platform. Every team.',
           favicon: 'https://www.notion.so/favicon.ico',
           tags: ['productivity', 'notes', 'collaboration'],
           createdAt: '2024-01-08T16:20:00Z',
@@ -345,8 +346,78 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
 
   return (
     <div className="flex-1 px-2 py-3 sm:px-4 lg:p-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+      {/* 모바일: 드롭다운 + 버튼 한 줄 */}
+      <div className="block sm:hidden mb-4">
+        <div className="flex items-center gap-3">
+          {/* 드롭다운 */}
+          <div className="flex-1 relative">
+            <button
+              onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+              className="w-full flex items-center justify-between px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+            >
+              <span>{categories.find(cat => cat.value === selectedCategory)?.label}</span>
+              <ChevronDown className={`w-4 h-4 transition-transform ${showCategoryDropdown ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {/* 드롭다운 메뉴 */}
+            {showCategoryDropdown && (
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden"
+              >
+                {categories.map((category) => (
+                  <button
+                    key={category.value}
+                    onClick={() => {
+                      setSelectedCategory(category.value)
+                      setShowCategoryDropdown(false)
+                    }}
+                    className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors ${
+                      selectedCategory === category.value 
+                        ? 'bg-black text-white hover:bg-gray-800' 
+                        : 'text-gray-700'
+                    }`}
+                  >
+                    {category.label}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </div>
+          
+          {/* + 버튼 - 투명 배경 */}
+          <button
+            onClick={() => {
+              const url = prompt('북마크할 URL을 입력하세요:')
+              if (url) {
+                const title = prompt('제목을 입력하세요:', url) || url
+                const newBookmark: Bookmark = {
+                  id: Date.now().toString(),
+                  title,
+                  url,
+                  description: '',
+                  tags: [],
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                  category: 'personal',
+                  isFavorite: false,
+                  usageCount: 0,
+                  lastUsedAt: new Date().toISOString()
+                }
+                setBookmarks(prev => [newBookmark, ...prev])
+              }
+            }}
+            className="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Add Bookmark"
+          >
+            <Plus className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+      
+      {/* 데스크톱: 기존 헤더 */}
+      <div className="hidden sm:flex sm:items-center sm:justify-between gap-3 mb-4">
         <div>
           <h3 className="text-sm font-medium text-black">
             {filteredBookmarks.length} bookmarks
@@ -356,7 +427,7 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
           </p>
         </div>
         
-        {/* Add Bookmark Button - 컴팩트한 + 버튼 */}
+        {/* Add Bookmark Button - 데스크톱용 */}
         <button
           onClick={() => {
             const url = prompt('북마크할 URL을 입력하세요:')
@@ -378,54 +449,17 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
               setBookmarks(prev => [newBookmark, ...prev])
             }
           }}
-          className="w-8 h-8 sm:w-auto sm:h-auto sm:px-4 sm:py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center sm:gap-2"
+          className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
           title="Add Bookmark"
         >
           <Plus className="w-4 h-4" />
-          <span className="hidden sm:inline text-xs font-medium">Add Bookmark</span>
+          <span className="text-xs font-medium">Add Bookmark</span>
         </button>
       </div>
 
-      {/* Category Filter */}
-      <div className="mb-6 pb-3 border-b border-gray-200">
-        {/* 모바일: 드롭다운 */}
-        <div className="block sm:hidden relative">
-          <button
-            onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-            className="w-full flex items-center justify-between px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-          >
-            <span>{categories.find(cat => cat.value === selectedCategory)?.label}</span>
-            <ChevronDown className={`w-4 h-4 transition-transform ${showCategoryDropdown ? 'rotate-180' : ''}`} />
-          </button>
-          
-          {showCategoryDropdown && (
-            <motion.div
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden"
-            >
-              {categories.map((category) => (
-                <button
-                  key={category.value}
-                  onClick={() => {
-                    setSelectedCategory(category.value)
-                    setShowCategoryDropdown(false)
-                  }}
-                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors ${
-                    selectedCategory === category.value 
-                      ? 'bg-black text-white hover:bg-gray-800' 
-                      : 'text-gray-700'
-                  }`}
-                >
-                  {category.label}
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </div>
-
-        {/* 데스크톱: 기존 버튼 그룹 */}
-        <div className="hidden sm:flex flex-wrap gap-2">
+      {/* Category Filter - 데스크톱용만 */}
+      <div className="hidden sm:block mb-6 pb-3 border-b border-gray-200">
+        <div className="flex flex-wrap gap-2">
           {categories.map((category) => (
             <button
               key={category.value}
@@ -459,9 +493,11 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
               {/* 파비콘 */}
               <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-gray-50 border border-gray-100">
                 {bookmark.favicon ? (
-                  <img 
+                  <Image 
                     src={bookmark.favicon} 
                     alt={bookmark.title}
+                    width={16}
+                    height={16}
                     className="w-4 h-4"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = `https://www.google.com/s2/favicons?domain=${new URL(bookmark.url).hostname}&sz=16`

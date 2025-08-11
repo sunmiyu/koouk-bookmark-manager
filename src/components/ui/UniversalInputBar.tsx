@@ -386,7 +386,7 @@ export default function UniversalInputBar({
                   className="flex items-center gap-2 px-3 py-1 rounded-lg"
                   style={{ backgroundColor: 'var(--bg-card)' }}
                 >
-                  {file.type.startsWith('image/') ? <Image size={14} /> :
+                  {file.type.startsWith('image/') ? <Image size={14} aria-label="Image file" /> :
                    file.type.startsWith('video/') ? <Video size={14} /> :
                    <FileText size={14} />}
                   <span className="text-xs truncate max-w-32" style={{ color: 'var(--text-primary)' }}>

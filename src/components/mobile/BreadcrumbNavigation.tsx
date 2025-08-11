@@ -1,15 +1,12 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { ChevronRight, Home } from 'lucide-react'
-import { useCrossPlatformState } from '@/hooks/useCrossPlatformState'
-import { useRef, useEffect } from 'react'
+import { Home } from 'lucide-react'
 
 interface BreadcrumbNavigationProps {
   onNavigate?: (folderId: string) => void
 }
 
-export default function BreadcrumbNavigation({ onNavigate }: BreadcrumbNavigationProps) {
+export default function BreadcrumbNavigation({}: BreadcrumbNavigationProps) {
   // 새로운 트리 방식에서는 브레드크럼이 필요 없으므로 간단한 헤더만 표시
   return (
     <div className="bg-white border-b border-gray-100">

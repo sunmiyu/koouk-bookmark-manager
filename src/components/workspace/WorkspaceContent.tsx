@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { 
   FileText,
   Image as ImageIcon,
@@ -20,7 +22,6 @@ import UniversalInputBar from '../ui/UniversalInputBar'
 import PWAInstallPrompt from '../ui/PWAInstallPrompt'
 import QuickNoteModal from '../modals/QuickNoteModal'
 import BigNoteModal from '../modals/BigNoteModal'
-import DocumentViewModal from '../modals/DocumentViewModal'
 import MobileWorkspace from '../mobile/MobileWorkspace'
 import { FolderItem, StorageItem, createFolder, createStorageItem, defaultFolderTemplates, createDummyFolders, createInitialFolders } from '@/types/folder'
 import { searchEngine } from '@/lib/search-engine'
@@ -28,6 +29,7 @@ import { useDevice } from '@/hooks/useDevice'
 import { isYouTubeUrl, getYouTubeThumbnail } from '@/utils/youtube'
 
 export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: string }) {
+  const t = useTranslations('workspace')
   const device = useDevice()
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
@@ -37,12 +39,11 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
   const [isFirstTime, setIsFirstTime] = useState(false)
   const [showQuickNoteModal, setShowQuickNoteModal] = useState(false)
   const [showBigNoteModal, setShowBigNoteModal] = useState(false)
-  const [showDocumentModal, setShowDocumentModal] = useState(false)
-  const [selectedDocument, setSelectedDocument] = useState<StorageItem | null>(null)
+  const [editingItem, setEditingItem] = useState<StorageItem | null>(null)
 
-  // localStorage에서 데이터 로드 - 클라이언트 사이드에서만 실행
+  // Load data from localStorage - client-side only
   useEffect(() => {
-    // 브라우저 환경 체크
+    // Check browser environment
     if (typeof window === 'undefined') {
       setIsLoading(false)
       return
@@ -62,7 +63,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
             setSelectedFolderId(parsedFolders[0].id)
           }
         } else {
-          // 첫 방문 시 더미 데이터 생성 및 첫 방문 플래그 설정
+          // Generate dummy data on first visit and set first-time flag
           const initialFolders = createDummyFolders()
           setFolders(initialFolders)
           setIsFirstTime(true)
@@ -79,8 +80,8 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
           setExpandedFolders(new Set(JSON.parse(savedExpandedIds)))
         }
       } catch (error) {
-        console.error('데이터 로드 실패:', error)
-        // 기본 폴더 생성
+        console.error('Data loading failed:', error)
+        // Create default folders
         const initialFolders = defaultFolderTemplates.general.map(template =>
           createFolder(template.name, undefined, template)
         )
@@ -93,7 +94,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
       }
     }
 
-    // 약간의 지연을 두고 로드 (hydration 이슈 방지)
+    // Load with slight delay (prevents hydration issues)
     const timer = setTimeout(() => {
       loadData()
     }, 0)
@@ -101,7 +102,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
     return () => clearTimeout(timer)
   }, [])
 
-  // 데이터 저장 - 브라우저 환경 체크 추가
+  // Save data - added browser environment check
   const saveToStorage = (newFolders: FolderItem[], newSelectedId?: string) => {
     if (typeof window === 'undefined') return
     
@@ -114,16 +115,16 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
       
       localStorage.setItem('koouk-expanded-folders', JSON.stringify([...expandedFolders]))
     } catch (error) {
-      console.error('데이터 저장 실패:', error)
+      console.error('Data saving failed:', error)
     }
   }
 
-  // 폴더 관련 핸들러들
+  // Folder-related handlers
   const handleFoldersChange = (newFolders: FolderItem[]) => {
     setFolders(newFolders)
     saveToStorage(newFolders)
     
-    // 검색 엔진 인덱스 업데이트
+    // Update search engine index
     searchEngine.indexFolders(newFolders)
   }
 
@@ -144,27 +145,27 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
   }
 
   const handleCreateFolder = (parentId?: string) => {
-    const folderName = prompt('새 폴더 이름을 입력하세요:', '새 폴더')
+    const folderName = prompt(t('folder.create.namePrompt'), t('folder.defaultName'))
     if (!folderName?.trim()) return
 
     const newFolder = createFolder(folderName.trim(), parentId)
     
     if (parentId) {
-      // 특정 폴더의 하위 폴더로 추가
+      // Add as subfolder of specific folder
       const updatedFolders = addToParentFolder(folders, parentId, newFolder)
       handleFoldersChange(updatedFolders)
       
-      // 부모 폴더 확장
+      // Expand parent folder
       const newExpanded = new Set(expandedFolders)
       newExpanded.add(parentId)
       setExpandedFolders(newExpanded)
     } else {
-      // 루트 레벨에 추가
+      // Add at root level
       const newFolders = [...folders, newFolder]
       handleFoldersChange(newFolders)
     }
     
-    // 새로 생성된 폴더 선택
+    // Select newly created folder
     handleFolderSelect(newFolder.id)
   }
 
@@ -174,39 +175,39 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
   }
 
   const handleDeleteFolder = (folderId: string) => {
-    if (!confirm('정말로 이 폴더를 삭제하시겠습니까? 하위 폴더와 모든 내용이 함께 삭제됩니다.')) {
+    if (!confirm(t('folder.delete.confirmMessage'))) {
       return
     }
     
     const updatedFolders = removeFolderFromTree(folders, folderId)
     handleFoldersChange(updatedFolders)
     
-    // 삭제된 폴더가 선택되어 있었다면 첫 번째 폴더 선택
+    // If deleted folder was selected, select the first folder
     if (selectedFolderId === folderId && updatedFolders.length > 0) {
       handleFolderSelect(updatedFolders[0].id)
     }
   }
 
-  const handleStartMyWorkspace = () => {
-    if (!confirm('샘플 폴더들을 정리하고 나만의 워크스페이스를 시작하시겠습니까?')) {
+  const handleStartMyFolder = () => {
+    if (!confirm(t('folder.startMyFolder.confirmMessage'))) {
       return
     }
     
-    // 초기 빈 폴더들로 설정
+    // Set initial empty folders
     const initialFolders = createInitialFolders()
     setFolders(initialFolders)
     setSelectedFolderId(initialFolders[0].id)
     setExpandedFolders(new Set())
     setIsFirstTime(false)
     
-    // localStorage에 저장
+    // Save to localStorage
     if (typeof window !== 'undefined') {
       localStorage.setItem('koouk-folders', JSON.stringify(initialFolders))
       localStorage.setItem('koouk-selected-folder', initialFolders[0].id)
       localStorage.setItem('koouk-expanded-folders', JSON.stringify([]))
     }
     
-    // 검색 엔진 업데이트
+    // Update search engine
     searchEngine.indexFolders(initialFolders)
   }
 
@@ -214,36 +215,36 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
     const folderToShare = findFolderById(folders, folderId)
     if (!folderToShare) return
 
-    const title = prompt('공유할 폴더의 제목을 입력하세요:', folderToShare.name)
+    const title = prompt(t('folder.share.titlePrompt'), folderToShare.name)
     if (!title?.trim()) return
 
-    const description = prompt('폴더에 대한 설명을 입력하세요:', '')
+    const description = prompt(t('folder.share.descriptionPrompt'), '')
     if (description === null) return
 
-    const category = prompt('카테고리를 선택하세요 (lifestyle, food, travel, study, parenting, investment, work, entertainment, health, tech):', 'lifestyle')
+    const category = prompt(t('folder.share.categoryPrompt'), 'lifestyle')
     if (!category) return
 
-    // Share Place에 공유 성공 알림
-    alert(`"${title}" 폴더가 Market Place에 공유되었습니다! 🎉\n다른 사용자들이 이제 이 폴더를 발견하고 활용할 수 있습니다.`)
+    // Share success notification to Share Place
+    alert(t('folder.share.successMessage', { title }))
   }
 
   const handleCreateItem = (type: StorageItem['type'], folderId: string) => {
     const typeLabels = {
-      document: '문서',
-      memo: '메모',
-      image: '이미지',
-      video: '비디오',
-      url: 'URL'
+      document: t('itemType.document'),
+      memo: t('itemType.memo'),
+      image: t('itemType.image'),
+      video: t('itemType.video'),
+      url: t('itemType.url')
     }
     
-    const itemName = prompt(`새 ${typeLabels[type]} 이름을 입력하세요:`, `새 ${typeLabels[type]}`)
+    const itemName = prompt(t('item.create.namePrompt', { type: typeLabels[type] }), t('item.create.defaultName', { type: typeLabels[type] }))
     if (!itemName?.trim()) return
 
     let content = ''
     if (type === 'url') {
-      content = prompt('URL을 입력하세요:', 'https://') || ''
+      content = prompt(t('item.create.urlPrompt'), 'https://') || ''
     } else {
-      content = prompt('내용을 입력하세요:', '') || ''
+      content = prompt(t('item.create.contentPrompt'), '') || ''
     }
 
     const newItem = createStorageItem(itemName.trim(), type, content, folderId)
@@ -251,7 +252,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
     handleFoldersChange(updatedFolders)
   }
 
-  // 현재 선택된 폴더의 아이템들 가져오기
+  // Get items from currently selected folder
   const getSelectedFolderItems = (): StorageItem[] => {
     if (!selectedFolderId) return []
     
@@ -274,7 +275,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
     return findItems(folders)
   }
 
-  // 모달 핸들러들
+  // Modal handlers
   const handleSaveMemo = (memo: Omit<StorageItem, 'id' | 'createdAt' | 'updatedAt'>, folderId: string) => {
     const newMemo = createStorageItem(memo.name, memo.type, memo.content, folderId, memo.metadata)
     const updatedFolders = addItemToFolder(folders, folderId, newMemo)
@@ -288,8 +289,12 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
   }
 
   const handleDocumentOpen = (item: StorageItem) => {
-    setSelectedDocument(item)
-    setShowDocumentModal(true)
+    setEditingItem(item)
+    if (item.type === 'memo') {
+      setShowQuickNoteModal(true)
+    } else if (item.type === 'document') {
+      setShowBigNoteModal(true)
+    }
   }
 
   if (isLoading) {
@@ -297,13 +302,13 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
       <div className="h-96 flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-sm text-gray-500">워크스페이스 로딩중...</p>
+          <p className="text-sm text-gray-500">{t('loading.folders')}</p>
         </div>
       </div>
     )
   }
 
-  // 모바일 환경에서는 MobileWorkspace 렌더링
+  // Render MobileWorkspace for mobile environment
   if (device.isMobile) {
     return (
       <>
@@ -331,21 +336,16 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
           selectedFolderId={selectedFolderId}
         />
 
-        <DocumentViewModal
-          isOpen={showDocumentModal}
-          onClose={() => setShowDocumentModal(false)}
-          item={selectedDocument}
-        />
       </>
     )
   }
 
-  // 데스크톱 환경에서는 기존 레이아웃 렌더링
+  // Render existing layout for desktop environment
   return (
     <div>
-      {/* 모바일 반응형 컨테이너 */}
+      {/* Mobile responsive container */}
       <div className="flex h-full relative">
-        {/* 모바일 메뉴 토글 버튼 */}
+        {/* Mobile menu toggle button */}
         <button
           onClick={() => setSidebarVisible(!sidebarVisible)}
           className="fixed top-20 left-4 z-50 p-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all lg:hidden"
@@ -353,7 +353,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
           <Menu className="w-5 h-5 text-gray-600" />
         </button>
 
-        {/* 사이드바 */}
+        {/* Sidebar */}
         <div className={`
           ${sidebarVisible ? 'translate-x-0' : '-translate-x-full'}
           fixed lg:relative lg:translate-x-0
@@ -361,14 +361,14 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
           transition-transform duration-300 ease-in-out
           z-40 lg:z-auto
         `}>
-          {/* 헤더 영역 */}
+          {/* Header section */}
           <div className="px-4 py-4 border-b border-gray-100">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xs font-semibold text-gray-900">My Workspace</h2>
+              <h2 className="text-xs font-semibold text-gray-900">My Folder</h2>
               <button 
                 onClick={() => handleCreateFolder()}
                 className="p-1.5 hover:bg-gray-50 rounded-md transition-colors"
-                title="새 폴더 만들기"
+                title="Create new folder"
               >
                 <Plus className="w-4 h-4 text-gray-500" />
               </button>
@@ -382,29 +382,29 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
                       <span className="text-xs">🎓</span>
                     </div>
                     <div>
-                      <h3 className="text-xs font-semibold text-blue-900 mb-1">샘플로 학습해보세요!</h3>
+                      <h3 className="text-xs font-semibold text-blue-900 mb-1">Learn with samples!</h3>
                       <p className="text-[10px] text-blue-700 leading-relaxed">
-                        현재 보이는 폴더들은 KOOUK 사용법을 익힐 수 있는 샘플 데이터입니다. 
-                        각 폴더를 클릭해서 다양한 콘텐츠 타입을 확인해보세요.
+                        The folders you see are sample data to help you learn how to use KOOUK. 
+                        Click on each folder to explore different content types.
                       </p>
                     </div>
                   </div>
                 </div>
                 
                 <button
-                  onClick={handleStartMyWorkspace}
+                  onClick={handleStartMyFolder}
                   className="w-full flex items-center justify-center gap-2 px-3 py-2 
                              text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 
                              hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-200
                              shadow-sm hover:shadow-md"
                 >
                   <span>✨</span>
-                  <span>나만의 워크스페이스 시작하기</span>
+                  <span>Start My Own Folder</span>
                 </button>
                 
                 <p className="text-[10px] text-gray-500 text-center leading-relaxed">
-                  버튼을 누르면 샘플 데이터가 정리되고<br/>
-                  Folder1, Folder2, Folder3으로 새롭게 시작됩니다
+                  Clicking the button will clear sample data and<br/>
+                  start fresh with Folder1, Folder2, Folder3
                 </p>
               </div>
             ) : (
@@ -416,12 +416,12 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
                            border border-gray-200 hover:border-gray-300 hover:shadow-sm"
               >
                 <Plus className="w-3.5 h-3.5" />
-                새 폴더 만들기
+                Create New Folder
               </button>
             )}
           </div>
 
-          {/* 폴더 트리 영역 */}
+          {/* Folder tree section */}
           <div className="px-3 py-2 overflow-y-auto h-[calc(100%-130px)]">
             <FolderTree
               folders={folders}
@@ -437,11 +437,11 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
             />
           </div>
 
-          {/* PWA Install Prompt - 사이드바 하단 */}
+          {/* PWA Install Prompt - Bottom of sidebar */}
           <PWAInstallPrompt />
         </div>
 
-        {/* 모바일 오버레이 */}
+        {/* Mobile overlay */}
         {sidebarVisible && (
           <div 
             className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
@@ -460,7 +460,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
         </div>
       </div>
 
-      {/* Universal Input Bar - 고정 하단 입력란 */}
+      {/* Universal Input Bar - Fixed bottom input */}
       <UniversalInputBar
         folders={folders}
         selectedFolderId={selectedFolderId}
@@ -476,30 +476,32 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
       {/* Modal Components */}
       <QuickNoteModal
         isOpen={showQuickNoteModal}
-        onClose={() => setShowQuickNoteModal(false)}
+        onClose={() => {
+          setShowQuickNoteModal(false)
+          setEditingItem(null)
+        }}
         onSave={handleSaveMemo}
+        editNote={editingItem}
         folders={folders}
         selectedFolderId={selectedFolderId}
       />
 
       <BigNoteModal
         isOpen={showBigNoteModal}
-        onClose={() => setShowBigNoteModal(false)}
+        onClose={() => {
+          setShowBigNoteModal(false)
+          setEditingItem(null)
+        }}
         onSave={handleSaveNote}
+        editNote={editingItem}
         folders={folders}
         selectedFolderId={selectedFolderId}
-      />
-
-      <DocumentViewModal
-        isOpen={showDocumentModal}
-        onClose={() => setShowDocumentModal(false)}
-        item={selectedDocument}
       />
     </div>
   )
 }
 
-// 폴더 콘텐츠 컴포넌트
+// Folder content component
 const FolderContent = ({ 
   items, 
   onCreateItem,
@@ -514,21 +516,21 @@ const FolderContent = ({
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'name' | 'type'>('recent')
 
-  // 아이템 클릭 핸들러
+  // Item click handler
   const handleItemClick = (item: StorageItem) => {
     if (item.type === 'url' || item.type === 'video') {
-      // URL과 비디오는 새 탭에서 열기
+      // Open URLs and videos in new tab
       window.open(item.content, '_blank', 'noopener,noreferrer')
     } else if (item.type === 'document' || item.type === 'memo') {
-      // 문서와 메모는 모달에서 열기
+      // Open documents and memos in modal
       onDocumentOpen(item)
     } else if (item.type === 'image') {
-      // 이미지는 새 탭에서 열기
+      // Open images in new tab
       window.open(item.content, '_blank', 'noopener,noreferrer')
     }
   }
   
-  // 검색 필터링
+  // Search filtering
   const filteredItems = items.filter(item => {
     if (!searchQuery.trim()) return true
     const query = searchQuery.toLowerCase()
@@ -539,7 +541,7 @@ const FolderContent = ({
     )
   })
   
-  // 아이템을 타입별로 그룹화 (영상 > 이미지 > 링크 > 문서 > 메모 순서)
+  // Group items by type (videos > images > links > documents > memos)
   const typeOrder = { video: 0, image: 1, url: 2, document: 3, memo: 4 }
   
   const groupedItems = filteredItems.reduce((groups, item) => {
@@ -551,7 +553,7 @@ const FolderContent = ({
     return groups
   }, {} as Record<string, StorageItem[]>)
   
-  // 각 그룹 내에서 정렬
+  // Sort within each group
   const sortedGroups = Object.keys(groupedItems).sort((a, b) => {
     return (typeOrder[a as keyof typeof typeOrder] ?? 5) - (typeOrder[b as keyof typeof typeOrder] ?? 5)
   }).reduce((result, type) => {
@@ -564,7 +566,7 @@ const FolderContent = ({
         case 'name':
           return a.name.localeCompare(b.name, 'ko')
         case 'type':
-          return 0 // 이미 타입별로 그룹화되어 있음
+          return 0 // Already grouped by type
         default:
           return 0
       }
@@ -575,11 +577,11 @@ const FolderContent = ({
 
   const getSortLabel = () => {
     switch (sortBy) {
-      case 'recent': return '최근 수정된 순'
-      case 'oldest': return '오래된 순'
-      case 'name': return '이름순'
-      case 'type': return '타입별'
-      default: return '최근 수정된 순'
+      case 'recent': return 'Recently Modified'
+      case 'oldest': return 'Oldest First'
+      case 'name': return 'By Name'
+      case 'type': return 'By Type'
+      default: return 'Recently Modified'
     }
   }
 
@@ -716,7 +718,7 @@ const FolderContent = ({
               {/* Show more button */}
               {items.length > 12 && (
                 <button className="mt-4 text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                  <span>더보기 ({items.length - 12}개)</span>
+                  <span>Show More ({items.length - 12} items)</span>
                   <Plus className="w-3 h-3" />
                 </button>
               )}
@@ -736,10 +738,10 @@ const FolderContent = ({
   )
 }
 
-// 아이템 카드 컴포넌트
+// Item card component
 const ItemCard = ({ item, viewMode, onItemClick }: { item: StorageItem; viewMode: 'grid' | 'list'; onItemClick: (item: StorageItem) => void }) => {
 
-  // 링크에서 도메인 추출
+  // Extract domain from link
   const getDomain = (url: string): string => {
     try {
       return new URL(url).hostname.replace('www.', '')
@@ -748,7 +750,7 @@ const ItemCard = ({ item, viewMode, onItemClick }: { item: StorageItem; viewMode
     }
   }
 
-  // Grid 모드 - 통합 카드 디자인
+  // Grid mode - unified card design
   if (viewMode === 'grid') {
     const getThumbnail = () => {
       if (item.type === 'video') {
@@ -762,15 +764,15 @@ const ItemCard = ({ item, viewMode, onItemClick }: { item: StorageItem; viewMode
         return item.content
       }
       if (item.type === 'url') {
-        // 사용자가 직접 입력한 썸네일이 있으면 사용
+        // Use user-provided thumbnail if available
         if (item.metadata?.thumbnail) return item.metadata.thumbnail
         
-        // YouTube URL이면 썸네일 사용
+        // Use thumbnail if YouTube URL
         if (isYouTubeUrl(item.content)) {
           return getYouTubeThumbnail(item.content)
         }
         
-        // 없으면 파비콘 사용
+        // Use favicon if no thumbnail
         try {
           const domain = new URL(item.content).hostname
           return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`
@@ -804,16 +806,16 @@ const ItemCard = ({ item, viewMode, onItemClick }: { item: StorageItem; viewMode
     return (
       <motion.div
         className="bg-white border border-gray-100 rounded-lg overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer group"
-        whileHover={{ y: -2 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => onItemClick(item)}
       >
-        {/* Preview area - 4:1 비율 (이미지 영역 유지, 하단만 최소화) */}
+        {/* Preview area - 4:3 ratio (maintain image area, minimize bottom) */}
         <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 aspect-[4/3] overflow-hidden">
           {thumbnail ? (
-            <img 
+            <Image 
               src={thumbnail} 
               alt={item.name}
+              fill
               className={`w-full h-full transition-transform duration-300 group-hover:scale-105 ${
                 item.type === 'url' ? 'object-contain p-6' : 'object-cover'
               }`}
@@ -846,7 +848,7 @@ const ItemCard = ({ item, viewMode, onItemClick }: { item: StorageItem; viewMode
           </div>
           
 
-          {/* Duration for videos - 개선된 스타일 */}
+          {/* Duration for videos - improved style */}
           {item.type === 'video' && item.metadata?.duration && (
             <div className="absolute bottom-2 right-2 bg-black/75 backdrop-blur-sm text-white px-2 py-1 rounded-full text-[10px] font-medium">
               {Math.floor(item.metadata.duration / 60)}:{(item.metadata.duration % 60).toString().padStart(2, '0')}
@@ -854,7 +856,7 @@ const ItemCard = ({ item, viewMode, onItemClick }: { item: StorageItem; viewMode
           )}
         </div>
         
-        {/* Content - 극도로 압축된 하단 (1의 비율) */}
+        {/* Content - extremely compressed bottom (1:1 ratio) */}
         <div className="px-3 py-1.5 bg-white border-t border-gray-50">
           <h4 className="font-medium text-gray-800 truncate text-xs leading-none tracking-tight">
             {(item.metadata?.title as string) || item.name}
@@ -864,7 +866,7 @@ const ItemCard = ({ item, viewMode, onItemClick }: { item: StorageItem; viewMode
     )
   }
 
-  // List 모드
+  // List mode
   return (
     <div className="flex items-center gap-4 p-3 bg-white border border-gray-100 rounded-lg hover:shadow-sm transition-all cursor-pointer" onClick={() => onItemClick(item)}>
       <div className="flex-shrink-0">
@@ -892,7 +894,7 @@ const ItemCard = ({ item, viewMode, onItemClick }: { item: StorageItem; viewMode
   )
 }
 
-// 유틸리티 함수들
+// Utility functions
 function findFolderById(folders: FolderItem[], folderId: string): FolderItem | null {
   for (const folder of folders) {
     if (folder.id === folderId) {

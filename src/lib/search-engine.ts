@@ -1,5 +1,4 @@
-import Fuse from 'fuse.js'
-import { Index } from 'flexsearch'
+// 단일 검색 라이브러리만 사용하여 번들 크기 최적화
 import Hangul from 'hangul-js'
 import { FolderItem, StorageItem } from '@/types/folder'
 import { SharedFolder } from '@/types/share'
@@ -70,35 +69,12 @@ class KoreanTextProcessor {
   }
 }
 
-// 통합 검색 엔진
+// 최적화된 검색 엔진 (한국어 특화)
 export class UniversalSearchEngine {
-  private fuseIndex: Fuse<SearchableItem>
-  private flexSearchIndex: Index
   private items: SearchableItem[] = []
 
   constructor() {
-    // Fuse.js 설정 (한국어 지원 강화)
-    this.fuseIndex = new Fuse([], {
-      keys: [
-        { name: 'name', weight: 0.4 },
-        { name: 'content', weight: 0.3 },
-        { name: 'description', weight: 0.2 },
-        { name: 'tags', weight: 0.1 }
-      ],
-      threshold: 0.3, // 더 관대한 매칭
-      includeScore: true,
-      includeMatches: true,
-      minMatchCharLength: 1,
-      ignoreLocation: true,
-      useExtendedSearch: true
-    })
-
-    // FlexSearch 설정 (빠른 검색을 위한)
-    this.flexSearchIndex = new Index({
-      preset: 'match',
-      tokenize: 'forward',
-      resolution: 1
-    })
+    // 최적화: 외부 라이브러리 없이 네이티브 검색 구현
   }
 
   // 데이터 인덱싱
@@ -164,15 +140,6 @@ export class UniversalSearchEngine {
 
   private updateIndex(items: SearchableItem[]) {
     this.items = items
-    
-    // Fuse 인덱스 업데이트
-    this.fuseIndex.setCollection(items)
-    
-    // FlexSearch 인덱스 업데이트
-    items.forEach((item, index) => {
-      const searchText = `${item.name} ${item.content} ${item.description || ''} ${item.tags.join(' ')}`
-      this.flexSearchIndex.add(index, searchText)
-    })
   }
 
   // 통합 검색 (한국어/영어 모두 지원)
@@ -218,15 +185,7 @@ export class UniversalSearchEngine {
   private koreanSearch(query: string): SearchableItem[] {
     const results: Array<{ item: SearchableItem; score: number }> = []
 
-    // 1. Fuse.js 검색
-    const fuseResults = this.fuseIndex.search(query)
-    fuseResults.forEach(result => {
-      if (result.item && result.score !== undefined) {
-        results.push({ item: result.item, score: (1 - result.score) * 100 })
-      }
-    })
-
-    // 2. 한국어 특화 검색 (초성, 분해 등)
+    // 한국어 특화 검색 (초성, 분해 등)
     this.items.forEach(item => {
       const koreanScore = Math.max(
         KoreanTextProcessor.getSimilarity(query, item.name),
@@ -235,13 +194,7 @@ export class UniversalSearchEngine {
       )
 
       if (koreanScore > 30) {
-        const existingIndex = results.findIndex(r => r.item.id === item.id)
-        if (existingIndex >= 0) {
-          // 기존 점수와 결합
-          results[existingIndex].score = Math.max(results[existingIndex].score, koreanScore)
-        } else {
-          results.push({ item, score: koreanScore })
-        }
+        results.push({ item, score: koreanScore })
       }
     })
 
@@ -254,27 +207,37 @@ export class UniversalSearchEngine {
 
   private generalSearch(query: string): SearchableItem[] {
     const results: Array<{ item: SearchableItem; score: number }> = []
+    const queryLower = query.toLowerCase()
 
-    // 1. FlexSearch (빠른 매칭)
-    const flexResults = this.flexSearchIndex.search(query)
-    flexResults.forEach(index => {
-      if (typeof index === 'number' && this.items[index]) {
-        results.push({ item: this.items[index], score: 90 })
-      }
-    })
-
-    // 2. Fuse.js (정확한 매칭)
-    const fuseResults = this.fuseIndex.search(query)
-    fuseResults.forEach(result => {
-      if (result.item && result.score !== undefined) {
-        const existingIndex = results.findIndex(r => r.item.id === result.item.id)
-        const score = (1 - result.score) * 100
-        
-        if (existingIndex >= 0) {
-          results[existingIndex].score = Math.max(results[existingIndex].score, score)
-        } else {
-          results.push({ item: result.item, score })
+    // 네이티브 문자열 매칭 (외부 라이브러리 없이)
+    this.items.forEach(item => {
+      let score = 0
+      const name = item.name.toLowerCase()
+      const content = item.content.toLowerCase()
+      const description = (item.description || '').toLowerCase()
+      
+      // 완전 매칭
+      if (name === queryLower) score += 100
+      else if (name.includes(queryLower)) score += 80
+      
+      if (content.includes(queryLower)) score += 60
+      if (description.includes(queryLower)) score += 40
+      
+      // 태그 매칭
+      item.tags.forEach(tag => {
+        if (tag.toLowerCase().includes(queryLower)) score += 30
+      })
+      
+      // 부분 매칭
+      const words = queryLower.split(' ')
+      words.forEach(word => {
+        if (word && (name.includes(word) || content.includes(word))) {
+          score += 20
         }
+      })
+      
+      if (score > 0) {
+        results.push({ item, score })
       }
     })
 

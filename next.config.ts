@@ -1,4 +1,7 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin();
 
 // Bundle Analyzer 설정
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
@@ -57,6 +60,43 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['@vercel/analytics', 'lucide-react', 'framer-motion']
   },
   
+  // Turbopack configuration (moved from experimental)
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js'
+      }
+    }
+  },
+  
+  // Bundle optimization
+  webpack: (config, { dev, isServer }) => {
+    // Optimize bundle splitting for better caching
+    if (!dev && !isServer) {
+      config.optimization.splitChunks = {
+        ...config.optimization.splitChunks,
+        cacheGroups: {
+          ...config.optimization.splitChunks?.cacheGroups,
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+            priority: 10,
+          },
+          common: {
+            name: 'common',
+            minChunks: 2,
+            chunks: 'all',
+            priority: 5,
+            reuseExistingChunk: true,
+          },
+        },
+      }
+    }
+    return config
+  },
+  
   // 빌드 성능 최적화 (swcMinify는 Next.js 15에서 deprecated)
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
@@ -89,4 +129,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withBundleAnalyzer(nextConfig);
+export default withNextIntl(withBundleAnalyzer(nextConfig));

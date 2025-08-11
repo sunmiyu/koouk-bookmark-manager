@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
-import './globals.css'
+import { NextIntlClientProvider } from 'next-intl'
+import { getMessages } from 'next-intl/server'
+import '../globals.css'
 import { AuthProvider } from '@/components/auth/AuthContext'
 import ServiceWorkerRegistration from '@/components/pwa/ServiceWorkerRegistration'
 
@@ -9,10 +11,10 @@ export const metadata: Metadata = {
   keywords: ['knowledge management', 'notes', 'organization', 'productivity'],
   authors: [{ name: 'Koouk Team' }],
   manifest: '/manifest.json',
-  themeColor: '#2c3e50',
+  themeColor: '#ffffff',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'default',
+    statusBarStyle: 'black-translucent',
     title: 'Koouk',
   },
   formatDetection: {
@@ -26,18 +28,26 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function LocaleLayout({
   children,
+  params: { locale }
 }: {
   children: React.ReactNode
+  params: { locale: string }
 }) {
+  // Providing all messages to the client
+  // side is the easiest way to get started
+  const messages = await getMessages()
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body>
-        <AuthProvider>
-          {children}
-          <ServiceWorkerRegistration />
-        </AuthProvider>
+        <NextIntlClientProvider messages={messages}>
+          <AuthProvider>
+            {children}
+            <ServiceWorkerRegistration />
+          </AuthProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   )

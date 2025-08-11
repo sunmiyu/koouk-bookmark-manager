@@ -1,0 +1,200 @@
+{
+  "app": {
+    "name": "KOOUK",
+    "tagline": "Transform Information into Knowledge, Knowledge into Assets",
+    "sharedContent": "Shared Content",
+    "search": "Search...",
+    "feedback": "Feedback",
+    "user": "User",
+    "settings": "Settings",
+    "signOut": "Sign Out",
+    "myFolder": "My Folder",
+    "bookmarks": "Bookmarks",
+    "marketplace": "Marketplace"
+  },
+  "navigation": {
+    "myFolder": "My Folder",
+    "bookmarks": "Bookmarks",
+    "marketplace": "Marketplace",
+    "settings": "Settings"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "email": "Email",
+    "password": "Password",
+    "welcome": "Welcome to KOOUK"
+  },
+  "myFolder": {
+    "title": "My Folder",
+    "description": "Organize and manage your personal content",
+    "createFolder": "Create New Folder",
+    "folderName": "Folder Name",
+    "startMyFolder": "Start My Folder",
+    "loading": "Loading folders...",
+    "noFolders": "No folders yet",
+    "confirmStart": "Would you like to clean up sample folders and start your own folder?"
+  },
+  "bookmarks": {
+    "title": "Bookmarks",
+    "description": "Find your saved links and resources",
+    "addBookmark": "Add Bookmark",
+    "bookmarkUrl": "Enter URL to bookmark:",
+    "bookmarkTitle": "Enter title:",
+    "deleteConfirm": "Do you want to delete this bookmark?",
+    "categories": {
+      "mostUsed": "Most Used",
+      "all": "All Bookmarks",
+      "work": "Work",
+      "personal": "Personal",
+      "entertainment": "Entertainment",
+      "news": "News",
+      "social": "Social",
+      "shopping": "Shopping",
+      "education": "Education",
+      "tech": "Technology"
+    }
+  },
+  "marketplace": {
+    "title": "Marketplace",
+    "description": "Content shared by other users",
+    "addToFolder": "Add to My Folder?",
+    "addedToFolder": "Folder added to My Folder!",
+    "categories": {
+      "all": "All Categories",
+      "lifestyle": "Lifestyle",
+      "food": "Food & Recipe",
+      "travel": "Travel",
+      "study": "Study & Learning",
+      "work": "Work & Business",
+      "entertainment": "Entertainment",
+      "health": "Health & Fitness",
+      "tech": "Technology",
+      "investment": "Investment",
+      "parenting": "Parenting"
+    }
+  },
+  "input": {
+    "placeholder": "Enter anything - links, memos, documents... (Ctrl+Enter to save)",
+    "selectFolder": "Select Folder",
+    "createMemo": "Create Memo",
+    "createNote": "Create Note",
+    "addItem": "Add New Item",
+    "attachFile": "Attach File",
+    "pastedImage": "Pasted image"
+  },
+  "settings": {
+    "title": "Settings",
+    "account": "Account",
+    "profileInfo": "Profile Information",
+    "passwordSecurity": "Password & Security",
+    "accountSecurity": "Account & Security",
+    "preferences": "Preferences",
+    "language": "Language & Region",
+    "notifications": "Notifications",
+    "supportLegal": "Support & Legal",
+    "helpCenter": "Help Center",
+    "privacyPolicy": "Privacy Policy",
+    "backToKoouk": "Back to Koouk",
+    "editProfile": "Edit Profile",
+    "user": "User",
+    "signOut": "Sign Out"
+  },
+  "errors": {
+    "404": {
+      "title": "Page Not Found",
+      "description": "The page you requested does not exist or has been moved.",
+      "goHome": "Go Home"
+    },
+    "global": {
+      "title": "Error Occurred",
+      "description": "An error occurred while rendering this page.",
+      "tryAgain": "Try Again",
+      "goHome": "Go Home"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "confirm": "Confirm",
+    "search": "Search",
+    "folders": "folders",
+    "items": "items",
+    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from favorites"
+  },
+  "share": {
+    "title": "Save to KOOUK",
+    "selectFolder": "Select folder to save",
+    "createNewFolder": "Create new folder",
+    "folderNamePlaceholder": "Enter folder name...",
+    "saveToKoouk": "Save to KOOUK",
+    "saving": "Saving...",
+    "saved": "Saved!",
+    "successMessage": "Successfully saved to KOOUK.",
+    "redirecting": "Redirecting to My Folder..."
+  },
+  "language": {
+    "korean": "한국어",
+    "english": "English",
+    "changeLanguage": "Change Language"
+  },
+  "workspace": {
+    "folder": {
+      "create": {
+        "namePrompt": "Enter new folder name:",
+        "tooltip": "Create new folder",
+        "button": "Create New Folder"
+      },
+      "defaultName": "New Folder",
+      "delete": {
+        "confirmMessage": "Are you sure you want to delete this folder? All subfolders and content will be deleted together."
+      },
+      "startMyFolder": {
+        "confirmMessage": "Would you like to clean up sample folders and start your own folder?",
+        "button": "Start My Own Folder",
+        "description": "Remove samples and start with an empty folder"
+      },
+      "share": {
+        "titlePrompt": "Enter the title of the folder to share:",
+        "descriptionPrompt": "Enter a description for the folder:",
+        "categoryPrompt": "Select a category (lifestyle, food, travel, study, parenting, investment, work, entertainment, health, tech):",
+        "successMessage": "\"{title}\" folder has been shared to Market Place! 🎉\nOther users can now discover and utilize this folder."
+      }
+    },
+    "item": {
+      "create": {
+        "namePrompt": "Enter new {type} name:",
+        "defaultName": "New {type}",
+        "urlPrompt": "Enter URL:",
+        "contentPrompt": "Enter content:"
+      }
+    },
+    "itemType": {
+      "document": "Document",
+      "memo": "Memo",
+      "image": "Image",
+      "video": "Video",
+      "url": "URL"
+    },
+    "loading": {
+      "folders": "Loading folders..."
+    },
+    "tutorial": {
+      "title": "Learn with samples!",
+      "description": "Experience KOOUK's features with pre-prepared sample data"
+    },
+    "sort": {
+      "recent": "Recently Modified",
+      "oldest": "Oldest First",
+      "name": "By Name",
+      "type": "By Type"
+    },
+    "showMore": "Show More ({count} items)"
+  }
+}

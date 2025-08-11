@@ -100,7 +100,7 @@ function ShareReceiverContent() {
     setShowNewFolderInput(false)
   }
 
-  // 실제 워크스페이스 폴더에 직접 저장
+  // 실제 내 폴더에 직접 저장
   const addItemToFolder = (folders: FolderItem[], folderId: string, newItem: StorageItem): FolderItem[] => {
     return folders.map(folder => {
       if (folder.id === folderId) {
@@ -135,7 +135,7 @@ function ShareReceiverContent() {
         selectedFolder
       )
       
-      // 실제 워크스페이스 폴더에 아이템 추가
+      // 실제 내 폴더에 아이템 추가
       const updatedFolders = addItemToFolder(userFolders, selectedFolder, newItem)
       
       // localStorage에 저장
@@ -145,9 +145,9 @@ function ShareReceiverContent() {
       
       setSaved(true)
       
-      // 2초 후 워크스페이스로 이동
+      // 2초 후 My Folder로 이동
       setTimeout(() => {
-        router.push('/workspace')
+        router.push('/')
       }, 2000)
       
     } catch (error) {
@@ -194,11 +194,11 @@ function ShareReceiverContent() {
           </h2>
           
           <p className="text-gray-600 mb-6">
-            KOOUK 워크스페이스에 성공적으로 저장되었습니다.
+            KOOUK에 성공적으로 저장되었습니다.
           </p>
           
           <div className="animate-pulse text-sm text-gray-500">
-            워크스페이스로 이동 중...
+            My Folder로 이동 중...
           </div>
         </motion.div>
       </div>

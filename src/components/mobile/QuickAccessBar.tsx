@@ -3,7 +3,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { FolderOpen, Settings, X, Star } from 'lucide-react'
 import { useCrossPlatformState } from '@/hooks/useCrossPlatformState'
-import { useDevice } from '@/hooks/useDevice'
 import { useState } from 'react'
 
 interface QuickAccessBarProps {
@@ -12,7 +11,6 @@ interface QuickAccessBarProps {
 
 export default function QuickAccessBar({ onFolderSelect }: QuickAccessBarProps) {
   const { state, updateQuickAccess, updateNavigation, updatePreferences } = useCrossPlatformState()
-  const device = useDevice()
   const [isEditing, setIsEditing] = useState(false)
 
   // Quick Access 항목이 없으면 렌더링하지 않음

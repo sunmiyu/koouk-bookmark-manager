@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion'
 import { FolderOpen, Bookmark, ShoppingBag } from 'lucide-react'
 import { useCrossPlatformState } from '@/hooks/useCrossPlatformState'
-import { useDevice } from '@/hooks/useDevice'
 
 interface BottomTabNavigationProps {
   activeTab?: 'my-folder' | 'bookmarks' | 'marketplace'
@@ -12,7 +11,6 @@ interface BottomTabNavigationProps {
 
 export default function BottomTabNavigation({ activeTab, onTabChange }: BottomTabNavigationProps) {
   const { state, updateNavigation } = useCrossPlatformState()
-  const device = useDevice()
 
   // PC에서는 렌더링하지 않음 (상단 네비게이션 도입으로 완전 비활성화)
   return null
@@ -71,7 +69,6 @@ export default function BottomTabNavigation({ activeTab, onTabChange }: BottomTa
             'marketplace': 'market-place'
           }
           const isActive = activeTab ? appTabMap[activeTab] === tab.id : state.navigation.activeTab === tab.id
-          const Icon = tab.icon
 
           return (
             <motion.button

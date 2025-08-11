@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import { ArrowRight } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 
@@ -15,9 +16,11 @@ export default function LandingPage() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center">
-              <img 
+              <Image 
                 src="/koouk-logo.svg" 
                 alt="KOOUK" 
+                width={100}
+                height={24}
                 className="h-6 w-auto"
               />
             </div>
@@ -158,9 +161,11 @@ export default function LandingPage() {
         <div className="w-full px-4 sm:px-8 sm:max-w-6xl sm:mx-auto py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <img 
+              <Image 
                 src="/koouk-logo.svg" 
                 alt="Koouk" 
+                width={60}
+                height={16}
                 className="h-4 w-auto"
               />
             </div>

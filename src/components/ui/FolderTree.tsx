@@ -46,7 +46,7 @@ const StorageItemNode = ({
     switch (item.type) {
       case 'document': return <FileText className="w-3.5 h-3.5" />
       case 'memo': return <StickyNote className="w-3.5 h-3.5" />
-      case 'image': return <Image className="w-3.5 h-3.5" />
+      case 'image': return <Image className="w-3.5 h-3.5" aria-label="Image file" />
       case 'video': return <Video className="w-3.5 h-3.5" />
       case 'url': return <Link className="w-3.5 h-3.5" />
       default: return <FileText className="w-3.5 h-3.5" />
@@ -257,7 +257,7 @@ const FolderNode = ({
               {type === 'memo' && <StickyNote className="w-4 h-4" />}
               {type === 'document' && <FileText className="w-4 h-4" />}
               {type === 'url' && <Link className="w-4 h-4" />}
-              {type === 'image' && <Image className="w-4 h-4" />}
+              {type === 'image' && <Image className="w-4 h-4" aria-label="Image file" />}
               {type === 'video' && <Video className="w-4 h-4" />}
               <span>{type === 'url' ? 'URL' : type.charAt(0).toUpperCase() + type.slice(1)}</span>
             </button>

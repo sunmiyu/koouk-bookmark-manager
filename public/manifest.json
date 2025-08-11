@@ -9,7 +9,7 @@
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "orientation": "portrait-primary",
   "background_color": "#ffffff",
-  "theme_color": "#2c3e50",
+  "theme_color": "#ffffff",
   "categories": ["productivity", "education", "knowledge", "utilities", "lifestyle"],
   "lang": "ko-KR",
   "dir": "ltr",
@@ -60,7 +60,7 @@
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "My Workspace"
+      "label": "My Folder"
     },
     {
       "src": "/screenshots/desktop-dashboard.png",
@@ -142,10 +142,10 @@
       ]
     },
     {
-      "name": "My Workspace",
-      "short_name": "작업공간",
-      "description": "나의 지식 작업공간으로 이동", 
-      "url": "/workspace",
+      "name": "My Folder",
+      "short_name": "내 폴더",
+      "description": "나의 폴더로 이동", 
+      "url": "/",
       "icons": [
         {
           "src": "/icons/shortcut-workspace.png",

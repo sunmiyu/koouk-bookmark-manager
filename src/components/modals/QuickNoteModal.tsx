@@ -83,29 +83,25 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
       <div 
-        className="w-full max-w-md rounded-2xl shadow-2xl relative"
+        className="w-full max-w-md rounded-xl shadow-lg relative bg-white"
         style={{
-          backgroundColor: '#FEF3C7',
-          border: '3px solid #F59E0B',
-          minHeight: '500px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+          border: '1px solid #E5E7EB',
+          minHeight: '400px',
+          boxShadow: '0 20px 40px -12px rgba(0, 0, 0, 0.15)'
         }}
       >
-        {/* 포스트잇 상단 구멍 효과 */}
-        <div className="absolute top-2 left-4 w-3 h-3 bg-black bg-opacity-10 rounded-full"></div>
-        <div className="absolute top-2 right-4 w-3 h-3 bg-black bg-opacity-10 rounded-full"></div>
         
         {/* Header */}
-        <div className="flex items-center justify-between p-6 pb-4">
+        <div className="flex items-center justify-between p-6 pb-4 border-b border-gray-100">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">📝</span>
-            <h2 className="text-lg font-bold text-amber-800">
-              {editNote ? '메모 수정' : '메모 작성'}
+            <span className="text-xl">🗒️</span>
+            <h2 className="text-lg font-semibold text-gray-800">
+              {editNote ? '메모 수정' : '빠른 메모'}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-amber-200 rounded-full transition-colors text-amber-700"
+            className="p-1 hover:bg-gray-100 rounded-full transition-colors text-gray-500"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -114,7 +110,7 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
         </div>
 
         {/* Content */}
-        <div className="px-6 pb-4">
+        <div className="p-6 pb-2 flex-1">
           {/* Title */}
           <input
             type="text"
@@ -122,55 +118,59 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="w-full mb-4 text-lg font-bold border-none outline-none bg-transparent text-amber-900 placeholder-amber-600"
+            className="w-full mb-4 text-base font-medium border-none outline-none bg-transparent text-gray-800 placeholder-gray-400"
           />
 
-          {/* Content - 포스트잇 스타일 */}
+          {/* Content */}
           <textarea
-            placeholder="무엇을 메모하고 싶으신가요? ✨"
+            placeholder="빠르게 메모하세요..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="w-full h-40 resize-none border-none outline-none bg-transparent text-amber-800 placeholder-amber-500 leading-relaxed"
+            className="w-full h-48 resize-none border-none outline-none bg-transparent text-gray-700 placeholder-gray-400"
             style={{ 
-              fontSize: '16px',
-              lineHeight: '1.8'
+              fontSize: '14px',
+              lineHeight: '1.6'
             }}
             autoFocus
           />
-
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-end px-6 pb-6">
-          <div className="flex items-center gap-3">
-            {/* Folder Selection */}
-            <select
-              value={targetFolderId}
-              onChange={(e) => setTargetFolderId(e.target.value)}
-              className="px-3 py-2 bg-amber-50 border-2 border-amber-200 rounded-lg text-amber-800 focus:outline-none focus:border-amber-400 text-sm"
-            >
-              <option value="">폴더 선택</option>
-              {allFolders.map((folder) => (
-                <option key={folder.id} value={folder.id}>
-                  {folder.depth > 0 && '└ '.repeat(folder.depth)}
-                  {folder.name}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-amber-200 hover:bg-amber-300 text-amber-800 rounded-lg font-medium text-sm transition-colors"
-            >
-              취소
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={!content.trim() || !targetFolderId}
-              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
-            >
-              {editNote ? '수정하기' : '저장하기'}
-            </button>
+        {/* Footer - 제일 하단으로 이동 */}
+        <div className="border-t border-gray-100 px-6 py-4 mt-auto">
+          <div className="flex items-center justify-between">
+            <div className="text-xs text-gray-500">
+              {content.trim().length} 글자
+            </div>
+            <div className="flex items-center gap-3">
+              {/* Folder Selection */}
+              <select
+                value={targetFolderId}
+                onChange={(e) => setTargetFolderId(e.target.value)}
+                className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:border-gray-500 text-sm"
+              >
+                <option value="">폴더 선택</option>
+                {allFolders.map((folder) => (
+                  <option key={folder.id} value={folder.id}>
+                    {folder.depth > 0 && '└ '.repeat(folder.depth)}
+                    {folder.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={onClose}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium text-sm transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={!content.trim() || !targetFolderId}
+                className="px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded-lg font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {editNote ? '수정' : '저장'}
+              </button>
+            </div>
           </div>
         </div>
       </div>

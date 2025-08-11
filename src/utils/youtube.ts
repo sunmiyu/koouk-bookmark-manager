@@ -83,3 +83,20 @@ export async function getValidYouTubeThumbnail(url: string): Promise<string | nu
   // 모든 테스트 실패 시 medium 반환 (가장 안정적)
   return thumbnails.medium
 }
+
+
+/**
+ * 클라이언트에서 사용할 수 있는 YouTube 제목 가져오기 함수
+ */
+export async function fetchYouTubeTitle(url: string): Promise<string | null> {
+  try {
+    const response = await fetch(`/api/youtube?url=${encodeURIComponent(url)}`)
+    if (!response.ok) return null
+    
+    const data = await response.json()
+    return data.title || null
+  } catch (error) {
+    console.error('Error fetching YouTube title:', error)
+    return null
+  }
+}

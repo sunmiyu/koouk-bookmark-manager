@@ -7,7 +7,9 @@ import {
   Star,
   Link as LinkIcon,
   Trash2,
-  ExternalLink
+  ExternalLink,
+  ChevronDown,
+  Plus
 } from 'lucide-react'
 
 interface Bookmark {
@@ -21,16 +23,20 @@ interface Bookmark {
   updatedAt: string
   category?: string
   isFavorite?: boolean
+  usageCount?: number
+  lastUsedAt?: string
 }
 
 export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }) {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([])
-  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [selectedCategory, setSelectedCategory] = useState<string>('most-used')
   const [isLoading, setIsLoading] = useState(true)
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
 
   // 카테고리 옵션들
   const categories = [
+    { value: 'most-used', label: 'Most Used' },
     { value: 'all', label: 'All Bookmarks' },
     { value: 'work', label: 'Work' },
     { value: 'personal', label: 'Personal' },
@@ -59,7 +65,9 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
           createdAt: '2024-01-15T10:00:00Z',
           updatedAt: '2024-01-15T10:00:00Z',
           category: 'tech',
-          isFavorite: true
+          isFavorite: true,
+          usageCount: 78,
+          lastUsedAt: '2025-08-10T14:30:00Z'
         },
         {
           id: '2',
@@ -71,7 +79,9 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
           createdAt: '2024-01-14T09:00:00Z',
           updatedAt: '2024-01-14T09:00:00Z',
           category: 'tech',
-          isFavorite: false
+          isFavorite: false,
+          usageCount: 65,
+          lastUsedAt: '2025-08-09T16:45:00Z'
         },
         {
           id: '3',
@@ -83,7 +93,9 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
           createdAt: '2024-01-13T14:00:00Z',
           updatedAt: '2024-01-13T14:00:00Z',
           category: 'tech',
-          isFavorite: true
+          isFavorite: true,
+          usageCount: 52,
+          lastUsedAt: '2025-08-08T11:20:00Z'
         },
         {
           id: '4',
@@ -95,7 +107,9 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
           createdAt: '2024-01-12T08:00:00Z',
           updatedAt: '2024-01-12T08:00:00Z',
           category: 'work',
-          isFavorite: false
+          isFavorite: false,
+          usageCount: 34,
+          lastUsedAt: '2025-08-07T13:15:00Z'
         },
         {
           id: '5',
@@ -107,7 +121,149 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
           createdAt: '2024-01-11T15:00:00Z',
           updatedAt: '2024-01-11T15:00:00Z',
           category: 'entertainment',
-          isFavorite: true
+          isFavorite: true,
+          usageCount: 28,
+          lastUsedAt: '2025-08-06T19:30:00Z'
+        },
+        {
+          id: '6',
+          title: 'Stack Overflow',
+          url: 'https://stackoverflow.com',
+          description: 'Where developers learn, share, & build careers',
+          favicon: 'https://stackoverflow.com/favicon.ico',
+          tags: ['programming', 'help', 'community'],
+          createdAt: '2024-01-10T12:00:00Z',
+          updatedAt: '2024-01-10T12:00:00Z',
+          category: 'tech',
+          isFavorite: false,
+          usageCount: 71,
+          lastUsedAt: '2025-08-11T09:45:00Z'
+        },
+        {
+          id: '7',
+          title: 'Gmail',
+          url: 'https://mail.google.com',
+          description: 'Email from Google',
+          favicon: 'https://mail.google.com/favicon.ico',
+          tags: ['email', 'google', 'communication'],
+          createdAt: '2024-01-09T08:30:00Z',
+          updatedAt: '2024-01-09T08:30:00Z',
+          category: 'work',
+          isFavorite: true,
+          usageCount: 89,
+          lastUsedAt: '2025-08-11T08:00:00Z'
+        },
+        {
+          id: '8',
+          title: 'Notion',
+          url: 'https://www.notion.so',
+          description: 'One workspace. Every team.',
+          favicon: 'https://www.notion.so/favicon.ico',
+          tags: ['productivity', 'notes', 'collaboration'],
+          createdAt: '2024-01-08T16:20:00Z',
+          updatedAt: '2024-01-08T16:20:00Z',
+          category: 'work',
+          isFavorite: true,
+          usageCount: 43,
+          lastUsedAt: '2025-08-05T15:20:00Z'
+        },
+        {
+          id: '9',
+          title: 'Netflix',
+          url: 'https://www.netflix.com',
+          description: 'Watch TV shows and movies online',
+          favicon: 'https://www.netflix.com/favicon.ico',
+          tags: ['streaming', 'movies', 'tv'],
+          createdAt: '2024-01-07T20:00:00Z',
+          updatedAt: '2024-01-07T20:00:00Z',
+          category: 'entertainment',
+          isFavorite: false,
+          usageCount: 15,
+          lastUsedAt: '2025-08-04T21:30:00Z'
+        },
+        {
+          id: '10',
+          title: 'MDN Web Docs',
+          url: 'https://developer.mozilla.org',
+          description: 'Resources for developers, by developers',
+          favicon: 'https://developer.mozilla.org/favicon.ico',
+          tags: ['documentation', 'web', 'javascript'],
+          createdAt: '2024-01-06T14:15:00Z',
+          updatedAt: '2024-01-06T14:15:00Z',
+          category: 'tech',
+          isFavorite: false,
+          usageCount: 37,
+          lastUsedAt: '2025-08-03T10:45:00Z'
+        },
+        {
+          id: '11',
+          title: 'Figma',
+          url: 'https://www.figma.com',
+          description: 'The collaborative interface design tool',
+          favicon: 'https://www.figma.com/favicon.ico',
+          tags: ['design', 'ui', 'collaboration'],
+          createdAt: '2024-01-05T11:30:00Z',
+          updatedAt: '2024-01-05T11:30:00Z',
+          category: 'work',
+          isFavorite: true,
+          usageCount: 59,
+          lastUsedAt: '2025-08-02T14:00:00Z'
+        },
+        {
+          id: '12',
+          title: 'Spotify',
+          url: 'https://open.spotify.com',
+          description: 'Music for everyone',
+          favicon: 'https://open.spotify.com/favicon.ico',
+          tags: ['music', 'streaming', 'playlist'],
+          createdAt: '2024-01-04T09:45:00Z',
+          updatedAt: '2024-01-04T09:45:00Z',
+          category: 'entertainment',
+          isFavorite: false,
+          usageCount: 22,
+          lastUsedAt: '2025-08-01T16:20:00Z'
+        },
+        {
+          id: '13',
+          title: 'Amazon',
+          url: 'https://www.amazon.com',
+          description: 'Online shopping for everything',
+          favicon: 'https://www.amazon.com/favicon.ico',
+          tags: ['shopping', 'ecommerce', 'delivery'],
+          createdAt: '2024-01-03T15:10:00Z',
+          updatedAt: '2024-01-03T15:10:00Z',
+          category: 'shopping',
+          isFavorite: false,
+          usageCount: 12,
+          lastUsedAt: '2025-07-30T12:30:00Z'
+        },
+        {
+          id: '14',
+          title: 'Hacker News',
+          url: 'https://news.ycombinator.com',
+          description: 'Social news website focusing on computer science',
+          favicon: 'https://news.ycombinator.com/favicon.ico',
+          tags: ['news', 'tech', 'community'],
+          createdAt: '2024-01-02T13:25:00Z',
+          updatedAt: '2024-01-02T13:25:00Z',
+          category: 'news',
+          isFavorite: true,
+          usageCount: 31,
+          lastUsedAt: '2025-07-29T08:15:00Z'
+        },
+        {
+          id: '15',
+          title: 'LinkedIn',
+          url: 'https://www.linkedin.com',
+          description: 'Professional networking platform',
+          favicon: 'https://www.linkedin.com/favicon.ico',
+          tags: ['professional', 'networking', 'career'],
+          createdAt: '2024-01-01T10:00:00Z',
+          updatedAt: '2024-01-01T10:00:00Z',
+          category: 'social',
+          isFavorite: false,
+          usageCount: 8,
+          lastUsedAt: '2025-07-28T17:45:00Z'
         }
       ]
 
@@ -124,7 +280,12 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
     let filtered = bookmarks
 
     // 카테고리 필터
-    if (selectedCategory !== 'all') {
+    if (selectedCategory === 'most-used') {
+      // Most Used: usageCount가 높은 순으로 정렬하고 상위 10개만 표시
+      filtered = filtered
+        .sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0))
+        .slice(0, 10)
+    } else if (selectedCategory !== 'all') {
       filtered = filtered.filter(bookmark => bookmark.category === selectedCategory)
     }
 
@@ -143,6 +304,17 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
   }, [bookmarks, selectedCategory, searchQuery])
 
   const handleOpenBookmark = (bookmark: Bookmark) => {
+    // 사용 횟수 증가
+    setBookmarks(prev => prev.map(b => 
+      b.id === bookmark.id 
+        ? { 
+            ...b, 
+            usageCount: (b.usageCount || 0) + 1, 
+            lastUsedAt: new Date().toISOString() 
+          }
+        : b
+    ))
+    
     window.open(bookmark.url, '_blank', 'noopener,noreferrer')
   }
 
@@ -184,7 +356,7 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
           </p>
         </div>
         
-        {/* Add Bookmark Button */}
+        {/* Add Bookmark Button - 컴팩트한 + 버튼 */}
         <button
           onClick={() => {
             const url = prompt('북마크할 URL을 입력하세요:')
@@ -199,23 +371,61 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
                 category: 'personal',
-                isFavorite: false
+                isFavorite: false,
+                usageCount: 0,
+                lastUsedAt: new Date().toISOString()
               }
               setBookmarks(prev => [newBookmark, ...prev])
             }
           }}
-          className="px-4 py-2 bg-black text-white text-xs font-medium rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
+          className="w-8 h-8 sm:w-auto sm:h-auto sm:px-4 sm:py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center sm:gap-2"
+          title="Add Bookmark"
         >
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Add Bookmark
+          <Plus className="w-4 h-4" />
+          <span className="hidden sm:inline text-xs font-medium">Add Bookmark</span>
         </button>
       </div>
 
       {/* Category Filter */}
       <div className="mb-6 pb-3 border-b border-gray-200">
-        <div className="flex flex-wrap gap-2">
+        {/* 모바일: 드롭다운 */}
+        <div className="block sm:hidden relative">
+          <button
+            onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+            className="w-full flex items-center justify-between px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+          >
+            <span>{categories.find(cat => cat.value === selectedCategory)?.label}</span>
+            <ChevronDown className={`w-4 h-4 transition-transform ${showCategoryDropdown ? 'rotate-180' : ''}`} />
+          </button>
+          
+          {showCategoryDropdown && (
+            <motion.div
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden"
+            >
+              {categories.map((category) => (
+                <button
+                  key={category.value}
+                  onClick={() => {
+                    setSelectedCategory(category.value)
+                    setShowCategoryDropdown(false)
+                  }}
+                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors ${
+                    selectedCategory === category.value 
+                      ? 'bg-black text-white hover:bg-gray-800' 
+                      : 'text-gray-700'
+                  }`}
+                >
+                  {category.label}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </div>
+
+        {/* 데스크톱: 기존 버튼 그룹 */}
+        <div className="hidden sm:flex flex-wrap gap-2">
           {categories.map((category) => (
             <button
               key={category.value}
@@ -289,8 +499,8 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
                 </span>
               </div>
               
-              {/* Actions - PC에서만 표시 */}
-              <div className="hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+              {/* Actions - 모바일/PC 모두 표시 */}
+              <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex-shrink-0">
                 <button
                   onClick={(e) => {
                     e.stopPropagation()

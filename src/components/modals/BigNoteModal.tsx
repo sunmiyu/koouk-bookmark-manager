@@ -84,57 +84,40 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote, folder
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
       <div 
-        className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-xl relative"
+        className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-xl relative bg-white"
         style={{
-          backgroundColor: '#F8FAFC',
-          border: '3px solid #1E293B',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+          border: '1px solid #E5E7EB',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)'
         }}
       >
-        {/* 노트북 스파이럴 바인딩 효과 */}
-        <div className="absolute top-0 left-8 w-1 h-full bg-red-600 opacity-80"></div>
-        <div className="absolute top-0 left-12 w-px h-full bg-red-400"></div>
-        
-        {/* 구멍 효과들 */}
-        {Array.from({ length: 20 }, (_, i) => (
-          <div
-            key={i}
-            className="absolute w-3 h-3 bg-white border-2 border-gray-300 rounded-full"
-            style={{
-              left: '24px',
-              top: `${60 + i * 30}px`,
-              transform: 'translateX(-50%)'
-            }}
-          />
-        ))}
         
         {/* Header */}
-        <div className="flex items-center justify-between p-8 pb-4">
+        <div className="flex items-center justify-between p-8 pb-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <span className="text-3xl">📔</span>
-            <h2 className="text-2xl font-bold text-slate-800">
+            <span className="text-2xl">📝</span>
+            <h2 className="text-xl font-semibold text-gray-800">
               {editNote ? '노트 수정' : '새 노트 작성'}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-600"
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Content */}
-        <div className="pl-20 pr-8 pb-8 overflow-y-auto max-h-[70vh] relative">
-          {/* 줄 효과 - 노트북 스타일 */}
-          <div className="absolute inset-0 pointer-events-none">
-            {Array.from({ length: 25 }, (_, i) => (
+        <div className="p-8 pb-0 overflow-y-auto max-h-[70vh] relative">
+          {/* 공책 줄 효과 */}
+          <div className="absolute inset-0 pointer-events-none pl-8 pr-8">
+            {Array.from({ length: 30 }, (_, i) => (
               <div
                 key={i}
-                className="absolute w-full border-b border-blue-200"
-                style={{ top: `${80 + i * 28}px` }}
+                className="absolute w-full border-b border-blue-100 opacity-50"
+                style={{ top: `${120 + i * 24}px`, left: '32px', right: '32px' }}
               />
             ))}
           </div>
@@ -146,58 +129,60 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote, folder
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="w-full mb-6 text-2xl font-bold border-none outline-none bg-transparent text-slate-800 placeholder-slate-400 relative z-10"
+            className="w-full mb-6 text-xl font-semibold border-none outline-none bg-transparent text-gray-800 placeholder-gray-400 relative z-10"
             autoFocus
           />
 
           {/* Content - 줄에 맞춘 텍스트 */}
           <textarea
-            placeholder="여기에 노트를 작성하세요... ✏️"
+            placeholder="여기에 노트를 작성하세요..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="w-full h-80 mb-6 resize-none border-none outline-none bg-transparent text-slate-700 placeholder-slate-400 relative z-10"
+            className="w-full h-80 mb-6 resize-none border-none outline-none bg-transparent text-gray-700 placeholder-gray-400 relative z-10"
             style={{
-              lineHeight: '28px',
-              fontSize: '16px'
+              lineHeight: '24px',
+              fontSize: '14px'
             }}
           />
 
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-8 pb-8">
-          <div className="text-sm text-slate-600">
-            📊 {content.trim().split(/\s+/).filter(word => word.length > 0).length} 단어 • {content.trim().length} 글자
-          </div>
-          <div className="flex items-center gap-3">
-            {/* Folder Selection */}
-            <select
-              value={targetFolderId}
-              onChange={(e) => setTargetFolderId(e.target.value)}
-              className="px-3 py-2 bg-white border-2 border-slate-300 rounded-lg text-slate-800 focus:outline-none focus:border-slate-500 text-sm"
-            >
-              <option value="">폴더 선택</option>
-              {allFolders.map((folder) => (
-                <option key={folder.id} value={folder.id}>
-                  {folder.depth > 0 && '└ '.repeat(folder.depth)}
-                  {folder.name}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={onClose}
-              className="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-medium transition-colors"
-            >
-              취소
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={!title.trim() || !content.trim() || !targetFolderId}
-              className="px-6 py-3 bg-slate-700 hover:bg-slate-800 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
-            >
-              {editNote ? '수정하기' : '📝 저장하기'}
-            </button>
+        <div className="border-t border-gray-100 px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div className="text-xs text-gray-500">
+              {content.trim().split(/\s+/).filter(word => word.length > 0).length} 단어 • {content.trim().length} 글자
+            </div>
+            <div className="flex items-center gap-3">
+              {/* Folder Selection */}
+              <select
+                value={targetFolderId}
+                onChange={(e) => setTargetFolderId(e.target.value)}
+                className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:border-gray-500 text-sm"
+              >
+                <option value="">폴더 선택</option>
+                {allFolders.map((folder) => (
+                  <option key={folder.id} value={folder.id}>
+                    {folder.depth > 0 && '└ '.repeat(folder.depth)}
+                    {folder.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={onClose}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors text-sm"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={!title.trim() || !content.trim() || !targetFolderId}
+                className="px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+              >
+                {editNote ? '수정' : '저장'}
+              </button>
+            </div>
           </div>
         </div>
       </div>

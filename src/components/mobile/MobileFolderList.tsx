@@ -1,10 +1,10 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { FolderOpen, ChevronRight, Clock, FileText, Image, Video, Link, StickyNote } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { FolderOpen, ChevronRight, ChevronDown, FileText, Image, Video, Link, StickyNote, Folder } from 'lucide-react'
 import { FolderItem, StorageItem } from '@/types/folder'
 import { useCrossPlatformState } from '@/hooks/useCrossPlatformState'
-import { useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface MobileFolderListProps {
   folders: FolderItem[]
@@ -13,55 +13,35 @@ interface MobileFolderListProps {
 }
 
 export default function MobileFolderList({ folders, onFolderSelect, onItemSelect }: MobileFolderListProps) {
-  const { state, updateQuickAccess, updateNavigation, saveScrollPosition } = useCrossPlatformState()
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
+  const { state, updateQuickAccess } = useCrossPlatformState()
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  // 선택된 폴더 찾기
-  const selectedFolder = findFolderById(folders, state.navigation.selectedFolderId)
-
-  // 스크롤 위치 복원
-  useEffect(() => {
-    if (scrollRef.current && state.navigation.selectedFolderId) {
-      const scrollKey = `folder-${state.navigation.selectedFolderId}`
-      const savedPosition = state.navigation.scrollPositions[scrollKey] || 0
-      scrollRef.current.scrollTop = savedPosition
-    }
-  }, [state.navigation.selectedFolderId, state.navigation.scrollPositions])
-
-  // 스크롤 위치 저장
-  const handleScroll = () => {
-    if (scrollRef.current && state.navigation.selectedFolderId) {
-      const scrollKey = `folder-${state.navigation.selectedFolderId}`
-      saveScrollPosition(scrollKey, scrollRef.current.scrollTop)
-    }
-  }
-
-  // 폴더 선택 핸들러
-  const handleFolderSelect = (folder: FolderItem) => {
-    // 햅틱 피드백
+  // 폴더 확장/축소 토글
+  const toggleFolder = (folderId: string) => {
     if ('vibrate' in navigator) {
       navigator.vibrate(10)
     }
+    
+    setExpandedFolders(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(folderId)) {
+        newSet.delete(folderId)
+      } else {
+        newSet.add(folderId)
+      }
+      return newSet
+    })
+  }
 
-    // 현재 스크롤 위치 저장
-    handleScroll()
-
+  // 폴더 선택 핸들러 (Quick Access 업데이트용)
+  const handleFolderSelect = (folder: FolderItem) => {
+    if ('vibrate' in navigator) {
+      navigator.vibrate(5)
+    }
+    
     // Quick Access 빈도 업데이트
     updateQuickAccess(folder.id, folder.name)
-
-    // 브레드크럼 생성 (현재 경로 + 새 폴더)
-    const newBreadcrumbs = [
-      ...state.navigation.breadcrumbs,
-      { id: folder.id, name: folder.name, type: 'folder' as const }
-    ]
-
-    // 네비게이션 상태 업데이트
-    updateNavigation({
-      selectedFolderId: folder.id,
-      breadcrumbs: newBreadcrumbs,
-      folderEntryMethod: 'direct'
-    })
-
     onFolderSelect?.(folder.id, folder.name)
   }
 
@@ -73,75 +53,32 @@ export default function MobileFolderList({ folders, onFolderSelect, onItemSelect
     onItemSelect?.(item)
   }
 
-  // 폴더가 선택되지 않았을 때 루트 폴더 목록 표시
-  if (!selectedFolder) {
-    return (
-      <div 
-        ref={scrollRef}
-        data-folder-content
-        className="flex-1 overflow-y-auto"
-        onScroll={handleScroll}
-      >
-        <div className="px-0 py-4 space-y-3">
-          {folders.map((folder) => (
-            <FolderCard 
-              key={folder.id}
-              folder={folder}
-              onSelect={() => handleFolderSelect(folder)}
-            />
-          ))}
-        </div>
-      </div>
-    )
-  }
-
-  // 선택된 폴더의 내용 표시
-  const subFolders = selectedFolder.children.filter(child => child.type === 'folder') as FolderItem[]
-  const items = selectedFolder.children.filter(child => child.type !== 'folder') as StorageItem[]
-
   return (
     <div 
       ref={scrollRef}
       data-folder-content
-      className="flex-1 overflow-y-auto"
-      onScroll={handleScroll}
+      className="flex-1 overflow-y-auto bg-gray-50"
     >
-      <div className="px-0 py-4 space-y-4">
-        {/* 하위 폴더들 */}
-        {subFolders.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium text-gray-700 px-1">폴더</h3>
-            {subFolders.map((folder) => (
-              <FolderCard 
-                key={folder.id}
-                folder={folder}
-                onSelect={() => handleFolderSelect(folder)}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* 아이템들 */}
-        {items.length > 0 && (
-          <div className="space-y-3">
-            {subFolders.length > 0 && <div className="border-t border-gray-100 pt-4" />}
-            <h3 className="text-sm font-medium text-gray-700 px-1">콘텐츠</h3>
-            {items.map((item) => (
-              <ItemCard 
-                key={item.id}
-                item={item}
-                onSelect={() => handleItemSelect(item)}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* 빈 폴더 안내 */}
-        {subFolders.length === 0 && items.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-            <FolderOpen size={48} color="#D1D5DB" className="mb-4" />
-            <p className="text-gray-500 text-sm mb-2">이 폴더는 비어있습니다</p>
-            <p className="text-gray-400 text-xs">하단 입력창에서 콘텐츠를 추가해보세요</p>
+      <div className="p-4 space-y-2">
+        {folders.map((folder) => (
+          <FolderTreeNode
+            key={folder.id}
+            folder={folder}
+            level={0}
+            expandedFolders={expandedFolders}
+            onToggle={toggleFolder}
+            onFolderSelect={handleFolderSelect}
+            onItemSelect={handleItemSelect}
+          />
+        ))}
+        
+        {folders.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-16 h-16 bg-gray-200 rounded-2xl flex items-center justify-center mb-4">
+              <Folder size={32} color="#9CA3AF" />
+            </div>
+            <h3 className="text-base font-medium text-gray-600 mb-2">폴더가 없습니다</h3>
+            <p className="text-sm text-gray-500">하단 입력창에서 새 폴더를 만들어보세요</p>
           </div>
         )}
       </div>
@@ -149,64 +86,134 @@ export default function MobileFolderList({ folders, onFolderSelect, onItemSelect
   )
 }
 
-// 폴더 카드 컴포넌트 - 모바일 최적화 컴팩트 디자인
-function FolderCard({ folder, onSelect }: { folder: FolderItem; onSelect: () => void }) {
-  const itemCount = folder.children.length
-  const folderCount = folder.children.filter(child => child.type === 'folder').length
-  const contentCount = folder.children.filter(child => child.type !== 'folder').length
-
-  // 시간 차이 계산 (간단한 약어로)
-  const getTimeAgo = (dateString: string) => {
-    const diff = Date.now() - new Date(dateString).getTime()
-    const minutes = Math.floor(diff / 60000)
-    const hours = Math.floor(diff / 3600000)
-    const days = Math.floor(diff / 86400000)
-    
-    if (days > 0) return `${days}d`
-    if (hours > 0) return `${hours}h`
-    if (minutes > 0) return `${minutes}m`
-    return 'now'
-  }
+// 폴더 트리 노드 컴포넌트 - 확장/축소 가능한 트리 구조
+function FolderTreeNode({
+  folder,
+  level,
+  expandedFolders,
+  onToggle,
+  onFolderSelect,
+  onItemSelect
+}: {
+  folder: FolderItem
+  level: number
+  expandedFolders: Set<string>
+  onToggle: (folderId: string) => void
+  onFolderSelect: (folder: FolderItem) => void
+  onItemSelect: (item: StorageItem) => void
+}) {
+  const isExpanded = expandedFolders.has(folder.id)
+  const hasChildren = folder.children.length > 0
+  const subFolders = folder.children.filter(child => child.type === 'folder') as FolderItem[]
+  const items = folder.children.filter(child => child.type !== 'folder') as StorageItem[]
 
   return (
-    <motion.button
-      onClick={onSelect}
-      className="w-full px-3 py-2.5 hover:bg-gray-50 transition-colors text-left border-b border-gray-100 last:border-b-0"
-      whileTap={{ scale: 0.98 }}
-      style={{ minHeight: '40px' }}
-    >
-      <div className="flex items-center gap-3">
-        {/* 아이콘 - 더 작게 */}
-        <div 
-          className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-          style={{ backgroundColor: folder.color + '20' }}
+    <div className="relative">
+      {/* 폴더 헤더 */}
+      <motion.div
+        className="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden"
+        whileTap={{ scale: 0.98 }}
+      >
+        {/* 들여쓰기 */}
+        {level > 0 && (
+          <div 
+            className="flex-shrink-0 bg-gray-50 border-r border-gray-200"
+            style={{ width: `${level * 24}px` }}
+          />
+        )}
+        
+        {/* 확장/축소 버튼 */}
+        <button
+          onClick={() => onToggle(folder.id)}
+          className="flex-shrink-0 w-12 h-16 flex items-center justify-center hover:bg-gray-50 transition-colors"
         >
-          <FolderOpen size={16} style={{ color: folder.color }} />
-        </div>
-        
-        {/* 제목 */}
-        <div className="flex-1 min-w-0">
-          <span className="font-medium text-gray-900 text-sm truncate block">{folder.name}</span>
-        </div>
-        
-        {/* 메타정보 (약어 사용) - 한 줄에 */}
-        <div className="flex items-center gap-2 text-xs text-gray-500 flex-shrink-0">
-          {folderCount > 0 && <span>{folderCount}F</span>}
-          {contentCount > 0 && <span>{contentCount}I</span>}
-          {itemCount === 0 && <span>Empty</span>}
-          <span>•</span>
-          <span>{getTimeAgo(folder.updatedAt)}</span>
-        </div>
-        
-        {/* 화살표 */}
-        <ChevronRight size={14} color="#9CA3AF" className="flex-shrink-0" />
-      </div>
-    </motion.button>
+          {hasChildren ? (
+            isExpanded ? (
+              <ChevronDown size={20} color="#6B7280" />
+            ) : (
+              <ChevronRight size={20} color="#6B7280" />
+            )
+          ) : (
+            <div className="w-5 h-5" />
+          )}
+        </button>
+
+        {/* 폴더 정보 - 클릭 가능한 영역 */}
+        <button
+          onClick={() => onFolderSelect(folder)}
+          className="flex-1 flex items-center gap-3 p-4 pl-2 hover:bg-gray-50 transition-colors text-left min-h-16"
+        >
+          {/* 폴더 아이콘 */}
+          <div 
+            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ backgroundColor: folder.color }}
+          >
+            <Folder size={20} color="white" />
+          </div>
+          
+          {/* 폴더 이름과 정보 */}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-medium text-gray-900 text-base truncate">
+              {folder.name}
+            </h3>
+            <p className="text-sm text-gray-500 mt-0.5">
+              {folder.children.length === 0 ? '비어있음' : `항목 ${folder.children.length}개`}
+            </p>
+          </div>
+        </button>
+      </motion.div>
+
+      {/* 확장된 하위 항목들 */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden mt-2"
+          >
+            <div className="space-y-2 ml-6">
+              {/* 하위 폴더들 */}
+              {subFolders.map((subFolder) => (
+                <FolderTreeNode
+                  key={subFolder.id}
+                  folder={subFolder}
+                  level={level + 1}
+                  expandedFolders={expandedFolders}
+                  onToggle={onToggle}
+                  onFolderSelect={onFolderSelect}
+                  onItemSelect={onItemSelect}
+                />
+              ))}
+              
+              {/* 항목들 */}
+              {items.map((item) => (
+                <ItemNode
+                  key={item.id}
+                  item={item}
+                  level={level + 1}
+                  onSelect={onItemSelect}
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   )
 }
 
-// 아이템 카드 컴포넌트 - 모바일 최적화 컴팩트 디자인
-function ItemCard({ item, onSelect }: { item: StorageItem; onSelect: () => void }) {
+// 아이템 노드 컴포넌트 - 심플한 아이템 표시
+function ItemNode({
+  item,
+  level,
+  onSelect
+}: {
+  item: StorageItem
+  level: number
+  onSelect: (item: StorageItem) => void
+}) {
   const getIcon = (type: StorageItem['type']) => {
     switch (type) {
       case 'document': return FileText
@@ -229,79 +236,57 @@ function ItemCard({ item, onSelect }: { item: StorageItem; onSelect: () => void 
     }
   }
 
-  const getTypeLabel = (type: StorageItem['type']) => {
-    switch (type) {
-      case 'document': return 'Doc'
-      case 'image': return 'Img'
-      case 'video': return 'Vid'
-      case 'url': return 'Link'
-      case 'memo': return 'Note'
-      default: return 'File'
-    }
-  }
-
-  // 시간 차이 계산 (간단한 약어로)
-  const getTimeAgo = (dateString: string) => {
-    const diff = Date.now() - new Date(dateString).getTime()
-    const minutes = Math.floor(diff / 60000)
-    const hours = Math.floor(diff / 3600000)
-    const days = Math.floor(diff / 86400000)
-    
-    if (days > 0) return `${days}d`
-    if (hours > 0) return `${hours}h`
-    if (minutes > 0) return `${minutes}m`
-    return 'now'
-  }
-
   const Icon = getIcon(item.type)
   const typeColor = getTypeColor(item.type)
 
   return (
     <motion.button
-      onClick={onSelect}
-      className="w-full px-3 py-2.5 hover:bg-gray-50 transition-colors text-left border-b border-gray-100 last:border-b-0"
+      onClick={() => onSelect(item)}
+      className="w-full flex items-center bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:bg-gray-50 transition-colors"
       whileTap={{ scale: 0.98 }}
-      style={{ minHeight: '40px' }}
     >
-      <div className="flex items-center gap-3">
-        {/* 아이콘 - 더 작게 */}
+      {/* 들여쓰기 */}
+      {level > 0 && (
         <div 
-          className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+          className="flex-shrink-0 bg-gray-50 border-r border-gray-200"
+          style={{ width: `${level * 24}px` }}
+        />
+      )}
+      
+      {/* 빈 공간 (확장 버튼 자리) */}
+      <div className="w-12 flex items-center justify-center">
+        <div className="w-1 h-1 bg-gray-300 rounded-full" />
+      </div>
+
+      {/* 아이템 정보 */}
+      <div className="flex-1 flex items-center gap-3 p-3 pl-2 text-left min-h-14">
+        {/* 아이템 아이콘 */}
+        <div 
+          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
           style={{ backgroundColor: typeColor + '20' }}
         >
           <Icon size={16} style={{ color: typeColor }} />
         </div>
         
-        {/* 제목 */}
+        {/* 아이템 이름 */}
         <div className="flex-1 min-w-0">
-          <span className="font-medium text-gray-900 text-sm truncate block">{item.name}</span>
+          <p className="font-medium text-gray-900 text-sm truncate">
+            {item.name}
+          </p>
         </div>
         
-        {/* 메타정보 (약어 사용) - 한 줄에 */}
-        <div className="flex items-center gap-2 text-xs text-gray-500 flex-shrink-0">
-          <span>{getTypeLabel(item.type)}</span>
-          <span>•</span>
-          <span>{getTimeAgo(item.updatedAt)}</span>
+        {/* 타입 라벨 */}
+        <div 
+          className="px-2 py-1 rounded-md text-xs font-medium flex-shrink-0"
+          style={{ 
+            backgroundColor: typeColor + '20', 
+            color: typeColor 
+          }}
+        >
+          {item.type}
         </div>
-        
-        {/* 화살표 */}
-        <ChevronRight size={14} color="#9CA3AF" className="flex-shrink-0" />
       </div>
     </motion.button>
   )
 }
 
-// 유틸리티 함수: 폴더 ID로 폴더 찾기
-function findFolderById(folders: FolderItem[], folderId: string | undefined): FolderItem | null {
-  if (!folderId) return null
-
-  for (const folder of folders) {
-    if (folder.id === folderId) return folder
-    
-    const subFolders = folder.children.filter(child => child.type === 'folder') as FolderItem[]
-    const found = findFolderById(subFolders, folderId)
-    if (found) return found
-  }
-
-  return null
-}

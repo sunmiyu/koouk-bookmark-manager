@@ -16,7 +16,8 @@ import {
   NotebookPen
 } from 'lucide-react'
 import { FolderItem, StorageItem, createStorageItem } from '@/types/folder'
-import { isYouTubeUrl, getYouTubeThumbnail } from '@/utils/youtube'
+import { isYouTubeUrl, getYouTubeThumbnail, fetchYouTubeTitle } from '@/utils/youtube'
+import { useDevice } from '@/hooks/useDevice'
 
 interface UniversalInputBarProps {
   folders: FolderItem[]
@@ -35,6 +36,7 @@ export default function UniversalInputBar({
   onOpenMemo,
   onOpenNote
 }: UniversalInputBarProps) {
+  const device = useDevice()
   const [input, setInput] = useState('')
   const [showFolderSelector, setShowFolderSelector] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -101,6 +103,35 @@ export default function UniversalInputBar({
       if (thumbnail) {
         metadata.thumbnail = thumbnail
         metadata.platform = 'youtube'
+      }
+
+      // YouTube 제목 가져오기
+      try {
+        const title = await fetchYouTubeTitle(content)
+        if (title) {
+          metadata.title = title
+        }
+      } catch (error) {
+        console.error('Failed to fetch YouTube title:', error)
+      }
+    }
+
+    // URL 타입에서도 YouTube 감지
+    if (type === 'url' && isYouTubeUrl(content)) {
+      const thumbnail = getYouTubeThumbnail(content)
+      if (thumbnail) {
+        metadata.thumbnail = thumbnail
+        metadata.platform = 'youtube'
+      }
+
+      // YouTube 제목 가져오기
+      try {
+        const title = await fetchYouTubeTitle(content)
+        if (title) {
+          metadata.title = title
+        }
+      } catch (error) {
+        console.error('Failed to fetch YouTube title:', error)
       }
     }
 
@@ -210,9 +241,26 @@ export default function UniversalInputBar({
 
   // 키보드 단축키
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault()
-      handleSubmit()
+    if (e.key === 'Enter') {
+      // Cmd/Ctrl + Enter는 항상 제출
+      if (e.metaKey || e.ctrlKey) {
+        e.preventDefault()
+        handleSubmit()
+        return
+      }
+      
+      // 붙여넣은 이미지나 첨부파일이 있으면 일반 Enter로도 제출
+      if (pastedImages.length > 0 || attachedFiles.length > 0) {
+        e.preventDefault()
+        handleSubmit()
+        return
+      }
+      
+      // 텍스트만 있을 때는 Shift + Enter가 아니면 제출 (기본 동작)
+      if (!e.shiftKey && input.trim()) {
+        e.preventDefault()
+        handleSubmit()
+      }
     }
   }
 
@@ -240,37 +288,35 @@ export default function UniversalInputBar({
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[60]">
-      <div className="w-full max-w-6xl mx-auto px-8 pb-6">
+      <div className={`w-full max-w-6xl mx-auto ${device.isMobile ? 'px-4 pb-4' : 'px-8 pb-6'}`}>
         {/* 메모/노트 작성 버튼들 */}
         <div className="flex justify-end gap-3 mb-3">
           <motion.button
             onClick={onOpenMemo}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl"
+            className={`flex items-center ${device.isMobile ? 'gap-0' : 'gap-2'} px-4 py-2 rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl`}
             style={{
               backgroundColor: '#FEF3C7',
               border: '1px solid #F59E0B',
               color: '#92400E'
             }}
-            whileHover={{ y: -2 }}
             whileTap={{ scale: 0.98 }}
           >
             <StickyNote className="w-4 h-4" />
-            <span className="text-xs font-medium">메모 작성</span>
+            {!device.isMobile && <span className="text-xs font-medium">메모 작성</span>}
           </motion.button>
           
           <motion.button
             onClick={onOpenNote}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl"
+            className={`flex items-center ${device.isMobile ? 'gap-0' : 'gap-2'} px-4 py-2 rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl`}
             style={{
               backgroundColor: '#DBEAFE',
               border: '1px solid #3B82F6',
               color: '#1E40AF'
             }}
-            whileHover={{ y: -2 }}
             whileTap={{ scale: 0.98 }}
           >
             <NotebookPen className="w-4 h-4" />
-            <span className="text-xs font-medium">노트 작성</span>
+            {!device.isMobile && <span className="text-xs font-medium">노트 작성</span>}
           </motion.button>
         </div>
         {/* 폴더 선택기 */}

@@ -21,6 +21,7 @@
     "framer-motion": "^12.23.12",
     "fuse.js": "^7.1.0",
     "google-translate-api-x": "^10.7.2",
+    "googleapis": "^155.0.1",
     "hangul-js": "^0.2.6",
     "lucide-react": "^0.537.0",
     "lunr": "^2.3.9",

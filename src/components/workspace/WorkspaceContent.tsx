@@ -309,6 +309,9 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
       <>
         <MobileWorkspace 
           folders={folders}
+          selectedFolderId={selectedFolderId}
+          onFoldersChange={handleFoldersChange}
+          onFolderSelect={handleFolderSelect}
         />
         
         {/* Modal Components */}
@@ -854,7 +857,7 @@ const ItemCard = ({ item, viewMode, onItemClick }: { item: StorageItem; viewMode
         {/* Content - 극도로 압축된 하단 (1의 비율) */}
         <div className="px-3 py-1.5 bg-white border-t border-gray-50">
           <h4 className="font-medium text-gray-800 truncate text-xs leading-none tracking-tight">
-            {item.name}
+            {item.metadata?.title || item.name}
           </h4>
         </div>
       </motion.div>
@@ -875,7 +878,7 @@ const ItemCard = ({ item, viewMode, onItemClick }: { item: StorageItem; viewMode
       </div>
       <div className="flex-1 min-w-0">
         <h4 className="font-medium text-gray-900 truncate text-sm">
-          {item.name}
+          {item.metadata?.title || item.name}
         </h4>
         <p className="text-xs text-gray-500 truncate">
           {item.type === 'url' ? getDomain(item.content) : 

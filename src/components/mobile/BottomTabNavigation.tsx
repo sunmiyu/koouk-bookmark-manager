@@ -14,8 +14,8 @@ export default function BottomTabNavigation({ activeTab, onTabChange }: BottomTa
   const { state, updateNavigation } = useCrossPlatformState()
   const device = useDevice()
 
-  // PC에서는 렌더링하지 않음
-  if (device.isDesktop) return null
+  // PC에서는 렌더링하지 않음 (상단 네비게이션 도입으로 완전 비활성화)
+  return null
 
   const tabs = [
     {

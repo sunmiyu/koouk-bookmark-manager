@@ -46,13 +46,13 @@ export default function LandingPage() {
         {/* Hero Section - 컴팩트 */}
         <div className="text-center mb-12">
           <h1 className="text-xl font-semibold text-gray-900 mb-2">
-            개인 지식 관리 플랫폼
+            당신만의 생각 저장소
           </h1>
           <p className="text-sm text-gray-500 mb-4">
-            정보를 정리하고, 공유하고, 발견하세요
+            흩어진 아이디어들이 하나로 모이는 곳
           </p>
           <div className="text-xs text-gray-400">
-            AI가 줄 수 없는 개인의 경험과 통찰
+            AI가 흉내낼 수 없는, 나만의 소중한 기억들
           </div>
         </div>
 
@@ -61,51 +61,51 @@ export default function LandingPage() {
           {/* Feature 1 */}
           <div className="border border-gray-100 rounded-lg p-4 hover:shadow-sm transition-shadow">
             <h3 className="text-sm font-medium text-gray-900 mb-2">
-              📁 정보 정리
+              📁 내 마음의 정리함
             </h3>
             <p className="text-xs text-gray-500 mb-3">
-              흩어진 링크, 메모, 이미지를 체계적으로 관리
+              머릿속 복잡한 생각들을 깔끔하게 정리하며 마음의 여유를 찾아보세요
             </p>
             <div className="flex items-center gap-2 text-xs text-gray-400">
-              <span>폴더</span>
+              <span>평온함</span>
               <span>•</span>
-              <span>태그</span>
+              <span>체계적인 나</span>
               <span>•</span>
-              <span>검색</span>
+              <span>즉시 찾기</span>
             </div>
           </div>
 
           {/* Feature 2 */}
           <div className="border border-gray-100 rounded-lg p-4 hover:shadow-sm transition-shadow">
             <h3 className="text-sm font-medium text-gray-900 mb-2">
-              🛍️ 마켓플레이스
+              🛍️ 영감의 보물창고
             </h3>
             <p className="text-xs text-gray-500 mb-3">
-              다른 사용자의 큐레이션된 콘텐츠 탐색
+              다른 사람의 특별한 관점과 경험을 만나며 새로운 아이디어를 얻어보세요
             </p>
             <div className="flex items-center gap-2 text-xs text-gray-400">
-              <span>발견</span>
+              <span>새로운 시각</span>
               <span>•</span>
-              <span>다운로드</span>
+              <span>성장</span>
               <span>•</span>
-              <span>평가</span>
+              <span>연결감</span>
             </div>
           </div>
 
           {/* Feature 3 */}
           <div className="border border-gray-100 rounded-lg p-4 hover:shadow-sm transition-shadow">
             <h3 className="text-sm font-medium text-gray-900 mb-2">
-              ⭐ 북마크
+              ⭐ 소중한 순간들
             </h3>
             <p className="text-xs text-gray-500 mb-3">
-              중요한 링크를 빠르게 찾고 접근
+              언젠가 다시 보고 싶은 그 순간들을 잃어버리지 않고 간직하세요
             </p>
             <div className="flex items-center gap-2 text-xs text-gray-400">
-              <span>즐겨찾기</span>
+              <span>추억</span>
               <span>•</span>
-              <span>분류</span>
+              <span>편안함</span>
               <span>•</span>
-              <span>동기화</span>
+              <span>언제나 함께</span>
             </div>
           </div>
         </div>
@@ -114,15 +114,15 @@ export default function LandingPage() {
         <div className="grid grid-cols-3 gap-4 mb-12 max-w-md mx-auto">
           <div className="text-center">
             <div className="text-lg font-semibold text-gray-900">1K+</div>
-            <div className="text-xs text-gray-500">사용자</div>
+            <div className="text-xs text-gray-500">함께하는 사람들</div>
           </div>
           <div className="text-center">
             <div className="text-lg font-semibold text-gray-900">10K+</div>
-            <div className="text-xs text-gray-500">저장된 콘텐츠</div>
+            <div className="text-xs text-gray-500">소중한 기억들</div>
           </div>
           <div className="text-center">
             <div className="text-lg font-semibold text-gray-900">500+</div>
-            <div className="text-xs text-gray-500">공유 폴더</div>
+            <div className="text-xs text-gray-500">나눈 이야기들</div>
           </div>
         </div>
 
@@ -130,10 +130,10 @@ export default function LandingPage() {
         <div className="text-center">
           <div className="bg-gray-50 rounded-lg p-6 max-w-md mx-auto">
             <h2 className="text-sm font-medium text-gray-900 mb-2">
-              지금 시작해보세요
+              당신의 이야기를 시작해보세요
             </h2>
             <p className="text-xs text-gray-500 mb-4">
-              구글 계정으로 간편하게 로그인
+              오늘부터 소중한 순간들을 차곡차곡 모아보세요
             </p>
             <button 
               onClick={signIn}
@@ -160,14 +160,13 @@ export default function LandingPage() {
             <div className="flex items-center gap-2">
               <img 
                 src="/koouk-logo.svg" 
-                alt="KOOUK" 
+                alt="Koouk" 
                 className="h-4 w-auto"
               />
-              <span className="text-sm font-medium text-gray-900">Koouk</span>
             </div>
             <div className="flex items-center gap-4">
               <span className="text-xs text-gray-400">
-                © 2024 Koouk
+                © 2025 Koouk
               </span>
               <a 
                 href="/privacy" 

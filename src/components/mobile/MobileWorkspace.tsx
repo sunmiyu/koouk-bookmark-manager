@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
-import BottomTabNavigation from './BottomTabNavigation'
+import TopNavigation from './TopNavigation'
 import BreadcrumbNavigation from './BreadcrumbNavigation'
 import QuickAccessBar from './QuickAccessBar'
 import MobileFolderList from './MobileFolderList'
@@ -10,17 +10,31 @@ import { FolderItem, StorageItem } from '@/types/folder'
 import { useCrossPlatformState } from '@/hooks/useCrossPlatformState'
 import { useDevice } from '@/hooks/useDevice'
 import DocumentViewModal from '@/components/modals/DocumentViewModal'
+import QuickNoteModal from '@/components/modals/QuickNoteModal'
+import BigNoteModal from '@/components/modals/BigNoteModal'
+import UniversalInputBar from '@/components/ui/UniversalInputBar'
 import Bookmarks from '@/components/workspace/Bookmarks'
+import MarketPlace from '@/components/workspace/MarketPlace'
 
 interface MobileWorkspaceProps {
   folders: FolderItem[]
+  selectedFolderId?: string
+  onFoldersChange: (folders: FolderItem[]) => void
+  onFolderSelect: (folderId: string) => void
 }
 
-export default function MobileWorkspace({ folders }: MobileWorkspaceProps) {
+export default function MobileWorkspace({ 
+  folders, 
+  selectedFolderId,
+  onFoldersChange,
+  onFolderSelect: parentOnFolderSelect
+}: MobileWorkspaceProps) {
   const { state, updateNavigation } = useCrossPlatformState()
   const device = useDevice()
   const [selectedDocument, setSelectedDocument] = useState<StorageItem | null>(null)
   const [showDocumentModal, setShowDocumentModal] = useState(false)
+  const [showQuickNoteModal, setShowQuickNoteModal] = useState(false)
+  const [showBigNoteModal, setShowBigNoteModal] = useState(false)
 
   // PC에서는 렌더링하지 않음
   if (device.isDesktop) return null
@@ -34,8 +48,39 @@ export default function MobileWorkspace({ folders }: MobileWorkspaceProps) {
 
   // 폴더 선택 핸들러
   const handleFolderSelect = (folderId: string) => {
-    // 이미 상태는 각 컴포넌트에서 업데이트되므로 추가 작업만 수행
+    parentOnFolderSelect(folderId)
     console.log(`Mobile: Selected folder ${folderId}`)
+  }
+
+  // 아이템 추가 핸들러 (WorkspaceContent와 동일한 로직)
+  const addItemToFolder = (folders: FolderItem[], folderId: string, item: StorageItem): FolderItem[] => {
+    return folders.map(folder => {
+      if (folder.id === folderId) {
+        return {
+          ...folder,
+          children: [...folder.children, item]
+        }
+      }
+      
+      // 하위 폴더에서 재귀적으로 검색
+      const updatedChildren = folder.children.map(child => {
+        if (child.type === 'folder') {
+          const updatedSubfolders = addItemToFolder([child as FolderItem], folderId, item)
+          return updatedSubfolders[0]
+        }
+        return child
+      })
+      
+      return {
+        ...folder,
+        children: updatedChildren
+      }
+    })
+  }
+
+  const handleAddItem = (item: StorageItem, folderId: string) => {
+    const updatedFolders = addItemToFolder(folders, folderId, item)
+    onFoldersChange(updatedFolders)
   }
 
   // 아이템 선택 핸들러
@@ -75,6 +120,16 @@ export default function MobileWorkspace({ folders }: MobileWorkspaceProps) {
               onFolderSelect={handleFolderSelect}
               onItemSelect={handleItemSelect}
             />
+
+            {/* Universal Input Bar - Mobile Only */}
+            <UniversalInputBar
+              folders={folders}
+              selectedFolderId={selectedFolderId}
+              onAddItem={handleAddItem}
+              onFolderSelect={handleFolderSelect}
+              onOpenMemo={() => setShowQuickNoteModal(true)}
+              onOpenNote={() => setShowBigNoteModal(true)}
+            />
           </div>
         )
 
@@ -87,14 +142,8 @@ export default function MobileWorkspace({ folders }: MobileWorkspaceProps) {
 
       case 'market-place':
         return (
-          <div className="flex-1 flex items-center justify-center p-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🛍️</span>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Market Place</h3>
-              <p className="text-gray-500 text-sm">곧 제공될 예정입니다</p>
-            </div>
+          <div className="flex-1 overflow-hidden">
+            <MarketPlace />
           </div>
         )
 
@@ -108,21 +157,71 @@ export default function MobileWorkspace({ folders }: MobileWorkspaceProps) {
       {/* 상태 바 영역 (iOS) */}
       <div className="h-safe-area-top bg-white" />
       
+      {/* Top Navigation */}
+      <TopNavigation onTabChange={handleTabChange} />
+      
       {/* 메인 콘텐츠 */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {renderContent()}
       </div>
 
-      {/* Bottom Tab Navigation */}
-      <BottomTabNavigation onTabChange={handleTabChange} />
-
-      {/* Document View Modal */}
+      {/* Modals */}
       <AnimatePresence>
         {showDocumentModal && selectedDocument && (
           <DocumentViewModal
             isOpen={showDocumentModal}
             onClose={handleCloseDocumentModal}
             item={selectedDocument}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showQuickNoteModal && (
+          <QuickNoteModal
+            isOpen={showQuickNoteModal}
+            onClose={() => setShowQuickNoteModal(false)}
+            onSave={(content: string) => {
+              if (!selectedFolderId) return
+              
+              const item: StorageItem = {
+                id: Date.now().toString(),
+                name: content.slice(0, 50) + (content.length > 50 ? '...' : ''),
+                type: 'memo',
+                content,
+                folderId: selectedFolderId,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+              }
+              
+              handleAddItem(item, selectedFolderId)
+              setShowQuickNoteModal(false)
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showBigNoteModal && (
+          <BigNoteModal
+            isOpen={showBigNoteModal}
+            onClose={() => setShowBigNoteModal(false)}
+            onSave={(title: string, content: string) => {
+              if (!selectedFolderId) return
+              
+              const item: StorageItem = {
+                id: Date.now().toString(),
+                name: title || 'Untitled Document',
+                type: 'document',
+                content,
+                folderId: selectedFolderId,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+              }
+              
+              handleAddItem(item, selectedFolderId)
+              setShowBigNoteModal(false)
+            }}
           />
         )}
       </AnimatePresence>

@@ -57,9 +57,9 @@ function ShareReceiverContent() {
     loadUserFolders()
 
     // URL에서 공유받은 데이터 추출
-    const title = searchParams.get('title') || ''
-    const text = searchParams.get('text') || ''
-    const url = searchParams.get('url') || ''
+    const title = searchParams?.get('title') || ''
+    const text = searchParams?.get('text') || ''
+    const url = searchParams?.get('url') || ''
     
     // 콘텐츠 타입 자동 감지
     let detectedType: SharedContent['type'] = 'memo'

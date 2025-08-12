@@ -50,9 +50,8 @@ export const getSupabaseAdmin = (): SupabaseClient => {
   return supabaseAdminInstance
 }
 
-// Export lazy-loaded instances (DO NOT create at module load time)
+// Export main client instance (singleton)
 export const supabase = getSupabase()
-export const supabaseAdmin = getSupabaseAdmin()
 
 // Reset for testing
 export const resetSupabaseInstances = () => {

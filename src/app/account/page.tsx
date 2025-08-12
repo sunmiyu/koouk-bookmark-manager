@@ -26,7 +26,10 @@ export default function AccountPage() {
   }
 
   if (!user) {
-    router.push('/')
+    // Only redirect on client side
+    if (typeof window !== 'undefined') {
+      router.push('/')
+    }
     return null
   }
 
@@ -40,7 +43,11 @@ export default function AccountPage() {
         {/* Header */}
         <div className="mb-8">
           <button
-            onClick={() => router.back()}
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                router.back()
+              }
+            }}
             className="mb-4 flex items-center gap-2 text-blue-500 hover:text-blue-600 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

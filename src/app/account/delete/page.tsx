@@ -67,11 +67,14 @@ export default function DeleteAccount() {
   }
 
   const handleExportData = () => {
+    // Ensure this only runs on client side
+    if (typeof window === 'undefined') return
+    
     // Get all user data from localStorage
     const userData = {
       user: {
-        email: user.email,
-        name: user.user_metadata?.full_name || user.email,
+        email: user?.email || '',
+        name: user?.user_metadata?.full_name || user?.email || '',
         exportDate: new Date().toISOString()
       },
       data: {
@@ -108,13 +111,15 @@ export default function DeleteAccount() {
     setIsDeleting(true)
 
     try {
-      // Clear all localStorage data
-      const keysToRemove = [
-        'koouk_user_plan',
-        'koouk_cookie_consent',
-        'koouk_analytics_enabled'
-      ]
-      keysToRemove.forEach(key => localStorage.removeItem(key))
+      // Clear all localStorage data (client-side only)
+      if (typeof window !== 'undefined') {
+        const keysToRemove = [
+          'koouk_user_plan',
+          'koouk_cookie_consent',
+          'koouk_analytics_enabled'
+        ]
+        keysToRemove.forEach(key => localStorage.removeItem(key))
+      }
 
       // In production, you would make an API call to delete user data:
       // await fetch('/api/user/delete', { method: 'DELETE' })

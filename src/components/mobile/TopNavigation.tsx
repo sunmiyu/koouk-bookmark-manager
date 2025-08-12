@@ -6,7 +6,7 @@ import { useDevice } from '@/hooks/useDevice'
 
 interface TopNavigationProps {
   activeTab?: 'my-folder' | 'bookmarks' | 'marketplace'
-  onTabChange?: (tab: 'my-folder' | 'bookmarks' | 'market-place') => void
+  onTabChange?: (tab: 'my-folder' | 'bookmarks' | 'marketplace') => void
 }
 
 export default function TopNavigation({ activeTab, onTabChange }: TopNavigationProps) {
@@ -26,20 +26,21 @@ export default function TopNavigation({ activeTab, onTabChange }: TopNavigationP
       label: 'Bookmarks'
     },
     {
-      id: 'market-place' as const,
+      id: 'marketplace' as const,
       label: 'Market Place'
     }
   ]
 
-  const handleTabPress = (tabId: 'my-folder' | 'bookmarks' | 'market-place') => {
+  const handleTabPress = (tabId: 'my-folder' | 'bookmarks' | 'marketplace') => {
     // 햅틱 피드백 (지원되는 경우)
     if ('vibrate' in navigator) {
       navigator.vibrate(10)
     }
 
-    // 상태 업데이트
+    // 상태 업데이트 - marketplace를 market-place로 변환
+    const stateTabId = tabId === 'marketplace' ? 'market-place' : tabId
     updateNavigation({
-      activeTab: tabId,
+      activeTab: stateTabId as 'my-folder' | 'bookmarks' | 'market-place',
       // 탭 변경 시 선택된 폴더와 브레드크럼 초기화
       selectedFolderId: undefined,
       breadcrumbs: [],
@@ -57,9 +58,10 @@ export default function TopNavigation({ activeTab, onTabChange }: TopNavigationP
         const appTabMap = {
           'my-folder': 'my-folder',
           'bookmarks': 'bookmarks', 
-          'marketplace': 'market-place'
+          'marketplace': 'marketplace'
         }
-        const isActive = activeTab ? appTabMap[activeTab] === tab.id : state.navigation.activeTab === tab.id
+        const currentStateTab = state.navigation.activeTab === 'market-place' ? 'marketplace' : state.navigation.activeTab
+        const isActive = activeTab ? appTabMap[activeTab] === tab.id : currentStateTab === tab.id
 
         return (
           <motion.button

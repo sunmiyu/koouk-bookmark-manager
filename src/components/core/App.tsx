@@ -162,8 +162,11 @@ export default function App() {
               {!device.isDesktop && (
                 <div className="flex-1 flex justify-center mx-4">
                   <TopNavigation 
-                    activeTab={activeTab === 'marketplace' ? 'marketplace' : activeTab}
-                    onTabChange={(tab) => setActiveTab(tab === 'market-place' ? 'marketplace' : tab)}
+                    activeTab={activeTab}
+                    onTabChange={(tab) => {
+                      console.log('TopNavigation tab change:', tab)
+                      setActiveTab(tab)
+                    }}
                   />
                 </div>
               )}

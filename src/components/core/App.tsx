@@ -14,7 +14,7 @@ import { SharedFolder } from '@/types/share'
 import { createFolder } from '@/types/folder'
 import SearchInterface from '../ui/SearchInterface'
 import FeedbackModal from '../modals/FeedbackModal'
-import BottomTabNavigation from '../mobile/BottomTabNavigation'
+import TopNavigation from '../mobile/TopNavigation'
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'my-folder' | 'marketplace' | 'bookmarks'>('my-folder')
@@ -63,15 +63,19 @@ export default function App() {
       folders = JSON.parse(savedFolders)
     }
     
-    // Create new folder
+    // Create new folder with same properties as shared folder
     const newFolder = createFolder(
       sharedFolder.title,
       undefined,
       {
-        color: '#3B82F6',
-        icon: '📁'
+        color: sharedFolder.folder.color || '#3B82F6',
+        icon: sharedFolder.folder.icon || '📁'
       }
     )
+    
+    // Copy all children from shared folder
+    newFolder.children = [...sharedFolder.folder.children]
+    newFolder.updatedAt = new Date().toISOString()
     
     // Add new folder to the front
     const updatedFolders = [newFolder, ...folders]
@@ -94,6 +98,19 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white px-0 sm:px-4">
+      {/* Mobile Top Navigation */}
+      <TopNavigation 
+        activeTab={activeTab}
+        onTabChange={(tab) => {
+          const tabMap = {
+            'my-folder': 'my-folder' as const,
+            'bookmarks': 'bookmarks' as const, 
+            'market-place': 'marketplace' as const
+          }
+          setActiveTab(tabMap[tab])
+        }}
+      />
+
       {/* Vercel-style Header */}
       <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
         <div className="w-full bg-white">
@@ -215,18 +232,7 @@ export default function App() {
         />
       )}
 
-      {/* Mobile Bottom Navigation */}
-      <BottomTabNavigation 
-        activeTab={activeTab}
-        onTabChange={(tab) => {
-          const tabMap = {
-            'my-folder': 'my-folder' as const,
-            'bookmarks': 'bookmarks' as const, 
-            'market-place': 'marketplace' as const
-          }
-          setActiveTab(tabMap[tab])
-        }}
-      />
+
 
       {/* Feedback Modal */}
       <FeedbackModal 

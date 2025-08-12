@@ -1,11 +1,8 @@
 'use client'
 
-import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { MessageCircle } from 'lucide-react'
 import { useCrossPlatformState } from '@/hooks/useCrossPlatformState'
 import { useDevice } from '@/hooks/useDevice'
-import FeedbackModal from '../modals/FeedbackModal'
 
 interface TopNavigationProps {
   activeTab?: 'my-folder' | 'bookmarks' | 'marketplace'
@@ -15,7 +12,6 @@ interface TopNavigationProps {
 export default function TopNavigation({ activeTab, onTabChange }: TopNavigationProps) {
   const { state, updateNavigation } = useCrossPlatformState()
   const device = useDevice()
-  const [showFeedbackModal, setShowFeedbackModal] = useState(false)
 
   // PC에서는 렌더링하지 않음 (PC는 기존 헤더 사용)
   if (device.isDesktop) return null
@@ -55,34 +51,7 @@ export default function TopNavigation({ activeTab, onTabChange }: TopNavigationP
   }
 
   return (
-    <div className="sticky top-0 z-50 bg-white border-b border-gray-200">
-      {/* 헤더 영역 */}
-      <div className="px-4 py-3">
-        <div className="flex items-center justify-between">
-          {/* 로고 - 클릭 시 My Folder로 이동 */}
-          <div className="flex items-center">
-            <button 
-              onClick={() => handleTabPress('my-folder')}
-              className="text-lg font-semibold tracking-wide text-black hover:opacity-80 transition-opacity"
-            >
-              KOOUK
-            </button>
-          </div>
-          
-          {/* 우측 액션 버튼들 */}
-          <div className="flex items-center space-x-2">
-            {/* Feedback 버튼 */}
-            <button
-              onClick={() => setShowFeedbackModal(true)}
-              className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-              title="Feedback"
-            >
-              <MessageCircle className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-
+    <div className="bg-white border-b border-gray-100">
       {/* 탭 네비게이션 */}
       <div className="flex border-b border-gray-100">
         {tabs.map((tab) => {
@@ -127,11 +96,7 @@ export default function TopNavigation({ activeTab, onTabChange }: TopNavigationP
         })}
       </div>
 
-      {/* Feedback Modal */}
-      <FeedbackModal
-        isOpen={showFeedbackModal}
-        onClose={() => setShowFeedbackModal(false)}
-      />
+
     </div>
   )
 }

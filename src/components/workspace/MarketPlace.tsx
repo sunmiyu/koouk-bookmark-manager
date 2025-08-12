@@ -40,10 +40,21 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
     { value: 'parenting', label: 'Parenting' }
   ]
 
-  // Mock 데이터 로드
+  // Load data (mock + user shared)
   useEffect(() => {
-    const loadMockData = async () => {
+    const loadData = async () => {
       setIsLoading(true)
+      
+      // Load user shared folders from localStorage
+      let userSharedFolders: SharedFolder[] = []
+      try {
+        const existingShared = localStorage.getItem('koouk-shared-folders')
+        if (existingShared) {
+          userSharedFolders = JSON.parse(existingShared)
+        }
+      } catch (error) {
+        console.error('Failed to load user shared folders:', error)
+      }
       
       // Mock shared folders data
       const mockSharedFolders: SharedFolder[] = [
@@ -111,12 +122,15 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
         }
       ]
 
+      // Combine user shared folders with mock data (user folders first)
+      const allFolders = [...userSharedFolders, ...mockSharedFolders]
+      
       await new Promise(resolve => setTimeout(resolve, 800)) // Simulate loading
-      setSharedFolders(mockSharedFolders)
+      setSharedFolders(allFolders)
       setIsLoading(false)
     }
 
-    loadMockData()
+    loadData()
   }, [])
 
   // 검색 및 필터링

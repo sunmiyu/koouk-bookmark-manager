@@ -53,23 +53,23 @@ export const defaultFolderTemplates = {
     { name: 'Archive', icon: 'Archive', color: '#6B7280' }
   ],
   parent: [
-    { name: '패션', icon: 'Shirt', color: '#EC4899' },
-    { name: '재테크', icon: 'TrendingUp', color: '#F59E0B' },
+    { name: '쇼핑', icon: 'ShoppingBag', color: '#EC4899' },
+    { name: '저축', icon: 'PiggyBank', color: '#F59E0B' },
     { name: '아이교육', icon: 'GraduationCap', color: '#8B5CF6' },
-    { name: '레시피', icon: 'ChefHat', color: '#10B981' },
+    { name: '요리', icon: 'ChefHat', color: '#10B981' },
     { name: '여행지', icon: 'MapPin', color: '#3B82F6' },
-    { name: '다이어트', icon: 'Heart', color: '#EF4444' }
+    { name: '다이어트', icon: 'Apple', color: '#EF4444' }
   ],
   professional: [
-    { name: '투자', icon: 'TrendingUp', color: '#F59E0B' },
+    { name: '비즈니스', icon: 'Building2', color: '#F59E0B' },
     { name: '골프', icon: 'Target', color: '#10B981' },
     { name: '건강', icon: 'Activity', color: '#EF4444' },
-    { name: '맛집', icon: 'UtensilsCrossed', color: '#F97316' },
+    { name: '카페', icon: 'Coffee', color: '#F97316' },
     { name: '취미', icon: 'Gamepad2', color: '#8B5CF6' },
     { name: '뉴스', icon: 'Newspaper', color: '#6B7280' }
   ],
   student: [
-    { name: '패션', icon: 'Shirt', color: '#EC4899' },
+    { name: '스타일', icon: 'Palette', color: '#EC4899' },
     { name: '취업', icon: 'Briefcase', color: '#3B82F6' },
     { name: '운동', icon: 'Dumbbell', color: '#EF4444' },
     { name: '게임', icon: 'Gamepad2', color: '#8B5CF6' },

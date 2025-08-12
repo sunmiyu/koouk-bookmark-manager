@@ -22,7 +22,7 @@ import PWAInstallPrompt from '../ui/PWAInstallPrompt'
 import QuickNoteModal from '../modals/QuickNoteModal'
 import BigNoteModal from '../modals/BigNoteModal'
 import MobileWorkspace from '../mobile/MobileWorkspace'
-import { FolderItem, StorageItem, createFolder, createStorageItem, defaultFolderTemplates, createDummyFolders, createInitialFolders } from '@/types/folder'
+import { FolderItem, StorageItem, createFolder, createStorageItem, createDummyFolders, createInitialFolders } from '@/types/folder'
 import { searchEngine } from '@/lib/search-engine'
 import { useDevice } from '@/hooks/useDevice'
 import { isYouTubeUrl, getYouTubeThumbnail } from '@/utils/youtube'
@@ -80,10 +80,8 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
         }
       } catch (error) {
         console.error('Data loading failed:', error)
-        // Create default folders
-        const initialFolders = defaultFolderTemplates.general.map(template =>
-          createFolder(template.name, undefined, template)
-        )
+        // On error, create initial empty folders instead of template folders
+        const initialFolders = createInitialFolders()
         setFolders(initialFolders)
         if (initialFolders.length > 0) {
           setSelectedFolderId(initialFolders[0].id)
@@ -118,13 +116,28 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
     }
   }
 
+  // Ensure empty folder exists
+  const ensureEmptyFolder = (updatedFolders: FolderItem[]): FolderItem[] => {
+    const hasEmptyFolder = updatedFolders.some(folder => 
+      folder.children.length === 0 && (folder.name === '' || folder.name === 'No name' || folder.name.trim() === '')
+    )
+    
+    if (!hasEmptyFolder) {
+      const emptyFolder = createFolder('', undefined, { color: '#6B7280', icon: '📁' })
+      return [...updatedFolders, emptyFolder]
+    }
+    
+    return updatedFolders
+  }
+
   // Folder-related handlers
   const handleFoldersChange = (newFolders: FolderItem[]) => {
-    setFolders(newFolders)
-    saveToStorage(newFolders)
+    const foldersWithEmpty = ensureEmptyFolder(newFolders)
+    setFolders(foldersWithEmpty)
+    saveToStorage(foldersWithEmpty)
     
     // Update search engine index
-    searchEngine.updateIndex(newFolders)
+    searchEngine.updateIndex(foldersWithEmpty)
   }
 
   const handleFolderSelect = (folderId: string) => {
@@ -220,11 +233,46 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
     const description = prompt('Enter description (optional):', '')
     if (description === null) return
 
-    const category = prompt('Enter category:', 'lifestyle')
+    const category = prompt('Enter category (lifestyle, food, travel, study, work, entertainment, health, tech, investment, parenting):', 'lifestyle')
     if (!category) return
 
-    // Share success notification to Share Place
-    alert(`Folder '${title}' has been shared successfully!`)
+    // Create SharedFolder object
+    const sharedFolder = {
+      id: Date.now().toString(),
+      title: title.trim(),
+      description: description.trim() || `Shared folder containing ${folderToShare.children.length} items`,
+      category: category.toLowerCase(),
+      tags: ['user-shared', folderToShare.name.toLowerCase()],
+      coverImage: null, // Could be enhanced to extract first image from folder
+      author: {
+        name: 'User', // Could be enhanced with actual user data
+        verified: false
+      },
+      stats: {
+        likes: 0,
+        downloads: 0
+      },
+      folder: {
+        ...folderToShare,
+        id: Date.now().toString(), // New ID for shared version
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+
+    // Save to shared folders in localStorage
+    try {
+      const existingShared = localStorage.getItem('koouk-shared-folders')
+      const sharedFolders = existingShared ? JSON.parse(existingShared) : []
+      sharedFolders.unshift(sharedFolder) // Add to beginning
+      
+      localStorage.setItem('koouk-shared-folders', JSON.stringify(sharedFolders))
+      
+      alert(`Folder '${title}' has been shared successfully!\nYou can see it in the Market Place.`)
+    } catch (error) {
+      console.error('Failed to save shared folder:', error)
+      alert('Failed to share folder. Please try again.')
+    }
   }
 
   const handleCreateItem = (type: StorageItem['type'], folderId: string) => {
@@ -316,6 +364,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
           selectedFolderId={selectedFolderId}
           onFoldersChange={handleFoldersChange}
           onFolderSelect={handleFolderSelect}
+          onShareFolder={handleShareFolder}
         />
         
         {/* Modal Components */}

@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import MobileFolderList from './MobileFolderList'
-import FolderBreadcrumb from './FolderBreadcrumb'
+import PCStyleFolderView from './PCStyleFolderView'
 import FloatingInputButton from './FloatingInputButton'
-import { FolderItem, StorageItem } from '@/types/folder'
+import { FolderItem, StorageItem, createFolder, createStorageItem } from '@/types/folder'
 import { useCrossPlatformState } from '@/hooks/useCrossPlatformState'
 import { useDevice } from '@/hooks/useDevice'
 import QuickNoteModal from '@/components/modals/QuickNoteModal'
@@ -13,71 +13,182 @@ import BigNoteModal from '@/components/modals/BigNoteModal'
 import Bookmarks from '@/components/workspace/Bookmarks'
 import MarketPlace from '@/components/workspace/MarketPlace'
 import { SharedFolder } from '@/types/share'
-import { createFolder } from '@/types/folder'
 
 interface MobileWorkspaceProps {
   folders: FolderItem[]
   selectedFolderId?: string
   onFoldersChange: (folders: FolderItem[]) => void
   onFolderSelect: (folderId: string) => void
+  onShareFolder?: (folderId: string) => void
 }
 
 export default function MobileWorkspace({ 
   folders, 
   selectedFolderId,
   onFoldersChange,
-  onFolderSelect: parentOnFolderSelect
+  onFolderSelect: parentOnFolderSelect,
+  onShareFolder
 }: MobileWorkspaceProps) {
   const { state } = useCrossPlatformState()
   const device = useDevice()
   const [editingItem, setEditingItem] = useState<StorageItem | null>(null)
   const [showQuickNoteModal, setShowQuickNoteModal] = useState(false)
   const [showBigNoteModal, setShowBigNoteModal] = useState(false)
-  const [currentFolderPath, setCurrentFolderPath] = useState<string[]>([])
+  const [currentFolderPath, setCurrentFolderPath] = useState<{ id: string; name: string }[]>([])
+  const [currentFolder, setCurrentFolder] = useState<FolderItem | null>(null)
+  const [viewMode, setViewMode] = useState<'list' | 'folder'>('list') // 'list' = folder list, 'folder' = inside folder
 
   // Don't render on desktop
   if (device.isDesktop) return null
 
-  // Folder selection handler
-  const handleFolderSelect = (folderId: string, folderName?: string) => {
-    parentOnFolderSelect(folderId)
-    
-    // Update breadcrumb path
-    if (folderId && folderId !== 'root') {
-      setCurrentFolderPath(prev => [...prev, folderId])
-    } else {
-      setCurrentFolderPath([])
+  // Find folder by ID in nested structure
+  const findFolderById = (folders: FolderItem[], id: string): FolderItem | null => {
+    for (const folder of folders) {
+      if (folder.id === id) return folder
+      const subFolders = folder.children.filter(child => child.type === 'folder') as FolderItem[]
+      const found = findFolderById(subFolders, id)
+      if (found) return found
     }
-    console.log(`Mobile: Selected folder ${folderId} (${folderName})`)
+    return null
   }
-  
-  // Breadcrumb navigation handler
-  const handleBreadcrumbNavigate = (folderId: string) => {
-    if (folderId === '' || folderId === 'root') {
-      // Navigate to root
-      setCurrentFolderPath([])
-      parentOnFolderSelect('')
+
+  // Build folder path for breadcrumb
+  const buildFolderPath = (folderId: string): { id: string; name: string }[] => {
+    const path: { id: string; name: string }[] = []
+    
+    const findPath = (folders: FolderItem[], targetId: string, currentPath: { id: string; name: string }[]): boolean => {
+      for (const folder of folders) {
+        const newPath = [...currentPath, { id: folder.id, name: folder.name }]
+        
+        if (folder.id === targetId) {
+          path.push(...newPath)
+          return true
+        }
+        
+        const subFolders = folder.children.filter(child => child.type === 'folder') as FolderItem[]
+        if (findPath(subFolders, targetId, newPath)) {
+          return true
+        }
+      }
+      return false
+    }
+    
+    findPath(folders, folderId, [])
+    return path
+  }
+
+  // Ensure empty folder exists
+  const ensureEmptyFolder = (updatedFolders: FolderItem[]): FolderItem[] => {
+    const hasEmptyFolder = updatedFolders.some(folder => 
+      folder.children.length === 0 && (folder.name === '' || folder.name === 'No name' || folder.name.trim() === '')
+    )
+    
+    if (!hasEmptyFolder) {
+      const emptyFolder = createFolder('', undefined, { color: '#6B7280', icon: '📁' })
+      return [...updatedFolders, emptyFolder]
+    }
+    
+    return updatedFolders
+  }
+
+  // Folder selection handler
+  const handleFolderSelect = (folderId: string) => {
+    const folder = findFolderById(folders, folderId)
+    if (folder) {
+      setCurrentFolder(folder)
+      setCurrentFolderPath(buildFolderPath(folderId))
+      setViewMode('folder')
+      parentOnFolderSelect(folderId)
+    }
+  }
+
+  // Navigate back to folder list
+  const handleBackToList = () => {
+    setCurrentFolder(null)
+    setCurrentFolderPath([])
+    setViewMode('list')
+    parentOnFolderSelect('')
+  }
+
+  // Navigate to specific folder in breadcrumb
+  const handleNavigateToFolder = (folderId: string) => {
+    if (folderId === '') {
+      handleBackToList()
     } else {
-      // Find folder index
-      const index = currentFolderPath.indexOf(folderId)
-      if (index !== -1) {
-        setCurrentFolderPath(currentFolderPath.slice(0, index + 1))
+      const folder = findFolderById(folders, folderId)
+      if (folder) {
+        setCurrentFolder(folder)
+        setCurrentFolderPath(buildFolderPath(folderId))
+        setViewMode('folder')
         parentOnFolderSelect(folderId)
       }
     }
   }
 
-  // Item addition handler (same logic as WorkspaceContent)
+  // Create new folder
+  const handleCreateFolder = (parentId?: string) => {
+    const folderName = prompt('폴더 이름을 입력하세요:', 'New Folder')
+    if (!folderName?.trim()) return
+
+    const newFolder = createFolder(folderName.trim(), parentId)
+    
+    if (parentId) {
+      // Add as subfolder
+      const updatedFolders = addFolderToParent(folders, parentId, newFolder)
+      onFoldersChange(ensureEmptyFolder(updatedFolders))
+    } else {
+      // Add at root level and ensure empty folder
+      const updatedFolders = [newFolder, ...folders]
+      onFoldersChange(ensureEmptyFolder(updatedFolders))
+    }
+
+    // Update empty folder name if it was unnamed
+    if (folders.some(f => f.id === parentId && (f.name === '' || f.name === 'No name'))) {
+      const updatedFolders = folders.map(f => 
+        f.id === parentId ? { ...f, name: folderName.trim(), updatedAt: new Date().toISOString() } : f
+      )
+      onFoldersChange(ensureEmptyFolder(updatedFolders))
+      return
+    }
+  }
+
+  // Add folder to parent
+  const addFolderToParent = (folders: FolderItem[], parentId: string, newFolder: FolderItem): FolderItem[] => {
+    return folders.map(folder => {
+      if (folder.id === parentId) {
+        return {
+          ...folder,
+          children: [...folder.children, newFolder],
+          updatedAt: new Date().toISOString()
+        }
+      }
+      
+      const updatedChildren = folder.children.map(child => {
+        if (child.type === 'folder') {
+          const updatedSubfolders = addFolderToParent([child as FolderItem], parentId, newFolder)
+          return updatedSubfolders[0]
+        }
+        return child
+      })
+      
+      return {
+        ...folder,
+        children: updatedChildren
+      }
+    })
+  }
+
+  // Item addition handler
   const addItemToFolder = (folders: FolderItem[], folderId: string, item: StorageItem): FolderItem[] => {
     return folders.map(folder => {
       if (folder.id === folderId) {
         return {
           ...folder,
-          children: [...folder.children, item]
+          children: [...folder.children, item],
+          updatedAt: new Date().toISOString()
         }
       }
       
-      // Recursively search in subfolders
       const updatedChildren = folder.children.map(child => {
         if (child.type === 'folder') {
           const updatedSubfolders = addItemToFolder([child as FolderItem], folderId, item)
@@ -97,32 +208,58 @@ export default function MobileWorkspace({
     const updatedFolders = addItemToFolder(folders, folderId, item)
     onFoldersChange(updatedFolders)
   }
-  
+
+  // Create item
+  const handleCreateItem = (type: StorageItem['type'], folderId: string) => {
+    const typeLabels = {
+      document: 'Document',
+      memo: 'Memo', 
+      image: 'Image',
+      video: 'Video',
+      url: 'URL'
+    }
+    
+    const itemName = prompt(`Enter ${typeLabels[type].toLowerCase()} name:`, `New ${typeLabels[type]}`)
+    if (!itemName?.trim()) return
+
+    let content = ''
+    if (type === 'url') {
+      content = prompt('Enter URL:', 'https://') || ''
+    } else {
+      content = prompt('Enter content:', '') || ''
+    }
+
+    const newItem = createStorageItem(itemName.trim(), type, content, folderId)
+    handleAddItem(newItem, folderId)
+  }
+
   // Convert SharedFolder to FolderItem and add
   const handleImportSharedFolder = (sharedFolder: SharedFolder) => {
     const newFolder = createFolder(
       sharedFolder.title,
       undefined,
       {
-        color: '#3B82F6', // Default blue color
-        icon: '📁'
+        color: sharedFolder.folder.color || '#3B82F6',
+        icon: sharedFolder.folder.icon || '📁'
       }
     )
     
-    // Add to root level
+    newFolder.children = [...sharedFolder.folder.children]
+    newFolder.updatedAt = new Date().toISOString()
+    
     const updatedFolders = [newFolder, ...folders]
-    onFoldersChange(updatedFolders)
+    onFoldersChange(ensureEmptyFolder(updatedFolders))
+    
+    console.log('Imported folder:', newFolder.name, 'with', newFolder.children.length, 'items')
   }
 
   // Item selection handler
   const handleItemSelect = (item: StorageItem) => {
-    // Open URLs or videos in new window
     if (item.type === 'url' || item.type === 'video') {
       window.open(item.content, '_blank')
       return
     }
 
-    // Open memos/documents in respective modals
     if (item.type === 'memo' || item.type === 'document') {
       setEditingItem(item)
       if (item.type === 'memo') {
@@ -139,36 +276,41 @@ export default function MobileWorkspace({
       case 'my-folder':
         return (
           <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
-            {/* Folder breadcrumb */}
-            {currentFolderPath.length > 0 && (
-              <FolderBreadcrumb
-                folders={folders}
-                currentPath={currentFolderPath}
-                onNavigate={handleBreadcrumbNavigate}
-              />
-            )}
-            
-            {/* Quick Access Bar - Removed for better folder visibility */}
-            {/* <QuickAccessBar onFolderSelect={handleFolderSelect} /> */}
-            
-            {/* Folder Content */}
-            <div className="flex-1 overflow-hidden">
-              <MobileFolderList 
-                folders={folders}
+            {viewMode === 'list' ? (
+              // Folder List View
+              <div className="flex-1 overflow-hidden">
+                <MobileFolderList 
+                  folders={folders}
+                  onFolderSelect={handleFolderSelect}
+                  onItemSelect={handleItemSelect}
+                  onShareFolder={onShareFolder}
+                />
+              </div>
+            ) : (
+              // PC-Style Folder Internal View
+              <PCStyleFolderView
+                currentFolder={currentFolder}
+                folderPath={currentFolderPath}
+                onBack={handleBackToList}
+                onNavigateToFolder={handleNavigateToFolder}
                 onFolderSelect={handleFolderSelect}
                 onItemSelect={handleItemSelect}
+                onCreateFolder={handleCreateFolder}
+                onCreateItem={handleCreateItem}
               />
-            </div>
+            )}
 
-            {/* Floating Input Button - Mobile only */}
-            <FloatingInputButton
-              folders={folders}
-              selectedFolderId={selectedFolderId}
-              onAddItem={handleAddItem}
-              onFolderSelect={handleFolderSelect}
-              onOpenMemo={() => setShowQuickNoteModal(true)}
-              onOpenNote={() => setShowBigNoteModal(true)}
-            />
+            {/* Floating Input Button - Only show in list view */}
+            {viewMode === 'list' && (
+              <FloatingInputButton
+                folders={folders}
+                selectedFolderId={selectedFolderId}
+                onAddItem={handleAddItem}
+                onFolderSelect={handleFolderSelect}
+                onOpenMemo={() => setShowQuickNoteModal(true)}
+                onOpenNote={() => setShowBigNoteModal(true)}
+              />
+            )}
           </div>
         )
 
@@ -227,7 +369,6 @@ export default function MobileWorkspace({
               }
               
               if (editingItem) {
-                // TODO: Existing item edit logic needed
                 console.log('Edit existing item:', item)
               } else {
                 handleAddItem(item, folderId)
@@ -264,7 +405,6 @@ export default function MobileWorkspace({
               }
               
               if (editingItem) {
-                // TODO: Existing item edit logic needed
                 console.log('Edit existing item:', item)
               } else {
                 handleAddItem(item, folderId)

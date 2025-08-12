@@ -1,18 +1,19 @@
 'use client'
 
+import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronRight, ChevronDown, FileText, Image, Video, Link, StickyNote, Folder } from 'lucide-react'
+import { ChevronRight, ChevronDown, Folder, Share2, FileText, Image, Video, Link, StickyNote } from 'lucide-react'
 import { FolderItem, StorageItem } from '@/types/folder'
 import { useCrossPlatformState } from '@/hooks/useCrossPlatformState'
-import { useState, useRef } from 'react'
 
 interface MobileFolderListProps {
   folders: FolderItem[]
   onFolderSelect?: (folderId: string) => void
   onItemSelect?: (item: StorageItem) => void
+  onShareFolder?: (folderId: string) => void
 }
 
-export default function MobileFolderList({ folders, onFolderSelect, onItemSelect }: MobileFolderListProps) {
+export default function MobileFolderList({ folders, onFolderSelect, onItemSelect, onShareFolder }: MobileFolderListProps) {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
   const { updateQuickAccess } = useCrossPlatformState()
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -71,9 +72,9 @@ export default function MobileFolderList({ folders, onFolderSelect, onItemSelect
     <div 
       ref={scrollRef}
       data-folder-content
-      className="flex-1 overflow-y-auto bg-white"
+      className="flex-1 overflow-y-auto bg-gray-50"
     >
-      <div className="p-3 space-y-1">
+      <div className="p-4 space-y-3">
         {folders.map((folder) => (
           <FolderTreeNode
             key={folder.id}
@@ -83,16 +84,17 @@ export default function MobileFolderList({ folders, onFolderSelect, onItemSelect
             onToggle={toggleFolder}
             onFolderSelect={handleFolderSelect}
             onItemSelect={handleItemSelect}
+            onShareFolder={onShareFolder}
           />
         ))}
         
         {folders.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-              <Folder size={24} color="#9CA3AF" />
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+              <Folder size={32} className="text-blue-500" />
             </div>
-            <h3 className="text-sm font-medium text-gray-600 mb-2">No folders</h3>
-            <p className="text-xs text-gray-500">Create a new folder using the input bar below</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No folders yet</h3>
+            <p className="text-sm text-gray-500 max-w-xs">Start organizing your content by creating your first folder</p>
           </div>
         )}
       </div>
@@ -107,7 +109,8 @@ function FolderTreeNode({
   expandedFolders,
   onToggle,
   onFolderSelect,
-  onItemSelect
+  onItemSelect,
+  onShareFolder
 }: {
   folder: FolderItem
   level: number
@@ -115,6 +118,7 @@ function FolderTreeNode({
   onToggle: (folderId: string) => void
   onFolderSelect: (folderId: string) => void
   onItemSelect: (item: StorageItem) => void
+  onShareFolder?: (folderId: string) => void
 }) {
   const isExpanded = expandedFolders.has(folder.id)
   const hasChildren = folder.children.length > 0
@@ -123,57 +127,91 @@ function FolderTreeNode({
 
   return (
     <div className="relative">
-      {/* Folder header */}
+      {/* Modern Folder Card */}
       <motion.div
-        className="flex items-center bg-white hover:bg-gray-50 border border-gray-100 rounded-lg overflow-hidden"
+        className="relative bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
         whileTap={{ scale: 0.98 }}
+        style={{ marginLeft: level * 16 }}
       >
-        {/* Indentation */}
-        {level > 0 && (
-          <div 
-            className="flex-shrink-0"
-            style={{ width: `${level * 16}px` }}
-          />
-        )}
+        {/* Colored accent bar */}
+        <div 
+          className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b"
+          style={{ 
+            background: `linear-gradient(to bottom, ${folder.color || '#3B82F6'}, ${folder.color || '#3B82F6'}80)` 
+          }}
+        />
         
-        {/* Expand/collapse button */}
-        <button
-          onClick={() => onToggle(folder.id)}
-          className="flex-shrink-0 w-8 h-10 flex items-center justify-center hover:bg-gray-100 transition-colors"
-        >
-          {hasChildren ? (
-            isExpanded ? (
-              <ChevronDown size={14} color="#6B7280" />
+        <div className="flex items-center">
+          {/* Expand/collapse button */}
+          <button
+            onClick={() => onToggle(folder.id)}
+            className="flex-shrink-0 w-12 h-14 flex items-center justify-center hover:bg-gray-100 transition-colors"
+          >
+            {hasChildren ? (
+              isExpanded ? (
+                <ChevronDown size={16} className="text-gray-400" />
+              ) : (
+                <ChevronRight size={16} className="text-gray-400" />
+              )
             ) : (
-              <ChevronRight size={14} color="#6B7280" />
-            )
-          ) : (
-            <div className="w-3 h-3" />
-          )}
-        </button>
-
-        {/* Folder info - Clickable area */}
-        <button
-          onClick={() => onFolderSelect?.(folder.id)}
-          className="flex-1 flex items-center gap-2 px-2 py-2 hover:bg-gray-50 transition-colors text-left"
-        >
-          {/* Folder icon */}
-          <span className="text-sm flex-shrink-0">
-            {folder.icon || '📁'}
-          </span>
-          
-          {/* Folder name and info */}
-          <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-gray-900 text-sm truncate">
-              {folder.name}
-            </h3>
-            {folder.children.length > 0 && (
-              <p className="text-xs text-gray-500">
-                {folder.children.length} items
-              </p>
+              <div className="w-4 h-4" />
             )}
-          </div>
-        </button>
+          </button>
+
+          {/* Main folder content */}
+          <button
+            onClick={() => onFolderSelect?.(folder.id)}
+            className="flex-1 flex items-center gap-3 px-3 py-3 hover:bg-gray-50/50 transition-colors text-left"
+          >
+            {/* Folder icon with background */}
+            <div 
+              className="w-10 h-10 rounded-lg flex items-center justify-center text-lg shadow-sm"
+              style={{ 
+                backgroundColor: `${folder.color || '#3B82F6'}15`,
+                border: `1px solid ${folder.color || '#3B82F6'}30`
+              }}
+            >
+              <span className="filter drop-shadow-sm">
+                {folder.icon || '📁'}
+              </span>
+            </div>
+            
+            {/* Folder info */}
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-gray-900 text-sm truncate mb-0.5">
+                {folder.name}
+              </h3>
+              {folder.children.length > 0 && (
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <span>{folder.children.length} items</span>
+                  {items.length > 0 && (
+                    <>
+                      <span>•</span>
+                      <span>{items.length} files</span>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Share button */}
+            {onShareFolder && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onShareFolder(folder.id)
+                }}
+                className="mr-2 w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors flex-shrink-0"
+                title="Share folder"
+              >
+                <Share2 size={14} className="text-blue-600" />
+              </button>
+            )}
+
+            {/* Arrow indicator */}
+            <ChevronRight size={14} className="text-gray-300 flex-shrink-0" />
+          </button>
+        </div>
       </motion.div>
 
       {/* Expanded sub-items */}
@@ -183,10 +221,10 @@ function FolderTreeNode({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden mt-2"
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="overflow-hidden mt-3"
           >
-            <div className="space-y-1 ml-4">
+            <div className="space-y-2 ml-6 pl-4 border-l-2 border-gray-100">
               {/* Sub-folders */}
               {subFolders.map((subFolder) => (
                 <FolderTreeNode
@@ -197,6 +235,7 @@ function FolderTreeNode({
                   onToggle={onToggle}
                   onFolderSelect={onFolderSelect}
                   onItemSelect={onItemSelect}
+                  onShareFolder={onShareFolder}
                 />
               ))}
               
@@ -227,56 +266,77 @@ function ItemNode({
   level: number
   onSelect: (item: StorageItem) => void
 }) {
-  const getIcon = (type: StorageItem['type']) => {
+  const getIconAndColor = (type: StorageItem['type']) => {
     switch (type) {
-      case 'document': return FileText
-      case 'image': return Image
-      case 'video': return Video
-      case 'url': return Link
-      case 'memo': return StickyNote
-      default: return FileText
+      case 'document': return { Icon: FileText, color: '#3B82F6', bg: '#EFF6FF' }
+      case 'image': return { Icon: Image, color: '#10B981', bg: '#ECFDF5' }
+      case 'video': return { Icon: Video, color: '#F59E0B', bg: '#FEF3C7' }
+      case 'url': return { Icon: Link, color: '#8B5CF6', bg: '#F3E8FF' }
+      case 'memo': return { Icon: StickyNote, color: '#EF4444', bg: '#FEF2F2' }
+      default: return { Icon: FileText, color: '#6B7280', bg: '#F9FAFB' }
     }
   }
 
-  const Icon = getIcon(item.type)
+  const { Icon, color, bg } = getIconAndColor(item.type)
+  
+  // Fix duplicate text issue - use title first, fallback to name
+  const displayTitle = (item.metadata?.title as string)?.trim() || item.name.trim()
+  const displayType = item.type.charAt(0).toUpperCase() + item.type.slice(1)
 
   return (
     <motion.button
       onClick={() => onSelect(item)}
-      className="w-full flex items-center bg-white hover:bg-gray-50 border border-gray-100 rounded-lg overflow-hidden transition-colors"
+      className="w-full bg-white hover:bg-gray-50 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
       whileTap={{ scale: 0.98 }}
+      style={{ marginLeft: level * 8 }}
     >
-      {/* Indentation */}
-      {level > 0 && (
-        <div 
-          className="flex-shrink-0"
-          style={{ width: `${level * 16}px` }}
-        />
-      )}
-      
-      {/* Empty space (expand button area) */}
-      <div className="w-8 flex items-center justify-center">
-        <div className="w-1 h-1 bg-gray-300 rounded-full" />
-      </div>
+      <div className="flex items-center p-3">
+        {/* Type indicator dot */}
+        <div className="flex-shrink-0 w-2 h-8 mr-3 flex items-center">
+          <div 
+            className="w-1.5 h-8 rounded-full"
+            style={{ backgroundColor: color + '40' }}
+          />
+        </div>
 
-      {/* Item info */}
-      <div className="flex-1 flex items-center gap-2 px-2 py-2 text-left">
         {/* Item icon */}
-        <Icon size={14} className="flex-shrink-0 text-gray-500" />
-        
-        {/* Item name */}
-        <div className="flex-1 min-w-0">
-          <p className="text-gray-900 text-sm truncate">
-            {(item.metadata?.title as string) || item.name}
-          </p>
+        <div 
+          className="w-8 h-8 rounded-lg flex items-center justify-center mr-3 flex-shrink-0"
+          style={{ backgroundColor: bg }}
+        >
+          <Icon size={14} style={{ color }} />
         </div>
         
-        {/* Type label */}
-        <span className="text-xs text-gray-400 flex-shrink-0">
-          {item.type}
-        </span>
+        {/* Item content */}
+        <div className="flex-1 min-w-0 text-left">
+          <p className="font-medium text-gray-900 text-sm truncate mb-0.5">
+            {displayTitle}
+          </p>
+          
+          <div className="flex items-center gap-2 text-xs text-gray-500">
+            <span className="px-1.5 py-0.5 rounded-md font-medium" style={{ 
+              backgroundColor: bg, 
+              color: color 
+            }}>
+              {displayType}
+            </span>
+            
+            {/* Show creation date if available */}
+            {item.createdAt && (
+              <>
+                <span>•</span>
+                <span>{new Date(item.createdAt).toLocaleDateString('ko-KR', { 
+                  month: 'short', 
+                  day: 'numeric' 
+                })}</span>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Arrow indicator */}
+        <ChevronRight size={12} className="text-gray-300 flex-shrink-0 ml-2" />
       </div>
     </motion.button>
   )
 }
-

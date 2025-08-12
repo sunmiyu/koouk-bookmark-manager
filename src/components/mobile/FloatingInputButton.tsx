@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Edit, FileText } from 'lucide-react'
 import { FolderItem, StorageItem } from '@/types/folder'
 import UniversalInputBar from '@/components/ui/UniversalInputBar'
+import { useDevice } from '@/hooks/useDevice'
 
 interface FloatingInputButtonProps {
   folders: FolderItem[]
@@ -23,7 +24,11 @@ export default function FloatingInputButton({
   onOpenMemo,
   onOpenNote
 }: FloatingInputButtonProps) {
+  const device = useDevice()
   const [isExpanded, setIsExpanded] = useState(false)
+  
+  // Don't render on desktop (PC has bottom UniversalInputBar)
+  if (device.isDesktop) return null
 
   const quickActions = [
     {

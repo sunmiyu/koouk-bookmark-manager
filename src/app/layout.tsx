@@ -1,8 +1,29 @@
 import type { Metadata } from 'next'
+import './globals.css'
+import { AuthProvider } from '@/components/auth/AuthContext'
+import ServiceWorkerRegistration from '@/components/pwa/ServiceWorkerRegistration'
 
 export const metadata: Metadata = {
   title: 'Koouk - Personal Knowledge Management',
   description: 'Store, organize, and find your information effortlessly. From notes to links, everything in one place.',
+  keywords: ['knowledge management', 'notes', 'organization', 'productivity'],
+  authors: [{ name: 'Koouk Team' }],
+  manifest: '/manifest.json',
+  themeColor: '#ffffff',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Koouk',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 }
 
 export default function RootLayout({
@@ -11,9 +32,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html>
+    <html lang="en" suppressHydrationWarning>
       <body>
-        {children}
+        <AuthProvider>
+          {children}
+          <ServiceWorkerRegistration />
+        </AuthProvider>
       </body>
     </html>
   )

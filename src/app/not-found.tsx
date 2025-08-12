@@ -7,10 +7,10 @@ export default function NotFound() {
         <div className="mb-8">
           <h2 className="text-6xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>404</h2>
           <h1 className="text-2xl font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-            페이지를 찾을 수 없습니다
+            Page Not Found
           </h1>
           <p className="mb-8" style={{ color: 'var(--text-secondary)' }}>
-            요청하신 페이지가 존재하지 않거나 이동되었습니다.
+            The page you requested does not exist or has been moved.
           </p>
         </div>
         
@@ -18,7 +18,7 @@ export default function NotFound() {
           href="/" 
           className="btn-primary inline-block"
         >
-          홈으로 돌아가기
+          Back to Home
         </Link>
       </div>
     </div>

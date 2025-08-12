@@ -16,7 +16,7 @@ import {
   NotebookPen
 } from 'lucide-react'
 import { FolderItem, StorageItem, createStorageItem } from '@/types/folder'
-import { isYouTubeUrl, getYouTubeThumbnail, fetchYouTubeTitle } from '@/utils/youtube'
+import { isYouTubeUrl, getYouTubeThumbnail, getYouTubeMetadata } from '@/utils/youtube'
 import { useDevice } from '@/hooks/useDevice'
 
 interface UniversalInputBarProps {
@@ -107,12 +107,15 @@ export default function UniversalInputBar({
 
       // YouTube 제목 가져오기
       try {
-        const title = await fetchYouTubeTitle(content)
-        if (title) {
-          metadata.title = title
+        const youtubeData = await getYouTubeMetadata(content)
+        if (youtubeData?.title) {
+          metadata.title = youtubeData.title
+          metadata.description = youtubeData.description
+          metadata.channelTitle = youtubeData.channelTitle
+          metadata.duration = youtubeData.duration
         }
       } catch (error) {
-        console.error('Failed to fetch YouTube title:', error)
+        console.error('Failed to fetch YouTube metadata:', error)
       }
     }
 
@@ -126,12 +129,15 @@ export default function UniversalInputBar({
 
       // YouTube 제목 가져오기
       try {
-        const title = await fetchYouTubeTitle(content)
-        if (title) {
-          metadata.title = title
+        const youtubeData = await getYouTubeMetadata(content)
+        if (youtubeData?.title) {
+          metadata.title = youtubeData.title
+          metadata.description = youtubeData.description
+          metadata.channelTitle = youtubeData.channelTitle
+          metadata.duration = youtubeData.duration
         }
       } catch (error) {
-        console.error('Failed to fetch YouTube title:', error)
+        console.error('Failed to fetch YouTube metadata:', error)
       }
     }
 

@@ -138,10 +138,7 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
 
         {/* Footer - Moved to bottom */}
         <div className="border-t border-gray-100 px-6 py-4 mt-auto">
-          <div className="flex items-center justify-between">
-            <div className="text-xs text-gray-500">
-              {content.trim().length} characters
-            </div>
+          <div className="flex items-center justify-end">
             <div className="flex items-center gap-3">
               {/* Folder Selection */}
               <select

@@ -129,10 +129,10 @@ export default function App() {
                 {/* Feedback Button - mobile shows icon only */}
                 <button 
                   onClick={() => setShowFeedbackModal(true)}
-                  className="flex items-center justify-center w-8 h-8 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:w-auto sm:h-auto"
+                  className="flex items-center justify-center w-8 h-8 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:w-auto sm:h-auto"
                   title="Feedback"
                 >
-                  <MessageCircle className="w-3.5 h-3.5" />
+                  <MessageCircle className="w-4 h-4" />
                   <span className="hidden sm:inline">Feedback</span>
                 </button>
 
@@ -153,7 +153,8 @@ export default function App() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
-                      className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[60]"
+                      className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[999]"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <div className="px-3 py-2 border-b border-gray-100">
                         <div className="text-xs font-medium text-black">{user?.email?.split('@')[0] || 'User'}</div>
@@ -162,7 +163,10 @@ export default function App() {
                       
                       <Link
                         href="/settings"
-                        onClick={() => setShowUserMenu(false)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setShowUserMenu(false)
+                        }}
                         className="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
                       >
                         <Settings className="w-3.5 h-3.5" />
@@ -170,7 +174,10 @@ export default function App() {
                       </Link>
                       
                       <button
-                        onClick={handleSignOut}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleSignOut()
+                        }}
                         className="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 transition-colors"
                       >
                         <LogOut className="w-3.5 h-3.5" />
@@ -185,45 +192,6 @@ export default function App() {
         </div>
       </header>
 
-      {/* Navigation Tabs - Hidden on mobile */}
-      <nav className="border-b border-gray-200 bg-white hidden sm:block">
-        <div className="w-full bg-white">
-          <div className="w-full px-2 sm:px-8 sm:max-w-6xl sm:mx-auto">
-            <div className="flex w-full">
-              <button
-                onClick={() => setActiveTab('my-folder')}
-                className={`flex-1 py-3 px-2 sm:px-6 border-b-2 font-medium text-xs text-center transition-colors ${
-                  activeTab === 'my-folder'
-                    ? 'border-black text-black'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                My Folder
-              </button>
-              <button
-                onClick={() => setActiveTab('bookmarks')}
-                className={`flex-1 py-3 px-2 sm:px-6 border-b-2 font-medium text-xs text-center transition-colors ${
-                  activeTab === 'bookmarks'
-                    ? 'border-black text-black'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Bookmarks
-              </button>
-              <button
-                onClick={() => setActiveTab('marketplace')}
-                className={`flex-1 py-3 px-2 sm:px-6 border-b-2 font-medium text-xs text-center transition-colors ${
-                  activeTab === 'marketplace'
-                    ? 'border-black text-black'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Marketplace
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
 
       {/* Main Content */}
       <main className="w-full px-0 sm:px-8 sm:max-w-6xl sm:mx-auto pt-3 sm:pt-6 pb-8">
@@ -242,7 +210,7 @@ export default function App() {
       {/* Click outside to close menu */}
       {showUserMenu && (
         <div
-          className="fixed inset-0 z-[59]"
+          className="fixed inset-0 z-[998]"
           onClick={() => setShowUserMenu(false)}
         />
       )}

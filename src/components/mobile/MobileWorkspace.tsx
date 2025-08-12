@@ -147,12 +147,6 @@ export default function MobileWorkspace({
       case 'my-folder':
         return (
           <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
-            {/* 통일된 헤더 스타일 */}
-            <div className="bg-white border-b border-gray-100 px-4 py-3">
-              <h2 className="text-lg font-semibold text-gray-900">내 폴더</h2>
-              <p className="text-sm text-gray-500 mt-1">개인 콘텐츠를 정리하고 관리하세요</p>
-            </div>
-
             {/* 폴더 브레드크럼 */}
             {currentFolderPath.length > 0 && (
               <FolderBreadcrumb
@@ -189,11 +183,6 @@ export default function MobileWorkspace({
       case 'bookmarks':
         return (
           <div className="flex-1 overflow-hidden bg-gray-50">
-            {/* 통일된 헤더 스타일 */}
-            <div className="bg-white border-b border-gray-100 px-4 py-3">
-              <h2 className="text-lg font-semibold text-gray-900">북마크</h2>
-              <p className="text-sm text-gray-500 mt-1">저장된 링크와 자료를 찾아보세요</p>
-            </div>
             <div className="flex-1 overflow-hidden">
               <Bookmarks />
             </div>
@@ -203,11 +192,6 @@ export default function MobileWorkspace({
       case 'market-place':
         return (
           <div className="flex-1 overflow-hidden bg-gray-50">
-            {/* 통일된 헤더 스타일 */}
-            <div className="bg-white border-b border-gray-100 px-4 py-3">
-              <h2 className="text-lg font-semibold text-gray-900">마켓플레이스</h2>
-              <p className="text-sm text-gray-500 mt-1">다른 사용자들이 공유한 콘텐츠</p>
-            </div>
             <div className="flex-1 overflow-hidden">
               <MarketPlace onImportFolder={handleImportSharedFolder} />
             </div>
@@ -221,12 +205,6 @@ export default function MobileWorkspace({
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      {/* 상태 바 영역 (iOS) */}
-      <div className="h-safe-area-top bg-white" />
-      
-      {/* Top Navigation */}
-      <TopNavigation onTabChange={handleTabChange} />
-      
       {/* 메인 콘텐츠 */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {renderContent()}

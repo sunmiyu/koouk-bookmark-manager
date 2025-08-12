@@ -33,6 +33,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [sidebarVisible, setSidebarVisible] = useState(true)
   const [isFirstTime, setIsFirstTime] = useState(false)
   const [showQuickNoteModal, setShowQuickNoteModal] = useState(false)
@@ -343,22 +344,35 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
     <div>
       {/* Mobile responsive container */}
       <div className="flex h-full relative">
-        {/* Mobile menu toggle button */}
+        {/* Hamburger menu toggle button - Always visible on desktop */}
         <button
-          onClick={() => setSidebarVisible(!sidebarVisible)}
-          className="fixed top-20 left-4 z-50 p-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all lg:hidden"
+          onClick={() => {
+            if (device.isMobile || device.isTablet) {
+              setSidebarVisible(!sidebarVisible)
+            } else {
+              setSidebarCollapsed(!sidebarCollapsed)
+            }
+          }}
+          className={`
+            fixed top-20 z-50 p-2.5 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200
+            ${sidebarCollapsed && !device.isMobile ? 'left-4' : sidebarVisible ? 'left-72' : 'left-4'}
+          `}
         >
-          <Menu className="w-5 h-5 text-gray-600" />
+          <Menu className="w-4 h-4 text-gray-600" />
         </button>
 
         {/* Sidebar */}
         <div className={`
-          ${sidebarVisible ? 'translate-x-0' : '-translate-x-full'}
-          fixed lg:relative lg:translate-x-0
-          w-64 h-full border-r border-gray-100 bg-white
-          transition-transform duration-300 ease-in-out
-          z-40 lg:z-auto
+          ${device.isMobile || device.isTablet 
+            ? `${sidebarVisible ? 'translate-x-0' : '-translate-x-full'} fixed w-64` 
+            : `${sidebarCollapsed ? 'w-0 -translate-x-full' : 'w-64 translate-x-0'} relative`
+          }
+          h-full border-r border-gray-100 bg-white
+          transition-all duration-300 ease-in-out
+          ${device.isMobile || device.isTablet ? 'z-40' : 'z-auto'}
+          overflow-hidden
         `}>
+          <div className="w-64 h-full">
           {/* Header section */}
           <div className="px-4 py-4 border-b border-gray-100">
             <div className="flex items-center justify-between mb-4">
@@ -437,18 +451,66 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
 
           {/* PWA Install Prompt - Bottom of sidebar */}
           <PWAInstallPrompt />
+          </div>
         </div>
 
+        {/* Mini Sidebar (collapsed state for desktop) */}
+        {sidebarCollapsed && !device.isMobile && !device.isTablet && (
+          <div className="w-16 h-full border-r border-gray-100 bg-white relative z-auto transition-all duration-300 ease-in-out">
+            <div className="px-3 py-4 border-b border-gray-100">
+              <button 
+                onClick={() => handleCreateFolder()}
+                className="w-10 h-10 hover:bg-gray-50 rounded-lg transition-colors flex items-center justify-center"
+                title="Create new folder"
+              >
+                <Plus className="w-4 h-4 text-gray-500" />
+              </button>
+            </div>
+            
+            <div className="px-3 py-2 space-y-1 max-h-[calc(100%-80px)] overflow-y-auto">
+              {folders.slice(0, 8).map((folder) => (
+                <button
+                  key={folder.id}
+                  onClick={() => handleFolderSelect(folder.id)}
+                  className={`
+                    w-10 h-10 rounded-lg transition-all duration-200 flex items-center justify-center relative group
+                    ${selectedFolderId === folder.id 
+                      ? 'bg-gray-900 text-white shadow-sm' 
+                      : 'hover:bg-gray-50 text-gray-600'
+                    }
+                  `}
+                  title={folder.name}
+                >
+                  <span className="text-sm">{folder.style?.icon || '📁'}</span>
+                  
+                  {/* Tooltip */}
+                  <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                    {folder.name}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Mobile overlay */}
-        {sidebarVisible && (
+        {sidebarVisible && (device.isMobile || device.isTablet) && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+            className="fixed inset-0 bg-black bg-opacity-50 z-30"
             onClick={() => setSidebarVisible(false)}
           />
         )}
 
         {/* Main Content Area */}
-        <div className="flex-1 bg-white overflow-y-auto">
+        <div className={`
+          ${device.isMobile || device.isTablet 
+            ? 'flex-1' 
+            : sidebarCollapsed 
+              ? 'flex-1' 
+              : 'flex-1'
+          }
+          bg-white overflow-y-auto transition-all duration-300 ease-in-out
+        `}>
           <FolderContent 
             items={getSelectedFolderItems()}
             onCreateItem={(type) => selectedFolderId && handleCreateItem(type, selectedFolderId)}
@@ -637,7 +699,7 @@ const FolderContent = ({
   }
 
   return (
-    <div className="flex-1 px-2 py-3 sm:px-4 lg:p-4">
+    <div className="flex-1 px-2 py-3 sm:px-4 lg:px-6 lg:py-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div>

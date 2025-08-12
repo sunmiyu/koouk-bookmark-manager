@@ -28,7 +28,7 @@ export default function FloatingInputButton({
   const quickActions = [
     {
       icon: Plus,
-      label: '입력',
+      label: 'Input',
       color: '#10B981',
       action: () => {
         setIsExpanded(!isExpanded)
@@ -36,7 +36,7 @@ export default function FloatingInputButton({
     },
     {
       icon: Edit,
-      label: '메모',
+      label: 'Memo',
       color: '#F59E0B',
       action: () => {
         onOpenMemo()
@@ -44,7 +44,7 @@ export default function FloatingInputButton({
     },
     {
       icon: FileText,
-      label: '노트',
+      label: 'Note',
       color: '#3B82F6',
       action: () => {
         onOpenNote()
@@ -69,7 +69,7 @@ export default function FloatingInputButton({
         )}
       </AnimatePresence>
 
-      {/* Expanded Input Bar */}
+      {/* PC-style bottom input bar */}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -77,23 +77,12 @@ export default function FloatingInputButton({
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: '100%', opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed top-0 left-0 right-0 z-50 bg-white shadow-lg"
+            className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg"
             style={{ 
-              paddingTop: 'env(safe-area-inset-top)',
+              paddingBottom: 'env(safe-area-inset-bottom)',
             }}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">새 항목 추가</h3>
-              <button
-                onClick={() => setIsExpanded(false)}
-                className="p-2 hover:bg-gray-100 rounded-full"
-              >
-                <X size={20} className="text-gray-500" />
-              </button>
-            </div>
-
-            {/* Universal Input Bar */}
+            {/* Universal Input Bar - PC style */}
             <div className="p-4">
               <UniversalInputBar
                 folders={folders}

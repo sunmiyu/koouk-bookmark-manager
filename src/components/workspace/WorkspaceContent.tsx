@@ -481,7 +481,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
                   `}
                   title={folder.name}
                 >
-                  <span className="text-sm">{folder.style?.icon || '📁'}</span>
+                  <span className="text-sm">{folder.icon || '📁'}</span>
                   
                   {/* Tooltip */}
                   <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">

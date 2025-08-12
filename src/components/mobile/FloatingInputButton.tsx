@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, X, Edit, FileText } from 'lucide-react'
+import { Plus, Edit, FileText } from 'lucide-react'
 import { FolderItem, StorageItem } from '@/types/folder'
 import UniversalInputBar from '@/components/ui/UniversalInputBar'
 
@@ -52,11 +52,11 @@ export default function FloatingInputButton({
     }
   ]
 
-  // 항상 표시되는 버튼들이므로 별도의 클릭 핸들러 불필요
+  // Always visible buttons, no separate click handlers needed
 
   return (
     <>
-      {/* Backdrop - 입력바 열렸을 때만 */}
+      {/* Backdrop - Only when input bar is open */}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -106,7 +106,7 @@ export default function FloatingInputButton({
         )}
       </AnimatePresence>
 
-      {/* Always Visible Action Buttons - 나란히 배치 */}
+      {/* Always Visible Action Buttons - Side by side layout */}
       <div className="fixed bottom-6 right-4 z-40">
         <div className="flex gap-3">
           {quickActions.map((action, index) => (
@@ -126,7 +126,7 @@ export default function FloatingInputButton({
         </div>
       </div>
 
-      {/* 메인 플로팅 버튼 제거 - 세 개 버튼이 나란히 표시됨 */}
+      {/* Main floating button removed - Three buttons displayed side by side */}
     </>
   )
 }

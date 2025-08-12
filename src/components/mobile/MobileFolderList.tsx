@@ -17,7 +17,7 @@ export default function MobileFolderList({ folders, onFolderSelect, onItemSelect
   const { updateQuickAccess } = useCrossPlatformState()
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  // 폴더 확장/축소 토글
+  // Folder expand/collapse toggle
   const toggleFolder = (folderId: string) => {
     if ('vibrate' in navigator) {
       navigator.vibrate(10)
@@ -34,13 +34,13 @@ export default function MobileFolderList({ folders, onFolderSelect, onItemSelect
     })
   }
 
-  // 폴더 선택 핸들러 (Quick Access 업데이트용)
+  // Folder selection handler (for Quick Access updates)
   const handleFolderSelect = (folderId: string) => {
     if ('vibrate' in navigator) {
       navigator.vibrate(5)
     }
     
-    // Quick Access 빈도 업데이트 - 폴더를 찾아서 이름 가져오기
+    // Update Quick Access frequency - find folder and get name
     const findFolder = (folders: FolderItem[], id: string): FolderItem | null => {
       for (const folder of folders) {
         if (folder.id === id) return folder
@@ -59,7 +59,7 @@ export default function MobileFolderList({ folders, onFolderSelect, onItemSelect
     onFolderSelect?.(folderId)
   }
 
-  // 아이템 선택 핸들러
+  // Item selection handler
   const handleItemSelect = (item: StorageItem) => {
     if ('vibrate' in navigator) {
       navigator.vibrate(5)
@@ -100,7 +100,7 @@ export default function MobileFolderList({ folders, onFolderSelect, onItemSelect
   )
 }
 
-// 폴더 트리 노드 컴포넌트 - 확장/축소 가능한 트리 구조
+// Folder tree node component - Expandable/collapsible tree structure
 function FolderTreeNode({
   folder,
   level,
@@ -123,12 +123,12 @@ function FolderTreeNode({
 
   return (
     <div className="relative">
-      {/* 폴더 헤더 */}
+      {/* Folder header */}
       <motion.div
         className="flex items-center bg-white hover:bg-gray-50 border border-gray-100 rounded-lg overflow-hidden"
         whileTap={{ scale: 0.98 }}
       >
-        {/* 들여쓰기 */}
+        {/* Indentation */}
         {level > 0 && (
           <div 
             className="flex-shrink-0"
@@ -136,7 +136,7 @@ function FolderTreeNode({
           />
         )}
         
-        {/* 확장/축소 버튼 */}
+        {/* Expand/collapse button */}
         <button
           onClick={() => onToggle(folder.id)}
           className="flex-shrink-0 w-8 h-10 flex items-center justify-center hover:bg-gray-100 transition-colors"
@@ -152,17 +152,17 @@ function FolderTreeNode({
           )}
         </button>
 
-        {/* 폴더 정보 - 클릭 가능한 영역 */}
+        {/* Folder info - Clickable area */}
         <button
           onClick={() => onFolderSelect?.(folder.id)}
           className="flex-1 flex items-center gap-2 px-2 py-2 hover:bg-gray-50 transition-colors text-left"
         >
-          {/* 폴더 아이콘 */}
+          {/* Folder icon */}
           <span className="text-sm flex-shrink-0">
-            {folder.style?.icon || '📁'}
+            {folder.icon || '📁'}
           </span>
           
-          {/* 폴더 이름과 정보 */}
+          {/* Folder name and info */}
           <div className="flex-1 min-w-0">
             <h3 className="font-medium text-gray-900 text-sm truncate">
               {folder.name}
@@ -176,7 +176,7 @@ function FolderTreeNode({
         </button>
       </motion.div>
 
-      {/* 확장된 하위 항목들 */}
+      {/* Expanded sub-items */}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -187,7 +187,7 @@ function FolderTreeNode({
             className="overflow-hidden mt-2"
           >
             <div className="space-y-1 ml-4">
-              {/* 하위 폴더들 */}
+              {/* Sub-folders */}
               {subFolders.map((subFolder) => (
                 <FolderTreeNode
                   key={subFolder.id}
@@ -200,7 +200,7 @@ function FolderTreeNode({
                 />
               ))}
               
-              {/* 항목들 */}
+              {/* Items */}
               {items.map((item) => (
                 <ItemNode
                   key={item.id}
@@ -217,7 +217,7 @@ function FolderTreeNode({
   )
 }
 
-// 아이템 노드 컴포넌트 - 심플한 아이템 표시
+// Item node component - Simple item display
 function ItemNode({
   item,
   level,
@@ -238,19 +238,7 @@ function ItemNode({
     }
   }
 
-  const getTypeColor = (type: StorageItem['type']) => {
-    switch (type) {
-      case 'document': return '#3B82F6'
-      case 'image': return '#10B981'
-      case 'video': return '#F59E0B'
-      case 'url': return '#8B5CF6'
-      case 'memo': return '#F59E0B'
-      default: return '#6B7280'
-    }
-  }
-
   const Icon = getIcon(item.type)
-  const typeColor = getTypeColor(item.type)
 
   return (
     <motion.button
@@ -258,7 +246,7 @@ function ItemNode({
       className="w-full flex items-center bg-white hover:bg-gray-50 border border-gray-100 rounded-lg overflow-hidden transition-colors"
       whileTap={{ scale: 0.98 }}
     >
-      {/* 들여쓰기 */}
+      {/* Indentation */}
       {level > 0 && (
         <div 
           className="flex-shrink-0"
@@ -266,24 +254,24 @@ function ItemNode({
         />
       )}
       
-      {/* 빈 공간 (확장 버튼 자리) */}
+      {/* Empty space (expand button area) */}
       <div className="w-8 flex items-center justify-center">
         <div className="w-1 h-1 bg-gray-300 rounded-full" />
       </div>
 
-      {/* 아이템 정보 */}
+      {/* Item info */}
       <div className="flex-1 flex items-center gap-2 px-2 py-2 text-left">
-        {/* 아이템 아이콘 */}
+        {/* Item icon */}
         <Icon size={14} className="flex-shrink-0 text-gray-500" />
         
-        {/* 아이템 이름 */}
+        {/* Item name */}
         <div className="flex-1 min-w-0">
           <p className="text-gray-900 text-sm truncate">
             {(item.metadata?.title as string) || item.name}
           </p>
         </div>
         
-        {/* 타입 라벨 */}
+        {/* Type label */}
         <span className="text-xs text-gray-400 flex-shrink-0">
           {item.type}
         </span>

@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
-import TopNavigation from './TopNavigation'
 import MobileFolderList from './MobileFolderList'
 import FolderBreadcrumb from './FolderBreadcrumb'
 import FloatingInputButton from './FloatingInputButton'
@@ -29,28 +28,21 @@ export default function MobileWorkspace({
   onFoldersChange,
   onFolderSelect: parentOnFolderSelect
 }: MobileWorkspaceProps) {
-  const { state, updateNavigation } = useCrossPlatformState()
+  const { state } = useCrossPlatformState()
   const device = useDevice()
   const [editingItem, setEditingItem] = useState<StorageItem | null>(null)
   const [showQuickNoteModal, setShowQuickNoteModal] = useState(false)
   const [showBigNoteModal, setShowBigNoteModal] = useState(false)
   const [currentFolderPath, setCurrentFolderPath] = useState<string[]>([])
 
-  // PC에서는 렌더링하지 않음
+  // Don't render on desktop
   if (device.isDesktop) return null
 
-  // 탭 변경 핸들러
-  const handleTabChange = (tab: 'my-folder' | 'bookmarks' | 'market-place') => {
-    updateNavigation({
-      activeTab: tab
-    })
-  }
-
-  // 폴더 선택 핸들러
+  // Folder selection handler
   const handleFolderSelect = (folderId: string, folderName?: string) => {
     parentOnFolderSelect(folderId)
     
-    // 브레드크럼 경로 업데이트
+    // Update breadcrumb path
     if (folderId && folderId !== 'root') {
       setCurrentFolderPath(prev => [...prev, folderId])
     } else {
@@ -59,14 +51,14 @@ export default function MobileWorkspace({
     console.log(`Mobile: Selected folder ${folderId} (${folderName})`)
   }
   
-  // 브레드크럼 네비게이션 핸들러
+  // Breadcrumb navigation handler
   const handleBreadcrumbNavigate = (folderId: string) => {
     if (folderId === '' || folderId === 'root') {
-      // 루트로 이동
+      // Navigate to root
       setCurrentFolderPath([])
       parentOnFolderSelect('')
     } else {
-      // 해당 폴더의 인덱스 찾기
+      // Find folder index
       const index = currentFolderPath.indexOf(folderId)
       if (index !== -1) {
         setCurrentFolderPath(currentFolderPath.slice(0, index + 1))
@@ -75,7 +67,7 @@ export default function MobileWorkspace({
     }
   }
 
-  // 아이템 추가 핸들러 (WorkspaceContent와 동일한 로직)
+  // Item addition handler (same logic as WorkspaceContent)
   const addItemToFolder = (folders: FolderItem[], folderId: string, item: StorageItem): FolderItem[] => {
     return folders.map(folder => {
       if (folder.id === folderId) {
@@ -85,7 +77,7 @@ export default function MobileWorkspace({
         }
       }
       
-      // 하위 폴더에서 재귀적으로 검색
+      // Recursively search in subfolders
       const updatedChildren = folder.children.map(child => {
         if (child.type === 'folder') {
           const updatedSubfolders = addItemToFolder([child as FolderItem], folderId, item)
@@ -106,31 +98,31 @@ export default function MobileWorkspace({
     onFoldersChange(updatedFolders)
   }
   
-  // SharedFolder를 FolderItem으로 변환하여 추가
+  // Convert SharedFolder to FolderItem and add
   const handleImportSharedFolder = (sharedFolder: SharedFolder) => {
     const newFolder = createFolder(
       sharedFolder.title,
       undefined,
       {
-        color: '#3B82F6', // 기본 블루 색상
+        color: '#3B82F6', // Default blue color
         icon: '📁'
       }
     )
     
-    // 루트 레벨에 추가
+    // Add to root level
     const updatedFolders = [newFolder, ...folders]
     onFoldersChange(updatedFolders)
   }
 
-  // 아이템 선택 핸들러
+  // Item selection handler
   const handleItemSelect = (item: StorageItem) => {
-    // URL이나 비디오는 새 창에서 열기
+    // Open URLs or videos in new window
     if (item.type === 'url' || item.type === 'video') {
       window.open(item.content, '_blank')
       return
     }
 
-    // 메모/문서는 해당 모달에서 열기
+    // Open memos/documents in respective modals
     if (item.type === 'memo' || item.type === 'document') {
       setEditingItem(item)
       if (item.type === 'memo') {
@@ -141,13 +133,13 @@ export default function MobileWorkspace({
     }
   }
 
-  // 현재 활성 탭에 따른 콘텐츠 렌더링
+  // Render content based on current active tab
   const renderContent = () => {
     switch (state.navigation.activeTab) {
       case 'my-folder':
         return (
           <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
-            {/* 폴더 브레드크럼 */}
+            {/* Folder breadcrumb */}
             {currentFolderPath.length > 0 && (
               <FolderBreadcrumb
                 folders={folders}
@@ -168,7 +160,7 @@ export default function MobileWorkspace({
               />
             </div>
 
-            {/* Floating Input Button - 모바일 전용 */}
+            {/* Floating Input Button - Mobile only */}
             <FloatingInputButton
               folders={folders}
               selectedFolderId={selectedFolderId}
@@ -205,7 +197,7 @@ export default function MobileWorkspace({
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      {/* 메인 콘텐츠 */}
+      {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {renderContent()}
       </div>
@@ -235,7 +227,7 @@ export default function MobileWorkspace({
               }
               
               if (editingItem) {
-                // 기존 아이템 수정 로직 필요
+                // TODO: Existing item edit logic needed
                 console.log('Edit existing item:', item)
               } else {
                 handleAddItem(item, folderId)
@@ -272,7 +264,7 @@ export default function MobileWorkspace({
               }
               
               if (editingItem) {
-                // 기존 아이템 수정 로직 필요
+                // TODO: Existing item edit logic needed
                 console.log('Edit existing item:', item)
               } else {
                 handleAddItem(item, folderId)

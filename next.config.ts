@@ -57,6 +57,7 @@ const nextConfig: NextConfig = {
   },
   // Enable experimental features for better performance
   experimental: {
+    appDir: true,
     optimizePackageImports: ['@vercel/analytics', 'lucide-react', 'framer-motion']
   },
   

@@ -33,7 +33,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [sidebarCollapsed] = useState(false)
   const [sidebarVisible, setSidebarVisible] = useState(true)
   const [isFirstTime, setIsFirstTime] = useState(false)
   const [showQuickNoteModal, setShowQuickNoteModal] = useState(false)
@@ -201,26 +201,44 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
   }
 
   const handleStartMyFolder = () => {
-    if (!confirm('This will clear all sample data and start fresh. Are you sure?')) {
+    if (!confirm('모든 샘플 데이터를 삭제하고 새로 시작하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.')) {
       return
     }
     
-    // Set initial empty folders
-    const initialFolders = createInitialFolders()
-    setFolders(initialFolders)
-    setSelectedFolderId(initialFolders[0].id)
-    setExpandedFolders(new Set())
-    setIsFirstTime(false)
-    
-    // Save to localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('koouk-folders', JSON.stringify(initialFolders))
-      localStorage.setItem('koouk-selected-folder', initialFolders[0].id)
-      localStorage.setItem('koouk-expanded-folders', JSON.stringify([]))
+    try {
+      // Clear all existing data completely
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('koouk-folders')
+        localStorage.removeItem('koouk-selected-folder')
+        localStorage.removeItem('koouk-expanded-folders')
+        localStorage.removeItem('koouk-shared-folders')
+      }
+      
+      // Create only one empty folder
+      const emptyFolder = createFolder('', undefined, { color: '#6B7280', icon: '📁' })
+      const initialFolders = [emptyFolder]
+      
+      setFolders(initialFolders)
+      setSelectedFolderId(emptyFolder.id)
+      setExpandedFolders(new Set())
+      setIsFirstTime(false)
+      
+      // Save to localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('koouk-folders', JSON.stringify(initialFolders))
+        localStorage.setItem('koouk-selected-folder', emptyFolder.id)
+        localStorage.setItem('koouk-expanded-folders', JSON.stringify([]))
+      }
+      
+      // Update search engine
+      searchEngine.updateIndex(initialFolders)
+      
+      alert('✨ 완료! 새로운 시작입니다. 첫 번째 폴더의 이름을 지어주세요!')
+      
+    } catch (error) {
+      console.error('Failed to clear data:', error)
+      alert('데이터 초기화 중 오류가 발생했습니다. 페이지를 새로고침 해주세요.')
     }
-    
-    // Update search engine
-    searchEngine.updateIndex(initialFolders)
   }
 
   const handleShareFolder = (folderId: string) => {
@@ -393,32 +411,25 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
     <div>
       {/* Mobile responsive container */}
       <div className="flex h-full relative">
-        {/* Hamburger menu toggle button - Always visible on desktop */}
-        <button
-          onClick={() => {
-            if (device.isMobile || device.isTablet) {
-              setSidebarVisible(!sidebarVisible)
-            } else {
-              setSidebarCollapsed(!sidebarCollapsed)
-            }
-          }}
-          className={`
-            fixed top-20 z-50 p-2.5 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200
-            ${sidebarCollapsed && !device.isMobile ? 'left-4' : sidebarVisible ? 'left-72' : 'left-4'}
-          `}
-        >
-          <Menu className="w-4 h-4 text-gray-600" />
-        </button>
+        {/* Hamburger menu toggle button - Only visible on mobile/tablet, not on desktop */}
+        {device.isMobile && (
+          <button
+            onClick={() => setSidebarVisible(!sidebarVisible)}
+            className="fixed top-20 left-4 z-50 p-2.5 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+          >
+            <Menu className="w-4 h-4 text-gray-600" />
+          </button>
+        )}
 
-        {/* Sidebar */}
+        {/* Sidebar - Always visible on desktop, toggleable on mobile */}
         <div className={`
-          ${device.isMobile || device.isTablet 
+          ${device.isMobile 
             ? `${sidebarVisible ? 'translate-x-0' : '-translate-x-full'} fixed w-64` 
-            : `${sidebarCollapsed ? 'w-0 -translate-x-full' : 'w-64 translate-x-0'} relative`
+            : 'w-64 translate-x-0 relative'
           }
           h-full border-r border-gray-100 bg-white
           transition-all duration-300 ease-in-out
-          ${device.isMobile || device.isTablet ? 'z-40' : 'z-auto'}
+          ${device.isMobile ? 'z-40' : 'z-auto'}
           overflow-hidden
         `}>
           <div className="w-64 h-full">
@@ -469,16 +480,29 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
                 </p>
               </div>
             ) : (
-              <button
-                onClick={() => handleCreateFolder()}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 
-                           text-xs font-medium text-gray-700 hover:text-gray-900 
-                           hover:bg-gray-50 rounded-lg transition-all duration-150
-                           border border-gray-200 hover:border-gray-300 hover:shadow-sm"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Create New Folder
-              </button>
+              <div className="space-y-2">
+                <button
+                  onClick={() => handleCreateFolder()}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 
+                             text-xs font-medium text-gray-700 hover:text-gray-900 
+                             hover:bg-gray-50 rounded-lg transition-all duration-150
+                             border border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Create New Folder
+                </button>
+                
+                <button
+                  onClick={handleStartMyFolder}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-1.5 
+                             text-xs font-medium text-red-600 hover:text-red-700 
+                             hover:bg-red-50 rounded-lg transition-all duration-150
+                             border border-red-200 hover:border-red-300"
+                >
+                  <span>🗑️</span>
+                  <span>Clear All & Start Fresh</span>
+                </button>
+              </div>
             )}
           </div>
 
@@ -542,8 +566,8 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
           </div>
         )}
 
-        {/* Mobile overlay */}
-        {sidebarVisible && (device.isMobile || device.isTablet) && (
+        {/* Mobile overlay - Only show on mobile */}
+        {sidebarVisible && device.isMobile && (
           <div 
             className="fixed inset-0 bg-black bg-opacity-50 z-30"
             onClick={() => setSidebarVisible(false)}
@@ -552,7 +576,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
 
         {/* Main Content Area */}
         <div className={`
-          ${device.isMobile || device.isTablet 
+          ${device.isMobile 
             ? 'flex-1' 
             : sidebarCollapsed 
               ? 'flex-1' 

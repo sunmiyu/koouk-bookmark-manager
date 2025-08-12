@@ -51,52 +51,36 @@ export default function TopNavigation({ activeTab, onTabChange }: TopNavigationP
   }
 
   return (
-    <div className="bg-white border-b border-gray-100">
-      {/* 탭 네비게이션 */}
-      <div className="flex border-b border-gray-100">
-        {tabs.map((tab) => {
-          // 활성 탭 확인
-          const appTabMap = {
-            'my-folder': 'my-folder',
-            'bookmarks': 'bookmarks', 
-            'marketplace': 'market-place'
-          }
-          const isActive = activeTab ? appTabMap[activeTab] === tab.id : state.navigation.activeTab === tab.id
+    <div className="flex">
+      {tabs.map((tab) => {
+        // 활성 탭 확인
+        const appTabMap = {
+          'my-folder': 'my-folder',
+          'bookmarks': 'bookmarks', 
+          'marketplace': 'market-place'
+        }
+        const isActive = activeTab ? appTabMap[activeTab] === tab.id : state.navigation.activeTab === tab.id
 
-          return (
-            <motion.button
-              key={tab.id}
-              onClick={() => handleTabPress(tab.id)}
-              className={`
-                flex-1 px-4 py-3 text-sm font-medium relative
-                border-b-2 transition-colors duration-200
-                min-h-[44px] flex items-center justify-center
-                ${isActive 
-                  ? 'border-black text-black' 
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }
-              `}
-              whileTap={{ scale: 0.98 }}
-            >
-              <span className="relative z-10">
-                {tab.label}
-              </span>
-              
-              {/* 활성 상태 배경 효과 (미묘한) */}
-              {isActive && (
-                <motion.div
-                  className="absolute inset-0 bg-gray-50"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.2 }}
-                />
-              )}
-            </motion.button>
-          )
-        })}
-      </div>
-
-
+        return (
+          <motion.button
+            key={tab.id}
+            onClick={() => handleTabPress(tab.id)}
+            className={`
+              px-3 py-2 text-sm font-medium relative
+              transition-colors duration-200 rounded-md
+              ${isActive 
+                ? 'bg-gray-100 text-black' 
+                : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+              }
+            `}
+            whileTap={{ scale: 0.98 }}
+          >
+            <span className="relative z-10">
+              {tab.label}
+            </span>
+          </motion.button>
+        )
+      })}
     </div>
   )
 }

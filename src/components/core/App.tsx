@@ -15,8 +15,10 @@ import { createFolder } from '@/types/folder'
 import SearchInterface from '../ui/SearchInterface'
 import FeedbackModal from '../modals/FeedbackModal'
 import TopNavigation from '../mobile/TopNavigation'
+import { useDevice } from '@/hooks/useDevice'
 
 export default function App() {
+  const device = useDevice()
   const [activeTab, setActiveTab] = useState<'my-folder' | 'marketplace' | 'bookmarks'>('my-folder')
   const [searchQuery, setSearchQuery] = useState('')
   const [showUserMenu, setShowUserMenu] = useState(false)
@@ -92,30 +94,54 @@ export default function App() {
   const { user } = useAuth()
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    setShowUserMenu(false)
+    try {
+      console.log('Starting sign out process...')
+      
+      // Clear all localStorage data completely
+      const keysToRemove = [
+        'koouk-folders',
+        'koouk-selected-folder', 
+        'koouk-expanded-folders',
+        'koouk-shared-folders',
+        'koouk-shared-content'
+      ]
+      
+      keysToRemove.forEach(key => {
+        localStorage.removeItem(key)
+        console.log(`Cleared localStorage key: ${key}`)
+      })
+      
+      // Clear all sessionStorage as well
+      sessionStorage.clear()
+      console.log('Cleared sessionStorage')
+      
+      // Sign out from Supabase
+      console.log('Signing out from Supabase...')
+      await supabase.auth.signOut()
+      setShowUserMenu(false)
+      
+      console.log('Sign out successful, reloading page...')
+      
+      // Small delay to ensure everything is cleared before reload
+      setTimeout(() => {
+        window.location.reload()
+      }, 100)
+      
+    } catch (error) {
+      console.error('Sign out error:', error)
+      // Still reload page even if there's an error
+      window.location.reload()
+    }
   }
 
   return (
     <div className="min-h-screen bg-white px-0 sm:px-4">
-      {/* Mobile Top Navigation */}
-      <TopNavigation 
-        activeTab={activeTab}
-        onTabChange={(tab) => {
-          const tabMap = {
-            'my-folder': 'my-folder' as const,
-            'bookmarks': 'bookmarks' as const, 
-            'market-place': 'marketplace' as const
-          }
-          setActiveTab(tabMap[tab])
-        }}
-      />
-
       {/* Vercel-style Header */}
       <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
         <div className="w-full bg-white">
           <div className="w-full px-4 sm:px-8 sm:max-w-6xl sm:mx-auto">
             <div className="flex items-center justify-between h-16">
+              {!device.isDesktop && <div className="w-0" />} {/* Spacer for mobile layout */}
               {/* Logo */}
               <div className="flex items-center">
                 <button 
@@ -131,6 +157,16 @@ export default function App() {
                   />
                 </button>
               </div>
+
+              {/* Center - Mobile Navigation Tabs */}
+              {!device.isDesktop && (
+                <div className="flex-1 flex justify-center mx-4">
+                  <TopNavigation 
+                    activeTab={activeTab === 'marketplace' ? 'marketplace' : activeTab}
+                    onTabChange={(tab) => setActiveTab(tab === 'market-place' ? 'marketplace' : tab)}
+                  />
+                </div>
+              )}
 
               {/* Right side elements */}
               <div className="flex items-center gap-0.5 sm:gap-3">

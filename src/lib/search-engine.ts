@@ -1,9 +1,8 @@
-// 단일 검색 라이브러리만 사용하여 번들 크기 최적화
-import Hangul from 'hangul-js'
-import { FolderItem, StorageItem } from '@/types/folder'
+// Optimized search library for English-only content
+import { FolderItem } from '@/types/folder'
 import { SharedFolder } from '@/types/share'
 
-// 검색 인덱스 타입 정의
+// Search index type definition
 interface SearchableItem {
   id: string
   name: string
@@ -15,262 +14,162 @@ interface SearchableItem {
   description?: string
 }
 
-// 한국어 텍스트 처리 유틸리티
-class KoreanTextProcessor {
-  // 한글 분해 및 초성 검색 지원
-  static disassemble(text: string): string {
-    return Hangul.disassemble(text).join('')
+// English text processing utility
+class EnglishTextProcessor {
+  // Simple text normalization
+  static normalize(text: string): string {
+    return text.toLowerCase().trim()
   }
 
-  // 초성으로 검색
-  static getInitialConsonants(text: string): string {
-    const initials = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ']
-    return text.split('').map(char => {
-      const code = char.charCodeAt(0)
-      if (code >= 0xAC00 && code <= 0xD7A3) {
-        const index = Math.floor((code - 0xAC00) / 588)
-        return initials[index]
-      }
-      return char
-    }).join('')
-  }
-
-  // 한글 자동완성을 위한 유사도 계산
+  // Calculate similarity score for search results
   static getSimilarity(query: string, target: string): number {
-    const queryDisassembled = this.disassemble(query.toLowerCase())
-    const targetDisassembled = this.disassemble(target.toLowerCase())
-    
-    // 초성 매칭 점수
-    const queryInitials = this.getInitialConsonants(query)
-    const targetInitials = this.getInitialConsonants(target)
+    const normalizedQuery = this.normalize(query)
+    const normalizedTarget = this.normalize(target)
     
     let score = 0
     
-    // 완전 매칭
-    if (target.toLowerCase().includes(query.toLowerCase())) {
+    // Exact match
+    if (normalizedTarget.includes(normalizedQuery)) {
       score += 100
     }
     
-    // 분해된 한글 매칭
-    if (targetDisassembled.includes(queryDisassembled)) {
-      score += 80
-    }
+    // Word boundary match
+    const queryWords = normalizedQuery.split(' ')
+    const targetWords = normalizedTarget.split(' ')
     
-    // 초성 매칭
-    if (targetInitials.includes(queryInitials)) {
-      score += 60
-    }
+    queryWords.forEach(queryWord => {
+      targetWords.forEach(targetWord => {
+        if (targetWord.startsWith(queryWord)) {
+          score += 50
+        } else if (targetWord.includes(queryWord)) {
+          score += 25
+        }
+      })
+    })
     
-    // 부분 매칭
-    const commonChars = query.split('').filter(char => target.includes(char)).length
-    score += (commonChars / query.length) * 40
-    
+    // Tag matching
     return score
+  }
+
+  // Check if query matches target text
+  static matches(query: string, target: string): boolean {
+    const normalizedQuery = this.normalize(query)
+    const normalizedTarget = this.normalize(target)
+    
+    // Split query into words
+    const queryWords = normalizedQuery.split(' ').filter(word => word.length > 0)
+    
+    // Check if all query words are found in target
+    return queryWords.every(word => 
+      normalizedTarget.includes(word)
+    )
   }
 }
 
-// 최적화된 검색 엔진 (한국어 특화)
-export class UniversalSearchEngine {
-  private items: SearchableItem[] = []
+// Universal search engine for English content
+class UniversalSearchEngine {
+  private searchIndex: SearchableItem[] = []
 
-  constructor() {
-    // 최적화: 외부 라이브러리 없이 네이티브 검색 구현
-  }
-
-  // 데이터 인덱싱
-  indexFolders(folders: FolderItem[]) {
-    const items: SearchableItem[] = []
+  // Update search index with folders and items
+  updateIndex(folders: FolderItem[], sharedFolders: SharedFolder[] = []) {
+    this.searchIndex = []
     
-    const processFolders = (folderList: FolderItem[], parentPath = '') => {
-      for (const folder of folderList) {
-        const fullPath = parentPath ? `${parentPath} > ${folder.name}` : folder.name
-        
-        // 폴더 자체 인덱싱
-        items.push({
-          id: folder.id,
-          name: folder.name,
-          content: fullPath,
-          type: 'folder',
-          tags: [],
-          description: `폴더: ${fullPath}`
-        })
+    // Index folders recursively
+    this.indexFolders(folders)
+    
+    // Index shared folders
+    sharedFolders.forEach(folder => {
+      this.searchIndex.push({
+        id: folder.id,
+        name: folder.title,
+        content: '',
+        type: 'shared',
+        category: folder.category,
+        tags: folder.tags || [],
+        description: folder.description
+      })
+    })
+  }
 
-        // 폴더 내 아이템들 인덱싱
-        folder.children.forEach(child => {
-          if (child.type !== 'folder') {
-            const item = child as StorageItem
-            items.push({
-              id: item.id,
-              name: item.name,
-              content: item.content,
-              type: 'storage',
-              tags: item.tags,
-              folderId: folder.id,
-              description: item.description || ''
-            })
-          }
-        })
+  private indexFolders(folders: FolderItem[]) {
+    folders.forEach(folder => {
+      // Index folder itself
+      this.searchIndex.push({
+        id: folder.id,
+        name: folder.name,
+        content: '',
+        type: 'folder',
+        tags: [],
+        folderId: folder.parentId
+      })
 
-        // 하위 폴더 재귀 처리
-        const subfolders = folder.children.filter(child => child.type === 'folder') as FolderItem[]
-        if (subfolders.length > 0) {
-          processFolders(subfolders, fullPath)
+      // Index folder contents
+      folder.children.forEach(item => {
+        if (item.type !== 'folder') {
+          this.searchIndex.push({
+            id: item.id,
+            name: item.name,
+            content: item.content || '',
+            type: 'storage',
+            tags: item.tags || [],
+            folderId: folder.id
+          })
         }
+      })
+
+      // Recursively index subfolders
+      const subfolders = folder.children.filter(child => child.type === 'folder') as FolderItem[]
+      if (subfolders.length > 0) {
+        this.indexFolders(subfolders)
       }
-    }
-
-    processFolders(folders)
-    this.updateIndex(items)
+    })
   }
 
-  // 공유 폴더 인덱싱
-  indexSharedFolders(sharedFolders: SharedFolder[]) {
-    const items: SearchableItem[] = sharedFolders.map(folder => ({
-      id: folder.id,
-      name: folder.title,
-      content: folder.description,
-      type: 'shared',
-      category: folder.category,
-      tags: folder.tags,
-      description: folder.description
-    }))
-
-    this.updateIndex([...this.items, ...items])
-  }
-
-  private updateIndex(items: SearchableItem[]) {
-    this.items = items
-  }
-
-  // 통합 검색 (한국어/영어 모두 지원)
+  // Search with query
   search(query: string, options: {
-    type?: 'folder' | 'storage' | 'shared' | 'all'
+    type?: 'folder' | 'storage' | 'shared'
     category?: string
     limit?: number
-    useKoreanFeatures?: boolean
   } = {}): SearchableItem[] {
     if (!query.trim()) return []
 
-    const {
-      type = 'all',
-      category,
-      limit = 20,
-      useKoreanFeatures = true
-    } = options
+    const { type, category, limit = 50 } = options
+    
+    let results = this.searchIndex.filter(item => {
+      // Type filter
+      if (type && item.type !== type) return false
+      
+      // Category filter
+      if (category && item.category !== category) return false
+      
+      // Text matching
+      const searchText = `${item.name} ${item.content} ${item.tags.join(' ')}`
+      return EnglishTextProcessor.matches(query, searchText)
+    })
 
-    let results: SearchableItem[] = []
+    // Sort by relevance score
+    const scoredResults = results.map(item => ({
+      ...item,
+      score: EnglishTextProcessor.getSimilarity(query, `${item.name} ${item.content}`)
+    }))
+    
+    scoredResults.sort((a, b) => b.score - a.score)
+    results = scoredResults
 
-    // 한국어 특화 검색
-    if (useKoreanFeatures && /[ㄱ-ㅎ가-힣]/.test(query)) {
-      results = this.koreanSearch(query)
-    } else {
-      // 영어 또는 일반 검색
-      results = this.generalSearch(query)
-    }
-
-    // 타입 필터링
-    if (type !== 'all') {
-      results = results.filter(item => item.type === type)
-    }
-
-    // 카테고리 필터링
-    if (category) {
-      results = results.filter(item => item.category === category)
-    }
-
-    // 결과 제한
     return results.slice(0, limit)
   }
 
-  private koreanSearch(query: string): SearchableItem[] {
-    const results: Array<{ item: SearchableItem; score: number }> = []
-
-    // 한국어 특화 검색 (초성, 분해 등)
-    this.items.forEach(item => {
-      const koreanScore = Math.max(
-        KoreanTextProcessor.getSimilarity(query, item.name),
-        KoreanTextProcessor.getSimilarity(query, item.content),
-        KoreanTextProcessor.getSimilarity(query, item.description || '')
-      )
-
-      if (koreanScore > 30) {
-        results.push({ item, score: koreanScore })
-      }
-    })
-
-    // 점수순으로 정렬하고 중복 제거
-    return results
-      .sort((a, b) => b.score - a.score)
-      .map(r => r.item)
-      .filter((item, index, array) => array.findIndex(i => i.id === item.id) === index)
-  }
-
-  private generalSearch(query: string): SearchableItem[] {
-    const results: Array<{ item: SearchableItem; score: number }> = []
-    const queryLower = query.toLowerCase()
-
-    // 네이티브 문자열 매칭 (외부 라이브러리 없이)
-    this.items.forEach(item => {
-      let score = 0
-      const name = item.name.toLowerCase()
-      const content = item.content.toLowerCase()
-      const description = (item.description || '').toLowerCase()
-      
-      // 완전 매칭
-      if (name === queryLower) score += 100
-      else if (name.includes(queryLower)) score += 80
-      
-      if (content.includes(queryLower)) score += 60
-      if (description.includes(queryLower)) score += 40
-      
-      // 태그 매칭
-      item.tags.forEach(tag => {
-        if (tag.toLowerCase().includes(queryLower)) score += 30
-      })
-      
-      // 부분 매칭
-      const words = queryLower.split(' ')
-      words.forEach(word => {
-        if (word && (name.includes(word) || content.includes(word))) {
-          score += 20
-        }
-      })
-      
-      if (score > 0) {
-        results.push({ item, score })
-      }
-    })
-
-    // 점수순으로 정렬
-    return results
-      .sort((a, b) => b.score - a.score)
-      .map(r => r.item)
-  }
-
-  // 자동완성 제안
-  getSuggestions(query: string, limit = 5): string[] {
+  // Get search suggestions
+  getSuggestions(query: string, limit: number = 5): string[] {
     if (!query.trim()) return []
 
     const suggestions = new Set<string>()
-
-    this.items.forEach(item => {
-      // 이름에서 제안
-      if (item.name.toLowerCase().includes(query.toLowerCase())) {
-        suggestions.add(item.name)
-      }
-
-      // 한국어의 경우 초성 매칭도 확인
-      if (/[ㄱ-ㅎ가-힣]/.test(query)) {
-        const similarity = KoreanTextProcessor.getSimilarity(query, item.name)
-        if (similarity > 50) {
-          suggestions.add(item.name)
-        }
-      }
-
-      // 태그에서 제안
-      item.tags.forEach(tag => {
-        if (tag.toLowerCase().includes(query.toLowerCase())) {
-          suggestions.add(tag)
+    
+    this.searchIndex.forEach(item => {
+      const words = `${item.name} ${item.content}`.toLowerCase().split(/\s+/)
+      words.forEach(word => {
+        if (word.startsWith(query.toLowerCase()) && word !== query.toLowerCase()) {
+          suggestions.add(word)
         }
       })
     })
@@ -278,22 +177,14 @@ export class UniversalSearchEngine {
     return Array.from(suggestions).slice(0, limit)
   }
 
-  // 인기 검색어 (향후 구현을 위한 준비)
+  // Get popular queries (placeholder implementation)
   getPopularQueries(): string[] {
-    // 실제로는 사용자 검색 로그를 분석해야 함
-    return ['재테크', '패션', '레시피', '맛집', '육아', '투자']
-  }
-
-  // 검색 통계
-  getStats() {
-    return {
-      totalItems: this.items.length,
-      folders: this.items.filter(item => item.type === 'folder').length,
-      storageItems: this.items.filter(item => item.type === 'storage').length,
-      sharedFolders: this.items.filter(item => item.type === 'shared').length
-    }
+    // Return some common search terms as placeholders
+    return ['documents', 'notes', 'images', 'bookmarks', 'folders']
   }
 }
 
-// 전역 검색 엔진 인스턴스
+// Export singleton instance
 export const searchEngine = new UniversalSearchEngine()
+export { EnglishTextProcessor }
+export type { SearchableItem }

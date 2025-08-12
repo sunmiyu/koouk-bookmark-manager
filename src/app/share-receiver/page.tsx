@@ -38,7 +38,7 @@ function ShareReceiverContent() {
   const [newFolderName, setNewFolderName] = useState('')
 
   useEffect(() => {
-    // 사용자 폴더 목록 로드
+    // Load user folder list
     const loadUserFolders = () => {
       try {
         const savedFolders = localStorage.getItem('koouk-folders')
@@ -56,12 +56,12 @@ function ShareReceiverContent() {
 
     loadUserFolders()
 
-    // URL에서 공유받은 데이터 추출
+    // Extract shared data from URL
     const title = searchParams?.get('title') || ''
     const text = searchParams?.get('text') || ''
     const url = searchParams?.get('url') || ''
     
-    // 콘텐츠 타입 자동 감지
+    // Auto-detect content type
     let detectedType: SharedContent['type'] = 'memo'
     
     if (url) {
@@ -90,17 +90,17 @@ function ShareReceiverContent() {
     const newFolder = createFolder(newFolderName.trim())
     const updatedFolders = [...userFolders, newFolder]
     
-    // localStorage에 새 폴더 추가
+    // Add new folder to localStorage
     localStorage.setItem('koouk-folders', JSON.stringify(updatedFolders))
     
-    // 상태 업데이트
+    // Update state
     setUserFolders(updatedFolders)
     setSelectedFolder(newFolder.id)
     setNewFolderName('')
     setShowNewFolderInput(false)
   }
 
-  // 실제 내 폴더에 직접 저장
+  // Save directly to My Folder
   const addItemToFolder = (folders: FolderItem[], folderId: string, newItem: StorageItem): FolderItem[] => {
     return folders.map(folder => {
       if (folder.id === folderId) {
@@ -126,7 +126,7 @@ function ShareReceiverContent() {
     setSaving(true)
     
     try {
-      // 공유받은 콘텐츠를 StorageItem으로 생성
+      // Create StorageItem from shared content
       const content = sharedContent.url || sharedContent.text || ''
       const newItem = createStorageItem(
         sharedContent.title || 'Shared Content',
@@ -135,17 +135,17 @@ function ShareReceiverContent() {
         selectedFolder
       )
       
-      // 실제 내 폴더에 아이템 추가
+      // Add item to My Folder
       const updatedFolders = addItemToFolder(userFolders, selectedFolder, newItem)
       
-      // localStorage에 저장
+      // Save to localStorage
       localStorage.setItem('koouk-folders', JSON.stringify(updatedFolders))
       
       await new Promise(resolve => setTimeout(resolve, 1000))
       
       setSaved(true)
       
-      // 2초 후 My Folder로 이동
+      // Navigate to My Folder after 2 seconds
       setTimeout(() => {
         router.push('/')
       }, 2000)
@@ -190,15 +190,15 @@ function ShareReceiverContent() {
           </div>
           
           <h2 className="text-xl font-bold text-gray-900 mb-2">
-            저장 완료!
+            Saved Successfully!
           </h2>
           
           <p className="text-gray-600 mb-6">
-            KOOUK에 성공적으로 저장되었습니다.
+            Successfully saved to KOOUK.
           </p>
           
           <div className="animate-pulse text-sm text-gray-500">
-            My Folder로 이동 중...
+            Redirecting to My Folder...
           </div>
         </motion.div>
       </div>
@@ -215,7 +215,7 @@ function ShareReceiverContent() {
               <span className="text-white font-bold text-sm">K</span>
             </div>
             <h1 className="text-lg font-semibold text-gray-900">
-              KOOUK에 저장
+              Save to KOOUK
             </h1>
           </div>
           
@@ -277,7 +277,7 @@ function ShareReceiverContent() {
               {/* Folder Selection */}
               <div className="space-y-4">
                 <label className="block text-sm font-medium text-gray-700">
-                  저장할 폴더 선택
+                  Select folder to save
                 </label>
                 
                 {/* User Folders */}
@@ -310,7 +310,7 @@ function ShareReceiverContent() {
                               {folder.name}
                             </span>
                             <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                              {folder.children.length}개
+                              {folder.children.length} items
                             </span>
                           </div>
                         </div>
@@ -335,7 +335,7 @@ function ShareReceiverContent() {
                     >
                       <div className="flex items-center justify-center gap-2">
                         <Plus className="w-4 h-4" />
-                        <span className="text-sm font-medium">새 폴더 만들기</span>
+                        <span className="text-sm font-medium">Create New Folder</span>
                       </div>
                     </button>
                   ) : (
@@ -345,7 +345,7 @@ function ShareReceiverContent() {
                           type="text"
                           value={newFolderName}
                           onChange={(e) => setNewFolderName(e.target.value)}
-                          placeholder="폴더 이름을 입력하세요..."
+                          placeholder="Enter folder name..."
                           className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') {
@@ -375,7 +375,7 @@ function ShareReceiverContent() {
                         </button>
                       </div>
                       <p className="text-xs text-blue-600 mt-2">
-                        Enter로 확인, Escape로 취소
+                        Press Enter to confirm, Escape to cancel
                       </p>
                     </div>
                   )}
@@ -384,8 +384,8 @@ function ShareReceiverContent() {
                 {userFolders.length === 0 && (
                   <div className="text-center py-8 text-gray-500">
                     <FolderOpen className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                    <p className="text-sm">아직 폴더가 없습니다.</p>
-                    <p className="text-xs text-gray-400 mt-1">새 폴더를 만들어서 시작해보세요!</p>
+                    <p className="text-sm">No folders yet.</p>
+                    <p className="text-xs text-gray-400 mt-1">Create a new folder to get started!</p>
                   </div>
                 )}
               </div>
@@ -398,7 +398,7 @@ function ShareReceiverContent() {
                   onClick={() => router.push('/')}
                   className="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
                 >
-                  취소
+                  Cancel
                 </button>
                 
                 <button
@@ -409,12 +409,12 @@ function ShareReceiverContent() {
                   {saving ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      저장 중...
+                      Saving...
                     </>
                   ) : (
                     <>
                       <Save className="w-4 h-4" />
-                      KOOUK에 저장
+                      Save to KOOUK
                     </>
                   )}
                 </button>

@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
-import { useTranslations } from 'next-intl'
 import { 
   FileText,
   Image as ImageIcon,
@@ -29,7 +28,6 @@ import { useDevice } from '@/hooks/useDevice'
 import { isYouTubeUrl, getYouTubeThumbnail } from '@/utils/youtube'
 
 export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: string }) {
-  const t = useTranslations('workspace')
   const device = useDevice()
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
@@ -125,7 +123,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
     saveToStorage(newFolders)
     
     // Update search engine index
-    searchEngine.indexFolders(newFolders)
+    searchEngine.updateIndex(newFolders)
   }
 
   const handleFolderSelect = (folderId: string) => {
@@ -145,7 +143,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
   }
 
   const handleCreateFolder = (parentId?: string) => {
-    const folderName = prompt(t('folder.create.namePrompt'), t('folder.defaultName'))
+    const folderName = prompt('Enter folder name:', 'New Folder')
     if (!folderName?.trim()) return
 
     const newFolder = createFolder(folderName.trim(), parentId)
@@ -175,7 +173,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
   }
 
   const handleDeleteFolder = (folderId: string) => {
-    if (!confirm(t('folder.delete.confirmMessage'))) {
+    if (!confirm('Are you sure you want to delete this folder?')) {
       return
     }
     
@@ -189,7 +187,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
   }
 
   const handleStartMyFolder = () => {
-    if (!confirm(t('folder.startMyFolder.confirmMessage'))) {
+    if (!confirm('This will clear all sample data and start fresh. Are you sure?')) {
       return
     }
     
@@ -208,43 +206,43 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
     }
     
     // Update search engine
-    searchEngine.indexFolders(initialFolders)
+    searchEngine.updateIndex(initialFolders)
   }
 
   const handleShareFolder = (folderId: string) => {
     const folderToShare = findFolderById(folders, folderId)
     if (!folderToShare) return
 
-    const title = prompt(t('folder.share.titlePrompt'), folderToShare.name)
+    const title = prompt('Enter title for sharing:', folderToShare.name)
     if (!title?.trim()) return
 
-    const description = prompt(t('folder.share.descriptionPrompt'), '')
+    const description = prompt('Enter description (optional):', '')
     if (description === null) return
 
-    const category = prompt(t('folder.share.categoryPrompt'), 'lifestyle')
+    const category = prompt('Enter category:', 'lifestyle')
     if (!category) return
 
     // Share success notification to Share Place
-    alert(t('folder.share.successMessage', { title }))
+    alert(`Folder '${title}' has been shared successfully!`)
   }
 
   const handleCreateItem = (type: StorageItem['type'], folderId: string) => {
     const typeLabels = {
-      document: t('itemType.document'),
-      memo: t('itemType.memo'),
-      image: t('itemType.image'),
-      video: t('itemType.video'),
-      url: t('itemType.url')
+      document: 'Document',
+      memo: 'Memo',
+      image: 'Image',
+      video: 'Video',
+      url: 'URL'
     }
     
-    const itemName = prompt(t('item.create.namePrompt', { type: typeLabels[type] }), t('item.create.defaultName', { type: typeLabels[type] }))
+    const itemName = prompt(`Enter ${typeLabels[type].toLowerCase()} name:`, `New ${typeLabels[type]}`)
     if (!itemName?.trim()) return
 
     let content = ''
     if (type === 'url') {
-      content = prompt(t('item.create.urlPrompt'), 'https://') || ''
+      content = prompt('Enter URL:', 'https://') || ''
     } else {
-      content = prompt(t('item.create.contentPrompt'), '') || ''
+      content = prompt('Enter content:', '') || ''
     }
 
     const newItem = createStorageItem(itemName.trim(), type, content, folderId)
@@ -302,7 +300,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
       <div className="h-96 flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-sm text-gray-500">{t('loading.folders')}</p>
+          <p className="text-sm text-gray-500">Loading folders...</p>
         </div>
       </div>
     )

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  // CORS 헤더 설정
+  // Set CORS headers
   const response = NextResponse.next()
   
-  // 허용할 도메인들
+  // Allowed domains
   const allowedOrigins = [
     'https://www.koouk.im',
     'https://koouk.im',
@@ -16,7 +16,7 @@ export function middleware(request: NextRequest) {
   const userAgent = request.headers.get('user-agent') || 'unknown'
   const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
   
-  // 의심스러운 활동 감지
+  // Detect suspicious activity
   const suspiciousPatterns = [
     'bot', 'crawler', 'spider', 'scraper', 'scanner'
   ]
@@ -24,9 +24,9 @@ export function middleware(request: NextRequest) {
     userAgent.toLowerCase().includes(pattern)
   )
   
-  // CORS 검증
+  // CORS validation
   if (origin && !allowedOrigins.includes(origin)) {
-    // 보안 이벤트 로깅 (서버 사이드에서는 직접 GA 호출 불가, 로그만)
+    // Security event logging (server-side cannot call GA directly, log only)
     console.warn('🚨 CORS Blocked:', {
       origin,
       endpoint: request.nextUrl.pathname,
@@ -43,7 +43,7 @@ export function middleware(request: NextRequest) {
     })
   }
   
-  // 의심스러운 활동 로깅
+  // Log suspicious activity
   if (isSuspicious) {
     console.warn('⚠️ Suspicious Activity:', {
       userAgent,
@@ -62,7 +62,7 @@ export function middleware(request: NextRequest) {
   response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   response.headers.set('Access-Control-Allow-Credentials', 'true')
   
-  // Preflight 요청 처리
+  // Handle preflight requests
   if (request.method === 'OPTIONS') {
     return new Response(null, { status: 200, headers: response.headers })
   }

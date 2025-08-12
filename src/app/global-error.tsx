@@ -10,7 +10,7 @@ export default function GlobalError({
   reset: () => void
 }) {
   return (
-    <html lang="ko">
+    <html lang="en">
       <head>
         <style dangerouslySetInnerHTML={{
           __html: `
@@ -82,14 +82,14 @@ export default function GlobalError({
                 marginBottom: '1rem',
                 color: 'var(--text-primary)'
               }}>
-                오류 발생
+                Error Occurred
               </h2>
               <p style={{ 
                 marginBottom: '2rem',
                 color: 'var(--text-secondary)',
                 fontSize: '1.125rem'
               }}>
-                페이지를 렌더링하는 중 오류가 발생했습니다.
+                An error occurred while rendering the page.
               </p>
             </div>
             
@@ -98,13 +98,13 @@ export default function GlobalError({
                 onClick={() => reset()}
                 className="btn-primary"
               >
-                다시 시도
+                Try Again
               </button>
               <Link
                 href="/"
                 className="btn-secondary"
               >
-                홈으로 이동
+                Go Home
               </Link>
             </div>
           </div>

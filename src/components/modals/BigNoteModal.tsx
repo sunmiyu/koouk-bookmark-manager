@@ -54,14 +54,14 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote, folder
 
   // Removed unused functions addTag and removeTag
 
-  // 모든 폴더를 재귀적으로 수집 (하위 폴더 포함)
+  // Recursively collect all folders (including subfolders)
   const getAllFolders = (folders: FolderItem[], depth: number = 0): Array<FolderItem & { depth: number }> => {
     const result: Array<FolderItem & { depth: number }> = []
     
     for (const folder of folders) {
       result.push({ ...folder, depth })
       
-      // 하위 폴더들 수집
+      // Collect subfolders
       const subfolders = folder.children.filter(child => child.type === 'folder') as FolderItem[]
       if (subfolders.length > 0) {
         result.push(...getAllFolders(subfolders, depth + 1))
@@ -96,7 +96,7 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote, folder
           <div className="flex items-center gap-3">
             <span className="text-2xl">📝</span>
             <h2 className="text-xl font-semibold text-gray-800">
-              {editNote ? '노트 수정' : '새 노트 작성'}
+              {editNote ? 'Edit Note' : 'Create New Note'}
             </h2>
           </div>
           <button
@@ -111,7 +111,7 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote, folder
 
         {/* Content */}
         <div className="p-8 pb-0 overflow-y-auto max-h-[70vh] relative">
-          {/* 공책 줄 효과 */}
+          {/* Notebook lines effect */}
           <div className="absolute inset-0 pointer-events-none pl-8 pr-8">
             {Array.from({ length: 30 }, (_, i) => (
               <div
@@ -125,7 +125,7 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote, folder
           {/* Title */}
           <input
             type="text"
-            placeholder="제목을 입력하세요..."
+            placeholder="Enter title..."
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onKeyPress={handleKeyPress}
@@ -133,9 +133,9 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote, folder
             autoFocus
           />
 
-          {/* Content - 줄에 맞춘 텍스트 */}
+          {/* Content - Text aligned to lines */}
           <textarea
-            placeholder="여기에 노트를 작성하세요..."
+            placeholder="Write your note here..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
             onKeyPress={handleKeyPress}
@@ -152,7 +152,7 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote, folder
         <div className="border-t border-gray-100 px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="text-xs text-gray-500">
-              {content.trim().split(/\s+/).filter(word => word.length > 0).length} 단어 • {content.trim().length} 글자
+              {content.trim().split(/\s+/).filter(word => word.length > 0).length} words • {content.trim().length} characters
             </div>
             <div className="flex items-center gap-3">
               {/* Folder Selection */}
@@ -161,7 +161,7 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote, folder
                 onChange={(e) => setTargetFolderId(e.target.value)}
                 className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:border-gray-500 text-sm"
               >
-                <option value="">폴더 선택</option>
+                <option value="">Select Folder</option>
                 {allFolders.map((folder) => (
                   <option key={folder.id} value={folder.id}>
                     {folder.depth > 0 && '└ '.repeat(folder.depth)}
@@ -173,14 +173,14 @@ export default function BigNoteModal({ isOpen, onClose, onSave, editNote, folder
                 onClick={onClose}
                 className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors text-sm"
               >
-                취소
+                Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={!title.trim() || !content.trim() || !targetFolderId}
                 className="px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
               >
-                {editNote ? '수정' : '저장'}
+                {editNote ? 'Update' : 'Save'}
               </button>
             </div>
           </div>

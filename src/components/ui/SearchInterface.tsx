@@ -30,7 +30,7 @@ export default function SearchInterface({
   searchQuery,
   onSearchChange,
   onResultSelect,
-  placeholder = '검색...',
+  placeholder = 'Search...',
   showSuggestions = true,
   searchScope = 'all',
   language = 'ko'
@@ -46,7 +46,7 @@ export default function SearchInterface({
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // 검색 실행
+  // Execute search
   useEffect(() => {
     const performSearch = async () => {
       if (!searchQuery.trim()) {
@@ -58,19 +58,18 @@ export default function SearchInterface({
       setIsSearching(true)
 
       try {
-        // 검색 범위에 따른 필터링
+        // Search scope filtering
         const searchOptions = {
           type: searchScope === 'my-folder' ? ('storage' as const) : 
                 searchScope === 'market-place' ? ('shared' as const) : 
-                ('all' as const),
-          limit: 10,
-          useKoreanFeatures: /[ㄱ-ㅎ가-힣]/.test(searchQuery)
+                undefined,
+          limit: 10
         }
 
         const searchResults = searchEngine.search(searchQuery, searchOptions)
         setResults(searchResults)
 
-        // 번역 제안 (한국어 ↔ 영어) - 임시 비활성화
+        // Translation suggestions (Korean ↔ English) - temporarily disabled
         // TODO: Implement translation service
         // if (searchQuery.trim().length > 1) {
         //   const detectedLang = translationService.detectLanguage(searchQuery)
@@ -96,7 +95,7 @@ export default function SearchInterface({
     return () => clearTimeout(debounceTimer)
   }, [searchQuery, searchScope, language])
 
-  // 자동완성 제안
+  // Auto-complete suggestions
   useEffect(() => {
     if (searchQuery.trim() && showSuggestions) {
       const newSuggestions = searchEngine.getSuggestions(searchQuery, 5)
@@ -106,7 +105,7 @@ export default function SearchInterface({
     }
   }, [searchQuery, showSuggestions])
 
-  // 최근 검색어 로드
+  // Load recent searches
   useEffect(() => {
     const saved = localStorage.getItem('recent-searches')
     if (saved) {
@@ -114,11 +113,11 @@ export default function SearchInterface({
     }
   }, [])
 
-  // 검색어 선택 처리
+  // Handle search selection
   const handleSearchSelect = (query: string) => {
     onSearchChange(query)
     
-    // 최근 검색어에 추가
+    // Add to recent searches
     const updated = [query, ...recentSearches.filter(q => q !== query)].slice(0, 5)
     setRecentSearches(updated)
     localStorage.setItem('recent-searches', JSON.stringify(updated))
@@ -127,19 +126,19 @@ export default function SearchInterface({
     inputRef.current?.blur()
   }
 
-  // 결과 선택 처리
+  // Handle result selection
   const handleResultSelect = (result: SearchResult) => {
     onResultSelect?.(result)
     handleSearchSelect(searchQuery)
   }
 
-  // 번역된 검색어로 검색
+  // Search with translated query
   const handleTranslatedSearch = () => {
     onSearchChange(translatedQuery)
     setShowTranslation(false)
   }
 
-  // 검색창 외부 클릭 처리
+  // Handle clicks outside search box
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -151,7 +150,7 @@ export default function SearchInterface({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // 아이콘 매핑
+  // Icon mapping
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'folder': return <Folder className="w-4 h-4" />
@@ -165,7 +164,7 @@ export default function SearchInterface({
 
   return (
     <div className="relative" ref={searchRef}>
-      {/* 검색 입력창 */}
+      {/* Search input field */}
       <div className="relative">
         <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
         <input
@@ -191,7 +190,7 @@ export default function SearchInterface({
         )}
       </div>
 
-      {/* 검색 드롭다운 */}
+      {/* Search dropdown */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -200,7 +199,7 @@ export default function SearchInterface({
             exit={{ opacity: 0, y: 5 }}
             className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-96 overflow-hidden"
           >
-            {/* 번역 제안 */}
+            {/* Translation suggestions */}
             {showTranslation && (
               <div className="p-3 border-b border-gray-100">
                 <button
@@ -209,26 +208,26 @@ export default function SearchInterface({
                 >
                   <Globe className="w-4 h-4" />
                   <span className="flex-1">
-                    검색: &ldquo;<span className="font-medium">{translatedQuery}</span>&rdquo;
+                    Search: &ldquo;<span className="font-medium">{translatedQuery}</span>&rdquo;
                   </span>
                 </button>
               </div>
             )}
 
             <div className="max-h-80 overflow-y-auto">
-              {/* 검색 중 로딩 */}
+              {/* Loading while searching */}
               {isSearching && (
                 <div className="flex items-center justify-center py-8">
                   <div className="w-5 h-5 border-2 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
-                  <span className="ml-2 text-sm text-gray-500">검색중...</span>
+                  <span className="ml-2 text-sm text-gray-500">Searching...</span>
                 </div>
               )}
 
-              {/* 검색 결과 */}
+              {/* Search results */}
               {!isSearching && results.length > 0 && (
                 <div className="py-2">
                   <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    검색 결과 ({results.length})
+                    Search Results ({results.length})
                   </div>
                   {results.map((result) => (
                     <button
@@ -264,11 +263,11 @@ export default function SearchInterface({
                 </div>
               )}
 
-              {/* 자동완성 제안 */}
+              {/* Auto-complete suggestions */}
               {!isSearching && searchQuery && suggestions.length > 0 && (
                 <div className="py-2 border-t border-gray-100">
                   <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    추천 검색어
+                    Suggested Searches
                   </div>
                   {suggestions.map((suggestion, index) => (
                     <button
@@ -283,23 +282,23 @@ export default function SearchInterface({
                 </div>
               )}
 
-              {/* 검색 결과 없음 */}
+              {/* No search results */}
               {!isSearching && searchQuery && results.length === 0 && (
                 <div className="py-8 text-center">
                   <div className="text-sm text-gray-500 mb-2">
-                    검색 결과가 없습니다
+                    No search results found
                   </div>
                   <div className="text-xs text-gray-400">
-                    다른 키워드로 검색해보세요
+                    Try searching with different keywords
                   </div>
                 </div>
               )}
 
-              {/* 최근 검색어 */}
+              {/* Recent searches */}
               {!searchQuery && recentSearches.length > 0 && (
                 <div className="py-2">
                   <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    최근 검색어
+                    Recent Searches
                   </div>
                   {recentSearches.map((search, index) => (
                     <button
@@ -314,11 +313,11 @@ export default function SearchInterface({
                 </div>
               )}
 
-              {/* 인기 검색어 */}
+              {/* Popular searches */}
               {!searchQuery && popularQueries.length > 0 && (
                 <div className="py-2 border-t border-gray-100">
                   <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    인기 검색어
+                    Popular Searches
                   </div>
                   {popularQueries.map((query, index) => (
                     <button

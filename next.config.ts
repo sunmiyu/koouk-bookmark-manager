@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-// Bundle Analyzer 설정
+// Bundle Analyzer configuration
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
   openAnalyzer: true,
@@ -94,7 +94,7 @@ const nextConfig: NextConfig = {
     return config
   },
   
-  // 빌드 성능 최적화 (swcMinify는 Next.js 15에서 deprecated)
+  // Build performance optimization (swcMinify is deprecated in Next.js 15)
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
       exclude: ['error']

@@ -51,14 +51,14 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
 
   // Removed unused functions addTag and removeTag
 
-  // 모든 폴더를 재귀적으로 수집 (하위 폴더 포함)
+  // Recursively collect all folders (including subfolders)
   const getAllFolders = (folders: FolderItem[], depth: number = 0): Array<FolderItem & { depth: number }> => {
     const result: Array<FolderItem & { depth: number }> = []
     
     for (const folder of folders) {
       result.push({ ...folder, depth })
       
-      // 하위 폴더들 수집
+      // Collect subfolders
       const subfolders = folder.children.filter(child => child.type === 'folder') as FolderItem[]
       if (subfolders.length > 0) {
         result.push(...getAllFolders(subfolders, depth + 1))
@@ -96,7 +96,7 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
           <div className="flex items-center gap-2">
             <span className="text-xl">🗒️</span>
             <h2 className="text-lg font-semibold text-gray-800">
-              {editNote ? '메모 수정' : '빠른 메모'}
+              {editNote ? 'Edit Memo' : 'Quick Memo'}
             </h2>
           </div>
           <button
@@ -114,7 +114,7 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
           {/* Title */}
           <input
             type="text"
-            placeholder="제목 (선택사항)..."
+            placeholder="Title (optional)..."
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onKeyPress={handleKeyPress}
@@ -123,7 +123,7 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
 
           {/* Content */}
           <textarea
-            placeholder="빠르게 메모하세요..."
+            placeholder="Take a quick note..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
             onKeyPress={handleKeyPress}
@@ -136,11 +136,11 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
           />
         </div>
 
-        {/* Footer - 제일 하단으로 이동 */}
+        {/* Footer - Moved to bottom */}
         <div className="border-t border-gray-100 px-6 py-4 mt-auto">
           <div className="flex items-center justify-between">
             <div className="text-xs text-gray-500">
-              {content.trim().length} 글자
+              {content.trim().length} characters
             </div>
             <div className="flex items-center gap-3">
               {/* Folder Selection */}
@@ -149,7 +149,7 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
                 onChange={(e) => setTargetFolderId(e.target.value)}
                 className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:border-gray-500 text-sm"
               >
-                <option value="">폴더 선택</option>
+                <option value="">Select Folder</option>
                 {allFolders.map((folder) => (
                   <option key={folder.id} value={folder.id}>
                     {folder.depth > 0 && '└ '.repeat(folder.depth)}
@@ -161,14 +161,14 @@ export default function QuickNoteModal({ isOpen, onClose, onSave, editNote, fold
                 onClick={onClose}
                 className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium text-sm transition-colors"
               >
-                취소
+                Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={!content.trim() || !targetFolderId}
                 className="px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded-lg font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {editNote ? '수정' : '저장'}
+                {editNote ? 'Update' : 'Save'}
               </button>
             </div>
           </div>

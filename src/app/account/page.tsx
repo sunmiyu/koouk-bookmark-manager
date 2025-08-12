@@ -19,7 +19,7 @@ export default function AccountPage() {
       await signOut()
       router.push('/')
     } catch (error) {
-      console.error('로그아웃 실패:', error)
+      console.error('Sign out failed:', error)
     } finally {
       setLoading(false)
     }
@@ -37,7 +37,7 @@ export default function AccountPage() {
       padding: 'var(--space-6)'
     }}>
       <div className="max-w-2xl mx-auto">
-        {/* 헤더 */}
+        {/* Header */}
         <div className="mb-8">
           <button
             onClick={() => router.back()}
@@ -46,7 +46,7 @@ export default function AccountPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            돌아가기
+            Go Back
           </button>
           
           <h1 style={{ 
@@ -54,23 +54,23 @@ export default function AccountPage() {
             fontWeight: '700', 
             color: 'var(--text-primary)' 
           }}>
-            계정 정보
+            Account Information
           </h1>
         </div>
 
-        {/* 사용자 정보 카드 */}
+        {/* User Information Card */}
         <div className="bg-white rounded-lg border p-6 mb-6" style={{ 
           backgroundColor: 'var(--bg-card)',
           borderColor: 'var(--border-light)'
         }}>
           <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-            기본 정보
+            Basic Information
           </h2>
           
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
-                이메일
+                Email
               </label>
               <div className="p-3 bg-gray-50 rounded-lg" style={{ 
                 backgroundColor: 'var(--bg-secondary)',
@@ -82,7 +82,7 @@ export default function AccountPage() {
             
             <div>
               <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
-                사용자 ID
+                User ID
               </label>
               <div className="p-3 bg-gray-50 rounded-lg font-mono text-sm" style={{ 
                 backgroundColor: 'var(--bg-secondary)',
@@ -94,25 +94,25 @@ export default function AccountPage() {
             
             <div>
               <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
-                가입일
+                Join Date
               </label>
               <div className="p-3 bg-gray-50 rounded-lg" style={{ 
                 backgroundColor: 'var(--bg-secondary)',
                 color: 'var(--text-primary)'
               }}>
-                {user.created_at ? new Date(user.created_at).toLocaleDateString('ko-KR') : '정보 없음'}
+                {user.created_at ? new Date(user.created_at).toLocaleDateString('en-US') : 'No information'}
               </div>
             </div>
           </div>
         </div>
 
-        {/* 계정 관리 */}
+        {/* Account Management */}
         <div className="bg-white rounded-lg border p-6 mb-6" style={{ 
           backgroundColor: 'var(--bg-card)',
           borderColor: 'var(--border-light)'
         }}>
           <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-            계정 관리
+            Account Management
           </h2>
           
           <div className="space-y-3">
@@ -129,10 +129,10 @@ export default function AccountPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                    개인정보처리방침
+                    Privacy Policy
                   </div>
                   <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                    개인정보 처리 및 보호 정책 확인
+                    Check privacy policy and data protection
                   </div>
                 </div>
                 <svg className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -152,10 +152,10 @@ export default function AccountPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="font-medium text-red-600">
-                    계정 삭제
+                    Delete Account
                   </div>
                   <div className="text-sm text-red-500">
-                    계정과 모든 데이터를 영구적으로 삭제
+                    Permanently delete account and all data
                   </div>
                 </div>
                 <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -166,7 +166,7 @@ export default function AccountPage() {
           </div>
         </div>
 
-        {/* 로그아웃 */}
+        {/* Sign Out */}
         <div className="bg-white rounded-lg border p-6" style={{ 
           backgroundColor: 'var(--bg-card)',
           borderColor: 'var(--border-light)'
@@ -179,14 +179,14 @@ export default function AccountPage() {
             {loading ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                로그아웃 중...
+                Signing out...
               </>
             ) : (
               <>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
-                로그아웃
+                Sign Out
               </>
             )}
           </button>

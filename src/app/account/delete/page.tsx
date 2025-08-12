@@ -14,13 +14,19 @@ export default function DeleteAccount() {
   const [confirmText, setConfirmText] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
   const [showExportData, setShowExportData] = useState(false)
+  const [userPlan, setUserPlan] = useState<string>('free')
 
-  // Get user session
+  // Get user session and localStorage data
   useEffect(() => {
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       setUser(session?.user ?? null)
       setLoading(false)
+    }
+
+    // Get user plan from localStorage (client-side only)
+    if (typeof window !== 'undefined') {
+      setUserPlan(localStorage.getItem('koouk_user_plan') || 'free')
     }
 
     getSession()
@@ -176,7 +182,7 @@ export default function DeleteAccount() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Current Plan:</span>
-                    <span className="capitalize">{localStorage.getItem('koouk_user_plan') || 'free'}</span>
+                    <span className="capitalize">{userPlan}</span>
                   </div>
                 </div>
               </div>

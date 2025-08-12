@@ -5,7 +5,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Settings, LogOut, MessageCircle } from 'lucide-react'
-import { useTranslations } from 'next-intl'
 import { useAuth } from '../auth/AuthContext'
 import { supabase } from '@/lib/supabase'
 import WorkspaceContent from '../workspace/WorkspaceContent'
@@ -16,10 +15,8 @@ import { createFolder } from '@/types/folder'
 import SearchInterface from '../ui/SearchInterface'
 import FeedbackModal from '../modals/FeedbackModal'
 import BottomTabNavigation from '../mobile/BottomTabNavigation'
-import LanguageToggle from '../ui/LanguageToggle'
 
 export default function App() {
-  const t = useTranslations('app')
   const [activeTab, setActiveTab] = useState<'my-folder' | 'marketplace' | 'bookmarks'>('my-folder')
   const [searchQuery, setSearchQuery] = useState('')
   const [showUserMenu, setShowUserMenu] = useState(false)
@@ -38,7 +35,7 @@ export default function App() {
         // Show notification or handle the shared content
         if (title || text || url) {
           const sharedContent = {
-            title: title || t('sharedContent'),
+            title: title || 'Shared Content',
             text: text || '',
             url: url || ''
           }
@@ -54,11 +51,11 @@ export default function App() {
         }
       }
     }
-  }, [t])
+  }, [])
   
-  // SharedFolder 가져오기 기능
+  // SharedFolder import functionality
   const handleImportSharedFolder = (sharedFolder: SharedFolder) => {
-    // 로컬 스토리지에서 기존 폴더 가져오기
+    // Get existing folders from localStorage
     const savedFolders = localStorage.getItem('koouk-folders')
     let folders = []
     
@@ -66,7 +63,7 @@ export default function App() {
       folders = JSON.parse(savedFolders)
     }
     
-    // 새 폴더 생성
+    // Create new folder
     const newFolder = createFolder(
       sharedFolder.title,
       undefined,
@@ -76,16 +73,16 @@ export default function App() {
       }
     )
     
-    // 새 폴더를 맨 앞에 추가
+    // Add new folder to the front
     const updatedFolders = [newFolder, ...folders]
     
-    // 로컬 스토리지에 저장
+    // Save to local storage
     localStorage.setItem('koouk-folders', JSON.stringify(updatedFolders))
     
-    // 선택된 폴더를 새로 추가된 폴더로 설정
+    // Set selected folder to newly added folder
     localStorage.setItem('koouk-selected-folder', newFolder.id)
     
-    // my-folder 탭으로 이동
+    // Navigate to my-folder tab
     setActiveTab('my-folder')
   }
   const { user } = useAuth()
@@ -125,21 +122,18 @@ export default function App() {
                   searchQuery={searchQuery}
                   onSearchChange={setSearchQuery}
                   searchScope={activeTab === 'my-folder' ? 'my-folder' : activeTab === 'marketplace' ? 'market-place' : 'bookmarks'}
-                  placeholder={t('search')}
+                  placeholder="Search..."
                   language="ko"
                 />
 
-                {/* Language Toggle - Compact for header */}
-                <LanguageToggle variant="icon-only" position="header" />
-
-                {/* Feedback Button - 모바일에서는 아이콘만 */}
+                {/* Feedback Button - mobile shows icon only */}
                 <button 
                   onClick={() => setShowFeedbackModal(true)}
                   className="flex items-center justify-center w-8 h-8 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:w-auto sm:h-auto"
-                  title={t('feedback')}
+                  title="Feedback"
                 >
                   <MessageCircle className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">{t('feedback')}</span>
+                  <span className="hidden sm:inline">Feedback</span>
                 </button>
 
                 {/* User Account */}
@@ -162,7 +156,7 @@ export default function App() {
                       className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[60]"
                     >
                       <div className="px-3 py-2 border-b border-gray-100">
-                        <div className="text-xs font-medium text-black">{user?.email?.split('@')[0] || t('user')}</div>
+                        <div className="text-xs font-medium text-black">{user?.email?.split('@')[0] || 'User'}</div>
                         <div className="text-[10px] text-gray-500">{user?.email}</div>
                       </div>
                       
@@ -172,7 +166,7 @@ export default function App() {
                         className="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
                       >
                         <Settings className="w-3.5 h-3.5" />
-                        {t('settings')}
+                        Settings
                       </Link>
                       
                       <button
@@ -180,7 +174,7 @@ export default function App() {
                         className="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 transition-colors"
                       >
                         <LogOut className="w-3.5 h-3.5" />
-                        {t('signOut')}
+                        Sign Out
                       </button>
                     </motion.div>
                   )}
@@ -191,7 +185,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* Navigation Tabs - 모바일에서는 숨김 */}
+      {/* Navigation Tabs - Hidden on mobile */}
       <nav className="border-b border-gray-200 bg-white hidden sm:block">
         <div className="w-full bg-white">
           <div className="w-full px-2 sm:px-8 sm:max-w-6xl sm:mx-auto">
@@ -204,7 +198,7 @@ export default function App() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                {t('myFolder')}
+                My Folder
               </button>
               <button
                 onClick={() => setActiveTab('bookmarks')}
@@ -214,7 +208,7 @@ export default function App() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                {t('bookmarks')}
+                Bookmarks
               </button>
               <button
                 onClick={() => setActiveTab('marketplace')}
@@ -224,7 +218,7 @@ export default function App() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                {t('marketplace')}
+                Marketplace
               </button>
             </div>
           </div>

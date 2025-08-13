@@ -7,12 +7,12 @@ import QuickNoteModal from '../modals/QuickNoteModal'
 import BigNoteModal from '../modals/BigNoteModal'
 import QuickAddModal from '../modals/QuickAddModal'
 import ShareFolderModal from '../modals/ShareFolderModal'
-import MobileWorkspace from '../mobile/MobileWorkspace'
+import MobileMyFolder from '../mobile/MobileMyFolder'
 import { FolderItem, StorageItem, createFolder, createStorageItem } from '@/types/folder'
 import { searchEngine } from '@/lib/search-engine'
 import { useDevice } from '@/hooks/useDevice'
 
-export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: string }) {
+export default function MyFolderContent({ searchQuery = '' }: { searchQuery?: string }) {
   const device = useDevice()
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
@@ -404,7 +404,7 @@ You can see it in the Market Place.`)
             </>
           ) : (
             // Use mobile folder list for PC too
-            <MobileWorkspace 
+            <MobileMyFolder 
               folders={folders}
               selectedFolderId={selectedFolderId}
               onFoldersChange={handleFoldersChange}

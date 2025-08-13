@@ -6,7 +6,7 @@ import { FolderItem, StorageItem, createFolder, createStorageItem } from '@/type
 import QuickNoteModal from '@/components/modals/QuickNoteModal'
 import BigNoteModal from '@/components/modals/BigNoteModal'
 
-interface MobileWorkspaceProps {
+interface MobileMyFolderProps {
   folders: FolderItem[]
   selectedFolderId?: string
   onFoldersChange: (folders: FolderItem[]) => void
@@ -14,17 +14,18 @@ interface MobileWorkspaceProps {
   onShareFolder?: (folderId: string) => void
 }
 
-export default function MobileWorkspace({ 
+export default function MobileMyFolder({ 
   folders, 
   onFoldersChange,
   onFolderSelect: parentOnFolderSelect,
   onShareFolder
-}: MobileWorkspaceProps) {
+}: MobileMyFolderProps) {
   const [editingItem, setEditingItem] = useState<StorageItem | null>(null)
   const [showQuickNoteModal, setShowQuickNoteModal] = useState(false)
   const [showBigNoteModal, setShowBigNoteModal] = useState(false)
   const [showCreateFolderModal, setShowCreateFolderModal] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
+  const [showQuickAddModal, setShowQuickAddModal] = useState(false)
   const [selectedFolder, setSelectedFolder] = useState<FolderItem | null>(null)
 
   // Now can render on desktop too (unified layout)

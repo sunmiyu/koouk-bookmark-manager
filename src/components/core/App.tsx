@@ -7,7 +7,7 @@ import { motion } from 'framer-motion'
 import { Settings, LogOut, MessageCircle } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import { supabase } from '@/lib/supabase'
-import WorkspaceContent from '../workspace/WorkspaceContent'
+import MyFolderContent from '../workspace/MyFolderContent'
 import MarketPlace from '../workspace/MarketPlace'
 import Bookmarks from '../workspace/Bookmarks'
 import { SharedFolder } from '@/types/share'
@@ -388,7 +388,7 @@ export default function App() {
         device.width >= 768 ? 'min-h-[calc(100vh-64px)]' : 'min-h-[calc(100vh-100px)]'
       }`}>
         {activeTab === 'my-folder' ? (
-          <WorkspaceContent searchQuery={searchQuery} />
+          <MyFolderContent searchQuery={searchQuery} />
         ) : activeTab === 'bookmarks' ? (
           <Bookmarks searchQuery={searchQuery} />
         ) : (

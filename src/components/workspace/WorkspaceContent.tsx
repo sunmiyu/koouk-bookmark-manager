@@ -591,17 +591,19 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
               ? 'flex-1' 
               : 'flex-1'
           }
-          bg-white overflow-y-auto transition-all duration-300 ease-in-out relative
+          bg-white transition-all duration-300 ease-in-out relative flex flex-col
         `}>
-          <FolderContent 
-            items={getSelectedFolderItems()}
-            onCreateItem={(type) => selectedFolderId && handleCreateItem(type, selectedFolderId)}
-            onDocumentOpen={handleDocumentOpen}
-            searchQuery={searchQuery}
-          />
+          <div className="flex-1 overflow-y-auto">
+            <FolderContent 
+              items={getSelectedFolderItems()}
+              onCreateItem={(type) => selectedFolderId && handleCreateItem(type, selectedFolderId)}
+              onDocumentOpen={handleDocumentOpen}
+              searchQuery={searchQuery}
+            />
+          </div>
           
           {/* Universal Input Bar - 메인 콘텐츠 영역 내 하단 고정 */}
-          <div className="absolute bottom-0 left-0 right-0 z-[60]">
+          <div className="flex-shrink-0 border-t border-gray-100 bg-white">
             <UniversalInputBar
               folders={folders}
               selectedFolderId={selectedFolderId}
@@ -783,7 +785,7 @@ const FolderContent = ({
   }
 
   return (
-    <div className="flex-1 px-2 py-3 sm:px-4 lg:px-6 lg:py-4 pb-40">
+    <div className="flex-1 px-2 py-3 sm:px-4 lg:px-6 lg:py-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div>

@@ -531,37 +531,6 @@ function findFolderById(folders: FolderItem[], folderId: string): FolderItem | n
   return null
 }
 
-function updateFolderInTree(folders: FolderItem[], folderId: string, updates: Partial<FolderItem>): FolderItem[] {
-  return folders.map(folder => {
-    if (folder.id === folderId) {
-      return { ...folder, ...updates }
-    }
-    
-    return {
-      ...folder,
-      children: folder.children.map(child =>
-        child.type === 'folder'
-          ? updateFolderInTree([child as FolderItem], folderId, updates)[0]
-          : child
-      )
-    }
-  })
-}
-
-function removeFolderFromTree(folders: FolderItem[], folderId: string): FolderItem[] {
-  return folders
-    .filter(folder => folder.id !== folderId)
-    .map(folder => ({
-      ...folder,
-      children: folder.children
-        .filter(child => child.id !== folderId)
-        .map(child =>
-          child.type === 'folder'
-            ? removeFolderFromTree([child as FolderItem], folderId)[0]
-            : child
-        )
-    }))
-}
 
 function addItemToFolder(folders: FolderItem[], folderId: string, newItem: StorageItem): FolderItem[] {
   return folders.map(folder => {

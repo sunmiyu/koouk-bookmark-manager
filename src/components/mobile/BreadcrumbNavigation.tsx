@@ -1,7 +1,5 @@
 'use client'
 
-import { Home } from 'lucide-react'
-
 interface BreadcrumbNavigationProps {
   onNavigate?: (folderId: string) => void
 }

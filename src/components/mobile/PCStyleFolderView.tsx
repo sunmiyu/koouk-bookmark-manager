@@ -38,8 +38,7 @@ export default function PCStyleFolderView({
   onNavigateToFolder,
   onFolderSelect,
   onItemSelect,
-  onCreateFolder,
-  onCreateItem: onCreateItem
+  onCreateFolder
 }: PCStyleFolderViewProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
   // const [showContextMenu, setShowContextMenu] = useState<string | null>(null)

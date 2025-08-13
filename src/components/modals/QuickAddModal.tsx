@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { X, Link, FileText, Image, Video, Mic } from 'lucide-react'
+import { X, Link, FileText, Image, Video } from 'lucide-react'
 import { StorageItem } from '@/types/folder'
 import { createStorageItem } from '@/types/folder'
 

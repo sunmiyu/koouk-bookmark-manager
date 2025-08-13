@@ -1,50 +1,28 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import Image from 'next/image'
-import { 
-  FileText,
-  Image as ImageIcon,
-  Video,
-  Link,
-  StickyNote,
-  Grid3X3,
-  LayoutList,
-  FolderOpen,
-  Search,
-  Plus,
-  Menu
-} from 'lucide-react'
-import FolderTree from '../ui/FolderTree'
 import FolderContent from './FolderContent'
 import UniversalInputBar from '../ui/UniversalInputBar'
-import PWAInstallPrompt from '../ui/PWAInstallPrompt'
 import QuickNoteModal from '../modals/QuickNoteModal'
 import BigNoteModal from '../modals/BigNoteModal'
 import QuickAddModal from '../modals/QuickAddModal'
 import ShareFolderModal from '../modals/ShareFolderModal'
 import MobileWorkspace from '../mobile/MobileWorkspace'
-import { FolderItem, StorageItem, createFolder, createStorageItem, createDummyFolders, createInitialFolders } from '@/types/folder'
+import { FolderItem, StorageItem, createFolder, createStorageItem } from '@/types/folder'
 import { searchEngine } from '@/lib/search-engine'
 import { useDevice } from '@/hooks/useDevice'
-import { isYouTubeUrl, getYouTubeThumbnail } from '@/utils/youtube'
 
 export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: string }) {
   const device = useDevice()
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
-  const [sidebarCollapsed] = useState(false)
-  const [sidebarVisible, setSidebarVisible] = useState(true)
   const [isFirstTime, setIsFirstTime] = useState(false)
   const [showQuickNoteModal, setShowQuickNoteModal] = useState(false)
   const [showBigNoteModal, setShowBigNoteModal] = useState(false)
   const [editingItem, setEditingItem] = useState<StorageItem | null>(null)
   const [showCreateFolderModal, setShowCreateFolderModal] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
-  const [isCreatingFolder, setIsCreatingFolder] = useState(false)
   const [showShareFolderModal, setShowShareFolderModal] = useState(false)
   const [folderToShare, setFolderToShare] = useState<FolderItem | null>(null)
   const [showQuickAddModal, setShowQuickAddModal] = useState(false)
@@ -67,12 +45,12 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
           const parsedFolders = JSON.parse(savedFolders)
           
           // 🎯 더미 데이터 자동 감지 및 제거
-          const hasDummyData = parsedFolders.some((folder: any) => 
+          const hasDummyData = parsedFolders.some((folder: FolderItem) => 
             folder.name?.includes('Sample') || 
             folder.name?.includes('Folder') ||
-            folder.children?.some((item: any) => 
+            folder.children?.some((item: StorageItem | FolderItem) => 
               item.name?.includes('Sample') || 
-              item.content?.includes('example.com')
+              ('content' in item && item.content?.includes('example.com'))
             )
           )
           
@@ -153,20 +131,8 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
     saveToStorage(folders, folderId)
   }
 
-  const handleFolderToggle = (folderId: string) => {
-    const newExpanded = new Set(expandedFolders)
-    if (newExpanded.has(folderId)) {
-      newExpanded.delete(folderId)
-    } else {
-      newExpanded.add(folderId)
-    }
-    setExpandedFolders(newExpanded)
-    saveToStorage(folders)
-  }
-
   // 🎯 NEW: 모던 폴더 생성 - prompt 대신 인라인 생성
-  const handleCreateFolder = (parentId?: string) => {
-    setIsCreatingFolder(true)
+  const handleCreateFolder = () => {
     setNewFolderName('')
     setShowCreateFolderModal(true)
   }
@@ -188,27 +154,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
     // Close modal and reset state
     setShowCreateFolderModal(false)
     setNewFolderName('')
-    setIsCreatingFolder(false)
     setIsFirstTime(false)
-  }
-
-  const handleRenameFolder = (folderId: string, newName: string) => {
-    const updatedFolders = updateFolderInTree(folders, folderId, { name: newName, updatedAt: new Date().toISOString() })
-    handleFoldersChange(updatedFolders)
-  }
-
-  const handleDeleteFolder = (folderId: string) => {
-    if (!confirm('Are you sure you want to delete this folder?')) {
-      return
-    }
-    
-    const updatedFolders = removeFolderFromTree(folders, folderId)
-    handleFoldersChange(updatedFolders)
-    
-    // If deleted folder was selected, select the first folder
-    if (selectedFolderId === folderId && updatedFolders.length > 0) {
-      handleFolderSelect(updatedFolders[0].id)
-    }
   }
 
   const handleShareFolder = (folderId: string) => {
@@ -284,28 +230,6 @@ You can see it in the Market Place.`)
     handleFoldersChange(updatedFolders)
   }
 
-  // Get items from currently selected folder
-  const getSelectedFolderItems = (): StorageItem[] => {
-    if (!selectedFolderId) return []
-    
-    const findItems = (folders: FolderItem[]): StorageItem[] => {
-      for (const folder of folders) {
-        if (folder.id === selectedFolderId) {
-          return folder.children.filter(child => child.type !== 'folder') as StorageItem[]
-        }
-        
-        const childFolderItems = folder.children
-          .filter(child => child.type === 'folder')
-          .map(child => child as FolderItem)
-        
-        const found = findItems(childFolderItems)
-        if (found.length > 0) return found
-      }
-      return []
-    }
-
-    return findItems(folders)
-  }
 
   // Modal handlers
   const handleSaveMemo = (memo: Omit<StorageItem, 'id' | 'createdAt' | 'updatedAt'>, folderId: string) => {

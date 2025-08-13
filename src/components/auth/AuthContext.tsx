@@ -77,7 +77,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Clear auth-related localStorage items
       if (typeof window !== 'undefined') {
         localStorage.removeItem('koouk-auth-token')
-        localStorage.removeItem('sb-' + supabase.supabaseUrl.split('//')[1] + '-auth-token')
+        // Clear all possible auth keys
+        Object.keys(localStorage).forEach(key => {
+          if (key.includes('supabase') || key.includes('auth-token')) {
+            localStorage.removeItem(key)
+          }
+        })
       }
       
     } catch (error) {

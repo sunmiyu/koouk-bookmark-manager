@@ -1,10 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { 
-  Search, 
   Heart,
   ChevronDown
 } from 'lucide-react'
@@ -416,10 +414,11 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
                 {/* 커버 이미지 */}
                 <div className="relative aspect-[5/4] overflow-hidden rounded-t-xl bg-gradient-to-br from-gray-50 to-gray-100">
                   {sharedFolder.coverImage ? (
-                    <img
+                    <Image
                       src={sharedFolder.coverImage}
                       alt={sharedFolder.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">

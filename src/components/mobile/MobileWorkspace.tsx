@@ -1,18 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { AnimatePresence } from 'framer-motion'
 import MobileFolderList from './MobileFolderList'
-import PCStyleFolderView from './PCStyleFolderView'
-import FloatingInputButton from './FloatingInputButton'
 import { FolderItem, StorageItem, createFolder, createStorageItem } from '@/types/folder'
-import { useCrossPlatformState } from '@/hooks/useCrossPlatformState'
-import { useDevice } from '@/hooks/useDevice'
 import QuickNoteModal from '@/components/modals/QuickNoteModal'
 import BigNoteModal from '@/components/modals/BigNoteModal'
-import Bookmarks from '@/components/workspace/Bookmarks'
-import MarketPlace from '@/components/workspace/MarketPlace'
-import { SharedFolder } from '@/types/share'
 
 interface MobileWorkspaceProps {
   folders: FolderItem[]
@@ -24,19 +16,14 @@ interface MobileWorkspaceProps {
 
 export default function MobileWorkspace({ 
   folders, 
-  selectedFolderId,
   onFoldersChange,
   onFolderSelect: parentOnFolderSelect,
   onShareFolder
 }: MobileWorkspaceProps) {
-  const { state } = useCrossPlatformState()
-  const device = useDevice()
-  const [editingItem, setEditingItem] = useState<StorageItem | null>(null)
   const [showQuickNoteModal, setShowQuickNoteModal] = useState(false)
   const [showBigNoteModal, setShowBigNoteModal] = useState(false)
   const [showCreateFolderModal, setShowCreateFolderModal] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
-  const [showQuickAddModal, setShowQuickAddModal] = useState(false)
   const [selectedFolder, setSelectedFolder] = useState<FolderItem | null>(null)
 
   // Now can render on desktop too (unified layout)

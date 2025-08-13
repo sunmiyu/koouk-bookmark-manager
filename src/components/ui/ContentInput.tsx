@@ -48,13 +48,27 @@ export default function ContentInput({
     const imageExtensions = /\.(jpg|jpeg|png|gif|webp|svg)$/i
     const videoExtensions = /\.(mp4|avi|mov|wmv|flv|webm)$/i
 
+    // YouTube URL을 먼저 확인 (가장 높은 우선순위)
     if (isYouTubeUrl(content)) {
       return 'video'
-    } else if (urlRegex.test(content)) {
-      if (imageExtensions.test(content)) return 'image'
-      if (videoExtensions.test(content)) return 'video'
+    }
+    
+    // 일반 URL 확인
+    if (urlRegex.test(content)) {
+      // 이미지 URL 확인
+      if (imageExtensions.test(content)) {
+        return 'image'
+      }
+      // 비디오 파일 URL 확인
+      if (videoExtensions.test(content)) {
+        return 'video'
+      }
+      // 일반 URL
       return 'url'
-    } else if (content.length < 500) {
+    }
+    
+    // 텍스트 길이로 memo/document 구분
+    if (content.length < 500) {
       return 'memo'
     } else {
       return 'document'
@@ -141,8 +155,24 @@ export default function ContentInput({
         const type = detectContentType(input.trim())
         const metadata = await extractMetadata(input.trim(), type)
         
+        // 제목 결정 로직 개선
+        let title = 'Content'
+        if (type === 'video' && isYouTubeUrl(input.trim())) {
+          title = 'YouTube Video'
+        } else if (type === 'video') {
+          title = 'Video'
+        } else if (type === 'url') {
+          title = 'Link'
+        } else if (type === 'memo') {
+          title = 'Memo'
+        } else if (type === 'document') {
+          title = 'Document'
+        } else if (type === 'image') {
+          title = 'Image'
+        }
+
         const item = createStorageItem(
-          type === 'url' ? 'Link' : type === 'video' ? 'Video' : 'Content',
+          title,
           type,
           input.trim(),
           selectedFolderId

@@ -38,13 +38,21 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
         if (savedFolders) {
           const parsedFolders = JSON.parse(savedFolders)
           
-          // 더미 데이터 감지 및 제거
+          // 더미 데이터 감지 및 제거 (완전 강화된 로직)
+          const dummyKeywords = [
+            'Sample', 'Example', 'Work', 'Personal', 'Ideas', 'Test', 'Demo',
+            'React', '개발자', '필수', '가이드', '재택근무', '패션', '뷰티', 
+            '육아', '음식', '레시피', '맛집', '타일별', '샘플', '모음',
+            'Template', 'Dummy', 'Placeholder'
+          ]
+          
           const hasDummyData = parsedFolders.some((folder: FolderItem) => 
-            folder.name?.includes('Sample') || 
-            folder.name?.includes('Example') ||
+            dummyKeywords.some(keyword => folder.name?.includes(keyword)) ||
             folder.children?.some((item) => 
-              item.name?.includes('Sample') || 
-              ('content' in item && item.content?.includes('example.com'))
+              dummyKeywords.some(keyword => 
+                item.name?.includes(keyword) ||
+                ('content' in item && item.content?.includes(keyword.toLowerCase()))
+              )
             )
           )
           
@@ -52,7 +60,14 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
             console.log('Dummy data detected, clearing...')
             localStorage.removeItem('koouk-folders')
             localStorage.removeItem('koouk-selected-folder')
+            localStorage.removeItem('koouk-shared-folders') // 공유 폴더도 클리어
             setFolders([])
+            
+            // 확실히 클리어하기 위해 한번 더 체크
+            setTimeout(() => {
+              localStorage.removeItem('koouk-folders')
+              localStorage.removeItem('koouk-selected-folder')
+            }, 100)
           } else {
             setFolders(parsedFolders)
             
@@ -202,9 +217,9 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col min-h-screen">
       {/* 메인 콘텐츠 */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 pb-32">
         {currentView === 'grid' ? (
           <FolderGrid
             folders={folders}
@@ -223,9 +238,9 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
         ) : null}
       </div>
 
-      {/* 입력 시스템 */}
-      <div className="border-t border-gray-200 bg-white">
-        <div className="p-4 space-y-4">
+      {/* 입력 시스템 - 페이지 최하단 고정 */}
+      <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white shadow-lg z-40">
+        <div className="p-4 space-y-4 max-w-screen-xl mx-auto">
           {/* 폴더 선택 키워드 */}
           {folders.length > 0 && (
             <FolderSelector

@@ -1,15 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
-import { 
-  Heart,
-  ChevronDown
-} from 'lucide-react'
 import { SharedFolder } from '@/types/share'
 import { createFolder } from '@/types/folder'
 import { useToast } from '@/hooks/useToast'
 import Toast from '../ui/Toast'
+import CategoryFilter from '../ui/CategoryFilter'
+import SortOptions from '../ui/SortOptions'
+import SharedFolderCard from '../ui/SharedFolderCard'
 
 // Removed unused interface MarketPlaceProps
 
@@ -25,8 +23,6 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [sortOrder, setSortOrder] = useState<'popular' | 'recent' | 'helpful'>('popular')
   const [isLoading, setIsLoading] = useState(true)
-  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
-  const [showSortDropdown, setShowSortDropdown] = useState(false)
 
   // 카테고리 옵션들
   const categories = [
@@ -300,106 +296,32 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
           </div>
           
           {/* PC: 정렬 드롭다운 */}
-          <div className="hidden sm:block relative">
-            <button
-              onClick={() => setShowSortDropdown(!showSortDropdown)}
-              className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              <span>{sortOptions.find(opt => opt.value === sortOrder)?.label}</span>
-              <ChevronDown className={`w-4 h-4 transition-transform ${showSortDropdown ? 'rotate-180' : ''}`} />
-            </button>
-            
-            {showSortDropdown && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20">
-                {sortOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => {
-                      setSortOrder(option.value as 'popular' | 'recent' | 'helpful')
-                      setShowSortDropdown(false)
-                    }}
-                    className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${
-                      sortOrder === option.value ? 'bg-gray-50 font-medium' : ''
-                    }`}
-                  >
-                    <div className="font-medium">{option.label}</div>
-                    <div className="text-xs text-gray-500">{option.description}</div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <SortOptions
+            options={sortOptions}
+            selectedSort={sortOrder}
+            onSortChange={(sort) => setSortOrder(sort as 'popular' | 'recent' | 'helpful')}
+          />
         </div>
 
         {/* 필터 섹션 */}
         <div className="flex flex-col sm:flex-row gap-3">
           {/* 모바일: 카테고리 드롭다운 */}
           <div className="block sm:hidden">
-            <div className="relative">
-              <button
-                onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-                className="w-full flex items-center justify-between px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                <span className="flex items-center gap-2">
-                  <span>{categories.find(cat => cat.value === selectedCategory)?.emoji}</span>
-                  <span>{categories.find(cat => cat.value === selectedCategory)?.label}</span>
-                </span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${showCategoryDropdown ? 'rotate-180' : ''}`} />
-              </button>
-              
-              {showCategoryDropdown && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20 max-h-64 overflow-y-auto">
-                  {categories.map((category) => (
-                    <button
-                      key={category.value}
-                      onClick={() => {
-                        setSelectedCategory(category.value)
-                        setShowCategoryDropdown(false)
-                      }}
-                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors flex items-center gap-3 ${
-                        selectedCategory === category.value ? 'bg-gray-50 font-medium' : ''
-                      }`}
-                    >
-                      <span className="text-base">{category.emoji}</span>
-                      <span>{category.label}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            <CategoryFilter
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+              showDropdownOnMobile={true}
+            />
           </div>
 
           {/* 모바일: 정렬 드롭다운 */}
           <div className="block sm:hidden">
-            <div className="relative">
-              <button
-                onClick={() => setShowSortDropdown(!showSortDropdown)}
-                className="w-full flex items-center justify-between px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                <span>{sortOptions.find(opt => opt.value === sortOrder)?.label}</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${showSortDropdown ? 'rotate-180' : ''}`} />
-              </button>
-              
-              {showSortDropdown && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20">
-                  {sortOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => {
-                        setSortOrder(option.value as 'popular' | 'recent' | 'helpful')
-                        setShowSortDropdown(false)
-                      }}
-                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors ${
-                        sortOrder === option.value ? 'bg-gray-50 font-medium' : ''
-                      }`}
-                    >
-                      <div className="font-medium">{option.label}</div>
-                      <div className="text-xs text-gray-500">{option.description}</div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            <SortOptions
+              options={sortOptions}
+              selectedSort={sortOrder}
+              onSortChange={(sort) => setSortOrder(sort as 'popular' | 'recent' | 'helpful')}
+            />
           </div>
 
           {/* PC: 카테고리 탭 */}
@@ -430,106 +352,19 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
           <p className="text-sm text-gray-500">Try different keywords</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-          {filteredFolders.map((sharedFolder) => {
-            const currentCategory = categories.find(cat => cat.value === sharedFolder.category)
-            return (
-              <div
-                key={sharedFolder.id}
-                className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 group"
-              >
-                {/* 커버 이미지 - 모바일에서 더 작게 */}
-                <div className="relative aspect-[4/3] sm:aspect-[5/4] overflow-hidden rounded-t-xl bg-gradient-to-br from-gray-50 to-gray-100">
-                  {sharedFolder.coverImage ? (
-                    <Image
-                      src={sharedFolder.coverImage}
-                      alt={sharedFolder.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-2xl">{currentCategory?.emoji || '📁'}</span>
-                    </div>
-                  )}
-                  
-                  {/* 좋아요 버튼 */}
-                  <button className="absolute top-3 right-3 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-sm transition-colors">
-                    <Heart className="w-4 h-4 text-gray-600" />
-                  </button>
-
-                  {/* 카테고리 태그 */}
-                  <div className="absolute bottom-3 left-3">
-                    <span className="px-2 py-1 bg-black/80 text-white text-xs rounded-full">
-                      {currentCategory?.label}
-                    </span>
-                  </div>
-                </div>
-
-                {/* 컨텐츠 - 고정 높이로 일관된 레이아웃 */}
-                <div className="p-2 sm:p-3 lg:p-4 flex flex-col h-full">
-                  {/* 제작자 정보 - 모바일에서 숨김 */}
-                  <div className="hidden sm:flex items-center gap-2 mb-2">
-                    <span className="text-sm">{sharedFolder.author.avatar}</span>
-                    <span className="text-xs font-medium text-gray-700">{sharedFolder.author.name}</span>
-                    {sharedFolder.author.verified && (
-                      <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
-                        <span className="text-white text-[8px]">✓</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 제목 - 고정 높이 */}
-                  <h3 className="font-semibold text-gray-900 text-xs sm:text-sm lg:text-base mb-1 sm:mb-2 line-clamp-2 leading-tight h-8 sm:h-10">
-                    {sharedFolder.title}
-                  </h3>
-
-                  {/* 설명 - 고정 높이 (2줄 기준) */}
-                  <p className="text-xs text-gray-600 line-clamp-2 mb-2 sm:mb-3 leading-relaxed h-8 sm:h-10">
-                    {sharedFolder.description}
-                  </p>
-
-                  {/* Spacer to push button to bottom */}
-                  <div className="flex-1"></div>
-
-                  {/* 통계 - 모바일에서 간소화 */}
-                  <div className="flex items-center justify-between text-xs text-gray-500 mb-2 sm:mb-3">
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      <span className="flex items-center gap-1">
-                        <Heart className="w-3 h-3" />
-                        {sharedFolder.stats.likes}
-                      </span>
-                      <span className="hidden sm:flex items-center gap-1">
-                        📥 {sharedFolder.stats.downloads}
-                      </span>
-                    </div>
-                    <span className="hidden sm:inline">{new Date(sharedFolder.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                  </div>
-
-                  {/* 액션 버튼 - 항상 하단 고정 */}
-                  <button
-                    onClick={() => handleImportFolder(sharedFolder)}
-                    className="w-full bg-black text-white py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg text-xs sm:text-sm font-medium hover:bg-gray-800 transition-colors"
-                  >
-                    Add
-                  </button>
-                </div>
-              </div>
-            )
-          })}
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 auto-rows-fr">
+          {filteredFolders.map((sharedFolder) => (
+            <SharedFolderCard
+              key={sharedFolder.id}
+              sharedFolder={sharedFolder}
+              onImportFolder={handleImportFolder}
+              categories={categories}
+            />
+          ))}
         </div>
       )}
 
-      {/* 클릭 외부 영역으로 드롭다운 닫기 */}
-      {(showCategoryDropdown || showSortDropdown) && (
-        <div
-          className="fixed inset-0 z-10"
-          onClick={() => {
-            setShowCategoryDropdown(false)
-            setShowSortDropdown(false)
-          }}
-        />
-      )}
+
       
       {/* Toast Notification */}
       <Toast

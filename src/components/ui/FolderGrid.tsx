@@ -56,7 +56,7 @@ export default function FolderGrid({
       </div>
 
       {/* 폴더 그리드 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 auto-rows-fr">
         {filteredFolders.map((folder, index) => {
           const itemCount = folder.children.length
           const recentItems = folder.children.slice(0, 3)
@@ -65,59 +65,69 @@ export default function FolderGrid({
             <motion.button
               key={folder.id}
               onClick={() => onFolderSelect(folder)}
-              className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 p-4 text-left group"
+              className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 p-3 sm:p-4 text-left group"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.98 }}
             >
-              {/* 폴더 아이콘 */}
-              <div 
-                className="w-12 h-12 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform"
-                style={{ 
-                  backgroundColor: folder.color + '20',
-                  border: `2px solid ${folder.color}30`
-                }}
-              >
-                <span className="text-xl">{folder.icon || '📁'}</span>
-              </div>
-
-              {/* 폴더 정보 */}
-              <h3 className="font-semibold text-gray-900 text-sm mb-2 line-clamp-2 leading-tight">
-                {folder.name || 'Untitled Folder'}
-              </h3>
-
-              {/* 아이템 카운트 */}
-              <p className="text-xs text-gray-500 mb-3">
-                {itemCount} {itemCount === 1 ? 'item' : 'items'}
-              </p>
-
-              {/* 최근 아이템 미리보기 */}
-              {recentItems.length > 0 && (
-                <div className="space-y-1">
-                  {recentItems.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <div 
-                        className="w-2 h-2 rounded-full flex-shrink-0"
-                        style={{ backgroundColor: folder.color || '#6B7280' }}
-                      />
-                      <span className="text-xs text-gray-600 truncate">
-                        {item.name}
-                      </span>
-                    </div>
-                  ))}
+              {/* 새로운 레이아웃: flex-col로 구성 */}
+              <div className="h-full flex flex-col">
+                {/* 상단: 폴더 아이콘과 제목 (나란히 배치) */}
+                <div className="flex items-start gap-3 mb-3">
+                  <div 
+                    className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform"
+                    style={{ 
+                      backgroundColor: folder.color + '20',
+                      border: `2px solid ${folder.color}30`
+                    }}
+                  >
+                    <span className="text-lg">{folder.icon || '📁'}</span>
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-gray-900 text-sm line-clamp-2 leading-tight">
+                      {folder.name || 'Untitled Folder'}
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                    </p>
+                  </div>
                 </div>
-              )}
 
-              {/* 업데이트 시간 */}
-              <div className="mt-3 pt-3 border-t border-gray-100">
-                <span className="text-xs text-gray-400">
-                  {new Date(folder.updatedAt || folder.createdAt).toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    day: 'numeric' 
-                  })}
-                </span>
+                {/* 중앙: 내부 내용 리스트 */}
+                <div className="flex-1">
+                  {recentItems.length > 0 ? (
+                    <div className="space-y-1.5">
+                      {recentItems.map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <div 
+                            className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: folder.color || '#6B7280' }}
+                          />
+                          <span className="text-xs text-gray-600 truncate">
+                            {item.name}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-xs text-gray-400 italic">
+                      Empty folder
+                    </div>
+                  )}
+                </div>
+
+                {/* 하단: 업데이트 시간 (항상 최하단) */}
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  <span className="text-xs text-gray-400">
+                    {new Date(folder.updatedAt || folder.createdAt).toLocaleDateString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric' 
+                    })}
+                  </span>
+                </div>
               </div>
             </motion.button>
           )

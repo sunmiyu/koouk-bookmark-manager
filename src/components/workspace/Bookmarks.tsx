@@ -1,40 +1,21 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import Image from 'next/image'
 import { 
   Search, 
-  Star,
-  Link as LinkIcon,
-  Trash2,
-  ExternalLink,
-  ChevronDown,
   Plus
 } from 'lucide-react'
+import BookmarkCard, { Bookmark } from '../ui/BookmarkCard'
+import CategoryFilter from '../ui/CategoryFilter'
 
 
-interface Bookmark {
-  id: string
-  title: string
-  url: string
-  description?: string
-  favicon?: string
-  tags: string[]
-  createdAt: string
-  updatedAt: string
-  category?: string
-  isFavorite?: boolean
-  usageCount?: number
-  lastUsedAt?: string
-}
+
 
 export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }) {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('most-used')
   const [isLoading, setIsLoading] = useState(true)
-  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
 
   // 카테고리 옵션들
   const categories = [
@@ -370,41 +351,14 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
       {/* 모바일: 드롭다운 + 버튼 한 줄 */}
       <div className="block sm:hidden mb-4">
         <div className="flex items-center gap-3">
-          {/* 드롭다운 */}
-          <div className="flex-1 relative">
-            <button
-              onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-              className="w-full flex items-center justify-between px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-            >
-              <span>{categories.find(cat => cat.value === selectedCategory)?.label}</span>
-              <ChevronDown className={`w-4 h-4 transition-transform ${showCategoryDropdown ? 'rotate-180' : ''}`} />
-            </button>
-            
-            {/* 드롭다운 메뉴 */}
-            {showCategoryDropdown && (
-              <motion.div
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden"
-              >
-                {categories.map((category) => (
-                  <button
-                    key={category.value}
-                    onClick={() => {
-                      setSelectedCategory(category.value)
-                      setShowCategoryDropdown(false)
-                    }}
-                    className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors ${
-                      selectedCategory === category.value 
-                        ? 'bg-black text-white hover:bg-gray-800' 
-                        : 'text-gray-700'
-                    }`}
-                  >
-                    {category.label}
-                  </button>
-                ))}
-              </motion.div>
-            )}
+          {/* 카테고리 필터 컴포넌트 사용 */}
+          <div className="flex-1">
+            <CategoryFilter
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+              showDropdownOnMobile={true}
+            />
           </div>
           
           {/* + 버튼 - 투명 배경 */}
@@ -479,112 +433,23 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
       </div>
 
       {/* Category Filter - 데스크톱용만 */}
-      <div className="hidden sm:block mb-6 pb-3 border-b border-gray-200">
-        <div className="flex flex-wrap gap-2">
-          {categories.map((category) => (
-            <button
-              key={category.value}
-              onClick={() => setSelectedCategory(category.value)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
-                selectedCategory === category.value
-                  ? 'bg-black text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {category.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <CategoryFilter
+        categories={categories}
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+        showDropdownOnMobile={false}
+      />
 
       {/* Bookmarks List - Unified Compact Design for Mobile and PC */}
       <div className="space-y-0">
         {filteredBookmarks.map((bookmark) => (
-          <motion.button
+          <BookmarkCard
             key={bookmark.id}
-            onClick={() => handleOpenBookmark(bookmark)}
-            className="w-full px-3 py-2.5 hover:bg-gray-50 transition-colors text-left border-b border-gray-100 last:border-b-0"
-            whileTap={{ scale: 0.98 }}
-            style={{ minHeight: '44px' }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            {/* 통합된 컴팩트 레이아웃 - 모바일과 PC 동일 */}
-            <div className="flex items-center gap-3">
-              {/* 파비콘 */}
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-gray-50 border border-gray-100">
-                {bookmark.favicon ? (
-                  <Image 
-                    src={bookmark.favicon} 
-                    alt={bookmark.title}
-                    width={16}
-                    height={16}
-                    className="w-4 h-4"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = `https://www.google.com/s2/favicons?domain=${new URL(bookmark.url).hostname}&sz=16`
-                    }}
-                  />
-                ) : (
-                  <LinkIcon className="w-4 h-4 text-gray-400" />
-                )}
-              </div>
-              
-              {/* 제목 */}
-              <div className="flex-1 min-w-0">
-                <span className="font-medium text-gray-900 text-sm truncate block">{bookmark.title}</span>
-              </div>
-              
-              {/* URL 도메인 - PC에서 더 넓게 */}
-              <div className="hidden sm:block text-xs text-gray-500 w-24 truncate flex-shrink-0">
-                {new URL(bookmark.url).hostname.replace('www.', '')}
-              </div>
-              
-              {/* 태그들 - PC에서만 표시 */}
-              <div className="hidden lg:flex items-center gap-1 flex-shrink-0">
-                {bookmark.tags.slice(0, 2).map((tag) => (
-                  <span key={tag} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-              
-              {/* 메타정보 */}
-              <div className="flex items-center gap-2 text-xs text-gray-500 flex-shrink-0">
-                {bookmark.isFavorite && <Star className="w-3 h-3 text-yellow-500 fill-current" />}
-                <span className="hidden sm:inline">
-                  {new Date(bookmark.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                </span>
-              </div>
-              
-              {/* Actions - 모바일/PC 모두 표시 */}
-              <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex-shrink-0">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleToggleFavorite(bookmark.id)
-                  }}
-                  className={`p-1 rounded hover:bg-gray-100 transition-colors ${
-                    bookmark.isFavorite ? 'text-yellow-500' : 'text-gray-400'
-                  }`}
-                  title={bookmark.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-                >
-                  <Star className={`w-3 h-3 ${bookmark.isFavorite ? 'fill-current' : ''}`} />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleDeleteBookmark(bookmark.id)
-                  }}
-                  className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-500 transition-colors"
-                  title="Delete bookmark"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </button>
-              </div>
-              
-              <ExternalLink size={14} color="#9CA3AF" className="flex-shrink-0" />
-            </div>
-          </motion.button>
+            bookmark={bookmark}
+            onOpenBookmark={handleOpenBookmark}
+            onToggleFavorite={handleToggleFavorite}
+            onDeleteBookmark={handleDeleteBookmark}
+          />
         ))}
       </div>
 

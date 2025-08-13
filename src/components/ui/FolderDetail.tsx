@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowLeft, MoreVertical, ExternalLink, Trash2, Grid, List, Share2 } from 'lucide-react'
 import { FolderItem, StorageItem } from '@/types/folder'
+import DocumentModal from './DocumentModal'
 
 interface FolderDetailProps {
   folder: FolderItem
@@ -22,6 +23,8 @@ export default function FolderDetail({
 }: FolderDetailProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [selectedItem, setSelectedItem] = useState<string | null>(null)
+  const [documentModalOpen, setDocumentModalOpen] = useState(false)
+  const [documentModalItem, setDocumentModalItem] = useState<StorageItem | null>(null)
 
   // 검색 필터링 - StorageItem만 필터링
   const filteredItems = folder.children.filter((item): item is StorageItem => {
@@ -60,6 +63,10 @@ export default function FolderDetail({
     } else if (item.type === 'image' && 'content' in item) {
       // 이미지 미리보기 모달 열기 (추후 구현)
       window.open(item.content, '_blank')
+    } else if (item.type === 'document' || item.type === 'memo') {
+      // 문서/메모 모달 열기
+      setDocumentModalItem(item)
+      setDocumentModalOpen(true)
     }
   }
 
@@ -286,6 +293,16 @@ export default function FolderDetail({
           </div>
         )}
       </div>
+
+      {/* 문서 모달 */}
+      <DocumentModal
+        isOpen={documentModalOpen}
+        onClose={() => {
+          setDocumentModalOpen(false)
+          setDocumentModalItem(null)
+        }}
+        item={documentModalItem}
+      />
     </div>
   )
 }

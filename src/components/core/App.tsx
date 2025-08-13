@@ -71,7 +71,7 @@ export default function App() {
       sharedFolder.title,
       undefined,
       {
-        color: sharedFolder.folder.color || '#3B82F6',
+        color: '#F97316', // 주황색으로 변경 (Market Place에서 가져온 폴더 구분)
         icon: sharedFolder.folder.icon || '📁'
       }
     )

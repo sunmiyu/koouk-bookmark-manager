@@ -269,9 +269,8 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-black">Market Place</h1>
             <p className="text-sm text-gray-600 mt-1">
-              {filteredFolders.length}개의 공유 폴더
+              {filteredFolders.length} shared folders
             </p>
           </div>
           

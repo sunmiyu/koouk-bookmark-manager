@@ -64,11 +64,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       setLoading(true)
+      
+      // Attempt to sign out from Supabase
       const { error } = await supabase.auth.signOut()
-      if (error) throw error
+      if (error) {
+        console.error('Supabase sign out error:', error)
+      }
+      
+      // Always clear user state regardless of Supabase response
       setUser(null)
+      
+      // Clear auth-related localStorage items
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('koouk-auth-token')
+        localStorage.removeItem('sb-' + supabase.supabaseUrl.split('//')[1] + '-auth-token')
+      }
+      
     } catch (error) {
       console.error('Sign out error:', error)
+      // Even if error occurs, clear user state
+      setUser(null)
     } finally {
       setLoading(false)
     }

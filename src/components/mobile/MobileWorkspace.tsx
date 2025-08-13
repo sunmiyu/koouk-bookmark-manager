@@ -39,8 +39,8 @@ export default function MobileWorkspace({
   const [showQuickAddModal, setShowQuickAddModal] = useState(false)
   const [selectedFolder, setSelectedFolder] = useState<FolderItem | null>(null)
 
-  // Don't render on desktop
-  if (device.isDesktop) return null
+  // Now can render on desktop too (unified layout)
+  // if (device.isDesktop) return null
 
   // Find folder by ID in nested structure
   const findFolderById = (folders: FolderItem[], id: string): FolderItem | null => {

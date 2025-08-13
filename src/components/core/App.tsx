@@ -94,47 +94,47 @@ export default function App() {
   const { user } = useAuth()
 
   const handleSignOut = async () => {
-    if (!confirm('로그아웃 하시겠습니까? 모든 데이터가 초기화됩니다.')) {
+    if (!confirm('Are you sure you want to sign out? All data will be reset.')) {
       return
     }
     
     try {
-      console.log('🔥 Emergency sign out process starting...')
+      console.log('🔐 Starting logout process...')
       
-      // 1. 즉시 사용자 메뉴 닫기
+      // 1. Close user menu immediately
       setShowUserMenu(false)
       
-      // 2. 모든 localStorage 완전 삭제
+      // 2. Sign out from Supabase first
+      console.log('🔒 Signing out from Supabase...')
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.error('Supabase sign out error:', error)
+      } else {
+        console.log('✅ Supabase sign out successful')
+      }
+      
+      // 3. Clear all localStorage
       console.log('💾 Clearing all localStorage...')
       if (typeof window !== 'undefined') {
-        localStorage.clear() // 모든 키 삭제
+        localStorage.clear()
         console.log('✅ localStorage completely cleared')
       }
       
-      // 3. 모든 sessionStorage 삭제
+      // 4. Clear all sessionStorage
       console.log('📝 Clearing all sessionStorage...')
       if (typeof window !== 'undefined') {
         sessionStorage.clear()
         console.log('✅ sessionStorage completely cleared')
       }
       
-      // 4. Supabase 강제 로그아웃 (에러 무시)
-      console.log('🔐 Force signing out from Supabase...')
-      try {
-        await supabase.auth.signOut({ scope: 'global' })
-        console.log('✅ Supabase sign out successful')
-      } catch (authError) {
-        console.warn('⚠️ Supabase sign out failed, but continuing...', authError)
-      }
-      
-      // 5. 페이지 강제 새로고침 (즉시)
-      console.log('🔄 Force reloading page...')
-      window.location.href = window.location.origin // 루트로 이동 후 새로고침
+      // 5. Reload page for complete reset
+      console.log('🔄 Reloading page...')
+      window.location.reload()
       
     } catch (error) {
       console.error('💥 Sign out error, doing emergency reload:', error)
-      // 완전 실패 시 강제 새로고침
-      window.location.href = window.location.origin
+      // Emergency reload if complete failure
+      window.location.reload()
     }
   }
 
@@ -143,7 +143,7 @@ export default function App() {
       {/* Fixed Header for Mobile/Desktop */}
       <header className="border-b border-gray-200 bg-white sticky top-0 z-50 w-full">
         <div className="w-full bg-white">
-          <div className="w-full px-4 sm:px-8 sm:max-w-6xl sm:mx-auto">
+          <div className="w-full px-3 sm:px-8 sm:max-w-6xl sm:mx-auto">
             {/* PC: Single row with all elements */}
             {device.width >= 768 ? (
               <div className="flex items-center justify-between h-16 min-h-[64px]">
@@ -207,7 +207,7 @@ export default function App() {
                     onSearchChange={setSearchQuery}
                     searchScope={activeTab === 'my-folder' ? 'my-folder' : activeTab === 'marketplace' ? 'market-place' : 'bookmarks'}
                     placeholder="Search..."
-                    language="ko"
+                    language="en"
                   />
 
                   {/* Feedback Button - mobile shows icon only */}
@@ -294,14 +294,14 @@ export default function App() {
                   </div>
 
                   {/* Right side elements - Compact for mobile */}
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-2">
                     {/* Enhanced Search Interface - Smaller for mobile */}
                     <SearchInterface
                       searchQuery={searchQuery}
                       onSearchChange={setSearchQuery}
                       searchScope={activeTab === 'my-folder' ? 'my-folder' : activeTab === 'marketplace' ? 'market-place' : 'bookmarks'}
                       placeholder="Search..."
-                      language="ko"
+                      language="en"
                     />
 
                     {/* Feedback Button - Icon only on mobile */}
@@ -375,11 +375,6 @@ export default function App() {
                       setActiveTab(tab)
                     }}
                   />
-                </div>
-                
-                {/* Debug: Show device type */}
-                <div className="fixed top-20 left-2 bg-red-500 text-white p-1 text-xs z-50 rounded">
-                  {device.type} - {device.width}px
                 </div>
               </div>
             )}

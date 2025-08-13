@@ -1,7 +1,7 @@
 # 🎯 KOOUK Project Goals & User Flow
 
 ## 📋 프로젝트 개요
-
+      : Koouk 서비스는 English user를 위한 서비스로, 영어로만 작성한다. 
 ### 🚀 미션
 **"Notion은 어렵다 → Koouk은 직관적이어서 배울 필요 없다"**
 

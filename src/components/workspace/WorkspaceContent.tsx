@@ -65,10 +65,31 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
 
         if (savedFolders) {
           const parsedFolders = JSON.parse(savedFolders)
-          setFolders(parsedFolders)
           
-          if (parsedFolders.length > 0 && !savedSelectedId) {
-            setSelectedFolderId(parsedFolders[0].id)
+          // 🎯 더미 데이터 자동 감지 및 제거
+          const hasDummyData = parsedFolders.some((folder: any) => 
+            folder.name?.includes('Sample') || 
+            folder.name?.includes('Folder') ||
+            folder.children?.some((item: any) => 
+              item.name?.includes('Sample') || 
+              item.content?.includes('example.com')
+            )
+          )
+          
+          if (hasDummyData) {
+            // 더미 데이터가 감지되면 완전히 초기화
+            console.log('Dummy data detected, clearing...')
+            localStorage.removeItem('koouk-folders')
+            localStorage.removeItem('koouk-selected-folder')
+            localStorage.removeItem('koouk-expanded-folders')
+            setIsFirstTime(true)
+            setFolders([])
+          } else {
+            setFolders(parsedFolders)
+            
+            if (parsedFolders.length > 0 && !savedSelectedId) {
+              setSelectedFolderId(parsedFolders[0].id)
+            }
           }
         } else {
           // 🎯 NEW: 완전히 깨끗한 시작 - 더미 데이터 없음
@@ -390,72 +411,82 @@ You can see it in the Market Place.`)
     )
   }
 
-  // 🎯 NEW: PC와 모바일 완전 분리된 레이아웃
+  // 🎯 UNIFIED: PC uses same layout as mobile (no folder tree sidebar)
   if (device.width >= 768) {
-    // 💻 PC 레이아웃 - 새로 구현
+    // 💻 PC 레이아웃 - Mobile과 동일한 구조
     return (
-      <div className="flex-1 flex h-full">
-        {/* Left Sidebar - 폴더 트리 */}
-        <div className="w-80 border-r border-gray-200 bg-gray-50 flex flex-col">
-          {/* 사이드바 헤더 */}
-          <div className="p-4 border-b border-gray-200 bg-white">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-semibold text-gray-900">My Folders</h2>
+      <div className="flex-1 flex flex-col h-full">
+        {/* Content Header with actions */}
+        <div className="bg-white border-b border-gray-200 p-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <h2 className="text-lg font-semibold text-gray-900">My Folders</h2>
+              <span className="text-sm text-gray-500">{folders.length} folders</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowQuickNoteModal(true)}
+                className="flex items-center gap-2 px-3 py-2 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+              >
+                📝 Note
+              </button>
+              <button
+                onClick={() => setShowBigNoteModal(true)}
+                className="flex items-center gap-2 px-3 py-2 text-sm bg-yellow-50 text-yellow-600 rounded-lg hover:bg-yellow-100 transition-colors"
+              >
+                📄 Memo
+              </button>
               <button
                 onClick={() => handleCreateFolder()}
-                className="w-8 h-8 bg-black text-white rounded-lg flex items-center justify-center hover:bg-gray-800 transition-colors"
-                title="Create New Folder"
+                className="flex items-center gap-2 px-3 py-2 text-sm bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
+                + New Folder
               </button>
             </div>
-            <p className="text-xs text-gray-500">{folders.length} folders</p>
-          </div>
-
-          {/* 폴더 리스트 */}
-          <div className="flex-1 overflow-y-auto">
-            <FolderTree
-              folders={folders}
-              selectedFolderId={selectedFolderId}
-              expandedFolders={expandedFolders}
-              onFolderSelect={handleFolderSelect}
-              onFolderToggle={handleFolderToggle}
-              onCreateFolder={handleCreateFolder}
-              onCreateItem={handleCreateItem}
-              onRenameFolder={handleRenameFolder}
-              onDeleteFolder={handleDeleteFolder}
-              onShareFolder={handleShareFolder}
-            />
           </div>
         </div>
 
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col bg-white">
+        {/* Main Content Area - Same as mobile */}
+        <div className="flex-1 overflow-hidden">
           {selectedFolderId ? (
-            <FolderContent
-              key={selectedFolderId}
-              folderId={selectedFolderId}
-              folders={folders}
-              editingItem={editingItem}
-              onFoldersChange={handleFoldersChange}
-              onSaveMemo={handleSaveMemo}
-              onSaveNote={handleSaveNote}
-              onCreateItem={handleCreateItem}
-              onDocumentOpen={handleDocumentOpen}
-              searchQuery={searchQuery}
-            />
-          ) : (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <span className="text-xl">📁</span>
-                </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Select a folder</h3>
-                <p className="text-sm text-gray-500">Choose a folder from the sidebar to view its contents</p>
+            <>
+              <FolderContent
+                key={selectedFolderId}
+                folderId={selectedFolderId}
+                folders={folders}
+                editingItem={editingItem}
+                onFoldersChange={handleFoldersChange}
+                onSaveMemo={handleSaveMemo}
+                onSaveNote={handleSaveNote}
+                onCreateItem={handleCreateItem}
+                onDocumentOpen={handleDocumentOpen}
+                searchQuery={searchQuery}
+              />
+              
+              {/* Universal Input Bar at the bottom */}
+              <div className="border-t border-gray-200 bg-white">
+                <UniversalInputBar
+                  folders={folders}
+                  selectedFolderId={selectedFolderId}
+                  onAddItem={(item, folderId) => {
+                    const updatedFolders = addItemToFolder(folders, folderId, item)
+                    handleFoldersChange(updatedFolders)
+                  }}
+                  onFolderSelect={handleFolderSelect}
+                  onOpenMemo={() => setShowQuickNoteModal(true)}
+                  onOpenNote={() => setShowBigNoteModal(true)}
+                />
               </div>
-            </div>
+            </>
+          ) : (
+            // Use mobile folder list for PC too
+            <MobileWorkspace 
+              folders={folders}
+              selectedFolderId={selectedFolderId}
+              onFoldersChange={handleFoldersChange}
+              onFolderSelect={handleFolderSelect}
+              onShareFolder={handleShareFolder}
+            />
           )}
         </div>
 

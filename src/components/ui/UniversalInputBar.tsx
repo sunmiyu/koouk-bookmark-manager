@@ -168,7 +168,7 @@ export default function UniversalInputBar({
   const handleSubmit = async () => {
     if (!input.trim() && attachedFiles.length === 0) return
     if (!selectedFolderId) {
-      alert('폴더를 선택해주세요!')
+      alert('Please select a folder!')
       return
     }
 
@@ -304,7 +304,7 @@ export default function UniversalInputBar({
             whileTap={{ scale: 0.98 }}
           >
             <StickyNote className="w-4 h-4" />
-            {!device.isMobile && <span className="text-xs font-medium">메모 작성</span>}
+            {!device.isMobile && <span className="text-xs font-medium">Quick Memo</span>}
           </motion.button>
           
           <motion.button
@@ -318,7 +318,7 @@ export default function UniversalInputBar({
             whileTap={{ scale: 0.98 }}
           >
             <NotebookPen className="w-4 h-4" />
-            {!device.isMobile && <span className="text-xs font-medium">노트 작성</span>}
+            {!device.isMobile && <span className="text-xs font-medium">Write Note</span>}
           </motion.button>
         </div>
         {/* 폴더 선택기 */}
@@ -335,7 +335,7 @@ export default function UniversalInputBar({
               exit={{ opacity: 0, y: 20 }}
             >
               <h3 className="text-xs font-medium mb-3" style={{ color: 'var(--text-primary)' }}>
-                저장할 폴더 선택:
+                Select folder to save:
               </h3>
               <div className="max-h-60 overflow-y-auto space-y-1">
                 {allFolders.map((folder) => (
@@ -430,7 +430,7 @@ export default function UniversalInputBar({
             >
               <Folder size={16} />
               <span className="text-xs font-medium">
-                {selectedFolder?.name || '폴더 선택'}
+                {selectedFolder?.name || 'Select Folder'}
               </span>
               {showFolderSelector ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
@@ -443,7 +443,7 @@ export default function UniversalInputBar({
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
                 onPaste={handlePaste}
-                placeholder="링크, 메모, 문서 등 무엇이든 입력하세요... (Ctrl+Enter로 저장)"
+                placeholder="Add links, notes, documents, or anything... (Ctrl+Enter to save)"
                 className="w-full resize-none border-none outline-none bg-transparent text-xs leading-relaxed"
                 style={{ 
                   color: 'var(--text-primary)',
@@ -480,7 +480,7 @@ export default function UniversalInputBar({
               <button
                 onClick={handleFileAttach}
                 className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                title="파일 첨부"
+                title="Attach file"
               >
                 <Paperclip size={18} style={{ color: 'var(--text-secondary)' }} />
               </button>
@@ -510,7 +510,7 @@ export default function UniversalInputBar({
                   y: (!input.trim() && attachedFiles.length === 0 && pastedImages.length === 0) || isProcessing || !selectedFolderId ? 0 : -2
                 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-                title={device.isMobile ? "완료" : "전송 (Enter)"}
+                title={device.isMobile ? "Submit" : "Send (Enter)"}
               >
                 {/* 🎨 Warm gradient overlay for active state */}
                 {!((!input.trim() && attachedFiles.length === 0 && pastedImages.length === 0) || isProcessing || !selectedFolderId) && (

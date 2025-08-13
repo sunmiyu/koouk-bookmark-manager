@@ -97,9 +97,9 @@ export default function MobileFolderList({ folders, onFolderSelect, onItemSelect
                  }}>
               <Folder size={36} className="text-amber-600" />
             </div>
-            <h3 className="text-lg font-medium text-gray-800 mb-3 leading-relaxed">아직 폴더가 없어요</h3>
+            <h3 className="text-lg font-medium text-gray-800 mb-3 leading-relaxed">No folders yet</h3>
             <p className="text-base text-amber-600/80 max-w-xs font-medium leading-relaxed">
-              첫 번째 폴더를 만들어 소중한 정보를 정리해보세요
+              Create your first folder to organize your information
             </p>
           </div>
         )}
@@ -196,11 +196,11 @@ function FolderTreeNode({
               </h3>
               {folder.children.length > 0 && (
                 <div className="flex items-center gap-2 text-sm text-amber-600/80 font-medium">
-                  <span>{folder.children.length}개 항목</span>
+                  <span>{folder.children.length} items</span>
                   {items.length > 0 && (
                     <>
                       <span className="text-amber-500/60">•</span>
-                      <span>{items.length}개 파일</span>
+                      <span>{items.length} files</span>
                     </>
                   )}
                 </div>
@@ -218,7 +218,7 @@ function FolderTreeNode({
                 style={{
                   border: '1px solid rgba(251, 191, 36, 0.2)'
                 }}
-                title="폴더 공유하기"
+                title="Share folder"
               >
                 <Share2 size={16} className="text-amber-600" />
               </button>
@@ -369,7 +369,7 @@ function ItemNode({
               <>
                 <span className="text-amber-500/60">•</span>
                 <span className="text-amber-600/80 text-base font-medium">
-                  {new Date(item.createdAt).toLocaleDateString('ko-KR', { 
+                  {new Date(item.createdAt).toLocaleDateString('en-US', { 
                     month: 'short', 
                     day: 'numeric' 
                   })}

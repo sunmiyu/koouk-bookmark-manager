@@ -170,8 +170,8 @@ export const createDummyFolders = (): FolderItem[] => {
   
   parentingFolder.children = [englishEduFolder, mathEduFolder, disciplineFolder]
   
-  // 음식 레시피 폴더
-  const recipeFolder = createFolder('음식 레시피', undefined, { color: '#10B981', icon: 'ChefHat' })
+  // Food Recipe folder
+  const recipeFolder = createFolder('Food Recipe', undefined, { color: '#10B981', icon: 'ChefHat' })
   recipeFolder.children = [
     createStorageItem('김치찌개 황금 레시피', 'document', '🍲 김치찌개 황금 레시피 (4인분)\n\n📝 재료\n주재료:\n• 신김치 300g (1/4포기)\n• 돼지삼겹살 200g\n• 두부 1/2모\n• 대파 1대\n• 양파 1/2개\n\n양념:\n• 고춧가루 1큰술\n• 다진마늘 1큰술\n• 간장 1큰술\n• 참기름 1작은술\n\n🔥 조리법\n1. 김치는 한입 크기로 자르고, 돼지고기는 한입 크기로 썰기\n2. 팬에 참기름을 두르고 돼지고기를 볶아 기름이 나올 때까지\n3. 김치를 넣고 함께 볶아 신맛을 날리기 (3-4분)\n4. 물 400ml 붓고 끓어오르면 고춧가루, 다진마늘, 간장 추가\n5. 20분 끓인 후 두부, 대파, 양파 넣고 5분 더 끓이기\n\n💡 포인트\n- 신김치일수록 맛있음\n- 돼지고기 기름이 국물 맛의 핵심\n- 마지막에 청양고추 추가하면 더 맛있음', recipeFolder.id),
     createStorageItem('백종원 파스타 레시피', 'video', 'https://www.youtube.com/watch?v=V3AdEeMiKTk', recipeFolder.id),

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { FolderItem, StorageItem, createFolder, createStorageItem } from '@/types/folder'
 import QuickNoteModal from '@/components/modals/QuickNoteModal'
 import BigNoteModal from '@/components/modals/BigNoteModal'
+import UniversalInputBar from '@/components/ui/UniversalInputBar'
 
 interface MobileMyFolderProps {
   folders: FolderItem[]
@@ -19,7 +20,6 @@ export default function MobileMyFolder({
   onFolderSelect: parentOnFolderSelect,
   onShareFolder
 }: MobileMyFolderProps) {
-  const [editingItem, setEditingItem] = useState<StorageItem | null>(null)
   const [showQuickNoteModal, setShowQuickNoteModal] = useState(false)
   const [showBigNoteModal, setShowBigNoteModal] = useState(false)
   const [showCreateFolderModal, setShowCreateFolderModal] = useState(false)
@@ -130,7 +130,6 @@ export default function MobileMyFolder({
     }
 
     if (item.type === 'memo' || item.type === 'document') {
-      setEditingItem(item)
       if (item.type === 'memo') {
         setShowQuickNoteModal(true)
       } else {
@@ -213,7 +212,6 @@ export default function MobileMyFolder({
         {/* 헤더 */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-bold text-black">My Folders</h1>
             <p className="text-sm text-gray-600 mt-1">
               {folders.length} folders
             </p>
@@ -285,6 +283,24 @@ export default function MobileMyFolder({
           })}
         </div>
 
+        {/* Universal Input Bar for mobile folder list - Fixed at bottom */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 pb-safe">
+          <UniversalInputBar
+            folders={folders}
+            selectedFolderId={folders.length > 0 ? folders[0].id : undefined}
+            onAddItem={(item, folderId) => {
+              const updatedFolders = addItemToFolder(folders, folderId, item)
+              onFoldersChange(updatedFolders)
+            }}
+            onFolderSelect={() => {}} // Not needed in list view
+            onOpenMemo={() => setShowQuickNoteModal(true)}
+            onOpenNote={() => setShowBigNoteModal(true)}
+          />
+        </div>
+
+        {/* Add bottom padding to prevent content overlap */}
+        <div className="h-24"></div>
+
         {/* 폴더 생성 모달 */}
         {showCreateFolderModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -343,7 +359,7 @@ export default function MobileMyFolder({
             </button>
             
             <div>
-              <h2 className="font-semibold text-gray-900 text-base">
+              <h2 className="font-medium text-gray-900 text-sm">
                 {selectedFolder.name || 'Untitled Folder'}
               </h2>
               <p className="text-xs text-gray-500">
@@ -353,10 +369,10 @@ export default function MobileMyFolder({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* 빠른 추가 버튼 */}
+            {/* Quick Add button - bordered style */}
             <button
               onClick={() => setShowQuickAddModal(true)}
-              className="w-8 h-8 bg-black text-white rounded-lg flex items-center justify-center hover:bg-gray-800 transition-colors"
+              className="w-8 h-8 border border-gray-300 text-gray-600 rounded-lg flex items-center justify-center hover:border-gray-400 hover:text-gray-800 transition-colors"
               title="Quick Add"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -448,6 +464,30 @@ export default function MobileMyFolder({
           </div>
         )}
       </div>
+
+      {/* Universal Input Bar for folder content view - Fixed at bottom */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 pb-safe">
+        <UniversalInputBar
+          folders={folders}
+          selectedFolderId={selectedFolder.id}
+          onAddItem={(item, folderId) => {
+            const updatedFolders = addItemToFolder(folders, folderId, item)
+            onFoldersChange(updatedFolders)
+            
+            // Update selected folder to reflect new content
+            const updatedFolder = findFolderById(updatedFolders, folderId)
+            if (updatedFolder) {
+              setSelectedFolder(updatedFolder)
+            }
+          }}
+          onFolderSelect={() => {}} // Not needed in content view
+          onOpenMemo={() => setShowQuickNoteModal(true)}
+          onOpenNote={() => setShowBigNoteModal(true)}
+        />
+      </div>
+
+      {/* Add bottom padding to prevent content overlap */}
+      <div className="h-24"></div>
 
       {/* 빠른 추가 모달 */}
       {showQuickAddModal && (

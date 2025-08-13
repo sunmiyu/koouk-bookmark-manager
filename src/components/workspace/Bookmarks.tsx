@@ -12,6 +12,10 @@ import {
   ChevronDown,
   Plus
 } from 'lucide-react'
+import UniversalInputBar from '../ui/UniversalInputBar'
+import { FolderItem, StorageItem } from '@/types/folder'
+import { useToast } from '@/hooks/useToast'
+import Toast from '../ui/Toast'
 
 interface Bookmark {
   id: string
@@ -29,11 +33,24 @@ interface Bookmark {
 }
 
 export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }) {
+  const { toast, showSuccess, hideToast } = useToast()
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('most-used')
   const [isLoading, setIsLoading] = useState(true)
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
+  
+  // Mock folders for Universal Input Bar (bookmarks don't actually use folders)
+  const mockFolders: FolderItem[] = [{
+    id: 'bookmarks',
+    name: 'Bookmarks',
+    type: 'folder',
+    children: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    color: '#3B82F6',
+    icon: '🔖'
+  }]
 
   // 카테고리 옵션들
   const categories = [
@@ -328,8 +345,31 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
   }
 
   const handleDeleteBookmark = (bookmarkId: string) => {
-    if (confirm('이 북마크를 삭제하시겠습니까?')) {
+    if (confirm('Are you sure you want to delete this bookmark?')) {
       setBookmarks(prev => prev.filter(bookmark => bookmark.id !== bookmarkId))
+    }
+  }
+
+  // Handle Universal Input Bar items (mainly URLs)
+  const handleAddItemFromInputBar = (item: StorageItem) => {
+    if (item.type === 'url') {
+      // Convert StorageItem to Bookmark
+      const newBookmark: Bookmark = {
+        id: Date.now().toString(),
+        title: item.name === 'Link' ? new URL(item.content).hostname : item.name,
+        url: item.content,
+        description: '',
+        tags: ['universal-input'],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        category: 'personal',
+        isFavorite: false,
+        usageCount: 0,
+        lastUsedAt: new Date().toISOString()
+      }
+      
+      setBookmarks(prev => [newBookmark, ...prev])
+      showSuccess('🔖 Bookmark saved!')
     }
   }
 
@@ -337,15 +377,35 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
     return (
       <div className="h-96 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-sm text-gray-500">북마크 로딩중...</p>
+          {/* Bookmarks skeleton loading */}
+          <div className="space-y-0 max-w-2xl mx-auto">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="flex items-center gap-3 px-3 py-3 border-b border-gray-100">
+                <div className="w-8 h-8 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-lg animate-pulse"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse"></div>
+                  <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-2/3 animate-pulse"></div>
+                </div>
+                <div className="flex gap-2">
+                  <div className="w-3 h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse"></div>
+                  <div className="w-3 h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6 flex justify-center">
+            <div className="relative">
+              <div className="w-8 h-8 border-2 border-gray-200 rounded-full"></div>
+              <div className="absolute inset-0 w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex-1 px-2 py-3 sm:px-4 lg:p-4">
+    <div className="flex-1 px-2 py-3 sm:px-4 lg:p-4 pb-24">
       {/* 모바일: 드롭다운 + 버튼 한 줄 */}
       <div className="block sm:hidden mb-4">
         <div className="flex items-center gap-3">
@@ -389,9 +449,9 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
           {/* + 버튼 - 투명 배경 */}
           <button
             onClick={() => {
-              const url = prompt('북마크할 URL을 입력하세요:')
+              const url = prompt('Enter URL to bookmark:')
               if (url) {
-                const title = prompt('제목을 입력하세요:', url) || url
+                const title = prompt('Enter title:', url) || url
                 const newBookmark: Bookmark = {
                   id: Date.now().toString(),
                   title,
@@ -427,12 +487,12 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
           </p>
         </div>
         
-        {/* Add Bookmark Button - 데스크톱용 */}
+        {/* Add Bookmark Button - Desktop */}
         <button
           onClick={() => {
-            const url = prompt('북마크할 URL을 입력하세요:')
+            const url = prompt('Enter URL to bookmark:')
             if (url) {
-              const title = prompt('제목을 입력하세요:', url) || url
+              const title = prompt('Enter title:', url) || url
               const newBookmark: Bookmark = {
                 id: Date.now().toString(),
                 title,
@@ -531,7 +591,7 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
               <div className="flex items-center gap-2 text-xs text-gray-500 flex-shrink-0">
                 {bookmark.isFavorite && <Star className="w-3 h-3 text-yellow-500 fill-current" />}
                 <span className="hidden sm:inline">
-                  {new Date(bookmark.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
+                  {new Date(bookmark.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                 </span>
               </div>
               
@@ -579,6 +639,26 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
           </p>
         </div>
       )}
+      
+      {/* Universal Input Bar - Fixed at bottom for paste-and-save workflow */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 pb-safe">
+        <UniversalInputBar
+          folders={mockFolders}
+          selectedFolderId="bookmarks"
+          onAddItem={(item) => handleAddItemFromInputBar(item)}
+          onFolderSelect={() => {}} // Not needed for bookmarks
+          onOpenMemo={() => {}} // Not applicable for bookmarks
+          onOpenNote={() => {}} // Not applicable for bookmarks
+        />
+      </div>
+      
+      {/* Toast Notification */}
+      <Toast
+        show={toast.show}
+        message={toast.message}
+        type={toast.type}
+        onClose={hideToast}
+      />
     </div>
   )
 }

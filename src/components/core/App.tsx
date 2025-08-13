@@ -210,65 +210,30 @@ export default function App() {
                     language="en"
                   />
 
-                  {/* Feedback Button - mobile shows icon only */}
+                  {/* Feedback Button - responsive design */}
                   <button 
                     onClick={() => setShowFeedbackModal(true)}
-                    className="flex items-center justify-center w-8 h-8 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:w-auto sm:h-auto"
+                    className="flex items-center justify-center w-8 h-8 text-gray-700 hover:text-gray-900 transition-colors sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:w-auto sm:h-auto sm:hover:bg-gray-50 sm:rounded-md"
                     title="Feedback"
                   >
                     <MessageCircle className="w-4 h-4" />
                     <span className="hidden sm:inline">Feedback</span>
                   </button>
 
-                  {/* User Account */}
-                  <div className="relative z-[60]">
+                  {/* User Account - Completely New Implementation */}
+                  <div className="relative">
                     <button
-                      onClick={() => setShowUserMenu(!showUserMenu)}
-                      className="flex items-center gap-1.5 p-1.5 hover:bg-gray-50 rounded-md transition-colors"
+                      onClick={() => {
+                        console.log('🔵 User menu button clicked')
+                        setShowUserMenu(!showUserMenu)
+                      }}
+                      className="flex items-center gap-1.5 p-1.5 hover:bg-gray-50 rounded-md transition-colors cursor-pointer"
+                      type="button"
                     >
                       <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center text-xs font-medium">
                         {user?.email?.[0]?.toUpperCase() || 'U'}
                       </div>
                     </button>
-
-                    {/* User Dropdown Menu */}
-                    {showUserMenu && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[999]"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <div className="px-3 py-2 border-b border-gray-100">
-                          <div className="text-xs font-medium text-black">{user?.email?.split('@')[0] || 'User'}</div>
-                          <div className="text-[10px] text-gray-500">{user?.email}</div>
-                        </div>
-                        
-                        <Link
-                          href="/settings"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setShowUserMenu(false)
-                          }}
-                          className="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
-                        >
-                          <Settings className="w-3.5 h-3.5" />
-                          Settings
-                        </Link>
-                        
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleSignOut()
-                          }}
-                          className="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 transition-colors"
-                        >
-                          <LogOut className="w-3.5 h-3.5" />
-                          Sign Out
-                        </button>
-                      </motion.div>
-                    )}
                   </div>
                 </div>
               </div>
@@ -307,61 +272,26 @@ export default function App() {
                     {/* Feedback Button - Icon only on mobile */}
                     <button 
                       onClick={() => setShowFeedbackModal(true)}
-                      className="relative z-[70] flex items-center justify-center w-8 h-8 text-gray-900 hover:text-black hover:bg-gray-50 rounded-md transition-colors"
+                      className="flex items-center justify-center w-8 h-8 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
                       title="Feedback"
                     >
                       <MessageCircle className="w-4 h-4" />
                     </button>
 
-                    {/* User Account */}
-                    <div className="relative z-[60]">
+                    {/* User Account - Mobile New Implementation */}
+                    <div className="relative">
                       <button
-                        onClick={() => setShowUserMenu(!showUserMenu)}
-                        className="flex items-center gap-1 p-1 hover:bg-gray-50 rounded-md transition-colors"
+                        onClick={() => {
+                          console.log('🔵 Mobile user menu button clicked')
+                          setShowUserMenu(!showUserMenu)
+                        }}
+                        className="flex items-center gap-1 p-1 hover:bg-gray-50 rounded-md transition-colors cursor-pointer"
+                        type="button"
                       >
                         <div className="w-6 h-6 bg-black text-white rounded-full flex items-center justify-center text-xs font-medium">
                           {user?.email?.[0]?.toUpperCase() || 'U'}
                         </div>
                       </button>
-
-                      {/* User Dropdown Menu */}
-                      {showUserMenu && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[999]"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div className="px-3 py-2 border-b border-gray-100">
-                            <div className="text-xs font-medium text-black">{user?.email?.split('@')[0] || 'User'}</div>
-                            <div className="text-[10px] text-gray-500">{user?.email}</div>
-                          </div>
-                          
-                          <Link
-                            href="/settings"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setShowUserMenu(false)
-                            }}
-                            className="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
-                          >
-                            <Settings className="w-3.5 h-3.5" />
-                            Settings
-                          </Link>
-                          
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleSignOut()
-                            }}
-                            className="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 transition-colors"
-                          >
-                            <LogOut className="w-3.5 h-3.5" />
-                            Sign Out
-                          </button>
-                        </motion.div>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -399,14 +329,56 @@ export default function App() {
         )}
       </main>
 
-      {/* Click outside to close menu */}
+      {/* New User Dropdown Menu - Fixed Position */}
       {showUserMenu && (
-        <div
-          className="fixed inset-0 z-[998]"
-          onClick={() => setShowUserMenu(false)}
-        />
+        <>
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-transparent"
+            style={{ zIndex: 10000 }}
+            onClick={() => {
+              console.log('🔴 Overlay clicked - closing menu')
+              setShowUserMenu(false)
+            }}
+          />
+          
+          {/* Dropdown Menu */}
+          <div
+            className="fixed top-20 right-4 w-64 bg-white rounded-lg shadow-2xl border border-gray-200 py-2"
+            style={{ zIndex: 10001 }}
+          >
+            <div className="px-3 py-2 border-b border-gray-100">
+              <div className="text-xs font-medium text-black">{user?.email?.split('@')[0] || 'User'}</div>
+              <div className="text-[10px] text-gray-500">{user?.email}</div>
+            </div>
+            
+            <Link
+              href="/settings"
+              onClick={(e) => {
+                console.log('🟢 Settings clicked')
+                setShowUserMenu(false)
+              }}
+              className="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <Settings className="w-3.5 h-3.5" />
+              Settings
+            </Link>
+            
+            <button
+              onClick={(e) => {
+                console.log('🔴 NEW Sign out button clicked!')
+                setShowUserMenu(false)
+                handleSignOut()
+              }}
+              className="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+              type="button"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              Sign Out
+            </button>
+          </div>
+        </>
       )}
-
 
 
       {/* Feedback Modal */}

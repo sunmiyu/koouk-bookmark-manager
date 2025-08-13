@@ -8,6 +8,8 @@ import {
 } from 'lucide-react'
 import { SharedFolder } from '@/types/share'
 import { createFolder } from '@/types/folder'
+import { useToast } from '@/hooks/useToast'
+import Toast from '../ui/Toast'
 
 // Removed unused interface MarketPlaceProps
 
@@ -17,6 +19,7 @@ interface MarketPlaceProps {
 }
 
 export default function MarketPlace({ searchQuery = '', onImportFolder }: MarketPlaceProps) {
+  const { toast, showSuccess, hideToast } = useToast()
   const [sharedFolders, setSharedFolders] = useState<SharedFolder[]>([])
   const [filteredFolders, setFilteredFolders] = useState<SharedFolder[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
@@ -40,11 +43,11 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
     { value: 'parenting', label: 'Parenting', emoji: '👶' }
   ]
 
-  // 정렬 옵션들
+  // Sort options
   const sortOptions = [
-    { value: 'popular', label: '인기순', description: '좋아요 + 다운로드' },
-    { value: 'recent', label: '최신순', description: '최근 업로드' },
-    { value: 'helpful', label: '도움순', description: '도움됨 평가' }
+    { value: 'popular', label: 'Popular', description: 'Likes + Downloads' },
+    { value: 'recent', label: 'Recent', description: 'Recently uploaded' },
+    { value: 'helpful', label: 'Helpful', description: 'Helpful rating' }
   ]
 
   // Load data (mock + user shared)
@@ -238,14 +241,14 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
   }, [sharedFolders, selectedCategory, searchQuery, sortOrder])
 
   const handleImportFolder = (sharedFolder: SharedFolder) => {
-    if (confirm(`"${sharedFolder.title}" 폴더를 내 폴더에 추가하시겠습니까?`)) {
+    if (confirm(`Add "${sharedFolder.title}" to My Folder?`)) {
       if (onImportFolder) {
         onImportFolder(sharedFolder)
-        alert(`"${sharedFolder.title}" 폴더가 My Folder에 추가되었습니다!`)
+        showSuccess(`📁 "${sharedFolder.title}" added to My Folder!`)
       } else {
         // 폴백: onImportFolder가 없을 때
         console.log('Importing folder:', sharedFolder.title)
-        alert(`"${sharedFolder.title}" 폴더가 My Folder에 추가되었습니다!`)
+        showSuccess(`📁 "${sharedFolder.title}" added to My Folder!`)
       }
     }
   }
@@ -254,8 +257,32 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
     return (
       <div className="h-96 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-sm text-gray-500">Market Place 로딩중...</p>
+          {/* Market Place skeleton loading */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                <div className="aspect-[4/3] sm:aspect-[5/4] bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse"></div>
+                <div className="p-2 sm:p-3 lg:p-4 space-y-2 sm:space-y-3">
+                  <div className="hidden sm:flex items-center gap-2">
+                    <div className="w-6 h-6 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-full animate-pulse"></div>
+                    <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-24 animate-pulse"></div>
+                  </div>
+                  <div className="space-y-1 sm:space-y-2">
+                    <div className="h-3 sm:h-4 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse"></div>
+                    <div className="h-2 sm:h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-3/4 animate-pulse"></div>
+                  </div>
+                  <div className="h-6 sm:h-8 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse mt-2 sm:mt-4"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 flex justify-center">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+            </div>
+          </div>
         </div>
       </div>
     )
@@ -399,11 +426,11 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
       {filteredFolders.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-4xl mb-4">📂</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">검색 결과가 없습니다</h3>
-          <p className="text-sm text-gray-500">다른 키워드로 검색해보세요</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No results found</h3>
+          <p className="text-sm text-gray-500">Try different keywords</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
           {filteredFolders.map((sharedFolder) => {
             const currentCategory = categories.find(cat => cat.value === sharedFolder.category)
             return (
@@ -411,8 +438,8 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
                 key={sharedFolder.id}
                 className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 group"
               >
-                {/* 커버 이미지 */}
-                <div className="relative aspect-[5/4] overflow-hidden rounded-t-xl bg-gradient-to-br from-gray-50 to-gray-100">
+                {/* 커버 이미지 - 모바일에서 더 작게 */}
+                <div className="relative aspect-[4/3] sm:aspect-[5/4] overflow-hidden rounded-t-xl bg-gradient-to-br from-gray-50 to-gray-100">
                   {sharedFolder.coverImage ? (
                     <Image
                       src={sharedFolder.coverImage}
@@ -439,10 +466,10 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
                   </div>
                 </div>
 
-                {/* 컨텐츠 */}
-                <div className="p-3 sm:p-4">
-                  {/* 제작자 정보 */}
-                  <div className="flex items-center gap-2 mb-2">
+                {/* 컨텐츠 - 모바일에서 더 컴팩트 */}
+                <div className="p-2 sm:p-3 lg:p-4">
+                  {/* 제작자 정보 - 모바일에서 숨김 */}
+                  <div className="hidden sm:flex items-center gap-2 mb-2">
                     <span className="text-sm">{sharedFolder.author.avatar}</span>
                     <span className="text-xs font-medium text-gray-700">{sharedFolder.author.name}</span>
                     {sharedFolder.author.verified && (
@@ -452,36 +479,36 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
                     )}
                   </div>
 
-                  {/* 제목 */}
-                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base mb-2 line-clamp-2 leading-tight">
+                  {/* 제목 - 모바일에서 더 작게 */}
+                  <h3 className="font-semibold text-gray-900 text-xs sm:text-sm lg:text-base mb-1 sm:mb-2 line-clamp-2 leading-tight">
                     {sharedFolder.title}
                   </h3>
 
-                  {/* 설명 */}
-                  <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 mb-3 leading-relaxed">
+                  {/* 설명 - 모바일에서 1줄만 */}
+                  <p className="text-xs text-gray-600 line-clamp-1 sm:line-clamp-2 mb-2 sm:mb-3 leading-relaxed">
                     {sharedFolder.description}
                   </p>
 
-                  {/* 통계 */}
-                  <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
-                    <div className="flex items-center gap-3">
+                  {/* 통계 - 모바일에서 간소화 */}
+                  <div className="flex items-center justify-between text-xs text-gray-500 mb-2 sm:mb-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <span className="flex items-center gap-1">
                         <Heart className="w-3 h-3" />
                         {sharedFolder.stats.likes}
                       </span>
-                      <span className="flex items-center gap-1">
+                      <span className="hidden sm:flex items-center gap-1">
                         📥 {sharedFolder.stats.downloads}
                       </span>
                     </div>
-                    <span>{new Date(sharedFolder.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}</span>
+                    <span className="hidden sm:inline">{new Date(sharedFolder.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}</span>
                   </div>
 
-                  {/* 액션 버튼 */}
+                  {/* 액션 버튼 - 모바일에서 더 작게 */}
                   <button
                     onClick={() => handleImportFolder(sharedFolder)}
-                    className="w-full bg-black text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+                    className="w-full bg-black text-white py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg text-xs sm:text-sm font-medium hover:bg-gray-800 transition-colors"
                   >
-                    내 폴더에 추가
+                    Add
                   </button>
                 </div>
               </div>
@@ -500,6 +527,14 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
           }}
         />
       )}
+      
+      {/* Toast Notification */}
+      <Toast
+        show={toast.show}
+        message={toast.message}
+        type={toast.type}
+        onClose={hideToast}
+      />
     </div>
   )
 }

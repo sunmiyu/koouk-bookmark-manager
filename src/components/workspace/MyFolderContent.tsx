@@ -255,8 +255,26 @@ You can see it in the Market Place.`)
     return (
       <div className="h-96 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-sm text-gray-500">Loading folders...</p>
+          {/* Modern skeleton loading animation */}
+          <div className="space-y-4 max-w-xs mx-auto">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-xl animate-pulse"></div>
+              <div className="flex-1 space-y-2">
+                <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse"></div>
+                <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-3/4 animate-pulse"></div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-xl animate-pulse"></div>
+              <div className="flex-1 space-y-2">
+                <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse"></div>
+                <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-2/3 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+          <div className="mt-6 flex justify-center">
+            <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+          </div>
         </div>
       </div>
     )
@@ -271,23 +289,23 @@ You can see it in the Market Place.`)
             <span className="text-2xl">📁</span>
           </div>
           
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">
+          <h2 className="text-lg font-medium text-gray-900 mb-2">
             Welcome to KOOUK
           </h2>
           
-          <p className="text-sm text-gray-600 mb-8 leading-relaxed">
-            Start organizing your digital life with your first folder. 
+          <p className="text-xs text-gray-600 mb-6 leading-relaxed">
+            Start organizing with your first folder. 
             It&apos;s as simple as giving it a name.
           </p>
           
           <button
             onClick={() => handleCreateFolder()}
-            className="w-full bg-black text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+            className="w-full bg-black text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
           >
             Create Your First Folder
           </button>
           
-          <p className="text-xs text-gray-500 mt-4">
+          <p className="text-xs text-gray-500 mt-3">
             No learning curve. Just start organizing.
           </p>
         </div>
@@ -348,21 +366,21 @@ You can see it in the Market Place.`)
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowQuickNoteModal(true)}
-                className="flex items-center gap-2 px-3 py-2 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors"
               >
                 📝 Note
               </button>
               <button
                 onClick={() => setShowBigNoteModal(true)}
-                className="flex items-center gap-2 px-3 py-2 text-sm bg-yellow-50 text-yellow-600 rounded-lg hover:bg-yellow-100 transition-colors"
+                className="flex items-center gap-1 px-2 py-1 text-xs bg-yellow-50 text-yellow-600 rounded-md hover:bg-yellow-100 transition-colors"
               >
                 📄 Memo
               </button>
               <button
                 onClick={() => handleCreateFolder()}
-                className="flex items-center gap-2 px-3 py-2 text-sm bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+                className="flex items-center gap-1 px-2 py-1 text-xs border border-gray-300 text-gray-600 rounded-md hover:border-gray-400 hover:text-gray-800 transition-colors"
               >
-                + New Folder
+                + Folder
               </button>
             </div>
           </div>

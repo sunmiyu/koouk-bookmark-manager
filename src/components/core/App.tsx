@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
 import { Settings, LogOut, MessageCircle } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import { supabase } from '@/lib/supabase'
@@ -312,7 +311,7 @@ export default function App() {
             
             <Link
               href="/settings"
-              onClick={(e) => {
+              onClick={() => {
                 console.log('🟢 Settings clicked')
                 setShowUserMenu(false)
               }}
@@ -323,7 +322,7 @@ export default function App() {
             </Link>
             
             <button
-              onClick={(e) => {
+              onClick={() => {
                 console.log('🔴 NEW Sign out button clicked!')
                 setShowUserMenu(false)
                 handleSignOut()

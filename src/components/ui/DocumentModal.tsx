@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { X, Download, Copy, ExternalLink, FileText } from 'lucide-react'
+import { X, Download, Copy, FileText } from 'lucide-react'
 import { StorageItem } from '@/types/folder'
 
 interface DocumentModalProps {

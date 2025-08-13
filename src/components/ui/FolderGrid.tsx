@@ -28,7 +28,7 @@ export default function FolderGrid({
     return (
       <div className="text-center py-12">
         <div className="text-gray-400 mb-2">📂</div>
-        <p className="text-gray-500">No folders found for "{searchQuery}"</p>
+        <p className="text-gray-500">No folders found for &quot;{searchQuery}&quot;</p>
       </div>
     )
   }
@@ -149,7 +149,7 @@ export default function FolderGrid({
           
           <p className="text-sm text-gray-600 mb-6 leading-relaxed max-w-md mx-auto">
             Start organizing with your first folder. 
-            It's as simple as giving it a name.
+            It&apos;s as simple as giving it a name.
           </p>
           
           <button

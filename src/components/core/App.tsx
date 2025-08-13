@@ -15,6 +15,7 @@ import { createFolder } from '@/types/folder'
 import SearchInterface from '../ui/SearchInterface'
 import FeedbackModal from '../modals/FeedbackModal'
 import TopNavigation from '../mobile/TopNavigation'
+import MobileHeader from '../mobile/MobileHeader'
 import { useDevice } from '@/hooks/useDevice'
 
 export default function App() {
@@ -237,66 +238,23 @@ export default function App() {
                   </div>
                 </div>
               </div>
-            ) : (
-              /* Mobile: Two rows layout */
+) : (
+              /* Mobile: New Mobile Header Component + Navigation */
               <div>
-                {/* First row: Logo, Search, Feedback, Account */}
-                <div className="flex items-center justify-between h-14 min-h-[56px]">
-                  {/* Logo */}
-                  <div className="flex items-center flex-shrink-0">
-                    <button 
-                      onClick={() => setActiveTab('my-folder')}
-                      className="hover:opacity-80 transition-opacity"
-                    >
-                      <Image 
-                        src="/koouk-logo.svg" 
-                        alt="KOOUK" 
-                        width={80}
-                        height={20}
-                        className="h-5 w-auto"
-                      />
-                    </button>
-                  </div>
+                {/* Mobile Header */}
+                <MobileHeader
+                  activeTab={activeTab}
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  onShowFeedbackModal={() => setShowFeedbackModal(true)}
+                  onShowUserMenu={() => {
+                    console.log('🔵 Mobile user menu button clicked')
+                    setShowUserMenu(!showUserMenu)
+                  }}
 
-                  {/* Right side elements - Compact for mobile */}
-                  <div className="flex items-center gap-2">
-                    {/* Enhanced Search Interface - Smaller for mobile */}
-                    <SearchInterface
-                      searchQuery={searchQuery}
-                      onSearchChange={setSearchQuery}
-                      searchScope={activeTab === 'my-folder' ? 'my-folder' : activeTab === 'marketplace' ? 'market-place' : 'bookmarks'}
-                      placeholder="Search..."
-                      language="en"
-                    />
+                />
 
-                    {/* Feedback Button - Icon only on mobile */}
-                    <button 
-                      onClick={() => setShowFeedbackModal(true)}
-                      className="flex items-center justify-center w-8 h-8 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-                      title="Feedback"
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                    </button>
-
-                    {/* User Account - Mobile New Implementation */}
-                    <div className="relative">
-                      <button
-                        onClick={() => {
-                          console.log('🔵 Mobile user menu button clicked')
-                          setShowUserMenu(!showUserMenu)
-                        }}
-                        className="flex items-center gap-1 p-1 hover:bg-gray-50 rounded-md transition-colors cursor-pointer"
-                        type="button"
-                      >
-                        <div className="w-6 h-6 bg-black text-white rounded-full flex items-center justify-center text-xs font-medium">
-                          {user?.email?.[0]?.toUpperCase() || 'U'}
-                        </div>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Second row: Navigation tabs */}
+                {/* Navigation tabs */}
                 <div className="flex justify-center border-t border-gray-100 py-2">
                   <TopNavigation 
                     activeTab={activeTab}

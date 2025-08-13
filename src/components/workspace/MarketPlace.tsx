@@ -466,8 +466,8 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
                   </div>
                 </div>
 
-                {/* 컨텐츠 - 모바일에서 더 컴팩트 */}
-                <div className="p-2 sm:p-3 lg:p-4">
+                {/* 컨텐츠 - 고정 높이로 일관된 레이아웃 */}
+                <div className="p-2 sm:p-3 lg:p-4 flex flex-col h-full">
                   {/* 제작자 정보 - 모바일에서 숨김 */}
                   <div className="hidden sm:flex items-center gap-2 mb-2">
                     <span className="text-sm">{sharedFolder.author.avatar}</span>
@@ -479,15 +479,18 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
                     )}
                   </div>
 
-                  {/* 제목 - 모바일에서 더 작게 */}
-                  <h3 className="font-semibold text-gray-900 text-xs sm:text-sm lg:text-base mb-1 sm:mb-2 line-clamp-2 leading-tight">
+                  {/* 제목 - 고정 높이 */}
+                  <h3 className="font-semibold text-gray-900 text-xs sm:text-sm lg:text-base mb-1 sm:mb-2 line-clamp-2 leading-tight h-8 sm:h-10">
                     {sharedFolder.title}
                   </h3>
 
-                  {/* 설명 - 모바일에서 1줄만 */}
-                  <p className="text-xs text-gray-600 line-clamp-1 sm:line-clamp-2 mb-2 sm:mb-3 leading-relaxed">
+                  {/* 설명 - 고정 높이 (2줄 기준) */}
+                  <p className="text-xs text-gray-600 line-clamp-2 mb-2 sm:mb-3 leading-relaxed h-8 sm:h-10">
                     {sharedFolder.description}
                   </p>
+
+                  {/* Spacer to push button to bottom */}
+                  <div className="flex-1"></div>
 
                   {/* 통계 - 모바일에서 간소화 */}
                   <div className="flex items-center justify-between text-xs text-gray-500 mb-2 sm:mb-3">
@@ -500,10 +503,10 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
                         📥 {sharedFolder.stats.downloads}
                       </span>
                     </div>
-                    <span className="hidden sm:inline">{new Date(sharedFolder.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}</span>
+                    <span className="hidden sm:inline">{new Date(sharedFolder.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                   </div>
 
-                  {/* 액션 버튼 - 모바일에서 더 작게 */}
+                  {/* 액션 버튼 - 항상 하단 고정 */}
                   <button
                     onClick={() => handleImportFolder(sharedFolder)}
                     className="w-full bg-black text-white py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg text-xs sm:text-sm font-medium hover:bg-gray-800 transition-colors"

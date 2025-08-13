@@ -12,10 +12,7 @@ import {
   ChevronDown,
   Plus
 } from 'lucide-react'
-import UniversalInputBar from '../ui/UniversalInputBar'
-import { FolderItem, StorageItem } from '@/types/folder'
-import { useToast } from '@/hooks/useToast'
-import Toast from '../ui/Toast'
+
 
 interface Bookmark {
   id: string
@@ -33,24 +30,11 @@ interface Bookmark {
 }
 
 export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }) {
-  const { toast, showSuccess, hideToast } = useToast()
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('most-used')
   const [isLoading, setIsLoading] = useState(true)
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
-  
-  // Mock folders for Universal Input Bar (bookmarks don't actually use folders)
-  const mockFolders: FolderItem[] = [{
-    id: 'bookmarks',
-    name: 'Bookmarks',
-    type: 'folder',
-    children: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    color: '#3B82F6',
-    icon: '🔖'
-  }]
 
   // 카테고리 옵션들
   const categories = [
@@ -350,29 +334,6 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
     }
   }
 
-  // Handle Universal Input Bar items (mainly URLs)
-  const handleAddItemFromInputBar = (item: StorageItem) => {
-    if (item.type === 'url') {
-      // Convert StorageItem to Bookmark
-      const newBookmark: Bookmark = {
-        id: Date.now().toString(),
-        title: item.name === 'Link' ? new URL(item.content).hostname : item.name,
-        url: item.content,
-        description: '',
-        tags: ['universal-input'],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        category: 'personal',
-        isFavorite: false,
-        usageCount: 0,
-        lastUsedAt: new Date().toISOString()
-      }
-      
-      setBookmarks(prev => [newBookmark, ...prev])
-      showSuccess('🔖 Bookmark saved!')
-    }
-  }
-
   if (isLoading) {
     return (
       <div className="h-96 flex items-center justify-center">
@@ -405,7 +366,7 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
   }
 
   return (
-    <div className="flex-1 px-2 py-3 sm:px-4 lg:p-4 pb-24">
+    <div className="flex-1 px-2 py-3 sm:px-4 lg:p-4">
       {/* 모바일: 드롭다운 + 버튼 한 줄 */}
       <div className="block sm:hidden mb-4">
         <div className="flex items-center gap-3">
@@ -640,25 +601,7 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
         </div>
       )}
       
-      {/* Universal Input Bar - Fixed at bottom for paste-and-save workflow */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 pb-safe">
-        <UniversalInputBar
-          folders={mockFolders}
-          selectedFolderId="bookmarks"
-          onAddItem={(item) => handleAddItemFromInputBar(item)}
-          onFolderSelect={() => {}} // Not needed for bookmarks
-          onOpenMemo={() => {}} // Not applicable for bookmarks
-          onOpenNote={() => {}} // Not applicable for bookmarks
-        />
-      </div>
-      
-      {/* Toast Notification */}
-      <Toast
-        show={toast.show}
-        message={toast.message}
-        type={toast.type}
-        onClose={hideToast}
-      />
+
     </div>
   )
 }

@@ -207,7 +207,7 @@ const FolderNode = ({
           )}
         </div>
 
-        {/* 액션 버튼들 - 모바일 친화적 크기 */}
+        {/* 액션 버튼들 - 더 직관적인 삭제 버튼 추가 */}
         {(isHovered || showActions) && !isRenaming && (
           <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
@@ -219,6 +219,20 @@ const FolderNode = ({
               title="새 폴더"
             >
               <Plus className="w-4 h-4 text-gray-500" />
+            </button>
+            
+            {/* 직접 삭제 버튼 추가 */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                if (confirm(`"${item.name || 'New Folder'}" 폴더를 삭제하시겠습니까?`)) {
+                  onDeleteFolder(item.id)
+                }
+              }}
+              className="p-1.5 rounded hover:bg-red-100 transition-colors"
+              title="폴더 삭제"
+            >
+              <Trash2 className="w-4 h-4 text-red-500" />
             </button>
             
             <button

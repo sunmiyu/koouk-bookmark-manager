@@ -307,7 +307,7 @@ export default function App() {
                     {/* Feedback Button - Icon only on mobile */}
                     <button 
                       onClick={() => setShowFeedbackModal(true)}
-                      className="flex items-center justify-center w-8 h-8 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+                      className="relative z-[70] flex items-center justify-center w-8 h-8 text-gray-900 hover:text-black hover:bg-gray-50 rounded-md transition-colors"
                       title="Feedback"
                     >
                       <MessageCircle className="w-4 h-4" />

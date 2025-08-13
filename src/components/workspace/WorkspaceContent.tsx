@@ -164,8 +164,11 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
   }
 
   const handleCreateFolder = (parentId?: string) => {
-    // 🎨 직관적 단순함: prompt 창 대신 즉시 폴더 생성하고 편집 모드로 전환
-    const newFolder = createFolder('', parentId) // 빈 이름으로 시작
+    // 🎨 직관적 단순함: prompt 창으로 이름 확인 후 폴더 생성
+    const folderName = prompt('폴더 이름을 입력하세요:', 'New Folder')
+    if (!folderName?.trim()) return // 취소하거나 빈 이름이면 생성하지 않음
+    
+    const newFolder = createFolder(folderName.trim(), parentId)
     
     if (parentId) {
       // Add as subfolder of specific folder
@@ -588,7 +591,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
               ? 'flex-1' 
               : 'flex-1'
           }
-          bg-white overflow-y-auto transition-all duration-300 ease-in-out
+          bg-white overflow-y-auto transition-all duration-300 ease-in-out relative
         `}>
           <FolderContent 
             items={getSelectedFolderItems()}
@@ -596,21 +599,23 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
             onDocumentOpen={handleDocumentOpen}
             searchQuery={searchQuery}
           />
+          
+          {/* Universal Input Bar - 메인 콘텐츠 영역 내 하단 고정 */}
+          <div className="absolute bottom-0 left-0 right-0 z-[60]">
+            <UniversalInputBar
+              folders={folders}
+              selectedFolderId={selectedFolderId}
+              onAddItem={(item, folderId) => {
+                const updatedFolders = addItemToFolder(folders, folderId, item)
+                handleFoldersChange(updatedFolders)
+              }}
+              onFolderSelect={handleFolderSelect}
+              onOpenMemo={() => setShowQuickNoteModal(true)}
+              onOpenNote={() => setShowBigNoteModal(true)}
+            />
+          </div>
         </div>
       </div>
-
-      {/* Universal Input Bar - Fixed bottom input */}
-      <UniversalInputBar
-        folders={folders}
-        selectedFolderId={selectedFolderId}
-        onAddItem={(item, folderId) => {
-          const updatedFolders = addItemToFolder(folders, folderId, item)
-          handleFoldersChange(updatedFolders)
-        }}
-        onFolderSelect={handleFolderSelect}
-        onOpenMemo={() => setShowQuickNoteModal(true)}
-        onOpenNote={() => setShowBigNoteModal(true)}
-      />
 
       {/* Modal Components */}
       <QuickNoteModal
@@ -778,7 +783,7 @@ const FolderContent = ({
   }
 
   return (
-    <div className="flex-1 px-2 py-3 sm:px-4 lg:px-6 lg:py-4">
+    <div className="flex-1 px-2 py-3 sm:px-4 lg:px-6 lg:py-4 pb-40">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div>

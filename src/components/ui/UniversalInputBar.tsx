@@ -289,7 +289,7 @@ export default function UniversalInputBar({
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[60]">
+    <div className="w-full">
       <div className={`w-full max-w-6xl mx-auto ${device.isMobile ? 'px-4 pb-4' : 'px-8 pb-6'}`}>
         {/* 메모/노트 작성 버튼들 */}
         <div className="flex justify-end gap-3 mb-3">

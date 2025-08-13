@@ -286,16 +286,19 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
 
   return (
     <div className="flex-1 px-2 py-3 sm:px-4 lg:p-4">
-      {/* 헤더 섹션 */}
+      {/* 헤더 섹션 - 통일된 스타일 */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-sm text-gray-600 mt-1">
-              {filteredFolders.length} shared folders
+            <h2 className="text-lg font-semibold text-gray-900">
+              {filteredFolders.length} {filteredFolders.length === 1 ? 'shared folder' : 'shared folders'}
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Market Place
             </p>
           </div>
           
-          {/* PC: 정렬 드롭다운 */}
+          {/* 정렬 드롭다운 - 모바일/PC 공통 */}
           <SortOptions
             options={sortOptions}
             selectedSort={sortOrder}
@@ -315,16 +318,9 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
             />
           </div>
 
-          {/* 모바일: 정렬 드롭다운 */}
-          <div className="block sm:hidden">
-            <SortOptions
-              options={sortOptions}
-              selectedSort={sortOrder}
-              onSortChange={(sort) => setSortOrder(sort as 'popular' | 'recent' | 'helpful')}
-            />
-          </div>
 
-          {/* PC: 카테고리 탭 */}
+
+          {/* PC: 카테고리 탭 - 통일된 텍스트 크기 */}
           <div className="hidden sm:flex flex-wrap gap-2">
             {categories.map((category) => (
               <button

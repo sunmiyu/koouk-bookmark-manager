@@ -348,8 +348,20 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
 
   return (
     <div className="flex-1 px-2 py-3 sm:px-4 lg:p-4">
-      {/* 모바일: 드롭다운 + 버튼 한 줄 */}
+      {/* 모바일: 헤더 + 드롭다운 + 버튼 */}
       <div className="block sm:hidden mb-4">
+        {/* 모바일 헤더 - 통일된 스타일 */}
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">
+              {filteredBookmarks.length} {filteredBookmarks.length === 1 ? 'bookmark' : 'bookmarks'}
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">
+              {selectedCategory === 'all' ? 'All Categories' : categories.find(cat => cat.value === selectedCategory)?.label}
+            </p>
+          </div>
+        </div>
+        
         <div className="flex items-center gap-3">
           {/* 카테고리 필터 컴포넌트 사용 */}
           <div className="flex-1">
@@ -391,13 +403,13 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
         </div>
       </div>
       
-      {/* 데스크톱: 기존 헤더 */}
-      <div className="hidden sm:flex sm:items-center sm:justify-between gap-3 mb-4">
+      {/* 헤더 - 통일된 스타일 */}
+      <div className="hidden sm:flex sm:items-center sm:justify-between gap-3 mb-6">
         <div>
-          <h3 className="text-sm font-medium text-black">
-            {filteredBookmarks.length} bookmarks
-          </h3>
-          <p className="text-xs text-gray-500">
+          <h2 className="text-lg font-semibold text-gray-900">
+            {filteredBookmarks.length} {filteredBookmarks.length === 1 ? 'bookmark' : 'bookmarks'}
+          </h2>
+          <p className="text-sm text-gray-500 mt-1">
             {selectedCategory === 'all' ? 'All Categories' : categories.find(cat => cat.value === selectedCategory)?.label}
           </p>
         </div>

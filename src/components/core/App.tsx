@@ -144,39 +144,27 @@ export default function App() {
       <header className="border-b border-gray-200 bg-white sticky top-0 z-50 w-full">
         <div className="w-full bg-white">
           <div className="w-full px-4 sm:px-8 sm:max-w-6xl sm:mx-auto">
-            <div className="flex items-center justify-between h-16 min-h-[64px]">
-              {/* Logo */}
-              <div className="flex items-center">
-                <button 
-                  onClick={() => setActiveTab('my-folder')}
-                  className="hover:opacity-80 transition-opacity"
-                >
-                  <Image 
-                    src="/koouk-logo.svg" 
-                    alt="KOOUK" 
-                    width={100}
-                    height={24}
-                    className="h-6 w-auto"
-                  />
-                </button>
-              </div>
-
-              {/* Center - Navigation Tabs (Mobile & Desktop) */}
-              <div className="flex-1 flex justify-center mx-2 sm:mx-4">
-                {/* Debug: Show device type */}
-                <div className="fixed top-20 left-2 bg-red-500 text-white p-1 text-xs z-50 rounded">
-                  {device.type} - {device.width}px
+            {/* PC: Single row with all elements */}
+            {device.width >= 768 ? (
+              <div className="flex items-center justify-between h-16 min-h-[64px]">
+                {/* Logo */}
+                <div className="flex items-center">
+                  <button 
+                    onClick={() => setActiveTab('my-folder')}
+                    className="hover:opacity-80 transition-opacity"
+                  >
+                    <Image 
+                      src="/koouk-logo.svg" 
+                      alt="KOOUK" 
+                      width={100}
+                      height={24}
+                      className="h-6 w-auto"
+                    />
+                  </button>
                 </div>
-                {device.width < 768 ? (
-                  <TopNavigation 
-                    activeTab={activeTab}
-                    onTabChange={(tab) => {
-                      console.log('TopNavigation tab change:', tab)
-                      setActiveTab(tab)
-                    }}
-                  />
-                ) : (
-                  // PC Desktop Navigation (768px 이상)
+
+                {/* Center - PC Navigation */}
+                <div className="flex-1 flex justify-center mx-4">
                   <div className="flex space-x-8">
                     <button
                       onClick={() => setActiveTab('my-folder')}
@@ -209,89 +197,201 @@ export default function App() {
                       Market Place
                     </button>
                   </div>
-                )}
-              </div>
+                </div>
 
-              {/* Right side elements */}
-              <div className="flex items-center gap-0.5 sm:gap-3">
-                {/* Enhanced Search Interface */}
-                <SearchInterface
-                  searchQuery={searchQuery}
-                  onSearchChange={setSearchQuery}
-                  searchScope={activeTab === 'my-folder' ? 'my-folder' : activeTab === 'marketplace' ? 'market-place' : 'bookmarks'}
-                  placeholder="Search..."
-                  language="ko"
-                />
+                {/* Right side elements */}
+                <div className="flex items-center gap-0.5 sm:gap-3">
+                  {/* Enhanced Search Interface */}
+                  <SearchInterface
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    searchScope={activeTab === 'my-folder' ? 'my-folder' : activeTab === 'marketplace' ? 'market-place' : 'bookmarks'}
+                    placeholder="Search..."
+                    language="ko"
+                  />
 
-                {/* Feedback Button - mobile shows icon only */}
-                <button 
-                  onClick={() => setShowFeedbackModal(true)}
-                  className="flex items-center justify-center w-8 h-8 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:w-auto sm:h-auto"
-                  title="Feedback"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span className="hidden sm:inline">Feedback</span>
-                </button>
-
-                {/* User Account */}
-                <div className="relative z-[60]">
-                  <button
-                    onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center gap-1.5 p-1.5 hover:bg-gray-50 rounded-md transition-colors"
+                  {/* Feedback Button - mobile shows icon only */}
+                  <button 
+                    onClick={() => setShowFeedbackModal(true)}
+                    className="flex items-center justify-center w-8 h-8 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:w-auto sm:h-auto"
+                    title="Feedback"
                   >
-                    <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center text-xs font-medium">
-                      {user?.email?.[0]?.toUpperCase() || 'U'}
-                    </div>
+                    <MessageCircle className="w-4 h-4" />
+                    <span className="hidden sm:inline">Feedback</span>
                   </button>
 
-                  {/* User Dropdown Menu */}
-                  {showUserMenu && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[999]"
-                      onClick={(e) => e.stopPropagation()}
+                  {/* User Account */}
+                  <div className="relative z-[60]">
+                    <button
+                      onClick={() => setShowUserMenu(!showUserMenu)}
+                      className="flex items-center gap-1.5 p-1.5 hover:bg-gray-50 rounded-md transition-colors"
                     >
-                      <div className="px-3 py-2 border-b border-gray-100">
-                        <div className="text-xs font-medium text-black">{user?.email?.split('@')[0] || 'User'}</div>
-                        <div className="text-[10px] text-gray-500">{user?.email}</div>
+                      <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center text-xs font-medium">
+                        {user?.email?.[0]?.toUpperCase() || 'U'}
                       </div>
-                      
-                      <Link
-                        href="/settings"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setShowUserMenu(false)
-                        }}
-                        className="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+                    </button>
+
+                    {/* User Dropdown Menu */}
+                    {showUserMenu && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[999]"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        <Settings className="w-3.5 h-3.5" />
-                        Settings
-                      </Link>
-                      
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleSignOut()
-                        }}
-                        className="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 transition-colors"
-                      >
-                        <LogOut className="w-3.5 h-3.5" />
-                        Sign Out
-                      </button>
-                    </motion.div>
-                  )}
+                        <div className="px-3 py-2 border-b border-gray-100">
+                          <div className="text-xs font-medium text-black">{user?.email?.split('@')[0] || 'User'}</div>
+                          <div className="text-[10px] text-gray-500">{user?.email}</div>
+                        </div>
+                        
+                        <Link
+                          href="/settings"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setShowUserMenu(false)
+                          }}
+                          className="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                          <Settings className="w-3.5 h-3.5" />
+                          Settings
+                        </Link>
+                        
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleSignOut()
+                          }}
+                          className="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <LogOut className="w-3.5 h-3.5" />
+                          Sign Out
+                        </button>
+                      </motion.div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              /* Mobile: Two rows layout */
+              <div>
+                {/* First row: Logo, Search, Feedback, Account */}
+                <div className="flex items-center justify-between h-14 min-h-[56px]">
+                  {/* Logo */}
+                  <div className="flex items-center flex-shrink-0">
+                    <button 
+                      onClick={() => setActiveTab('my-folder')}
+                      className="hover:opacity-80 transition-opacity"
+                    >
+                      <Image 
+                        src="/koouk-logo.svg" 
+                        alt="KOOUK" 
+                        width={80}
+                        height={20}
+                        className="h-5 w-auto"
+                      />
+                    </button>
+                  </div>
+
+                  {/* Right side elements - Compact for mobile */}
+                  <div className="flex items-center gap-1">
+                    {/* Enhanced Search Interface - Smaller for mobile */}
+                    <SearchInterface
+                      searchQuery={searchQuery}
+                      onSearchChange={setSearchQuery}
+                      searchScope={activeTab === 'my-folder' ? 'my-folder' : activeTab === 'marketplace' ? 'market-place' : 'bookmarks'}
+                      placeholder="Search..."
+                      language="ko"
+                    />
+
+                    {/* Feedback Button - Icon only on mobile */}
+                    <button 
+                      onClick={() => setShowFeedbackModal(true)}
+                      className="flex items-center justify-center w-8 h-8 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+                      title="Feedback"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                    </button>
+
+                    {/* User Account */}
+                    <div className="relative z-[60]">
+                      <button
+                        onClick={() => setShowUserMenu(!showUserMenu)}
+                        className="flex items-center gap-1 p-1 hover:bg-gray-50 rounded-md transition-colors"
+                      >
+                        <div className="w-6 h-6 bg-black text-white rounded-full flex items-center justify-center text-xs font-medium">
+                          {user?.email?.[0]?.toUpperCase() || 'U'}
+                        </div>
+                      </button>
+
+                      {/* User Dropdown Menu */}
+                      {showUserMenu && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[999]"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="px-3 py-2 border-b border-gray-100">
+                            <div className="text-xs font-medium text-black">{user?.email?.split('@')[0] || 'User'}</div>
+                            <div className="text-[10px] text-gray-500">{user?.email}</div>
+                          </div>
+                          
+                          <Link
+                            href="/settings"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setShowUserMenu(false)
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+                          >
+                            <Settings className="w-3.5 h-3.5" />
+                            Settings
+                          </Link>
+                          
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleSignOut()
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            <LogOut className="w-3.5 h-3.5" />
+                            Sign Out
+                          </button>
+                        </motion.div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Second row: Navigation tabs */}
+                <div className="flex justify-center border-t border-gray-100 py-2">
+                  <TopNavigation 
+                    activeTab={activeTab}
+                    onTabChange={(tab) => {
+                      console.log('Mobile TopNavigation tab change:', tab)
+                      setActiveTab(tab)
+                    }}
+                  />
+                </div>
+                
+                {/* Debug: Show device type */}
+                <div className="fixed top-20 left-2 bg-red-500 text-white p-1 text-xs z-50 rounded">
+                  {device.type} - {device.width}px
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </header>
 
 
       {/* Main Content */}
-      <main className="w-full px-2 sm:px-8 sm:max-w-6xl sm:mx-auto pt-2 sm:pt-6 pb-4 sm:pb-8 min-h-[calc(100vh-64px)]">
+      <main className={`w-full px-2 sm:px-8 sm:max-w-6xl sm:mx-auto pt-2 sm:pt-6 pb-4 sm:pb-8 ${
+        device.width >= 768 ? 'min-h-[calc(100vh-64px)]' : 'min-h-[calc(100vh-100px)]'
+      }`}>
         {activeTab === 'my-folder' ? (
           <WorkspaceContent searchQuery={searchQuery} />
         ) : activeTab === 'bookmarks' ? (

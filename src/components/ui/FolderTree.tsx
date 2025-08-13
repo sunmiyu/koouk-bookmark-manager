@@ -93,8 +93,8 @@ const FolderNode = ({
 } & FolderTreeProps) => {
   const [isHovered, setIsHovered] = useState(false)
   const [showActions, setShowActions] = useState(false)
-  const [isRenaming, setIsRenaming] = useState(false)
-  const [renameName, setRenameName] = useState(item.name)
+  const [isRenaming, setIsRenaming] = useState(item.name === '' || item.name === 'No name')
+  const [renameName, setRenameName] = useState(item.name === '' || item.name === 'No name' ? 'New Folder' : item.name)
 
   const isExpanded = expandedFolders.has(item.id)
   const isSelected = selectedFolderId === item.id
@@ -110,9 +110,15 @@ const FolderNode = ({
   }
 
   const handleRename = () => {
-    if (renameName.trim() && renameName !== item.name) {
-      onRenameFolder(item.id, renameName.trim())
+    const trimmedName = renameName.trim()
+    
+    // 🎨 직관적 단순함: 빈 이름이면 기본 이름 제공
+    if (!trimmedName) {
+      onRenameFolder(item.id, 'New Folder')
+    } else if (trimmedName !== item.name) {
+      onRenameFolder(item.id, trimmedName)
     }
+    
     setIsRenaming(false)
     setRenameName(item.name)
   }
@@ -175,13 +181,21 @@ const FolderNode = ({
                   setRenameName(item.name)
                 }
               }}
-              className="flex-1 text-sm bg-white border border-gray-300 rounded px-1 py-0.5 outline-none focus:border-blue-500"
+              className="flex-1 text-sm bg-gradient-to-r from-amber-50/50 to-orange-50/30 border-0 rounded-lg px-2 py-1 outline-none focus:from-amber-100/70 focus:to-orange-100/50 transition-all duration-300 shadow-sm focus:shadow-md"
+              style={{
+                boxShadow: '0 2px 8px rgba(251, 191, 36, 0.15), 0 1px 4px rgba(0, 0, 0, 0.05)'
+              }}
               autoFocus
+              placeholder="폴더 이름을 입력하세요"
               onClick={(e) => e.stopPropagation()}
             />
           ) : (
-            <span className="text-xs truncate">
-              {item.name}
+            <span className={`text-xs truncate ${
+              item.name === '' || item.name === 'No name' 
+                ? 'text-gray-400 italic' 
+                : ''
+            }`}>
+              {item.name === '' || item.name === 'No name' ? 'New Folder' : item.name}
             </span>
           )}
           

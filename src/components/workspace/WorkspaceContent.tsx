@@ -39,6 +39,7 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
   const [showQuickNoteModal, setShowQuickNoteModal] = useState(false)
   const [showBigNoteModal, setShowBigNoteModal] = useState(false)
   const [editingItem, setEditingItem] = useState<StorageItem | null>(null)
+  const [hasUsedClearAll, setHasUsedClearAll] = useState(false)
 
   // Load data from localStorage - client-side only
   useEffect(() => {
@@ -77,6 +78,12 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
 
         if (savedExpandedIds) {
           setExpandedFolders(new Set(JSON.parse(savedExpandedIds)))
+        }
+
+        // Check if user has already used Clear All button
+        const hasUsedClear = localStorage.getItem('koouk-has-used-clear-all')
+        if (hasUsedClear === 'true') {
+          setHasUsedClearAll(true)
         }
       } catch (error) {
         console.error('Data loading failed:', error)
@@ -157,10 +164,8 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
   }
 
   const handleCreateFolder = (parentId?: string) => {
-    const folderName = prompt('Enter folder name:', 'New Folder')
-    if (!folderName?.trim()) return
-
-    const newFolder = createFolder(folderName.trim(), parentId)
+    // 🎨 직관적 단순함: prompt 창 대신 즉시 폴더 생성하고 편집 모드로 전환
+    const newFolder = createFolder('', parentId) // 빈 이름으로 시작
     
     if (parentId) {
       // Add as subfolder of specific folder
@@ -222,12 +227,14 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
       setSelectedFolderId(emptyFolder.id)
       setExpandedFolders(new Set())
       setIsFirstTime(false)
+      setHasUsedClearAll(true)
       
       // Save to localStorage
       if (typeof window !== 'undefined') {
         localStorage.setItem('koouk-folders', JSON.stringify(initialFolders))
         localStorage.setItem('koouk-selected-folder', emptyFolder.id)
         localStorage.setItem('koouk-expanded-folders', JSON.stringify([]))
+        localStorage.setItem('koouk-has-used-clear-all', 'true')
       }
       
       // Update search engine
@@ -465,13 +472,13 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
                 
                 <button
                   onClick={handleStartMyFolder}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-2 
-                             text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 
-                             hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-200
-                             shadow-sm hover:shadow-md"
+                  className="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 
+                             text-xs font-medium text-gray-600 hover:text-gray-800 
+                             hover:bg-gray-50 rounded-md transition-all duration-200
+                             border border-gray-200 hover:border-gray-300"
                 >
-                  <span>✨</span>
-                  <span>Start My Own Folder</span>
+                  <span className="text-xs">🆕</span>
+                  <span>Start Fresh</span>
                 </button>
                 
                 <p className="text-[10px] text-gray-500 text-center leading-relaxed">
@@ -492,16 +499,15 @@ export default function WorkspaceContent({ searchQuery = '' }: { searchQuery?: s
                   Create New Folder
                 </button>
                 
-                <button
-                  onClick={handleStartMyFolder}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-1.5 
-                             text-xs font-medium text-red-600 hover:text-red-700 
-                             hover:bg-red-50 rounded-lg transition-all duration-150
-                             border border-red-200 hover:border-red-300"
-                >
-                  <span>🗑️</span>
-                  <span>Clear All & Start Fresh</span>
-                </button>
+                {!hasUsedClearAll && (
+                  <button
+                    onClick={handleStartMyFolder}
+                    className="text-xs text-gray-400 hover:text-gray-600 transition-colors duration-200 
+                               underline decoration-dotted underline-offset-2 hover:no-underline"
+                  >
+                    Clear all data
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -841,8 +847,8 @@ const FolderContent = ({
                 </div>
               </div>
               
-              {/* Grid layout - Mobile 2 cols, Desktop up to 8 cols */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3">
+              {/* 🎨 큰 카드 그리드 - 직관적 단순함을 위한 충분한 크기 */}
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
                 {items.slice(0, 12).map((item) => (
                   <ItemCard key={item.id} item={item} viewMode={viewMode} onItemClick={handleItemClick} />
                 ))}
@@ -859,7 +865,7 @@ const FolderContent = ({
           ))}
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-4">
           {Object.entries(sortedGroups).flatMap(([, items]) => 
             items.map((item) => (
               <ItemCard key={item.id} item={item} viewMode={viewMode} onItemClick={handleItemClick} />
@@ -881,6 +887,17 @@ const ItemCard = ({ item, viewMode, onItemClick }: { item: StorageItem; viewMode
     } catch {
       return url
     }
+  }
+
+  // 🎨 YouTube 제목 최적화: 깔끔한 제목만 표시
+  const getDisplayTitle = (item: StorageItem): string => {
+    // YouTube 영상인 경우 metadata.title만 사용 (다른 메타정보 제외)
+    if (item.metadata?.platform === 'youtube' && item.metadata?.title) {
+      return item.metadata.title as string
+    }
+    
+    // 일반적인 경우: metadata.title이 있으면 사용, 없으면 item.name
+    return (item.metadata?.title as string) || item.name
   }
 
   // Grid mode - unified card design
@@ -938,12 +955,16 @@ const ItemCard = ({ item, viewMode, onItemClick }: { item: StorageItem; viewMode
 
     return (
       <motion.div
-        className="bg-white border border-gray-100 rounded-lg overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer group"
-        whileTap={{ scale: 0.98 }}
+        className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group"
+        style={{
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04)'
+        }}
+        whileTap={{ scale: 0.96 }}
+        whileHover={{ scale: 1.02, y: -4 }}
         onClick={() => onItemClick(item)}
       >
-        {/* Preview area - 4:3 ratio (maintain image area, minimize bottom) */}
-        <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 aspect-[4/3] overflow-hidden">
+        {/* 🎨 직관적 단순함: 더 큰 미리보기 영역 (5:4 비율) */}
+        <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 aspect-[5/4] overflow-hidden">
           {thumbnail ? (
             <Image 
               src={thumbnail} 
@@ -961,69 +982,80 @@ const ItemCard = ({ item, viewMode, onItemClick }: { item: StorageItem; viewMode
             />
           ) : null}
           
-          {/* Text preview for documents/memos */}
+          {/* 🎨 텍스트 미리보기 - 넉넉한 패딩과 가독성 */}
           {!thumbnail && getTextPreview() && (
-            <div className="absolute inset-0 p-3 flex flex-col justify-center">
-              <div className="text-xs text-gray-600 leading-relaxed line-clamp-6">
+            <div className="absolute inset-0 p-5 flex flex-col justify-center">
+              <div className="text-sm text-gray-700 leading-relaxed line-clamp-5 font-medium">
                 {getTextPreview()}
               </div>
             </div>
           )}
           
-          {/* Fallback icon when no thumbnail or text preview */}
+          {/* 🎨 직관적 단순함: 더 큰 아이콘으로 명확한 시각적 인식 */}
           <div 
             className="w-full h-full absolute inset-0 flex items-center justify-center" 
             style={{ display: (thumbnail || getTextPreview()) ? 'none' : 'flex' }}
           >
-            <div className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-gray-500 shadow-sm group-hover:scale-110 transition-all duration-300">
-              {getTypeIcon()}
+            <div className="w-16 h-16 rounded-2xl bg-white/90 backdrop-blur-sm flex items-center justify-center text-gray-500 shadow-lg group-hover:scale-110 transition-all duration-300">
+              <div className="scale-150">
+                {getTypeIcon()}
+              </div>
             </div>
           </div>
           
 
-          {/* Duration for videos - improved style */}
+          {/* 🎨 Duration 표시 - 더 보기 좋은 스타일 */}
           {item.type === 'video' && item.metadata?.duration && (
-            <div className="absolute bottom-2 right-2 bg-black/75 backdrop-blur-sm text-white px-2 py-1 rounded-full text-[10px] font-medium">
+            <div className="absolute bottom-3 right-3 bg-black/80 backdrop-blur-md text-white px-3 py-1.5 rounded-xl text-xs font-medium shadow-lg">
               {Math.floor(item.metadata.duration / 60)}:{(item.metadata.duration % 60).toString().padStart(2, '0')}
             </div>
           )}
         </div>
         
-        {/* Content - extremely compressed bottom (1:1 ratio) */}
-        <div className="px-3 py-1.5 bg-white border-t border-gray-50">
-          <h4 className="font-medium text-gray-800 truncate text-xs leading-none tracking-tight">
-            {(item.metadata?.title as string) || item.name}
+        {/* 🎨 넉넉한 제목 영역 - 테두리 없이 자연스러운 통합감 */}
+        <div className="px-4 py-3 bg-white">
+          <h4 className="font-medium text-gray-900 truncate text-sm leading-relaxed">
+            {getDisplayTitle(item)}
           </h4>
         </div>
       </motion.div>
     )
   }
 
-  // List mode
+  // 🎨 List 모드 - 넉넉한 크기와 터치 영역 확보
   return (
-    <div className="flex items-center gap-4 p-3 bg-white border border-gray-100 rounded-lg hover:shadow-sm transition-all cursor-pointer" onClick={() => onItemClick(item)}>
+    <motion.div 
+      className="flex items-center gap-6 p-4 bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer group"
+      style={{
+        boxShadow: '0 2px 12px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04)',
+        minHeight: '72px' // 🎨 터치 영역 최소 44px 이상 확보
+      }}
+      whileTap={{ scale: 0.98 }}
+      whileHover={{ scale: 1.01, y: -2 }}
+      onClick={() => onItemClick(item)}
+    >
       <div className="flex-shrink-0">
-        <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center">
-          {item.type === 'video' && <Video className="w-4 h-4 text-blue-600" />}
-          {item.type === 'image' && <ImageIcon className="w-4 h-4 text-green-600" />}
-          {item.type === 'url' && <Link className="w-4 h-4 text-purple-600" />}
-          {item.type === 'document' && <FileText className="w-4 h-4 text-orange-600" />}
-          {item.type === 'memo' && <StickyNote className="w-4 h-4 text-yellow-600" />}
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-300">
+          {item.type === 'video' && <Video className="w-5 h-5 text-blue-600" />}
+          {item.type === 'image' && <ImageIcon className="w-5 h-5 text-green-600" />}
+          {item.type === 'url' && <Link className="w-5 h-5 text-purple-600" />}
+          {item.type === 'document' && <FileText className="w-5 h-5 text-orange-600" />}
+          {item.type === 'memo' && <StickyNote className="w-5 h-5 text-yellow-600" />}
         </div>
       </div>
       <div className="flex-1 min-w-0">
-        <h4 className="font-medium text-gray-900 truncate text-sm">
-          {(item.metadata?.title as string) || item.name}
+        <h4 className="font-medium text-gray-900 truncate text-base leading-relaxed mb-1">
+          {getDisplayTitle(item)}
         </h4>
-        <p className="text-xs text-gray-500 truncate">
+        <p className="text-sm text-gray-500 truncate leading-relaxed">
           {item.type === 'url' ? getDomain(item.content) : 
-           item.content.length > 80 ? item.content.substring(0, 80) + '...' : item.content}
+           item.content.length > 60 ? item.content.substring(0, 60) + '...' : item.content}
         </p>
       </div>
-      <div className="text-xs text-gray-400">
+      <div className="text-sm text-gray-400 flex-shrink-0">
         {new Date(item.updatedAt).toLocaleDateString('ko-KR')}
       </div>
-    </div>
+    </motion.div>
   )
 }
 

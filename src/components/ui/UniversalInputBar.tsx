@@ -245,25 +245,21 @@ export default function UniversalInputBar({
     }
   }
 
-  // 키보드 단축키
+  // 🎨 PC/모바일 맞춤 키보드 처리
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      // Cmd/Ctrl + Enter는 항상 제출
-      if (e.metaKey || e.ctrlKey) {
-        e.preventDefault()
-        handleSubmit()
+      // PC: Enter 키로 제출, Shift+Enter로 줄바꿈
+      if (!device.isMobile) {
+        if (!e.shiftKey && input.trim()) {
+          e.preventDefault()
+          handleSubmit()
+        }
         return
       }
       
-      // 붙여넣은 이미지나 첨부파일이 있으면 일반 Enter로도 제출
+      // 모바일: Shift+Enter 없이는 기본적으로 줄바꿈, 완료 버튼으로만 제출
+      // 단, 파일이나 이미지가 있으면 Enter로도 제출 가능
       if (pastedImages.length > 0 || attachedFiles.length > 0) {
-        e.preventDefault()
-        handleSubmit()
-        return
-      }
-      
-      // 텍스트만 있을 때는 Shift + Enter가 아니면 제출 (기본 동작)
-      if (!e.shiftKey && input.trim()) {
         e.preventDefault()
         handleSubmit()
       }
@@ -489,21 +485,55 @@ export default function UniversalInputBar({
                 <Paperclip size={18} style={{ color: 'var(--text-secondary)' }} />
               </button>
 
-              <button
+              {/* 🎨 Emotional Submit Button - ph.md 철학 적용 */}
+              <motion.button
                 onClick={handleSubmit}
                 disabled={(!input.trim() && attachedFiles.length === 0 && pastedImages.length === 0) || isProcessing || !selectedFolderId}
-                className={`p-2 rounded-lg transition-all ${
+                className={`relative overflow-hidden transition-all duration-300 ease-out ${
                   (!input.trim() && attachedFiles.length === 0 && pastedImages.length === 0) || isProcessing || !selectedFolderId
                     ? 'opacity-50 cursor-not-allowed' 
-                    : 'hover:scale-105 shadow-md'
+                    : 'shadow-lg hover:shadow-xl'
                 }`}
                 style={{
-                  backgroundColor: 'var(--text-primary)',
-                  color: 'var(--bg-card)'
+                  background: (!input.trim() && attachedFiles.length === 0 && pastedImages.length === 0) || isProcessing || !selectedFolderId
+                    ? 'linear-gradient(135deg, #E5E7EB, #D1D5DB)'
+                    : 'linear-gradient(135deg, #F59E0B, #D97706)',
+                  borderRadius: '16px',
+                  padding: '12px',
+                  border: 'none',
+                  minWidth: '48px',
+                  minHeight: '48px'
                 }}
+                whileTap={{ scale: 0.95 }}
+                whileHover={{ 
+                  scale: (!input.trim() && attachedFiles.length === 0 && pastedImages.length === 0) || isProcessing || !selectedFolderId ? 1 : 1.05,
+                  y: (!input.trim() && attachedFiles.length === 0 && pastedImages.length === 0) || isProcessing || !selectedFolderId ? 0 : -2
+                }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                title={device.isMobile ? "완료" : "전송 (Enter)"}
               >
-                <Send size={18} />
-              </button>
+                {/* 🎨 Warm gradient overlay for active state */}
+                {!((!input.trim() && attachedFiles.length === 0 && pastedImages.length === 0) || isProcessing || !selectedFolderId) && (
+                  <div 
+                    className="absolute inset-0 rounded-2xl opacity-20"
+                    style={{
+                      background: 'linear-gradient(135deg, #FEF3C7, #F59E0B)'
+                    }}
+                  />
+                )}
+                
+                <Send 
+                  size={18} 
+                  style={{ 
+                    color: (!input.trim() && attachedFiles.length === 0 && pastedImages.length === 0) || isProcessing || !selectedFolderId
+                      ? '#9CA3AF'
+                      : '#FFFFFF',
+                    position: 'relative',
+                    zIndex: 1,
+                    filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2))'
+                  }} 
+                />
+              </motion.button>
             </div>
           </div>
         </motion.div>

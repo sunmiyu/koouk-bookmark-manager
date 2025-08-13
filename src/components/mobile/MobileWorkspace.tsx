@@ -275,41 +275,60 @@ export default function MobileWorkspace({
     switch (state.navigation.activeTab) {
       case 'my-folder':
         return (
-          <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+          <div className="flex-1 flex flex-col overflow-hidden">
             {viewMode === 'list' ? (
-              // Folder List View
-              <div className="flex-1 overflow-hidden">
-                <MobileFolderList 
-                  folders={folders}
-                  onFolderSelect={handleFolderSelect}
-                  onItemSelect={handleItemSelect}
-                  onShareFolder={onShareFolder}
-                />
+              // 🎨 Emotional Folder List View - 감성적이고 따뜻한 디자인
+              <div className="flex-1 overflow-hidden relative">
+                {/* Welcome Section - 처음 보는 사람도 3초 안에 이해할 수 있게 */}
+                <div className="px-4 py-6 bg-gradient-to-r from-white/90 to-amber-50/90 backdrop-blur-sm">
+                  <div className="text-center">
+                    <h1 className="text-lg font-medium text-gray-800 mb-2 leading-relaxed">
+                      내 폴더
+                    </h1>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      소중한 정보를 쉽고 직관적으로 정리해보세요
+                    </p>
+                  </div>
+                </div>
+
+                {/* Redesigned Folder List */}
+                <div className="flex-1 px-4 pt-4 pb-20">
+                  <MobileFolderList 
+                    folders={folders}
+                    onFolderSelect={handleFolderSelect}
+                    onItemSelect={handleItemSelect}
+                    onShareFolder={onShareFolder}
+                  />
+                </div>
               </div>
             ) : (
-              // PC-Style Folder Internal View
-              <PCStyleFolderView
-                currentFolder={currentFolder}
-                folderPath={currentFolderPath}
-                onBack={handleBackToList}
-                onNavigateToFolder={handleNavigateToFolder}
-                onFolderSelect={handleFolderSelect}
-                onItemSelect={handleItemSelect}
-                onCreateFolder={handleCreateFolder}
-                onCreateItem={handleCreateItem}
-              />
+              // PC-Style Folder Internal View with warm styling
+              <div className="flex-1 bg-white/50 backdrop-blur-sm">
+                <PCStyleFolderView
+                  currentFolder={currentFolder}
+                  folderPath={currentFolderPath}
+                  onBack={handleBackToList}
+                  onNavigateToFolder={handleNavigateToFolder}
+                  onFolderSelect={handleFolderSelect}
+                  onItemSelect={handleItemSelect}
+                  onCreateFolder={handleCreateFolder}
+                  onCreateItem={handleCreateItem}
+                />
+              </div>
             )}
 
-            {/* Floating Input Button - Only show in list view */}
+            {/* 🎨 Emotional Floating Input Button - 부드럽고 감성적인 디자인 */}
             {viewMode === 'list' && (
-              <FloatingInputButton
-                folders={folders}
-                selectedFolderId={selectedFolderId}
-                onAddItem={handleAddItem}
-                onFolderSelect={handleFolderSelect}
-                onOpenMemo={() => setShowQuickNoteModal(true)}
-                onOpenNote={() => setShowBigNoteModal(true)}
-              />
+              <div className="absolute bottom-4 right-4 z-10">
+                <FloatingInputButton
+                  folders={folders}
+                  selectedFolderId={selectedFolderId}
+                  onAddItem={handleAddItem}
+                  onFolderSelect={handleFolderSelect}
+                  onOpenMemo={() => setShowQuickNoteModal(true)}
+                  onOpenNote={() => setShowBigNoteModal(true)}
+                />
+              </div>
             )}
           </div>
         )
@@ -338,8 +357,8 @@ export default function MobileWorkspace({
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      {/* Main content */}
+    <div className="flex flex-col h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
+      {/* Main content with warm, emotional background */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {renderContent()}
       </div>

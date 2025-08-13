@@ -72,9 +72,9 @@ export default function MobileFolderList({ folders, onFolderSelect, onItemSelect
     <div 
       ref={scrollRef}
       data-folder-content
-      className="flex-1 overflow-y-auto bg-gray-50"
+      className="flex-1 overflow-y-auto bg-gradient-to-br from-orange-50/30 via-amber-50/30 to-yellow-50/30"
     >
-      <div className="p-4 space-y-3">
+      <div className="p-4 space-y-4">
         {folders.map((folder) => (
           <FolderTreeNode
             key={folder.id}
@@ -90,11 +90,17 @@ export default function MobileFolderList({ folders, onFolderSelect, onItemSelect
         
         {folders.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
-              <Folder size={32} className="text-blue-500" />
+            {/* 🎨 Emotional Empty State - 따뜻하고 친근한 느낌 */}
+            <div className="w-20 h-20 bg-gradient-to-br from-amber-50 to-orange-100 rounded-3xl flex items-center justify-center mb-6 shadow-lg backdrop-blur-sm"
+                 style={{
+                   boxShadow: '0 8px 32px rgba(251, 191, 36, 0.15), 0 4px 16px rgba(0, 0, 0, 0.04)'
+                 }}>
+              <Folder size={36} className="text-amber-600" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No folders yet</h3>
-            <p className="text-sm text-gray-500 max-w-xs">Start organizing your content by creating your first folder</p>
+            <h3 className="text-lg font-medium text-gray-800 mb-3 leading-relaxed">아직 폴더가 없어요</h3>
+            <p className="text-base text-amber-600/80 max-w-xs font-medium leading-relaxed">
+              첫 번째 폴더를 만들어 소중한 정보를 정리해보세요
+            </p>
           </div>
         )}
       </div>
@@ -127,94 +133,106 @@ function FolderTreeNode({
 
   return (
     <div className="relative">
-      {/* Modern Folder Card */}
+      {/* 🎨 Emotional Folder Card - 차분하고 따뜻한 감성 */}
       <motion.div
-        className="relative bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
-        whileTap={{ scale: 0.98 }}
-        style={{ marginLeft: level * 16 }}
+        className="relative bg-gradient-to-br from-white via-amber-50/20 to-orange-50/30 rounded-2xl border-0 shadow-lg overflow-hidden mb-4"
+        style={{
+          marginLeft: level * 20,
+          boxShadow: '0 8px 32px rgba(251, 191, 36, 0.15), 0 4px 16px rgba(0, 0, 0, 0.04)'
+        }}
+        whileTap={{ scale: 0.96 }}
+        whileHover={{ scale: 1.02, y: -2 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
       >
-        {/* Colored accent bar */}
+        {/* 🎨 Saint Laurent 스타일 절제된 accent bar */}
         <div 
-          className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b"
+          className="absolute left-0 top-0 bottom-0 w-2 rounded-r-full opacity-70"
           style={{ 
-            background: `linear-gradient(to bottom, ${folder.color || '#3B82F6'}, ${folder.color || '#3B82F6'}80)` 
+            background: `linear-gradient(135deg, ${folder.color || '#F59E0B'}, ${folder.color || '#F59E0B'}40)`,
+            filter: 'blur(0.5px)'
           }}
         />
         
         <div className="flex items-center">
-          {/* Expand/collapse button */}
+          {/* 🎨 Emotional Expand/collapse button - 부드럽고 자연스러운 */}
           <button
             onClick={() => onToggle(folder.id)}
-            className="flex-shrink-0 w-12 h-14 flex items-center justify-center hover:bg-gray-100 transition-colors"
+            className="flex-shrink-0 w-16 h-16 flex items-center justify-center hover:bg-amber-50/50 transition-all duration-300 ease-out rounded-2xl"
           >
             {hasChildren ? (
               isExpanded ? (
-                <ChevronDown size={16} className="text-gray-400" />
+                <ChevronDown size={18} className="text-amber-600/70" />
               ) : (
-                <ChevronRight size={16} className="text-gray-400" />
+                <ChevronRight size={18} className="text-amber-600/70" />
               )
             ) : (
               <div className="w-4 h-4" />
             )}
           </button>
 
-          {/* Main folder content */}
+          {/* 🎨 Emotional Main folder content - 넉넉한 여백과 공간감 */}
           <button
             onClick={() => onFolderSelect?.(folder.id)}
-            className="flex-1 flex items-center gap-3 px-3 py-3 hover:bg-gray-50/50 transition-colors text-left"
+            className="flex-1 flex items-center gap-4 px-4 py-4 hover:bg-white/60 transition-all duration-300 ease-out text-left rounded-2xl"
           >
-            {/* Folder icon with background */}
+            {/* 🎨 Emotional Folder icon - 부드럽고 따뜻한 배경 */}
             <div 
-              className="w-10 h-10 rounded-lg flex items-center justify-center text-lg shadow-sm"
+              className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-lg backdrop-blur-sm"
               style={{ 
-                backgroundColor: `${folder.color || '#3B82F6'}15`,
-                border: `1px solid ${folder.color || '#3B82F6'}30`
+                backgroundColor: `${folder.color || '#F59E0B'}20`,
+                border: `2px solid ${folder.color || '#F59E0B'}40`,
+                boxShadow: `0 4px 12px ${folder.color || '#F59E0B'}20`
               }}
             >
-              <span className="filter drop-shadow-sm">
+              <span className="filter drop-shadow-md transition-transform duration-300 hover:scale-110">
                 {folder.icon || '📁'}
               </span>
             </div>
             
-            {/* Folder info */}
+            {/* 🎨 Emotional Folder info - 카카오톡 기반 텍스트 사이즈와 따뜻한 색조 */}
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 text-sm truncate mb-0.5">
+              <h3 className="font-medium text-gray-800 text-base truncate mb-1 leading-relaxed">
                 {folder.name}
               </h3>
               {folder.children.length > 0 && (
-                <div className="flex items-center gap-2 text-xs text-gray-500">
-                  <span>{folder.children.length} items</span>
+                <div className="flex items-center gap-2 text-sm text-amber-600/80 font-medium">
+                  <span>{folder.children.length}개 항목</span>
                   {items.length > 0 && (
                     <>
-                      <span>•</span>
-                      <span>{items.length} files</span>
+                      <span className="text-amber-500/60">•</span>
+                      <span>{items.length}개 파일</span>
                     </>
                   )}
                 </div>
               )}
             </div>
 
-            {/* Share button */}
+            {/* 🎨 Emotional Share button - 부드럽고 감성적인 디자인 */}
             {onShareFolder && (
               <button
                 onClick={(e) => {
                   e.stopPropagation()
                   onShareFolder(folder.id)
                 }}
-                className="mr-2 w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors flex-shrink-0"
-                title="Share folder"
+                className="mr-3 w-10 h-10 flex items-center justify-center rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 transition-all duration-300 ease-out flex-shrink-0 shadow-md hover:shadow-lg"
+                style={{
+                  border: '1px solid rgba(251, 191, 36, 0.2)'
+                }}
+                title="폴더 공유하기"
               >
-                <Share2 size={14} className="text-blue-600" />
+                <Share2 size={16} className="text-amber-600" />
               </button>
             )}
 
-            {/* Arrow indicator */}
-            <ChevronRight size={14} className="text-gray-300 flex-shrink-0" />
+            {/* 🎨 Emotional Arrow indicator - 부드러운 그라데이션 */}
+            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
+              <ChevronRight size={14} className="text-amber-600/70" />
+            </div>
           </button>
         </div>
       </motion.div>
 
-      {/* Expanded sub-items */}
+      {/* Expanded sub-items with emotional styling */}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -224,7 +242,7 @@ function FolderTreeNode({
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="overflow-hidden mt-3"
           >
-            <div className="space-y-2 ml-6 pl-4 border-l-2 border-gray-100">
+            <div className="space-y-3 ml-6 pl-4 border-l-2 border-amber-100/60">
               {/* Sub-folders */}
               {subFolders.map((subFolder) => (
                 <FolderTreeNode
@@ -279,63 +297,92 @@ function ItemNode({
 
   const { Icon, color, bg } = getIconAndColor(item.type)
   
-  // Fix duplicate text issue - use title first, fallback to name
-  const displayTitle = (item.metadata?.title as string)?.trim() || item.name.trim()
+  // 🎨 YouTube 제목 최적화: 깔끔한 제목만 표시
+  const getDisplayTitle = () => {
+    // YouTube 영상인 경우 metadata.title만 사용 (다른 메타정보 제외)
+    if (item.metadata?.platform === 'youtube' && item.metadata?.title) {
+      return (item.metadata.title as string).trim()
+    }
+    
+    // 일반적인 경우: metadata.title이 있으면 사용, 없으면 item.name
+    return ((item.metadata?.title as string)?.trim()) || item.name.trim()
+  }
+  
+  const displayTitle = getDisplayTitle()
   const displayType = item.type.charAt(0).toUpperCase() + item.type.slice(1)
 
   return (
     <motion.button
       onClick={() => onSelect(item)}
-      className="w-full bg-white hover:bg-gray-50 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
-      whileTap={{ scale: 0.98 }}
-      style={{ marginLeft: level * 8 }}
+      className="w-full bg-gradient-to-r from-white to-amber-50/20 hover:from-amber-50/30 hover:to-orange-50/30 rounded-2xl border-0 shadow-lg hover:shadow-xl transition-all duration-300 ease-out overflow-hidden"
+      whileTap={{ scale: 0.96 }}
+      whileHover={{ scale: 1.02, y: -2 }}
+      style={{ 
+        marginLeft: level * 8,
+        boxShadow: '0 6px 24px rgba(251, 191, 36, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04)',
+        minHeight: '80px' // 🎨 터치 영역 최소 44px 이상 확보
+      }}
     >
-      <div className="flex items-center p-3">
-        {/* Type indicator dot */}
-        <div className="flex-shrink-0 w-2 h-8 mr-3 flex items-center">
+      <div className="flex items-center p-5">
+        {/* 🎨 더 크고 직관적인 Type indicator */}
+        <div className="flex-shrink-0 w-4 h-12 mr-5 flex items-center">
           <div 
-            className="w-1.5 h-8 rounded-full"
-            style={{ backgroundColor: color + '40' }}
+            className="w-3 h-12 rounded-full opacity-70"
+            style={{ 
+              background: `linear-gradient(135deg, ${color}, ${color}40)`,
+              filter: 'blur(0.5px)'
+            }}
           />
         </div>
 
-        {/* Item icon */}
+        {/* 🎨 더 크고 명확한 Item icon - 터치 영역 확보 */}
         <div 
-          className="w-8 h-8 rounded-lg flex items-center justify-center mr-3 flex-shrink-0"
-          style={{ backgroundColor: bg }}
+          className="w-14 h-14 rounded-2xl flex items-center justify-center mr-5 flex-shrink-0 shadow-lg"
+          style={{ 
+            backgroundColor: bg,
+            border: `1px solid ${color}20`
+          }}
         >
-          <Icon size={14} style={{ color }} />
+          <Icon size={20} style={{ color }} />
         </div>
         
-        {/* Item content */}
+        {/* 🎨 더 크고 가독성 좋은 텍스트 - ph.md 철학 적용 */}
         <div className="flex-1 min-w-0 text-left">
-          <p className="font-medium text-gray-900 text-sm truncate mb-0.5">
+          <p className="font-medium text-gray-900 text-lg truncate mb-2 leading-relaxed">
             {displayTitle}
           </p>
           
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            <span className="px-1.5 py-0.5 rounded-md font-medium" style={{ 
-              backgroundColor: bg, 
-              color: color 
-            }}>
+          <div className="flex items-center gap-3 text-base">
+            <span 
+              className="px-3 py-1 rounded-xl font-medium text-sm" 
+              style={{ 
+                backgroundColor: `${color}15`, 
+                color: color,
+                border: `1px solid ${color}20`
+              }}
+            >
               {displayType}
             </span>
             
             {/* Show creation date if available */}
             {item.createdAt && (
               <>
-                <span>•</span>
-                <span>{new Date(item.createdAt).toLocaleDateString('ko-KR', { 
-                  month: 'short', 
-                  day: 'numeric' 
-                })}</span>
+                <span className="text-amber-500/60">•</span>
+                <span className="text-amber-600/80 text-base font-medium">
+                  {new Date(item.createdAt).toLocaleDateString('ko-KR', { 
+                    month: 'short', 
+                    day: 'numeric' 
+                  })}
+                </span>
               </>
             )}
           </div>
         </div>
 
-        {/* Arrow indicator */}
-        <ChevronRight size={12} className="text-gray-300 flex-shrink-0 ml-2" />
+        {/* 🎨 더 큰 Arrow indicator - 터치 영역 고려 */}
+        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center ml-4 shadow-md">
+          <ChevronRight size={16} className="text-amber-600/70" />
+        </div>
       </div>
     </motion.button>
   )

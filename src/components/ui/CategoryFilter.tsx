@@ -95,36 +95,3 @@ export default function CategoryFilter({
     </>
   )
 }
-                  >
-                    {category.emoji && <span className="mr-2">{category.emoji}</span>}
-                    {category.label}
-                  </button>
-                ))}
-              </motion.div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* 데스크톱 카테고리 버튼들 */}
-      <div className="hidden sm:block mb-6 pb-3 border-b border-gray-200">
-        <div className="flex flex-wrap gap-2">
-          {categories.map((category) => (
-            <button
-              key={category.value}
-              onClick={() => onCategoryChange(category.value)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
-                selectedCategory === category.value
-                  ? 'bg-black text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {category.emoji && <span className="mr-1">{category.emoji}</span>}
-              {category.label}
-            </button>
-          ))}
-        </div>
-      </div>
-    </>
-  )
-}

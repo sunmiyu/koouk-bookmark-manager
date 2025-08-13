@@ -94,54 +94,57 @@ export default function App() {
   const { user } = useAuth()
 
   const handleSignOut = async () => {
+    if (!confirm('로그아웃 하시겠습니까? 모든 데이터가 초기화됩니다.')) {
+      return
+    }
+    
     try {
-      console.log('Starting sign out process...')
+      console.log('🔥 Emergency sign out process starting...')
       
-      // Clear all localStorage data completely
-      const keysToRemove = [
-        'koouk-folders',
-        'koouk-selected-folder', 
-        'koouk-expanded-folders',
-        'koouk-shared-folders',
-        'koouk-shared-content'
-      ]
-      
-      keysToRemove.forEach(key => {
-        localStorage.removeItem(key)
-        console.log(`Cleared localStorage key: ${key}`)
-      })
-      
-      // Clear all sessionStorage as well
-      sessionStorage.clear()
-      console.log('Cleared sessionStorage')
-      
-      // Sign out from Supabase
-      console.log('Signing out from Supabase...')
-      await supabase.auth.signOut()
+      // 1. 즉시 사용자 메뉴 닫기
       setShowUserMenu(false)
       
-      console.log('Sign out successful, reloading page...')
+      // 2. 모든 localStorage 완전 삭제
+      console.log('💾 Clearing all localStorage...')
+      if (typeof window !== 'undefined') {
+        localStorage.clear() // 모든 키 삭제
+        console.log('✅ localStorage completely cleared')
+      }
       
-      // Small delay to ensure everything is cleared before reload
-      setTimeout(() => {
-        window.location.reload()
-      }, 100)
+      // 3. 모든 sessionStorage 삭제
+      console.log('📝 Clearing all sessionStorage...')
+      if (typeof window !== 'undefined') {
+        sessionStorage.clear()
+        console.log('✅ sessionStorage completely cleared')
+      }
+      
+      // 4. Supabase 강제 로그아웃 (에러 무시)
+      console.log('🔐 Force signing out from Supabase...')
+      try {
+        await supabase.auth.signOut({ scope: 'global' })
+        console.log('✅ Supabase sign out successful')
+      } catch (authError) {
+        console.warn('⚠️ Supabase sign out failed, but continuing...', authError)
+      }
+      
+      // 5. 페이지 강제 새로고침 (즉시)
+      console.log('🔄 Force reloading page...')
+      window.location.href = window.location.origin // 루트로 이동 후 새로고침
       
     } catch (error) {
-      console.error('Sign out error:', error)
-      // Still reload page even if there's an error
-      window.location.reload()
+      console.error('💥 Sign out error, doing emergency reload:', error)
+      // 완전 실패 시 강제 새로고침
+      window.location.href = window.location.origin
     }
   }
 
   return (
-    <div className="min-h-screen bg-white px-0 sm:px-4">
-      {/* Vercel-style Header */}
-      <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
+    <div className="min-h-screen bg-white">
+      {/* Fixed Header for Mobile/Desktop */}
+      <header className="border-b border-gray-200 bg-white sticky top-0 z-50 w-full">
         <div className="w-full bg-white">
           <div className="w-full px-4 sm:px-8 sm:max-w-6xl sm:mx-auto">
-            <div className="flex items-center justify-between h-16">
-              {!device.isDesktop && <div className="w-0" />} {/* Spacer for mobile layout */}
+            <div className="flex items-center justify-between h-16 min-h-[64px]">
               {/* Logo */}
               <div className="flex items-center">
                 <button 
@@ -158,9 +161,13 @@ export default function App() {
                 </button>
               </div>
 
-              {/* Center - Mobile Navigation Tabs */}
-              {!device.isDesktop && (
-                <div className="flex-1 flex justify-center mx-4">
+              {/* Center - Navigation Tabs (Mobile & Desktop) */}
+              <div className="flex-1 flex justify-center mx-2 sm:mx-4">
+                {/* Debug: Show device type */}
+                <div className="fixed top-20 left-2 bg-red-500 text-white p-1 text-xs z-50 rounded">
+                  {device.type} - {device.width}px
+                </div>
+                {device.width < 768 ? (
                   <TopNavigation 
                     activeTab={activeTab}
                     onTabChange={(tab) => {
@@ -168,8 +175,42 @@ export default function App() {
                       setActiveTab(tab)
                     }}
                   />
-                </div>
-              )}
+                ) : (
+                  // PC Desktop Navigation (768px 이상)
+                  <div className="flex space-x-8">
+                    <button
+                      onClick={() => setActiveTab('my-folder')}
+                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === 'my-folder'
+                          ? 'border-black text-black'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      My Folder
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('bookmarks')}
+                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === 'bookmarks'
+                          ? 'border-black text-black'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Bookmarks
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('marketplace')}
+                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === 'marketplace'
+                          ? 'border-black text-black'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Market Place
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {/* Right side elements */}
               <div className="flex items-center gap-0.5 sm:gap-3">
@@ -250,7 +291,7 @@ export default function App() {
 
 
       {/* Main Content */}
-      <main className="w-full px-0 sm:px-8 sm:max-w-6xl sm:mx-auto pt-3 sm:pt-6 pb-8">
+      <main className="w-full px-2 sm:px-8 sm:max-w-6xl sm:mx-auto pt-2 sm:pt-6 pb-4 sm:pb-8 min-h-[calc(100vh-64px)]">
         {activeTab === 'my-folder' ? (
           <WorkspaceContent searchQuery={searchQuery} />
         ) : activeTab === 'bookmarks' ? (

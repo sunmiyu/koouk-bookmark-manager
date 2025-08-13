@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import MobileFolderList from './MobileFolderList'
 import { FolderItem, StorageItem, createFolder, createStorageItem } from '@/types/folder'
 import QuickNoteModal from '@/components/modals/QuickNoteModal'
 import BigNoteModal from '@/components/modals/BigNoteModal'

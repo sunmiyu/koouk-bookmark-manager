@@ -39,7 +39,7 @@ export default function MyFolderContent({ searchQuery = '' }: { searchQuery?: st
       try {
         const savedFolders = localStorage.getItem('koouk-folders')
         const savedSelectedId = localStorage.getItem('koouk-selected-folder')
-        const savedExpandedIds = localStorage.getItem('koouk-expanded-folders')
+        // Skip expanded folders for simplified layout
 
         if (savedFolders) {
           const parsedFolders = JSON.parse(savedFolders)
@@ -79,9 +79,7 @@ export default function MyFolderContent({ searchQuery = '' }: { searchQuery?: st
           setSelectedFolderId(savedSelectedId)
         }
 
-        if (savedExpandedIds) {
-          setExpandedFolders(new Set(JSON.parse(savedExpandedIds)))
-        }
+        // Skip expanded folders state for simplified layout
       } catch (error) {
         console.error('Data loading failed:', error)
         // On error, start clean
@@ -111,7 +109,7 @@ export default function MyFolderContent({ searchQuery = '' }: { searchQuery?: st
         localStorage.setItem('koouk-selected-folder', newSelectedId)
       }
       
-      localStorage.setItem('koouk-expanded-folders', JSON.stringify([...expandedFolders]))
+      // Skip saving expanded folders for simplified layout
     } catch (error) {
       console.error('Data saving failed:', error)
     }
@@ -486,10 +484,10 @@ You can see it in the Market Place.`)
     )
   }
 
-  // 📱 모바일 레이아웃 - 기존 MobileWorkspace 사용하되 개선
+  // 📱 모바일 레이아웃 - 기존 MobileMyFolder 사용하되 개선
   return (
     <>
-      <MobileWorkspace 
+      <MobileMyFolder 
         folders={folders}
         selectedFolderId={selectedFolderId}
         onFoldersChange={handleFoldersChange}

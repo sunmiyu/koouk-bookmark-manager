@@ -20,6 +20,7 @@ export default function MobileWorkspace({
   onFolderSelect: parentOnFolderSelect,
   onShareFolder
 }: MobileWorkspaceProps) {
+  const [editingItem, setEditingItem] = useState<StorageItem | null>(null)
   const [showQuickNoteModal, setShowQuickNoteModal] = useState(false)
   const [showBigNoteModal, setShowBigNoteModal] = useState(false)
   const [showCreateFolderModal, setShowCreateFolderModal] = useState(false)

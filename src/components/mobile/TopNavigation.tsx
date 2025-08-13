@@ -5,7 +5,7 @@ import { useCrossPlatformState } from '@/hooks/useCrossPlatformState'
 import { useDevice } from '@/hooks/useDevice'
 
 interface TopNavigationProps {
-  activeTab?: 'my-folder' | 'bookmarks' | 'marketplace'
+  activeTab?: 'dashboard' | 'my-folder' | 'bookmarks' | 'marketplace'
   onTabChange?: (tab: 'my-folder' | 'bookmarks' | 'marketplace') => void
 }
 
@@ -55,13 +55,14 @@ export default function TopNavigation({ activeTab, onTabChange }: TopNavigationP
     <div className="flex space-x-1">
       {tabs.map((tab) => {
         // 활성 탭 확인
-        const appTabMap = {
+        const appTabMap: Record<string, string> = {
           'my-folder': 'my-folder',
           'bookmarks': 'bookmarks', 
-          'marketplace': 'marketplace'
+          'marketplace': 'marketplace',
+          'dashboard': 'dashboard'
         }
         const currentStateTab = state.navigation.activeTab === 'market-place' ? 'marketplace' : state.navigation.activeTab
-        const isActive = activeTab ? appTabMap[activeTab] === tab.id : currentStateTab === tab.id
+        const isActive = activeTab && activeTab !== 'dashboard' ? appTabMap[activeTab] === tab.id : currentStateTab === tab.id
 
         return (
           <motion.button

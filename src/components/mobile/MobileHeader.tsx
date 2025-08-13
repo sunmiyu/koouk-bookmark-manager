@@ -7,7 +7,7 @@ import { useAuth } from '@/components/auth/AuthContext'
 import SearchInterface from '@/components/ui/SearchInterface'
 
 interface MobileHeaderProps {
-  activeTab: 'my-folder' | 'marketplace' | 'bookmarks'
+  activeTab: 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks'
   searchQuery: string
   onSearchChange: (query: string) => void
   onShowFeedbackModal: () => void
@@ -29,7 +29,7 @@ export default function MobileHeader({
   }
 
   return (
-    <div className="flex items-center justify-between h-14 min-h-[56px] px-3 bg-white border-b border-gray-200">
+    <div className="flex items-center justify-between h-12 min-h-[48px] px-3 bg-white border-b border-gray-200">
       {/* Logo */}
       <div className="flex items-center flex-shrink-0">
         <button 
@@ -48,14 +48,16 @@ export default function MobileHeader({
 
       {/* Right side elements - Compact for mobile */}
       <div className="flex items-center gap-2">
-        {/* Enhanced Search Interface - Smaller for mobile */}
-        <SearchInterface
-          searchQuery={searchQuery}
-          onSearchChange={onSearchChange}
-          searchScope={activeTab === 'my-folder' ? 'my-folder' : activeTab === 'marketplace' ? 'market-place' : 'bookmarks'}
-          placeholder="Search..."
-          language="en"
-        />
+        {/* Enhanced Search Interface - Smaller for mobile, hide on dashboard */}
+        {activeTab !== 'dashboard' && (
+          <SearchInterface
+            searchQuery={searchQuery}
+            onSearchChange={onSearchChange}
+            searchScope={activeTab === 'my-folder' ? 'my-folder' : activeTab === 'marketplace' ? 'market-place' : 'bookmarks'}
+            placeholder="Search..."
+            language="en"
+          />
+        )}
 
         {/* Feedback Button - Icon only on mobile */}
         <button 
@@ -63,7 +65,7 @@ export default function MobileHeader({
           className="flex items-center justify-center w-8 h-8 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors border border-gray-200"
           title="Feedback"
         >
-          <MessageCircle className="w-4 h-4 stroke-2" />
+          <MessageCircle className="w-4 h-4 fill-current" />
         </button>
 
         {/* User Account - Mobile Implementation */}

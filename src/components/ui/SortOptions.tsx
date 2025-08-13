@@ -59,14 +59,14 @@ export default function SortOptions({
         )}
       </div>
 
-      {/* 모바일 정렬 드롭다운 */}
+      {/* 모바일 정렬 드롭다운 - 더 컴팩트하게 */}
       <div className="sm:hidden relative">
         <button
           onClick={() => setShowDropdown(!showDropdown)}
-          className="w-full flex items-center justify-between px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors min-w-[100px]"
         >
           <span>{selectedOption?.label}</span>
-          <ChevronDown className={`w-4 h-4 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
+          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
         </button>
         
         {showDropdown && (

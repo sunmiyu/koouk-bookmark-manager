@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { Settings, LogOut, MessageCircle } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import { supabase } from '@/lib/supabase'
+import Dashboard from '../workspace/Dashboard'
 import MyFolderContent from '../workspace/MyFolderContent'
 import MarketPlace from '../workspace/MarketPlace'
 import Bookmarks from '../workspace/Bookmarks'
@@ -19,7 +20,7 @@ import { useDevice } from '@/hooks/useDevice'
 
 export default function App() {
   const device = useDevice()
-  const [activeTab, setActiveTab] = useState<'my-folder' | 'marketplace' | 'bookmarks'>('my-folder')
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks'>('dashboard')
   const [searchQuery, setSearchQuery] = useState('')
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
@@ -150,7 +151,7 @@ export default function App() {
                 {/* Logo */}
                 <div className="flex items-center">
                   <button 
-                    onClick={() => setActiveTab('my-folder')}
+                    onClick={() => setActiveTab('dashboard')}
                     className="hover:opacity-80 transition-opacity"
                   >
                     <Image 
@@ -201,14 +202,16 @@ export default function App() {
 
                 {/* Right side elements */}
                 <div className="flex items-center gap-0.5 sm:gap-3">
-                  {/* Enhanced Search Interface */}
-                  <SearchInterface
-                    searchQuery={searchQuery}
-                    onSearchChange={setSearchQuery}
-                    searchScope={activeTab === 'my-folder' ? 'my-folder' : activeTab === 'marketplace' ? 'market-place' : 'bookmarks'}
-                    placeholder="Search..."
-                    language="en"
-                  />
+                  {/* Enhanced Search Interface - Hide on dashboard */}
+                  {activeTab !== 'dashboard' && (
+                    <SearchInterface
+                      searchQuery={searchQuery}
+                      onSearchChange={setSearchQuery}
+                      searchScope={activeTab === 'my-folder' ? 'my-folder' : activeTab === 'marketplace' ? 'market-place' : 'bookmarks'}
+                      placeholder="Search..."
+                      language="en"
+                    />
+                  )}
 
                   {/* Feedback Button - responsive design */}
                   <button 
@@ -253,16 +256,18 @@ export default function App() {
 
                 />
 
-                {/* Navigation tabs */}
-                <div className="flex justify-center border-t border-gray-100 py-2">
-                  <TopNavigation 
-                    activeTab={activeTab}
-                    onTabChange={(tab) => {
-                      console.log('Mobile TopNavigation tab change:', tab)
-                      setActiveTab(tab)
-                    }}
-                  />
-                </div>
+                {/* Navigation tabs - Hide on dashboard */}
+                {activeTab !== 'dashboard' && (
+                  <div className="flex justify-center border-t border-gray-100 py-2">
+                    <TopNavigation 
+                      activeTab={activeTab}
+                      onTabChange={(tab) => {
+                        console.log('Mobile TopNavigation tab change:', tab)
+                        setActiveTab(tab)
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -274,7 +279,9 @@ export default function App() {
       <main className={`w-full px-2 sm:px-8 sm:max-w-6xl sm:mx-auto pt-2 sm:pt-6 pb-4 sm:pb-8 ${
         device.width >= 768 ? 'min-h-[calc(100vh-64px)]' : 'min-h-[calc(100vh-100px)]'
       }`}>
-        {activeTab === 'my-folder' ? (
+        {activeTab === 'dashboard' ? (
+          <Dashboard onNavigateToSection={(section) => setActiveTab(section)} />
+        ) : activeTab === 'my-folder' ? (
           <MyFolderContent searchQuery={searchQuery} />
         ) : activeTab === 'bookmarks' ? (
           <Bookmarks searchQuery={searchQuery} />

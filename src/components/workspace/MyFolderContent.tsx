@@ -1,12 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { FolderItem, StorageItem, createFolder } from '@/types/folder'
+import { FolderItem, StorageItem, createFolder, createStorageItem } from '@/types/folder'
 import { searchEngine } from '@/lib/search-engine'
 import FolderGrid from '@/components/ui/FolderGrid'
 import FolderDetail from '@/components/ui/FolderDetail'
 import FolderSelector from '@/components/ui/FolderSelector'
 import ContentInput from '@/components/ui/ContentInput'
+import { SharedFolderData } from '@/components/ui/ShareFolderModal'
+import { SharedFolder, ShareCategory } from '@/types/share'
+import { useToast } from '@/hooks/useToast'
+import Toast from '@/components/ui/Toast'
+import QuickNoteModal from '@/components/ui/QuickNoteModal'
+import BigNoteModal from '@/components/ui/BigNoteModal'
 
 interface MyFolderContentProps {
   searchQuery?: string
@@ -19,6 +25,9 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
   const [isLoading, setIsLoading] = useState(true)
   const [showCreateFolderModal, setShowCreateFolderModal] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
+  const [showQuickNoteModal, setShowQuickNoteModal] = useState(false)
+  const [showBigNoteModal, setShowBigNoteModal] = useState(false)
+  const { toast, showSuccess, hideToast } = useToast()
 
   // 선택된 폴더
   const selectedFolder = folders.find(f => f.id === selectedFolderId)
@@ -189,10 +198,61 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
     saveToStorage(folders, '')
   }
 
-  // 폴더 공유 (추후 구현)
-  const handleShareFolder = (folderId: string) => {
-    console.log('Share folder:', folderId)
-    // TODO: 폴더 공유 모달 구현
+  // 폴더 공유
+  const handleShareFolder = (sharedFolderData: SharedFolderData, folder: FolderItem) => {
+    try {
+      // SharedFolder 객체 생성
+      const sharedFolder: SharedFolder = {
+        id: `shared-${Date.now()}`,
+        title: sharedFolderData.title,
+        description: sharedFolderData.description,
+        author: {
+          id: 'current-user',
+          name: 'You',
+          avatar: '👤',
+          verified: false
+        },
+        category: sharedFolderData.category as ShareCategory,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        isPublic: true,
+        tags: sharedFolderData.tags,
+        coverImage: sharedFolderData.coverImage,
+        stats: {
+          views: 0,
+          likes: 0,
+          helpful: 0,
+          notHelpful: 0,
+          shares: 0,
+          downloads: 0
+        },
+        folder: folder
+      }
+
+      // 로컬스토리지에 공유 폴더 저장
+      const existingSharedFolders = JSON.parse(localStorage.getItem('koouk-shared-folders') || '[]')
+      const updatedSharedFolders = [sharedFolder, ...existingSharedFolders]
+      localStorage.setItem('koouk-shared-folders', JSON.stringify(updatedSharedFolders))
+
+      showSuccess(`📢 "${sharedFolderData.title}" has been shared to Market Place!`)
+      
+      console.log('Folder shared successfully:', sharedFolder)
+    } catch (error) {
+      console.error('Error sharing folder:', error)
+      alert('Failed to share folder. Please try again.')
+    }
+  }
+
+  // 노트 저장 핸들러
+  const handleSaveNote = (title: string, content: string, type: 'memo' | 'document' = 'memo') => {
+    if (!selectedFolderId) {
+      alert('Please select a folder first')
+      return
+    }
+
+    const noteItem = createStorageItem(title, type, content, selectedFolderId)
+    handleAddItem(noteItem, selectedFolderId)
+    showSuccess(`📝 "${title}" saved successfully!`)
   }
 
   if (isLoading) {
@@ -248,6 +308,8 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
               selectedFolderId={selectedFolderId}
               onFolderSelect={handleFolderSelect}
               onCreateFolder={handleCreateFolder}
+              onOpenQuickNote={() => setShowQuickNoteModal(true)}
+              onOpenBigNote={() => setShowBigNoteModal(true)}
             />
           )}
           
@@ -299,6 +361,32 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
           </div>
         </div>
       )}
+
+      {/* Quick Note Modal */}
+      <QuickNoteModal
+        isOpen={showQuickNoteModal}
+        onClose={() => setShowQuickNoteModal(false)}
+        onSave={handleSaveNote}
+        folderId={selectedFolderId}
+        folderName={selectedFolder?.name}
+      />
+
+      {/* Big Note Modal */}
+      <BigNoteModal
+        isOpen={showBigNoteModal}
+        onClose={() => setShowBigNoteModal(false)}
+        onSave={handleSaveNote}
+        folderId={selectedFolderId}
+        folderName={selectedFolder?.name}
+      />
+
+      {/* Toast Notification */}
+      <Toast
+        show={toast.show}
+        message={toast.message}
+        type={toast.type}
+        onClose={hideToast}
+      />
     </div>
   )
 }

@@ -5,12 +5,13 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, MoreVertical, ExternalLink, Trash2, Grid, List, Share2 } from 'lucide-react'
 import { FolderItem, StorageItem } from '@/types/folder'
 import DocumentModal from './DocumentModal'
+import ShareFolderModal, { SharedFolderData } from './ShareFolderModal'
 
 interface FolderDetailProps {
   folder: FolderItem
   onBack: () => void
   onItemDelete?: (itemId: string) => void
-  onShareFolder?: (folderId: string) => void
+  onShareFolder?: (folderData: SharedFolderData, folder: FolderItem) => void
   searchQuery?: string
 }
 
@@ -25,6 +26,7 @@ export default function FolderDetail({
   const [selectedItem, setSelectedItem] = useState<string | null>(null)
   const [documentModalOpen, setDocumentModalOpen] = useState(false)
   const [documentModalItem, setDocumentModalItem] = useState<StorageItem | null>(null)
+  const [shareModalOpen, setShareModalOpen] = useState(false)
 
   // 검색 필터링 - StorageItem만 필터링
   const filteredItems = folder.children.filter((item): item is StorageItem => {
@@ -52,6 +54,14 @@ export default function FolderDetail({
       default:
         return '📎'
     }
+  }
+
+  // Share 폴더 핸들러
+  const handleShareFolder = (sharedFolderData: SharedFolderData) => {
+    if (onShareFolder) {
+      onShareFolder(sharedFolderData, folder)
+    }
+    setShareModalOpen(false)
   }
 
   // 아이템 클릭 핸들러
@@ -102,7 +112,7 @@ export default function FolderDetail({
               </div>
               
               <div>
-                <h1 className="text-lg font-semibold text-gray-900">{folder.name}</h1>
+                <h1 className="text-base sm:text-lg font-semibold text-gray-900">{folder.name}</h1>
                 <p className="text-sm text-gray-500">
                   {filteredItems.length} {filteredItems.length === 1 ? 'item' : 'items'}
                 </p>
@@ -134,9 +144,9 @@ export default function FolderDetail({
             {/* 폴더 공유 버튼 */}
             {onShareFolder && (
               <button
-                onClick={() => onShareFolder(folder.id)}
+                onClick={() => setShareModalOpen(true)}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Share Folder"
+                title="Share to Market Place"
               >
                 <Share2 size={16} />
               </button>
@@ -152,7 +162,7 @@ export default function FolderDetail({
             <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center mb-4">
               <span className="text-2xl">📂</span>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
               {searchQuery ? 'No items found' : 'Folder is empty'}
             </h3>
             <p className="text-sm text-gray-500 mb-4">
@@ -302,6 +312,14 @@ export default function FolderDetail({
           setDocumentModalItem(null)
         }}
         item={documentModalItem}
+      />
+
+      {/* 공유 모달 */}
+      <ShareFolderModal
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        folder={folder}
+        onShareFolder={handleShareFolder}
       />
     </div>
   )

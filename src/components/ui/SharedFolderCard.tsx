@@ -1,19 +1,23 @@
 'use client'
 
 import Image from 'next/image'
-import { Heart } from 'lucide-react'
+import { Heart, Edit3 } from 'lucide-react'
 import { SharedFolder } from '@/types/share'
 
 interface SharedFolderCardProps {
   sharedFolder: SharedFolder
-  onImportFolder: (sharedFolder: SharedFolder) => void
+  onImportFolder?: (sharedFolder: SharedFolder) => void
+  onEditFolder?: (sharedFolder: SharedFolder) => void
   categories: Array<{ value: string; label: string; emoji?: string }>
+  isOwnFolder?: boolean
 }
 
 export default function SharedFolderCard({
   sharedFolder,
   onImportFolder,
-  categories
+  onEditFolder,
+  categories,
+  isOwnFolder = false
 }: SharedFolderCardProps) {
   const currentCategory = categories.find(cat => cat.value === sharedFolder.category)
 
@@ -36,7 +40,7 @@ export default function SharedFolderCard({
         
         {/* 좋아요 버튼 */}
         <button className="absolute top-3 right-3 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-sm transition-colors">
-          <Heart className="w-4 h-4 text-gray-600" />
+          <Heart className="w-4 h-4 text-gray-600 fill-current" />
         </button>
 
         {/* 카테고리 태그 */}
@@ -77,7 +81,7 @@ export default function SharedFolderCard({
         <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
           <div className="flex items-center gap-2 sm:gap-3">
             <span className="flex items-center gap-1">
-              <Heart className="w-3 h-3" />
+              <Heart className="w-3 h-3 fill-current" />
               {sharedFolder.stats.likes}
             </span>
             <span className="hidden sm:flex items-center gap-1">
@@ -90,12 +94,24 @@ export default function SharedFolderCard({
         </div>
 
         {/* 액션 버튼 - 통일된 크기 */}
-        <button
-          onClick={() => onImportFolder(sharedFolder)}
-          className="w-full bg-black text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
-        >
-          Add
-        </button>
+        {isOwnFolder ? (
+          <div className="flex gap-2">
+            <button
+              onClick={() => onEditFolder?.(sharedFolder)}
+              className="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+            >
+              <Edit3 className="w-4 h-4" />
+              Edit
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => onImportFolder?.(sharedFolder)}
+            className="w-full bg-black text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+          >
+            Add
+          </button>
+        )}
       </div>
     </div>
   )

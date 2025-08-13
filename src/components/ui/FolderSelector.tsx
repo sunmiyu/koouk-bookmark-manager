@@ -8,6 +8,8 @@ interface FolderSelectorProps {
   selectedFolderId?: string
   onFolderSelect: (folderId: string) => void
   onCreateFolder: () => void
+  onOpenQuickNote?: () => void
+  onOpenBigNote?: () => void
   className?: string
 }
 
@@ -16,6 +18,8 @@ export default function FolderSelector({
   selectedFolderId,
   onFolderSelect,
   onCreateFolder,
+  onOpenQuickNote,
+  onOpenBigNote,
   className = ''
 }: FolderSelectorProps) {
   return (
@@ -38,14 +42,39 @@ export default function FolderSelector({
         </button>
       ))}
       
-      {/* +New 폴더 생성 버튼 */}
-      <button
-        onClick={onCreateFolder}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors"
-      >
-        <Plus size={12} />
-        +New
-      </button>
+      {/* Action buttons */}
+      <div className="flex gap-2">
+        {/* +New 폴더 생성 버튼 */}
+        <button
+          onClick={onCreateFolder}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors"
+        >
+          <Plus size={12} />
+          +New
+        </button>
+        
+        {/* +Note 버튼 */}
+        {onOpenQuickNote && (
+          <button
+            onClick={onOpenQuickNote}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium text-yellow-600 bg-yellow-50 hover:bg-yellow-100 transition-colors"
+          >
+            📝
+            +Note
+          </button>
+        )}
+        
+        {/* +Memo 버튼 */}
+        {onOpenBigNote && (
+          <button
+            onClick={onOpenBigNote}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium text-pink-600 bg-pink-50 hover:bg-pink-100 transition-colors"
+          >
+            📄
+            +Memo
+          </button>
+        )}
+      </div>
     </div>
   )
 }

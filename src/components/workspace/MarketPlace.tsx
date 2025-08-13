@@ -8,6 +8,7 @@ import Toast from '../ui/Toast'
 import CategoryFilter from '../ui/CategoryFilter'
 import SortOptions from '../ui/SortOptions'
 import SharedFolderCard from '../ui/SharedFolderCard'
+import EditSharedFolderModal from '../ui/EditSharedFolderModal'
 
 // Removed unused interface MarketPlaceProps
 
@@ -23,6 +24,9 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [sortOrder, setSortOrder] = useState<'popular' | 'recent' | 'helpful'>('popular')
   const [isLoading, setIsLoading] = useState(true)
+  const [currentView, setCurrentView] = useState<'marketplace' | 'my-shared'>('marketplace')
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [editingFolder, setEditingFolder] = useState<SharedFolder | null>(null)
 
   // 카테고리 옵션들
   const categories = [
@@ -204,6 +208,14 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
   useEffect(() => {
     let filtered = sharedFolders
 
+    // 뷰 필터 (Market Place vs My Shared)
+    if (currentView === 'my-shared') {
+      filtered = filtered.filter(folder => folder.author.id === 'current-user')
+    } else {
+      // Market Place 뷰에서는 다른 사용자의 폴더만 보이도록 (옵션)
+      // filtered = filtered.filter(folder => folder.author.id !== 'current-user')
+    }
+
     // 카테고리 필터
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(folder => folder.category === selectedCategory)
@@ -234,7 +246,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
     })
 
     setFilteredFolders(filtered)
-  }, [sharedFolders, selectedCategory, searchQuery, sortOrder])
+  }, [sharedFolders, selectedCategory, searchQuery, sortOrder, currentView])
 
   const handleImportFolder = (sharedFolder: SharedFolder) => {
     if (confirm(`Add "${sharedFolder.title}" to My Folder?`)) {
@@ -246,6 +258,30 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
         console.log('Importing folder:', sharedFolder.title)
         showSuccess(`📁 "${sharedFolder.title}" added to My Folder!`)
       }
+    }
+  }
+
+  const handleEditFolder = (sharedFolder: SharedFolder) => {
+    setEditingFolder(sharedFolder)
+    setEditModalOpen(true)
+  }
+
+  const handleUpdateFolder = (updatedFolder: SharedFolder) => {
+    try {
+      // Update in state
+      const updatedFolders = sharedFolders.map(folder => 
+        folder.id === updatedFolder.id ? updatedFolder : folder
+      )
+      setSharedFolders(updatedFolders)
+
+      // Update in localStorage
+      const userSharedFolders = updatedFolders.filter(folder => folder.author.id === 'current-user')
+      localStorage.setItem('koouk-shared-folders', JSON.stringify(userSharedFolders))
+
+      showSuccess(`📁 "${updatedFolder.title}" updated successfully!`)
+    } catch (error) {
+      console.error('Error updating folder:', error)
+      alert('Failed to update folder. Please try again.')
     }
   }
 
@@ -286,58 +322,86 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
 
   return (
     <div className="flex-1 px-2 py-3 sm:px-4 lg:p-4">
-      {/* 헤더 섹션 - 통일된 스타일 */}
+      {/* 탭 네비게이션 */}
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
+        <div className="flex items-center gap-1 mb-4 border-b border-gray-200">
+          <button
+            onClick={() => setCurrentView('marketplace')}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+              currentView === 'marketplace'
+                ? 'bg-white text-gray-900 border-b-2 border-blue-500'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            Browse Market Place
+          </button>
+          <button
+            onClick={() => setCurrentView('my-shared')}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+              currentView === 'my-shared'
+                ? 'bg-white text-gray-900 border-b-2 border-blue-500'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            My Shared Folders
+          </button>
+        </div>
+
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1 min-w-0">
             <h2 className="text-lg font-semibold text-gray-900">
-              {filteredFolders.length} {filteredFolders.length === 1 ? 'shared folder' : 'shared folders'}
+              {currentView === 'marketplace' 
+                ? `${filteredFolders.length} ${filteredFolders.length === 1 ? 'shared folder' : 'shared folders'}`
+                : `${filteredFolders.filter(f => f.author.id === 'current-user').length} folders shared by you`
+              }
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              Market Place
+              {currentView === 'marketplace' ? 'Browse and discover amazing collections' : 'Manage your shared folders'}
             </p>
           </div>
           
-          {/* 정렬 드롭다운 - 모바일/PC 공통 */}
-          <SortOptions
-            options={sortOptions}
-            selectedSort={sortOrder}
-            onSortChange={(sort) => setSortOrder(sort as 'popular' | 'recent' | 'helpful')}
-          />
-        </div>
-
-        {/* 필터 섹션 */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          {/* 모바일: 카테고리 드롭다운 */}
-          <div className="block sm:hidden">
-            <CategoryFilter
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onCategoryChange={setSelectedCategory}
-              showDropdownOnMobile={true}
+          {/* 정렬 드롭다운 - 모바일에서 더 크고 오른쪽 배치 */}
+          <div className="ml-3 flex-shrink-0">
+            <SortOptions
+              options={sortOptions}
+              selectedSort={sortOrder}
+              onSortChange={(sort) => setSortOrder(sort as 'popular' | 'recent' | 'helpful')}
             />
           </div>
-
-
-
-          {/* PC: 카테고리 탭 - 통일된 텍스트 크기 */}
-          <div className="hidden sm:flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <button
-                key={category.value}
-                onClick={() => setSelectedCategory(category.value)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${
-                  selectedCategory === category.value
-                    ? 'bg-black text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                <span className="text-xs">{category.emoji}</span>
-                <span>{category.label}</span>
-              </button>
-            ))}
-          </div>
         </div>
+
+        {/* 필터 섹션 - Market Place에서만 표시 */}
+        {currentView === 'marketplace' && (
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* 모바일: 카테고리 드롭다운 */}
+            <div className="block sm:hidden">
+              <CategoryFilter
+                categories={categories}
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
+                showDropdownOnMobile={true}
+              />
+            </div>
+
+            {/* PC: 카테고리 탭 - 통일된 텍스트 크기 */}
+            <div className="hidden sm:flex flex-wrap gap-2">
+              {categories.map((category) => (
+                <button
+                  key={category.value}
+                  onClick={() => setSelectedCategory(category.value)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                    selectedCategory === category.value
+                      ? 'bg-black text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <span className="text-xs">{category.emoji}</span>
+                  <span>{category.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 폴더 그리드 */}
@@ -353,8 +417,10 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
             <SharedFolderCard
               key={sharedFolder.id}
               sharedFolder={sharedFolder}
-              onImportFolder={handleImportFolder}
+              onImportFolder={currentView === 'marketplace' ? handleImportFolder : undefined}
+              onEditFolder={currentView === 'my-shared' ? handleEditFolder : undefined}
               categories={categories}
+              isOwnFolder={currentView === 'my-shared' && sharedFolder.author.id === 'current-user'}
             />
           ))}
         </div>
@@ -362,6 +428,19 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
 
 
       
+      {/* Edit Shared Folder Modal */}
+      {editingFolder && (
+        <EditSharedFolderModal
+          isOpen={editModalOpen}
+          onClose={() => {
+            setEditModalOpen(false)
+            setEditingFolder(null)
+          }}
+          sharedFolder={editingFolder}
+          onUpdateFolder={handleUpdateFolder}
+        />
+      )}
+
       {/* Toast Notification */}
       <Toast
         show={toast.show}

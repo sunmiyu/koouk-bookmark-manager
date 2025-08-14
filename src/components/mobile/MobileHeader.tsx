@@ -62,10 +62,10 @@ export default function MobileHeader({
         {/* Feedback Button - Icon only on mobile */}
         <button 
           onClick={onShowFeedbackModal}
-          className="flex items-center justify-center w-8 h-8 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors border border-gray-200"
+          className="flex items-center justify-center w-8 h-8 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
           title="Feedback"
         >
-          <MessageCircle className="w-4 h-4 fill-current" />
+          <MessageCircle className="w-4 h-4" />
         </button>
 
         {/* User Account - Mobile Implementation */}

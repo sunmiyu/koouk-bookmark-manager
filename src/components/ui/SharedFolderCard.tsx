@@ -52,7 +52,7 @@ export default function SharedFolderCard({
       </div>
 
       {/* 컨텐츠 - 고정 높이로 일관된 레이아웃 */}
-      <div className="p-3 sm:p-4 flex flex-col h-full">
+      <div className="p-2 sm:p-3 flex flex-col h-full">
         {/* 제작자 정보 - 모바일에서 숨김 */}
         <div className="hidden sm:flex items-center gap-2 mb-2">
           <span className="text-sm">{sharedFolder.author.avatar}</span>
@@ -65,12 +65,12 @@ export default function SharedFolderCard({
         </div>
 
         {/* 제목 - 통일된 텍스트 크기 */}
-        <h3 className="font-semibold text-gray-900 text-sm mb-2 line-clamp-2 leading-tight">
+        <h3 className="font-semibold text-gray-900 text-sm mb-1 line-clamp-2 leading-tight">
           {sharedFolder.title}
         </h3>
 
         {/* 설명 - 통일된 텍스트 크기 */}
-        <p className="text-xs text-gray-600 line-clamp-2 mb-3 leading-relaxed">
+        <p className="text-xs text-gray-600 line-clamp-2 mb-2 leading-relaxed">
           {sharedFolder.description}
         </p>
 
@@ -78,7 +78,7 @@ export default function SharedFolderCard({
         <div className="flex-1"></div>
 
         {/* 통계 - 통일된 텍스트 크기 */}
-        <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+        <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
           <div className="flex items-center gap-2 sm:gap-3">
             <span className="flex items-center gap-1">
               <Heart className="w-3 h-3 fill-current" />

@@ -69,7 +69,7 @@ export default function TopNavigation({ activeTab, onTabChange }: TopNavigationP
             key={tab.id}
             onClick={() => handleTabPress(tab.id)}
             className={`
-              px-2 py-1 text-xs font-medium relative
+              px-3 py-1.5 text-sm font-medium relative
               transition-colors duration-200 rounded-md
               ${isActive 
                 ? 'bg-gray-100 text-black' 

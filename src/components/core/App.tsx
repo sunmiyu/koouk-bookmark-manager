@@ -250,7 +250,7 @@ export default function App() {
                   {/* Feedback Button - responsive design */}
                   <button 
                     onClick={() => setShowFeedbackModal(true)}
-                    className="flex items-center justify-center w-8 h-8 text-gray-700 hover:text-gray-900 transition-colors sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:w-auto sm:h-auto sm:hover:bg-gray-50 sm:rounded-md"
+                    className="flex items-center justify-center w-8 h-8 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:w-auto sm:h-auto"
                     title="Feedback"
                   >
                     <MessageCircle className="w-4 h-4" />
@@ -291,7 +291,7 @@ export default function App() {
                 />
 
                 {/* Navigation tabs - Always show */}
-                <div className="flex justify-center border-t border-gray-100 py-2">
+                <div className="flex justify-center border-t border-gray-100 py-1">
                   <TopNavigation 
                     activeTab={activeTab}
                     onTabChange={(tab) => {

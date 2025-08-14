@@ -324,10 +324,10 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
     <div className="flex-1 px-2 py-3 sm:px-4 lg:p-4">
       {/* 탭 네비게이션 */}
       <div className="mb-6">
-        <div className="flex items-center gap-1 mb-4 border-b border-gray-200">
+        <div className="grid grid-cols-2 gap-1 mb-4 border-b border-gray-200">
           <button
             onClick={() => setCurrentView('marketplace')}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors text-center ${
               currentView === 'marketplace'
                 ? 'bg-white text-gray-900 border-b-2 border-blue-500'
                 : 'text-gray-600 hover:text-gray-900'
@@ -337,7 +337,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
           </button>
           <button
             onClick={() => setCurrentView('my-shared')}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors text-center ${
               currentView === 'my-shared'
                 ? 'bg-white text-gray-900 border-b-2 border-blue-500'
                 : 'text-gray-600 hover:text-gray-900'

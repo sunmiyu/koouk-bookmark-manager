@@ -92,24 +92,24 @@ export default function QuickAccessBar({ onFolderSelect }: QuickAccessBarProps) 
               >
                 <motion.button
                   onClick={() => !isEditing && handleFolderSelect(item.id, item.name)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${
+                  className={`w-full flex items-center gap-2 p-2 rounded-lg transition-colors ${
                     isEditing 
                       ? 'bg-red-50 border-2 border-red-200' 
                       : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent'
                   }`}
                   whileTap={{ scale: 0.97 }}
                   disabled={isEditing}
-                  style={{ minHeight: '56px' }}
+                  style={{ minHeight: '40px' }}
                 >
-                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-6 h-6 bg-blue-100 rounded-md flex items-center justify-center flex-shrink-0">
                     <FolderOpen 
-                      size={18} 
+                      size={14} 
                       color={isEditing ? '#EF4444' : '#3B82F6'} 
                     />
                   </div>
                   <div className="flex-1 text-left min-w-0">
                     <span 
-                      className={`text-sm font-medium truncate block ${
+                      className={`text-xs font-medium truncate block ${
                         isEditing ? 'text-red-700' : 'text-gray-800'
                       }`}
                       title={item.name}

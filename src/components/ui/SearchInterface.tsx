@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X, Clock, TrendingUp, Globe, FileText, Folder, Share2 } from 'lucide-react'
 import { searchEngine } from '@/lib/search-engine'
+import { useAnalytics } from '@/hooks/useAnalytics'
 
 interface SearchResult {
   id: string
@@ -45,6 +46,8 @@ export default function SearchInterface({
   
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  
+  const { trackSearch, trackContentInteraction } = useAnalytics()
 
   // Execute search
   useEffect(() => {
@@ -68,6 +71,12 @@ export default function SearchInterface({
 
         const searchResults = searchEngine.search(searchQuery, searchOptions)
         setResults(searchResults)
+        
+        // GA4 검색 이벤트 추적
+        trackSearch(searchQuery, searchResults.length, {
+          search_scope: searchScope,
+          language: language
+        })
 
         // Translation suggestions (Korean ↔ English) - temporarily disabled
         // TODO: Implement translation service
@@ -128,6 +137,9 @@ export default function SearchInterface({
 
   // Handle result selection
   const handleResultSelect = (result: SearchResult) => {
+    // GA4 컨텐츠 상호작용 추적
+    trackContentInteraction('result_click', result.type, result.id)
+    
     onResultSelect?.(result)
     handleSearchSelect(searchQuery)
   }

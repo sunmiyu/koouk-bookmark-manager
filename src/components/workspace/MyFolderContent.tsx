@@ -16,6 +16,7 @@ import BigNoteModal from '@/components/ui/BigNoteModal'
 import InstallPrompt from '@/components/pwa/InstallPrompt'
 import SharedContentHandler from '@/components/pwa/SharedContentHandler'
 import type { Database } from '@/types/database'
+import { analytics } from '@/lib/analytics'
 
 type Json = Database['public']['Tables']['storage_items']['Row']['metadata']
 
@@ -182,6 +183,9 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
       
       const newFolders = [newFolder, ...folders]
       handleFoldersChange(newFolders)
+      
+      // GA4 이벤트 추적
+      analytics.createFolder(folderName)
       
       // 새 폴더 선택
       handleFolderSelect(newFolder.id)

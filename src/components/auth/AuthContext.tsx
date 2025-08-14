@@ -6,6 +6,7 @@ import { DatabaseService } from '@/lib/database'
 import { DataMigration } from '@/utils/dataMigration'
 import type { User } from '@supabase/supabase-js'
 import type { Database } from '@/types/database'
+import { analytics, setUserId, setUserProperties } from '@/lib/analytics'
 
 type UserProfile = Database['public']['Tables']['users']['Row']
 type UserSettings = Database['public']['Tables']['user_settings']['Row']
@@ -54,6 +55,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         profile = data
       }
       setUserProfile(profile)
+
+      // GA4 사용자 정보 설정
+      setUserId(authUser.id)
+      setUserProperties({
+        user_type: profile ? 'registered' : 'new_user',
+        provider: 'google',
+        created_at: profile?.created_at ? new Date(profile.created_at).toISOString() : new Date().toISOString()
+      })
 
       // 2. 사용자 설정 확인/생성
       let settings: UserSettings
@@ -126,18 +135,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async () => {
     try {
       setLoading(true)
+      console.log('🔐 Starting Google OAuth flow...')
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
       })
       
-      if (error) throw error
+      if (error) {
+        console.error('OAuth initiation error:', error)
+        throw error
+      }
+      
+      console.log('🔐 OAuth redirect initiated successfully')
+      
+      // GA4 로그인 시작 추적
+      analytics.login('google')
+      
+      // OAuth 리디렉션이 시작되면 로딩 상태를 유지하지 않음
+      // (페이지가 이동하기 때문)
+      
     } catch (error) {
       console.error('Sign in error:', error)
-    } finally {
-      setLoading(false)
+      setLoading(false) // 에러가 있을 때만 로딩 해제
+      
+      // 사용자에게 에러 알림
+      if (error instanceof Error) {
+        alert(`Login failed: ${error.message}. Please try again.`)
+      } else {
+        alert('Login failed. Please try again.')
+      }
     }
   }
 
@@ -155,6 +188,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       setUserProfile(null)
       setUserSettings(null)
+      
+      // GA4 로그아웃 추적
+      analytics.logout()
       
       // Clear auth-related localStorage items
       if (typeof window !== 'undefined') {

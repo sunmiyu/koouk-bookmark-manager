@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { AuthProvider } from '@/components/auth/AuthContext'
 import ServiceWorkerRegistration from '@/components/pwa/ServiceWorkerRegistration'
+import GoogleAnalytics, { ConsentBanner, PerformanceMonitor } from '@/components/analytics/GoogleAnalytics'
 
 export const metadata: Metadata = {
   title: 'Koouk - Personal Knowledge Management',
@@ -47,6 +48,9 @@ export default function RootLayout({
         <AuthProvider>
           {children}
           <ServiceWorkerRegistration />
+          <GoogleAnalytics />
+          <PerformanceMonitor />
+          <ConsentBanner />
         </AuthProvider>
       </body>
     </html>

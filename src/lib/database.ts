@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { supabase, getSupabaseAdmin } from './supabase'
 import { Database } from '@/types/database'
 import { handleSupabaseError } from '@/utils/errorHandler'
 
@@ -147,7 +147,10 @@ export class DatabaseService {
   }
 
   static async createFolder(userId: string, folderData: Omit<Tables['folders']['Insert'], 'user_id'>) {
-    const { data, error } = await supabase
+    console.log('🗂️ Creating folder for user:', userId, 'with data:', folderData)
+    
+    const adminClient = getSupabaseAdmin()
+    const { data, error } = await adminClient
       .from('folders')
       .insert({
         user_id: userId,
@@ -156,7 +159,12 @@ export class DatabaseService {
       .select()
       .single()
     
-    if (error) throw error
+    if (error) {
+      console.error('❌ Folder creation error:', error)
+      throw error
+    }
+    
+    console.log('✅ Folder created successfully:', data)
     return data
   }
 
@@ -195,7 +203,10 @@ export class DatabaseService {
   }
 
   static async createStorageItem(userId: string, itemData: Omit<Tables['storage_items']['Insert'], 'user_id'>) {
-    const { data, error } = await supabase
+    console.log('📝 Creating storage item for user:', userId, 'with data:', itemData)
+    
+    const adminClient = getSupabaseAdmin()
+    const { data, error } = await adminClient
       .from('storage_items')
       .insert({
         user_id: userId,
@@ -204,7 +215,12 @@ export class DatabaseService {
       .select()
       .single()
     
-    if (error) throw error
+    if (error) {
+      console.error('❌ Storage item creation error:', error)
+      throw error
+    }
+    
+    console.log('✅ Storage item created successfully:', data)
     return data
   }
 

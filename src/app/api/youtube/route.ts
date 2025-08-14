@@ -1,11 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { google } from 'googleapis'
 import { extractYouTubeVideoId } from '@/utils/youtube'
-
-const youtube = google.youtube({
-  version: 'v3',
-  auth: process.env.YOUTUBE_API_KEY
-})
 
 // HTML 스크래핑으로 YouTube 제목 추출하는 폴백 함수
 async function scrapeYouTubeTitle(url: string) {
@@ -105,26 +99,28 @@ export async function GET(request: NextRequest) {
       thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
     }
 
-    // YouTube API 시도 (API 키가 있을 때만)
+    // YouTube API 시도 (API 키가 있을 때만) - 직접 fetch 사용
     if (process.env.YOUTUBE_API_KEY) {
       try {
-        const response = await youtube.videos.list({
-          part: ['snippet', 'contentDetails'],
-          id: [videoId]
-        })
+        const apiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=snippet,contentDetails&key=${process.env.YOUTUBE_API_KEY}`
+        const response = await fetch(apiUrl)
+        
+        if (response.ok) {
+          const data = await response.json()
+          const video = data.items?.[0]
+          
+          if (video) {
+            const snippet = video.snippet
+            const contentDetails = video.contentDetails
 
-        const video = response.data.items?.[0]
-        if (video) {
-          const snippet = video.snippet
-          const contentDetails = video.contentDetails
-
-          videoInfo = {
-            title: snippet?.title || undefined,
-            description: snippet?.description || undefined,
-            duration: contentDetails?.duration || undefined,
-            channelTitle: snippet?.channelTitle || undefined,
-            publishedAt: snippet?.publishedAt || undefined,
-            thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
+            videoInfo = {
+              title: snippet?.title || undefined,
+              description: snippet?.description || undefined,
+              duration: contentDetails?.duration || undefined,
+              channelTitle: snippet?.channelTitle || undefined,
+              publishedAt: snippet?.publishedAt || undefined,
+              thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
+            }
           }
         }
       } catch (apiError) {

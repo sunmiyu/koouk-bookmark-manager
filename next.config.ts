@@ -62,7 +62,16 @@ const nextConfig: NextConfig = {
   },
   // Enable experimental features for better performance
   experimental: {
-    optimizePackageImports: ['@vercel/analytics', 'lucide-react', 'framer-motion']
+    optimizePackageImports: ['@vercel/analytics', 'lucide-react', 'framer-motion', '@supabase/supabase-js'],
+    // Faster development mode
+    ...(process.env.NODE_ENV === 'development' && {
+      optimizeCss: false,
+      turbo: {
+        rules: {
+          '*.svg': ['@svgr/webpack']
+        }
+      }
+    })
   },
   
   // Turbopack configuration (moved from experimental)

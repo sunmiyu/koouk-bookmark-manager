@@ -158,6 +158,14 @@ export default function App() {
     setActiveTab('my-folder')
   }
   const { user, loading, isOptimistic, signIn, signOut } = useOptimisticAuth()
+  
+  // 🎬 Netflix Debug Logs
+  console.log('🎬 Netflix Auth State:', { user: !!user, loading, isOptimistic, email: user?.email })
+  
+  useEffect(() => {
+    console.log('🎬 App.tsx mounted - Netflix auth initialized')
+    return () => console.log('🎬 App.tsx unmounted')
+  }, [])
 
   // Redirect to dashboard if user is not authenticated and trying to access protected tabs
   useEffect(() => {

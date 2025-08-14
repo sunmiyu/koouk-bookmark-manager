@@ -66,15 +66,22 @@ const saveAuthState = (state: Partial<OptimisticAuthState>) => {
 }
 
 export function useOptimisticAuth() {
+  // 🎬 Netflix Debug
+  console.log('🎬 useOptimisticAuth hook called')
+  
   // 1단계: 즉시 낙관적 상태로 시작 (Netflix처럼)
-  const [state, setState] = useState<OptimisticAuthState>(() => ({
-    user: null,
-    userProfile: null,
-    userSettings: null,
-    loading: true,
-    isOptimistic: false,
-    ...getOptimisticState()
-  }))
+  const [state, setState] = useState<OptimisticAuthState>(() => {
+    const initialState = {
+      user: null,
+      userProfile: null,
+      userSettings: null,
+      loading: true,
+      isOptimistic: false,
+      ...getOptimisticState()
+    }
+    console.log('🎬 Initial Netflix Auth State:', initialState)
+    return initialState
+  })
 
   // 사용자 데이터 로드
   const loadUserData = useCallback(async (authUser: User) => {

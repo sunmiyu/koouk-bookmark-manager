@@ -9,7 +9,7 @@ import FolderSelector from '@/components/ui/FolderSelector'
 import ContentInput from '@/components/ui/ContentInput'
 import { SharedFolderData } from '@/components/ui/ShareFolderModal'
 import { useToast } from '@/hooks/useToast'
-import { useAuth } from '@/components/auth/AuthContext'
+import { useOptimisticAuth } from '@/hooks/useOptimisticAuth'
 import { DatabaseService } from '@/lib/database'
 import Toast from '@/components/ui/Toast'
 import BigNoteModal from '@/components/ui/BigNoteModal'
@@ -28,7 +28,7 @@ interface MyFolderContentProps {
 }
 
 export default function MyFolderContent({ searchQuery = '' }: MyFolderContentProps) {
-  const { user, userSettings, updateUserSettings } = useAuth()
+  const { user, userSettings, updateUserSettings } = useOptimisticAuth()
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
   const [currentView, setCurrentView] = useState<'grid' | 'detail'>('grid')

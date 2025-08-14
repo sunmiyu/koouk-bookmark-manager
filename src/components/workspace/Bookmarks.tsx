@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import BookmarkCard, { Bookmark } from '../ui/BookmarkCard'
 import CategoryFilter from '../ui/CategoryFilter'
-import { useAuth } from '@/components/auth/AuthContext'
+import { useOptimisticAuth } from '@/hooks/useOptimisticAuth'
 import { DatabaseService } from '@/lib/database'
 
 // type DbBookmark = Database['public']['Tables']['bookmarks']['Row']
@@ -16,7 +16,7 @@ import { DatabaseService } from '@/lib/database'
 
 
 export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }) {
-  const { user } = useAuth()
+  const { user } = useOptimisticAuth()
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('most-used')

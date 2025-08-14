@@ -287,10 +287,25 @@ export function useOptimisticAuth() {
     }
   }, [loadUserData, state.user?.id, state.isOptimistic])
 
+  // 설정 업데이트
+  const updateUserSettings = useCallback(async (updates: Partial<UserSettings>) => {
+    if (!state.user || !state.userSettings) return
+    
+    try {
+      const updatedSettings = await DatabaseService.updateUserSettings(state.user.id, updates)
+      setState(prev => ({ ...prev, userSettings: updatedSettings }))
+      saveAuthState({ ...state, userSettings: updatedSettings })
+    } catch (error) {
+      console.error('Failed to update user settings:', error)
+      throw error
+    }
+  }, [state.user, state.userSettings, state])
+
   return {
     ...state,
     signIn,
     signOut,
+    updateUserSettings,
     refreshUserData: useCallback(() => {
       if (state.user) {
         return loadUserData(state.user)

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { SharedFolder } from '@/types/share'
 import { createFolder } from '@/types/folder'
 import { useToast } from '@/hooks/useToast'
-import { useAuth } from '@/components/auth/AuthContext'
+import { useOptimisticAuth } from '@/hooks/useOptimisticAuth'
 import { DatabaseService } from '@/lib/database'
 import Toast from '../ui/Toast'
 import CategoryFilter from '../ui/CategoryFilter'
@@ -22,7 +22,7 @@ interface MarketPlaceProps {
 }
 
 export default function MarketPlace({ searchQuery = '', onImportFolder }: MarketPlaceProps) {
-  const { user } = useAuth()
+  const { user } = useOptimisticAuth()
   const { toast, showSuccess, hideToast } = useToast()
   const [sharedFolders, setSharedFolders] = useState<SharedFolder[]>([])
   const [filteredFolders, setFilteredFolders] = useState<SharedFolder[]>([])

@@ -2,14 +2,14 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useAuth } from '@/components/auth/AuthContext'
+import { useOptimisticAuth } from '@/hooks/useOptimisticAuth'
 import { useRouter } from 'next/navigation'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
 
 export default function AccountPage() {
-  const { user, signOut } = useAuth()
+  const { user, signOut } = useOptimisticAuth()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 

@@ -52,8 +52,20 @@ interface ConsentBannerProps {
 
 export function ConsentBanner({ onConsent }: ConsentBannerProps) {
   const [showBanner, setShowBanner] = useState(false)
+  const [language, setLanguage] = useState<'ko' | 'en'>('ko')
 
   useEffect(() => {
+    // 브라우저 언어 감지
+    const detectLanguage = () => {
+      if (typeof window !== 'undefined') {
+        const userLang = navigator.language || navigator.languages?.[0] || 'ko'
+        const isKorean = userLang.startsWith('ko')
+        setLanguage(isKorean ? 'ko' : 'en')
+      }
+    }
+
+    detectLanguage()
+
     // 로컬 스토리지에서 동의 상태 확인
     const consentGiven = localStorage.getItem('analytics_consent')
     if (!consentGiven) {
@@ -79,6 +91,23 @@ export function ConsentBanner({ onConsent }: ConsentBannerProps) {
     onConsent?.(granted)
   }
 
+  const texts = {
+    ko: {
+      title: '쿠키 및 개인정보 수집 동의',
+      description: '서비스 개선을 위해 Google Analytics를 사용합니다. 익명화된 사용 데이터만 수집되며, 개인정보는 수집하지 않습니다.',
+      decline: '거부',
+      accept: '동의'
+    },
+    en: {
+      title: 'Cookie & Privacy Consent',
+      description: 'We use Google Analytics to improve our service. Only anonymized usage data is collected, and no personal information is gathered.',
+      decline: 'Decline',
+      accept: 'Accept'
+    }
+  }
+
+  const currentTexts = texts[language]
+
   if (!showBanner) return null
 
   return (
@@ -87,11 +116,10 @@ export function ConsentBanner({ onConsent }: ConsentBannerProps) {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex-1">
             <h3 className="font-semibold text-gray-900 mb-1">
-              쿠키 및 개인정보 수집 동의
+              {currentTexts.title}
             </h3>
             <p className="text-sm text-gray-600">
-              서비스 개선을 위해 Google Analytics를 사용합니다. 
-              익명화된 사용 데이터만 수집되며, 개인정보는 수집하지 않습니다.
+              {currentTexts.description}
             </p>
           </div>
           <div className="flex gap-2 flex-shrink-0">
@@ -99,13 +127,13 @@ export function ConsentBanner({ onConsent }: ConsentBannerProps) {
               onClick={() => handleConsent(false)}
               className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
             >
-              거부
+              {currentTexts.decline}
             </button>
             <button
               onClick={() => handleConsent(true)}
               className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
             >
-              동의
+              {currentTexts.accept}
             </button>
           </div>
         </div>

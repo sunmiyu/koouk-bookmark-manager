@@ -9,6 +9,12 @@ export default function AuthCallback() {
 
   useEffect(() => {
     const handleAuthCallback = async () => {
+      // 10초 타임아웃 설정
+      const timeout = setTimeout(() => {
+        console.log('Auth callback timeout, redirecting...')
+        router.push('/')
+      }, 10000)
+
       try {
         console.log('Auth callback started')
         
@@ -38,22 +44,39 @@ export default function AuthCallback() {
           }
           
           alert(errorMessage)
+          clearTimeout(timeout)
           router.push('/')
           return
         }
 
         if (authCode) {
-          console.log('Auth code found, checking session directly...')
+          console.log('Auth code found, attempting code exchange...')
           
-          // Skip exchangeCodeForSession due to PKCE issues, check session directly
-          // The auth flow often completes successfully despite the exchange error
+          try {
+            // 코드를 세션으로 교환
+            const { data, error } = await supabase.auth.exchangeCodeForSession(authCode)
+            
+            if (error) {
+              console.error('Code exchange error:', error)
+              // 에러가 있어도 세션 확인 시도
+            } else if (data.session) {
+              console.log('Session established via code exchange:', data.session.user.email)
+              clearTimeout(timeout)
+              router.push('/')
+              return
+            }
+          } catch (exchangeError) {
+            console.error('Code exchange failed:', exchangeError)
+          }
           
-          // Wait a moment for session to be established
-          await new Promise(resolve => setTimeout(resolve, 1000))
+          // 코드 교환 실패 시 직접 세션 확인
+          console.log('Checking session directly after code exchange attempt...')
+          await new Promise(resolve => setTimeout(resolve, 1500))
           
           const { data: sessionData } = await supabase.auth.getSession()
           if (sessionData?.session) {
             console.log('Session found after auth:', sessionData.session.user.email)
+            clearTimeout(timeout)
             router.push('/')
             return
           }
@@ -65,15 +88,18 @@ export default function AuthCallback() {
         
         if (sessionData?.session) {
           console.log('Existing session found:', sessionData.session.user.email)
+          clearTimeout(timeout)
           router.push('/')
           return
         }
 
         console.log('No session found, redirecting home')
+        clearTimeout(timeout)
         router.push('/')
         
       } catch (error) {
         console.error('Auth callback error:', error)
+        clearTimeout(timeout)
         // Don't show alert - just redirect silently
         router.push('/')
       }

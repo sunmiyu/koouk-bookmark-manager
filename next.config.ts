@@ -84,20 +84,31 @@ const nextConfig: NextConfig = {
     }
   },
   
-  // Bundle optimization
+  // Bundle optimization for Service Worker efficiency
   webpack: (config, { dev, isServer }) => {
-    // Optimize bundle splitting for better caching
+    // Service Worker optimized bundle splitting
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
         ...config.optimization.splitChunks,
+        chunks: 'all',
         cacheGroups: {
           ...config.optimization.splitChunks?.cacheGroups,
+          // Critical UI components - loaded first by Service Worker
+          critical: {
+            test: /[\\/]src[\\/](components[\\/](core|auth|ui)|lib[\\/](supabase|database|analytics))[\\/]/,
+            name: 'critical',
+            chunks: 'all',
+            priority: 15,
+            enforce: true,
+          },
+          // Third-party vendors
           vendor: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
             chunks: 'all',
             priority: 10,
           },
+          // Shared components
           common: {
             name: 'common',
             minChunks: 2,
@@ -105,8 +116,19 @@ const nextConfig: NextConfig = {
             priority: 5,
             reuseExistingChunk: true,
           },
+          // Analytics & non-critical features
+          analytics: {
+            test: /[\\/]src[\\/](lib[\\/]analytics|components[\\/]analytics)[\\/]/,
+            name: 'analytics',
+            chunks: 'all',
+            priority: 3,
+          },
         },
       }
+      
+      // Service Worker friendly module naming
+      config.optimization.moduleIds = 'named'
+      config.optimization.chunkIds = 'named'
     }
     return config
   },

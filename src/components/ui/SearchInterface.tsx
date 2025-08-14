@@ -41,8 +41,6 @@ export default function SearchInterface({
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [recentSearches, setRecentSearches] = useState<string[]>([])
   const [isSearching, setIsSearching] = useState(false)
-  const [showTranslation, setShowTranslation] = useState(false)
-  const [translatedQuery] = useState('') // Removed setTranslatedQuery as it was unused
   
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -78,21 +76,7 @@ export default function SearchInterface({
           language: language
         })
 
-        // Translation suggestions (Korean ↔ English) - temporarily disabled
-        // TODO: Implement translation service
-        // if (searchQuery.trim().length > 1) {
-        //   const detectedLang = translationService.detectLanguage(searchQuery)
-        //   if ((detectedLang === 'ko' && language === 'en') || (detectedLang === 'en' && language === 'ko')) {
-        //     const translated = detectedLang === 'ko' 
-        //       ? await translationService.toEnglish(searchQuery)
-        //       : await translationService.toKorean(searchQuery)
-        //     
-        //     if (translated !== searchQuery) {
-        //       setTranslatedQuery(translated)
-        //       setShowTranslation(true)
-        //     }
-        //   }
-        // }
+        // Translation feature removed to improve performance
       } catch (error) {
         console.error('Search failed:', error)
       } finally {
@@ -142,12 +126,6 @@ export default function SearchInterface({
     
     onResultSelect?.(result)
     handleSearchSelect(searchQuery)
-  }
-
-  // Search with translated query
-  const handleTranslatedSearch = () => {
-    onSearchChange(translatedQuery)
-    setShowTranslation(false)
   }
 
   // Handle clicks outside search box

@@ -73,18 +73,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       setUserSettings(settings)
 
-      // 3. 데이터 마이그레이션 체크 및 실행
-      const migrationStatus = await DataMigration.checkMigrationStatus()
-      if (!migrationStatus.migrated) {
-        console.log('🔄 Starting data migration...')
-        const migrationResult = await DataMigration.migrateAllData()
-        if (migrationResult.success) {
-          console.log('✅ Migration completed successfully')
-          await DataMigration.cleanupLocalStorage()
-        } else {
-          console.error('❌ Migration failed:', migrationResult.error)
+      // 3. 데이터 마이그레이션 체크 및 실행 (필요한 경우만)
+      setTimeout(async () => {
+        try {
+          const migrationStatus = await DataMigration.checkMigrationStatus()
+          if (!migrationStatus.migrated) {
+            console.log('🔄 Starting background data migration...')
+            const migrationResult = await DataMigration.migrateAllData()
+            if (migrationResult.success) {
+              console.log('✅ Background migration completed successfully')
+              await DataMigration.cleanupLocalStorage()
+            } else {
+              console.error('❌ Background migration failed:', migrationResult.error)
+            }
+          }
+        } catch (error) {
+          console.error('Background migration error:', error)
         }
-      }
+      }, 2000) // 2초 후에 실행
 
     } catch (error) {
       console.error('Failed to load user data:', error)
@@ -95,16 +101,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Initialize auth state
     const initAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        console.log('🔐 Initializing auth...')
+        const startTime = performance.now()
+        
+        // 빠른 세션 체크를 위해 타임아웃 설정
+        const sessionPromise = supabase.auth.getSession()
+        const timeoutPromise = new Promise(resolve => 
+          setTimeout(() => resolve({ data: { session: null }, error: new Error('Timeout') }), 2000)
+        )
+        
+        const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any
         const authUser = session?.user ?? null
         setUser(authUser)
         
+        console.log(`⚡ Auth check completed in ${Math.round(performance.now() - startTime)}ms`)
+        
         if (authUser) {
-          await loadUserData(authUser)
+          console.log('👤 User found, setting up minimal state...')
+          
+          // 즉시 기본 사용자 정보만 설정 (UI 표시용)
+          setUser(authUser)
+          setLoading(false)
+          
+          // 나머지는 백그라운드에서 천천히 로드
+          setTimeout(() => {
+            loadUserData(authUser).catch(console.error)
+          }, 100)
+        } else {
+          console.log('🚫 No user, skipping data load')
+          setLoading(false)
         }
       } catch (error) {
         console.error('Auth initialization error:', error)
-      } finally {
         setLoading(false)
       }
     }

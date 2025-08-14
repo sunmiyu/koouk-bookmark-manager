@@ -57,8 +57,11 @@ export default function AuthCallback() {
             const { data, error } = await supabase.auth.exchangeCodeForSession(authCode)
             
             if (error) {
-              console.error('Code exchange error:', error)
-              // 에러가 있어도 세션 확인 시도
+              console.error('Code exchange error:', error.message)
+              alert(`Authentication failed: ${error.message}`)
+              clearTimeout(timeout)
+              router.push('/')
+              return
             } else if (data.session) {
               console.log('Session established via code exchange:', data.session.user.email)
               clearTimeout(timeout)
@@ -67,6 +70,10 @@ export default function AuthCallback() {
             }
           } catch (exchangeError) {
             console.error('Code exchange failed:', exchangeError)
+            alert(`Authentication error: ${exchangeError}`)
+            clearTimeout(timeout)
+            router.push('/')
+            return
           }
           
           // 코드 교환 실패 시 직접 세션 확인

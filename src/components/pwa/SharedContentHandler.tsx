@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { X, FileText, Link, Image, File } from 'lucide-react'
 import { createStorageItem, StorageItem } from '@/types/folder'
@@ -24,7 +24,7 @@ interface SharedContentHandlerProps {
   selectedFolderId?: string
 }
 
-export default function SharedContentHandler({ 
+function SharedContentHandlerInner({ 
   onAddItem, 
   folders = [], 
   selectedFolderId 
@@ -284,5 +284,13 @@ export default function SharedContentHandler({
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SharedContentHandler(props: SharedContentHandlerProps) {
+  return (
+    <Suspense fallback={null}>
+      <SharedContentHandlerInner {...props} />
+    </Suspense>
   )
 }

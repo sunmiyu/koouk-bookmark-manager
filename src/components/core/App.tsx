@@ -65,6 +65,13 @@ export default function App() {
       }
     }
   }, [])
+
+  // Redirect to dashboard if user is not authenticated and trying to access protected tabs
+  useEffect(() => {
+    if (!user && (activeTab === 'my-folder' || activeTab === 'marketplace' || activeTab === 'bookmarks')) {
+      setActiveTab('dashboard')
+    }
+  }, [user, activeTab])
   
   // SharedFolder import functionality
   const handleImportSharedFolder = (sharedFolder: SharedFolder) => {
@@ -111,6 +118,16 @@ export default function App() {
     } catch (error) {
       console.error('Sign in error:', error)
     }
+  }
+
+  const handleTabChange = (tab: 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks') => {
+    // Check if user is trying to access protected tabs without authentication
+    if (!user && (tab === 'my-folder' || tab === 'marketplace' || tab === 'bookmarks')) {
+      // Show user menu to prompt login
+      setShowUserMenu(true)
+      return
+    }
+    setActiveTab(tab)
   }
 
   const handleSignOut = () => {
@@ -170,7 +187,7 @@ export default function App() {
                 {/* Logo */}
                 <div className="flex items-center">
                   <button 
-                    onClick={() => setActiveTab('dashboard')}
+                    onClick={() => handleTabChange('dashboard')}
                     className="hover:opacity-80 transition-opacity"
                   >
                     <Image 
@@ -187,7 +204,7 @@ export default function App() {
                 <div className="flex-1 flex justify-center mx-4">
                   <div className="flex space-x-1">
                     <button
-                      onClick={() => setActiveTab('my-folder')}
+                      onClick={() => handleTabChange('my-folder')}
                       className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 transform ${
                         activeTab === 'my-folder'
                           ? 'bg-black text-white shadow-md'
@@ -197,7 +214,7 @@ export default function App() {
                       My Folder
                     </button>
                     <button
-                      onClick={() => setActiveTab('bookmarks')}
+                      onClick={() => handleTabChange('bookmarks')}
                       className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 transform ${
                         activeTab === 'bookmarks'
                           ? 'bg-black text-white shadow-md'
@@ -207,7 +224,7 @@ export default function App() {
                       Bookmarks
                     </button>
                     <button
-                      onClick={() => setActiveTab('marketplace')}
+                      onClick={() => handleTabChange('marketplace')}
                       className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 transform ${
                         activeTab === 'marketplace'
                           ? 'bg-black text-white shadow-md'
@@ -279,7 +296,7 @@ export default function App() {
                     activeTab={activeTab}
                     onTabChange={(tab) => {
                       console.log('Mobile TopNavigation tab change:', tab)
-                      setActiveTab(tab)
+                      handleTabChange(tab)
                     }}
                   />
                 </div>
@@ -296,7 +313,7 @@ export default function App() {
       }`}>
         {activeTab === 'dashboard' ? (
           <Dashboard onNavigateToSection={(section) => {
-            setActiveTab(section)
+            handleTabChange(section)
           }} />
         ) : activeTab === 'my-folder' ? (
           <MyFolderContent searchQuery={searchQuery} />

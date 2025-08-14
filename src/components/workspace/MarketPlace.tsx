@@ -4,11 +4,16 @@ import { useState, useEffect } from 'react'
 import { SharedFolder } from '@/types/share'
 import { createFolder } from '@/types/folder'
 import { useToast } from '@/hooks/useToast'
+import { useAuth } from '@/components/auth/AuthContext'
+import { DatabaseService } from '@/lib/database'
 import Toast from '../ui/Toast'
 import CategoryFilter from '../ui/CategoryFilter'
 import SortOptions from '../ui/SortOptions'
 import SharedFolderCard from '../ui/SharedFolderCard'
 import EditSharedFolderModal from '../ui/EditSharedFolderModal'
+import type { Database } from '@/types/database'
+
+// type DbSharedFolder = Database['public']['Tables']['shared_folders']['Row']
 
 // Removed unused interface MarketPlaceProps
 
@@ -18,6 +23,7 @@ interface MarketPlaceProps {
 }
 
 export default function MarketPlace({ searchQuery = '', onImportFolder }: MarketPlaceProps) {
+  const { user } = useAuth()
   const { toast, showSuccess, hideToast } = useToast()
   const [sharedFolders, setSharedFolders] = useState<SharedFolder[]>([])
   const [filteredFolders, setFilteredFolders] = useState<SharedFolder[]>([])
@@ -50,24 +56,89 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
     { value: 'helpful', label: 'Helpful', description: 'Helpful rating' }
   ]
 
-  // Load data (mock + user shared)
+  // 데이터베이스에서 공유 폴더 데이터 로드
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true)
       
-      // Load user shared folders from localStorage
-      let userSharedFolders: SharedFolder[] = []
       try {
-        const existingShared = localStorage.getItem('koouk-shared-folders')
-        if (existingShared) {
-          userSharedFolders = JSON.parse(existingShared)
+        // Supabase에서 공개 공유 폴더들 로드
+        const dbSharedFolders = await DatabaseService.getPublicSharedFolders()
+        
+        // 데이터베이스 형식을 기존 SharedFolder 형식으로 변환
+        const convertedFolders: SharedFolder[] = await Promise.all(
+          dbSharedFolders.map(async (dbFolder) => {
+            // 작성자 정보
+            const author = dbFolder.users ? {
+              id: dbFolder.user_id,
+              name: dbFolder.users.name || 'Anonymous',
+              avatar: dbFolder.users.avatar_url || '👤',
+              verified: dbFolder.users.is_verified
+            } : {
+              id: 'unknown',
+              name: 'Anonymous',
+              avatar: '👤',
+              verified: false
+            }
+
+            return {
+              id: dbFolder.id,
+              title: dbFolder.title,
+              description: dbFolder.description,
+              author,
+              category: dbFolder.category as SharedFolder['category'],
+              createdAt: dbFolder.created_at,
+              updatedAt: dbFolder.updated_at,
+              isPublic: dbFolder.is_public,
+              tags: dbFolder.tags,
+              coverImage: dbFolder.cover_image,
+              stats: typeof dbFolder.stats === 'object' ? dbFolder.stats as SharedFolder['stats'] : {
+                views: 0,
+                likes: 0,
+                helpful: 0,
+                notHelpful: 0,
+                shares: 0,
+                downloads: 0
+              },
+              folder: createFolder(dbFolder.title) // 임시 폴더 생성
+            }
+          })
+        )
+
+        // 사용자의 공유 폴더가 있다면 상단에 표시
+        let userSharedFolders: SharedFolder[] = []
+        if (user) {
+          const dbUserSharedFolders = await DatabaseService.getUserSharedFolders(user.id)
+          userSharedFolders = dbUserSharedFolders.map(dbFolder => ({
+            id: dbFolder.id,
+            title: dbFolder.title,
+            description: dbFolder.description,
+            author: {
+              id: user.id,
+              name: 'You',
+              avatar: '👤',
+              verified: false
+            },
+            category: dbFolder.category as SharedFolder['category'],
+            createdAt: dbFolder.created_at,
+            updatedAt: dbFolder.updated_at,
+            isPublic: dbFolder.is_public,
+            tags: dbFolder.tags,
+            coverImage: dbFolder.cover_image,
+            stats: typeof dbFolder.stats === 'object' ? dbFolder.stats as SharedFolder['stats'] : {
+              views: 0,
+              likes: 0,
+              helpful: 0,
+              notHelpful: 0,
+              shares: 0,
+              downloads: 0
+            },
+            folder: createFolder(dbFolder.title)
+          }))
         }
-      } catch (error) {
-        console.error('Failed to load user shared folders:', error)
-      }
-      
-      // Mock shared folders data (확장된 데이터)
-      const mockSharedFolders: SharedFolder[] = [
+
+        // Mock shared folders data (기본 샘플 데이터)
+        const mockSharedFolders: SharedFolder[] = [
         {
           id: '1',
           title: 'Seoul Travel Guide',
@@ -193,16 +264,23 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
         }
       ]
 
-      // Combine user shared folders with mock data (user folders first)
-      const allFolders = [...userSharedFolders, ...mockSharedFolders]
-      
-      await new Promise(resolve => setTimeout(resolve, 800)) // Simulate loading
-      setSharedFolders(allFolders)
-      setIsLoading(false)
+        // 데이터가 없으면 mock 데이터 사용 (데모용)
+        const allFolders = convertedFolders.length > 0 
+          ? [...userSharedFolders, ...convertedFolders]
+          : [...userSharedFolders, ...mockSharedFolders]
+        
+        setSharedFolders(allFolders)
+        
+      } catch (error) {
+        console.error('Failed to load shared folders:', error)
+        setSharedFolders([])
+      } finally {
+        setIsLoading(false)
+      }
     }
 
     loadData()
-  }, [])
+  }, [user])
 
   // 검색, 필터링, 정렬
   useEffect(() => {
@@ -210,10 +288,10 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
 
     // 뷰 필터 (Market Place vs My Shared)
     if (currentView === 'my-shared') {
-      filtered = filtered.filter(folder => folder.author.id === 'current-user')
+      filtered = filtered.filter(folder => user && folder.author.id === user.id)
     } else {
       // Market Place 뷰에서는 다른 사용자의 폴더만 보이도록 (옵션)
-      // filtered = filtered.filter(folder => folder.author.id !== 'current-user')
+      // filtered = filtered.filter(folder => !user || folder.author.id !== user.id)
     }
 
     // 카테고리 필터
@@ -246,7 +324,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
     })
 
     setFilteredFolders(filtered)
-  }, [sharedFolders, selectedCategory, searchQuery, sortOrder, currentView])
+  }, [sharedFolders, selectedCategory, searchQuery, sortOrder, currentView, user])
 
   const handleImportFolder = (sharedFolder: SharedFolder) => {
     if (confirm(`Add "${sharedFolder.title}" to My Folder?`)) {
@@ -266,22 +344,30 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
     setEditModalOpen(true)
   }
 
-  const handleUpdateFolder = (updatedFolder: SharedFolder) => {
+  const handleUpdateFolder = async (updatedFolder: SharedFolder) => {
+    if (!user) return
+    
     try {
-      // Update in state
+      // 데이터베이스에서 공유 폴더 업데이트
+      await DatabaseService.updateSharedFolder(updatedFolder.id, {
+        title: updatedFolder.title,
+        description: updatedFolder.description,
+        cover_image: updatedFolder.coverImage,
+        category: updatedFolder.category,
+        tags: updatedFolder.tags,
+        is_public: updatedFolder.isPublic
+      })
+
+      // 로컬 상태 업데이트
       const updatedFolders = sharedFolders.map(folder => 
         folder.id === updatedFolder.id ? updatedFolder : folder
       )
       setSharedFolders(updatedFolders)
 
-      // Update in localStorage
-      const userSharedFolders = updatedFolders.filter(folder => folder.author.id === 'current-user')
-      localStorage.setItem('koouk-shared-folders', JSON.stringify(userSharedFolders))
-
       showSuccess(`📁 "${updatedFolder.title}" updated successfully!`)
     } catch (error) {
       console.error('Error updating folder:', error)
-      alert('Failed to update folder. Please try again.')
+      showSuccess('Failed to update folder. Please try again.')
     }
   }
 

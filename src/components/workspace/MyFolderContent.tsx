@@ -1,23 +1,31 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { FolderItem, StorageItem, createFolder, createStorageItem } from '@/types/folder'
+import { FolderItem, StorageItem, createStorageItem } from '@/types/folder'
 import { searchEngine } from '@/lib/search-engine'
 import FolderGrid from '@/components/ui/FolderGrid'
 import FolderDetail from '@/components/ui/FolderDetail'
 import FolderSelector from '@/components/ui/FolderSelector'
 import ContentInput from '@/components/ui/ContentInput'
 import { SharedFolderData } from '@/components/ui/ShareFolderModal'
-import { SharedFolder, ShareCategory } from '@/types/share'
 import { useToast } from '@/hooks/useToast'
+import { useAuth } from '@/components/auth/AuthContext'
+import { DatabaseService } from '@/lib/database'
 import Toast from '@/components/ui/Toast'
 import BigNoteModal from '@/components/ui/BigNoteModal'
+import type { Database } from '@/types/database'
+
+type Json = Database['public']['Tables']['storage_items']['Row']['metadata']
+
+// type DbFolder = Database['public']['Tables']['folders']['Row']
+type DbStorageItem = Database['public']['Tables']['storage_items']['Row']
 
 interface MyFolderContentProps {
   searchQuery?: string
 }
 
 export default function MyFolderContent({ searchQuery = '' }: MyFolderContentProps) {
+  const { user, userSettings, updateUserSettings } = useAuth()
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
   const [currentView, setCurrentView] = useState<'grid' | 'detail'>('grid')
@@ -30,100 +38,99 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
   // 선택된 폴더
   const selectedFolder = folders.find(f => f.id === selectedFolderId)
 
-  // 로컬 스토리지에서 데이터 로드
+  // 데이터베이스에서 데이터 로드
   useEffect(() => {
-    if (typeof window === 'undefined') {
+    if (!user) {
       setIsLoading(false)
       return
     }
 
-    const loadData = () => {
+    const loadData = async () => {
       try {
-        const savedFolders = localStorage.getItem('koouk-folders')
-        const savedSelectedId = localStorage.getItem('koouk-selected-folder')
+        setIsLoading(true)
+        
+        // Supabase에서 폴더와 아이템 데이터 로드
+        const dbFolders = await DatabaseService.getUserFolders(user.id)
+        
+        // 데이터베이스 형식을 기존 FolderItem 형식으로 변환
+        const convertedFolders: FolderItem[] = dbFolders.map(dbFolder => {
+          const storageItems = dbFolder.storage_items || []
+          
+          const children: StorageItem[] = storageItems.map((item: DbStorageItem) => ({
+            id: item.id,
+            name: item.name,
+            type: item.type as StorageItem['type'],
+            content: item.content,
+            url: item.url || undefined,
+            thumbnail: item.thumbnail || undefined,
+            tags: item.tags,
+            description: item.description || undefined,
+            folderId: item.folder_id,
+            createdAt: item.created_at,
+            updatedAt: item.updated_at,
+            wordCount: item.word_count || undefined,
+            metadata: item.metadata as StorageItem['metadata']
+          }))
 
-        if (savedFolders) {
-          const parsedFolders = JSON.parse(savedFolders)
-          
-          // 더미 데이터 감지 및 제거 (완전 강화된 로직)
-          const dummyKeywords = [
-            'Sample', 'Example', 'Work', 'Personal', 'Ideas', 'Test', 'Demo',
-            'React', '개발자', '필수', '가이드', '재택근무', '패션', '뷰티', 
-            '육아', '음식', '레시피', '맛집', '타일별', '샘플', '모음',
-            'Template', 'Dummy', 'Placeholder'
-          ]
-          
-          const hasDummyData = parsedFolders.some((folder: FolderItem) => 
-            dummyKeywords.some(keyword => folder.name?.includes(keyword)) ||
-            folder.children?.some((item) => 
-              dummyKeywords.some(keyword => 
-                item.name?.includes(keyword) ||
-                ('content' in item && item.content?.includes(keyword.toLowerCase()))
-              )
-            )
-          )
-          
-          if (hasDummyData) {
-            console.log('Dummy data detected, clearing...')
-            localStorage.removeItem('koouk-folders')
-            localStorage.removeItem('koouk-selected-folder')
-            localStorage.removeItem('koouk-shared-folders') // 공유 폴더도 클리어
-            setFolders([])
-            
-            // 확실히 클리어하기 위해 한번 더 체크
-            setTimeout(() => {
-              localStorage.removeItem('koouk-folders')
-              localStorage.removeItem('koouk-selected-folder')
-            }, 100)
-          } else {
-            setFolders(parsedFolders)
-            
-            if (savedSelectedId && parsedFolders.find((f: FolderItem) => f.id === savedSelectedId)) {
-              setSelectedFolderId(savedSelectedId)
-              setCurrentView('detail')
-            }
+          return {
+            id: dbFolder.id,
+            name: dbFolder.name,
+            type: 'folder' as const,
+            children,
+            createdAt: dbFolder.created_at,
+            updatedAt: dbFolder.updated_at,
+            color: dbFolder.color,
+            icon: dbFolder.icon
+          }
+        })
+
+        setFolders(convertedFolders)
+
+        // 사용자 설정에서 선택된 폴더 복원
+        if (userSettings?.selected_folder_id) {
+          const selectedFolder = convertedFolders.find(f => f.id === userSettings.selected_folder_id)
+          if (selectedFolder) {
+            setSelectedFolderId(userSettings.selected_folder_id)
+            setCurrentView('detail')
           }
         }
+
+        // 검색 엔진 인덱스 업데이트
+        searchEngine.updateIndex(convertedFolders)
+        
       } catch (error) {
-        console.error('Data loading failed:', error)
+        console.error('Failed to load folders:', error)
         setFolders([])
       } finally {
         setIsLoading(false)
       }
     }
 
-    const timer = setTimeout(loadData, 0)
-    return () => clearTimeout(timer)
-  }, [])
+    loadData()
+  }, [user, userSettings])
 
-  // 데이터 저장
-  const saveToStorage = (newFolders: FolderItem[], newSelectedId?: string) => {
-    if (typeof window === 'undefined') return
+  // 폴더 선택 상태 저장
+  const saveSelectedFolder = async (folderId: string) => {
+    if (!user || !updateUserSettings) return
     
     try {
-      localStorage.setItem('koouk-folders', JSON.stringify(newFolders))
-      
-      if (newSelectedId !== undefined) {
-        localStorage.setItem('koouk-selected-folder', newSelectedId)
-      }
-      
-      // 검색 엔진 인덱스 업데이트
-      searchEngine.updateIndex(newFolders)
+      await updateUserSettings({ selected_folder_id: folderId })
     } catch (error) {
-      console.error('Data saving failed:', error)
+      console.error('Failed to save selected folder:', error)
     }
   }
 
   // 폴더 관련 핸들러
   const handleFoldersChange = (newFolders: FolderItem[]) => {
     setFolders(newFolders)
-    saveToStorage(newFolders)
+    // 검색 엔진 인덱스 업데이트
+    searchEngine.updateIndex(newFolders)
   }
 
   const handleFolderSelect = (folderId: string) => {
     setSelectedFolderId(folderId)
     setCurrentView('detail')
-    saveToStorage(folders, folderId)
+    saveSelectedFolder(folderId)
   }
 
   const handleFolderSelectFromGrid = (folder: FolderItem) => {
@@ -136,108 +143,182 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
     setShowCreateFolderModal(true)
   }
 
-  const handleConfirmCreateFolder = () => {
+  const handleConfirmCreateFolder = async () => {
+    if (!user) return
+    
     const folderName = newFolderName.trim() || 'New Folder'
     
-    const newFolder = createFolder(folderName, undefined, {
-      color: '#3B82F6',
-      icon: '📁'
-    })
-    
-    const newFolders = [newFolder, ...folders]
-    handleFoldersChange(newFolders)
-    
-    // 새 폴더 선택
-    handleFolderSelect(newFolder.id)
-    
-    // 모달 닫기
-    setShowCreateFolderModal(false)
-    setNewFolderName('')
+    try {
+      // 데이터베이스에 새 폴더 생성
+      const dbFolder = await DatabaseService.createFolder(user.id, {
+        name: folderName,
+        color: '#3B82F6',
+        icon: '📁',
+        sort_order: 0
+      })
+
+      // 로컬 상태에 새 폴더 추가
+      const newFolder: FolderItem = {
+        id: dbFolder.id,
+        name: dbFolder.name,
+        type: 'folder',
+        children: [],
+        createdAt: dbFolder.created_at,
+        updatedAt: dbFolder.updated_at,
+        color: dbFolder.color,
+        icon: dbFolder.icon
+      }
+      
+      const newFolders = [newFolder, ...folders]
+      handleFoldersChange(newFolders)
+      
+      // 새 폴더 선택
+      handleFolderSelect(newFolder.id)
+      
+      // 모달 닫기
+      setShowCreateFolderModal(false)
+      setNewFolderName('')
+      
+    } catch (error) {
+      console.error('Failed to create folder:', error)
+      showSuccess('Failed to create folder')
+    }
   }
 
   // 아이템 추가
-  const handleAddItem = (item: StorageItem, folderId: string) => {
-    const updatedFolders = folders.map(folder => {
-      if (folder.id === folderId) {
-        return {
-          ...folder,
-          children: [item, ...folder.children],
-          updatedAt: new Date().toISOString()
-        }
-      }
-      return folder
-    })
+  const handleAddItem = async (item: StorageItem, folderId: string) => {
+    if (!user) return
     
-    handleFoldersChange(updatedFolders)
+    try {
+      // 데이터베이스에 새 아이템 생성
+      const dbItem = await DatabaseService.createStorageItem(user.id, {
+        folder_id: folderId,
+        name: item.name,
+        type: item.type,
+        content: item.content,
+        url: item.url,
+        thumbnail: item.thumbnail,
+        tags: item.tags,
+        description: item.description,
+        word_count: item.wordCount,
+        metadata: (item.metadata as Json) || {},
+        sort_order: 0
+      })
+
+      // 로컬 상태 업데이트
+      const updatedFolders = folders.map(folder => {
+        if (folder.id === folderId) {
+          const newStorageItem: StorageItem = {
+            id: dbItem.id,
+            name: dbItem.name,
+            type: dbItem.type as StorageItem['type'],
+            content: dbItem.content,
+            url: dbItem.url || undefined,
+            thumbnail: dbItem.thumbnail || undefined,
+            tags: dbItem.tags,
+            description: dbItem.description || undefined,
+            folderId: dbItem.folder_id,
+            createdAt: dbItem.created_at,
+            updatedAt: dbItem.updated_at,
+            wordCount: dbItem.word_count || undefined,
+            metadata: dbItem.metadata as StorageItem['metadata']
+          }
+          
+          return {
+            ...folder,
+            children: [newStorageItem, ...folder.children],
+            updatedAt: new Date().toISOString()
+          }
+        }
+        return folder
+      })
+      
+      handleFoldersChange(updatedFolders)
+      
+    } catch (error) {
+      console.error('Failed to add item:', error)
+      showSuccess('Failed to add item')
+    }
   }
 
   // 아이템 삭제
-  const handleItemDelete = (itemId: string) => {
+  const handleItemDelete = async (itemId: string) => {
     if (!selectedFolderId) return
     
-    const updatedFolders = folders.map(folder => {
-      if (folder.id === selectedFolderId) {
-        return {
-          ...folder,
-          children: folder.children.filter(item => item.id !== itemId),
-          updatedAt: new Date().toISOString()
+    try {
+      // 데이터베이스에서 아이템 삭제
+      await DatabaseService.deleteStorageItem(itemId)
+
+      // 로컬 상태 업데이트
+      const updatedFolders = folders.map(folder => {
+        if (folder.id === selectedFolderId) {
+          return {
+            ...folder,
+            children: folder.children.filter(item => item.id !== itemId),
+            updatedAt: new Date().toISOString()
+          }
         }
-      }
-      return folder
-    })
-    
-    handleFoldersChange(updatedFolders)
+        return folder
+      })
+      
+      handleFoldersChange(updatedFolders)
+      
+    } catch (error) {
+      console.error('Failed to delete item:', error)
+      showSuccess('Failed to delete item')
+    }
   }
 
   // 뒤로 가기
-  const handleBack = () => {
+  const handleBack = async () => {
     setCurrentView('grid')
     setSelectedFolderId(undefined)
-    saveToStorage(folders, '')
+    
+    // 사용자 설정에서 선택된 폴더 클리어
+    if (user && updateUserSettings) {
+      try {
+        await updateUserSettings({ selected_folder_id: null })
+      } catch (error) {
+        console.error('Failed to clear selected folder:', error)
+      }
+    }
   }
 
   // 폴더 공유
-  const handleShareFolder = (sharedFolderData: SharedFolderData, folder: FolderItem) => {
+  const handleShareFolder = async (sharedFolderData: SharedFolderData, folder: FolderItem) => {
+    if (!user) return
+    
     try {
-      // SharedFolder 객체 생성
-      const sharedFolder: SharedFolder = {
-        id: `shared-${Date.now()}`,
+      // 데이터베이스에 공유 폴더 생성
+      const dbSharedFolder = await DatabaseService.createSharedFolder(user.id, {
+        folder_id: folder.id,
         title: sharedFolderData.title,
         description: sharedFolderData.description,
-        author: {
-          id: 'current-user',
-          name: 'You',
-          avatar: '👤',
-          verified: false
-        },
-        category: sharedFolderData.category as ShareCategory,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        isPublic: true,
+        cover_image: sharedFolderData.coverImage,
+        category: sharedFolderData.category,
         tags: sharedFolderData.tags,
-        coverImage: sharedFolderData.coverImage,
+        is_public: true,
         stats: {
           views: 0,
           likes: 0,
           helpful: 0,
           notHelpful: 0,
           shares: 0,
-          downloads: 0
-        },
-        folder: folder
-      }
-
-      // 로컬스토리지에 공유 폴더 저장
-      const existingSharedFolders = JSON.parse(localStorage.getItem('koouk-shared-folders') || '[]')
-      const updatedSharedFolders = [sharedFolder, ...existingSharedFolders]
-      localStorage.setItem('koouk-shared-folders', JSON.stringify(updatedSharedFolders))
+          downloads: 0,
+          urls: sharedFolderData.stats.urls,
+          videos: sharedFolderData.stats.videos,
+          documents: sharedFolderData.stats.documents,
+          images: sharedFolderData.stats.images,
+          total: sharedFolderData.stats.total
+        }
+      })
 
       showSuccess(`📢 "${sharedFolderData.title}" has been shared to Market Place!`)
       
-      console.log('Folder shared successfully:', sharedFolder)
+      console.log('Folder shared successfully:', dbSharedFolder)
     } catch (error) {
       console.error('Error sharing folder:', error)
-      alert('Failed to share folder. Please try again.')
+      showSuccess('Failed to share folder. Please try again.')
     }
   }
 

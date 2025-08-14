@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { Database } from '@/types/database'
 
 // Environment variables with fallbacks
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
@@ -6,18 +7,18 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholde
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
 
 // ULTRA SINGLETON: Lazy initialization to prevent ANY multiple instance creation
-let supabaseInstance: SupabaseClient | null = null
-let supabaseAdminInstance: SupabaseClient | null = null
+let supabaseInstance: SupabaseClient<Database> | null = null
+let supabaseAdminInstance: SupabaseClient<Database> | null = null
 
 // Getter function for main client - absolutely ensures singleton
-export const getSupabase = (): SupabaseClient => {
+export const getSupabase = (): SupabaseClient<Database> => {
   if (supabaseInstance) {
     return supabaseInstance
   }
 
   const isServer = typeof window === 'undefined'
   
-  supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
+  supabaseInstance = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     auth: {
       storageKey: 'koouk-auth-token',
       storage: isServer ? undefined : window?.localStorage,
@@ -33,12 +34,12 @@ export const getSupabase = (): SupabaseClient => {
 }
 
 // Getter function for admin client 
-export const getSupabaseAdmin = (): SupabaseClient => {
+export const getSupabaseAdmin = (): SupabaseClient<Database> => {
   if (supabaseAdminInstance) {
     return supabaseAdminInstance
   }
 
-  supabaseAdminInstance = createClient(supabaseUrl, serviceRoleKey, {
+  supabaseAdminInstance = createClient<Database>(supabaseUrl, serviceRoleKey, {
     auth: {
       storageKey: 'koouk-admin-token',
       autoRefreshToken: false,

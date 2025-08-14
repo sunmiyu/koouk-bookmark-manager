@@ -7,11 +7,17 @@ import {
 } from 'lucide-react'
 import BookmarkCard, { Bookmark } from '../ui/BookmarkCard'
 import CategoryFilter from '../ui/CategoryFilter'
+import { useAuth } from '@/components/auth/AuthContext'
+import { DatabaseService } from '@/lib/database'
+import type { Database } from '@/types/database'
+
+// type DbBookmark = Database['public']['Tables']['bookmarks']['Row']
 
 
 
 
 export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }) {
+  const { user } = useAuth()
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('most-used')
@@ -31,13 +37,52 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
     { value: 'tech', label: 'Technology' }
   ]
 
-  // Mock 데이터 로드
+  // 데이터베이스에서 북마크 로드
   useEffect(() => {
+    if (!user) {
+      setIsLoading(false)
+      return
+    }
+
     const loadBookmarks = async () => {
       setIsLoading(true)
       
-      // Mock bookmarks data
-      const mockBookmarks: Bookmark[] = [
+      try {
+        // Supabase에서 북마크 데이터 로드
+        const dbBookmarks = await DatabaseService.getUserBookmarks(user.id)
+        
+        // 데이터베이스 형식을 기존 Bookmark 형식으로 변환
+        const convertedBookmarks: Bookmark[] = dbBookmarks.map(dbBookmark => ({
+          id: dbBookmark.id,
+          title: dbBookmark.title,
+          url: dbBookmark.url,
+          description: dbBookmark.description || '',
+          favicon: `${new URL(dbBookmark.url).origin}/favicon.ico`,
+          tags: dbBookmark.tags,
+          createdAt: dbBookmark.created_at,
+          updatedAt: dbBookmark.updated_at,
+          category: dbBookmark.category || 'work',
+          isFavorite: dbBookmark.is_favorite,
+          usageCount: 0, // 현재 스키마에는 없으므로 기본값
+          lastUsedAt: dbBookmark.updated_at // 임시로 updated_at 사용
+        }))
+
+        setBookmarks(convertedBookmarks)
+        
+      } catch (error) {
+        console.error('Failed to load bookmarks:', error)
+        setBookmarks([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadBookmarks()
+  }, [user])
+
+  // 샘플 북마크 데이터 (참고용 - 실제로는 사용하지 않음)
+  /*
+  const sampleBookmarks: Bookmark[] = [
         {
           id: '1',
           title: 'GitHub - React',
@@ -249,14 +294,7 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
           lastUsedAt: '2025-07-28T17:45:00Z'
         }
       ]
-
-      await new Promise(resolve => setTimeout(resolve, 800)) // Simulate loading
-      setBookmarks(mockBookmarks)
-      setIsLoading(false)
-    }
-
-    loadBookmarks()
-  }, [])
+  */
 
   // 검색 및 필터링
   useEffect(() => {

@@ -2,27 +2,97 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { DatabaseService } from '@/lib/database'
+import { DataMigration } from '@/utils/dataMigration'
 import type { User } from '@supabase/supabase-js'
+import type { Database } from '@/types/database'
+
+type UserProfile = Database['public']['Tables']['users']['Row']
+type UserSettings = Database['public']['Tables']['user_settings']['Row']
 
 interface AuthContextType {
   user: User | null
+  userProfile: UserProfile | null
+  userSettings: UserSettings | null
   loading: boolean
   signIn: () => Promise<void>
   signOut: () => Promise<void>
+  updateUserSettings: (updates: Partial<UserSettings>) => Promise<void>
+  refreshUserData: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
   const [loading, setLoading] = useState(true)
+
+  // 사용자 데이터 로드 함수
+  const loadUserData = async (authUser: User) => {
+    try {
+      // 1. 사용자 프로필 확인/생성
+      let profile: UserProfile
+      try {
+        profile = await DatabaseService.getUserProfile(authUser.id)
+      } catch {
+        // 프로필이 없으면 생성
+        const { data, error } = await supabase
+          .from('users')
+          .upsert({
+            id: authUser.id,
+            email: authUser.email!,
+            name: authUser.user_metadata?.name || authUser.email?.split('@')[0],
+            avatar_url: authUser.user_metadata?.avatar_url,
+            is_verified: !!authUser.email_confirmed_at
+          })
+          .select()
+          .single()
+        
+        if (error) throw error
+        profile = data
+      }
+      setUserProfile(profile)
+
+      // 2. 사용자 설정 확인/생성
+      let settings: UserSettings
+      try {
+        settings = await DatabaseService.getUserSettings(authUser.id)
+      } catch {
+        settings = await DatabaseService.createUserSettings(authUser.id)
+      }
+      setUserSettings(settings)
+
+      // 3. 데이터 마이그레이션 체크 및 실행
+      const migrationStatus = await DataMigration.checkMigrationStatus()
+      if (!migrationStatus.migrated) {
+        console.log('🔄 Starting data migration...')
+        const migrationResult = await DataMigration.migrateAllData()
+        if (migrationResult.success) {
+          console.log('✅ Migration completed successfully')
+          await DataMigration.cleanupLocalStorage()
+        } else {
+          console.error('❌ Migration failed:', migrationResult.error)
+        }
+      }
+
+    } catch (error) {
+      console.error('Failed to load user data:', error)
+    }
+  }
 
   useEffect(() => {
     // Initialize auth state
     const initAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
-        setUser(session?.user ?? null)
+        const authUser = session?.user ?? null
+        setUser(authUser)
+        
+        if (authUser) {
+          await loadUserData(authUser)
+        }
       } catch (error) {
         console.error('Auth initialization error:', error)
       } finally {
@@ -35,7 +105,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        setUser(session?.user ?? null)
+        const authUser = session?.user ?? null
+        setUser(authUser)
+        
+        if (authUser) {
+          await loadUserData(authUser)
+        } else {
+          // 로그아웃 시 상태 클리어
+          setUserProfile(null)
+          setUserSettings(null)
+        }
+        
         setLoading(false)
       }
     )
@@ -73,6 +153,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Always clear user state regardless of Supabase response
       setUser(null)
+      setUserProfile(null)
+      setUserSettings(null)
       
       // Clear auth-related localStorage items
       if (typeof window !== 'undefined') {
@@ -89,13 +171,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Sign out error:', error)
       // Even if error occurs, clear user state
       setUser(null)
+      setUserProfile(null)
+      setUserSettings(null)
     } finally {
       setLoading(false)
     }
   }
 
+  const updateUserSettings = async (updates: Partial<UserSettings>) => {
+    if (!user || !userSettings) return
+    
+    try {
+      const updatedSettings = await DatabaseService.updateUserSettings(user.id, updates)
+      setUserSettings(updatedSettings)
+    } catch (error) {
+      console.error('Failed to update user settings:', error)
+      throw error
+    }
+  }
+
+  const refreshUserData = async () => {
+    if (!user) return
+    
+    try {
+      await loadUserData(user)
+    } catch (error) {
+      console.error('Failed to refresh user data:', error)
+      throw error
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signOut }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      userProfile, 
+      userSettings, 
+      loading, 
+      signIn, 
+      signOut, 
+      updateUserSettings, 
+      refreshUserData 
+    }}>
       {children}
     </AuthContext.Provider>
   )

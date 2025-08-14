@@ -41,7 +41,7 @@ export default function FolderDetail({
   })
 
   // 썸네일 생성 함수
-  const getThumbnail = (item: StorageItem) => {
+  const getThumbnail = (item: StorageItem): string | null => {
     if (item.type === 'video') {
       if (item.metadata?.thumbnail) return item.metadata.thumbnail
       if (isYouTubeUrl(item.content)) {
@@ -68,7 +68,7 @@ export default function FolderDetail({
   }
 
   // 텍스트 미리보기 함수
-  const getTextPreview = (item: StorageItem) => {
+  const getTextPreview = (item: StorageItem): string | null => {
     if (item.type === 'document' || item.type === 'memo') {
       return item.content.substring(0, 120) + (item.content.length > 120 ? '...' : '')
     }
@@ -76,7 +76,7 @@ export default function FolderDetail({
   }
 
   // 표시할 제목 가져오기 (유튜브 영상 제목 및 웹페이지 제목 포함)
-  const getDisplayTitle = (item: StorageItem) => {
+  const getDisplayTitle = (item: StorageItem): string => {
     if (item.metadata?.title) {
       return item.metadata.title as string
     }
@@ -84,7 +84,7 @@ export default function FolderDetail({
   }
 
   // 아이템 타입별 아이콘 (썸네일이 없을 때 사용)
-  const getItemIcon = (item: StorageItem) => {
+  const getItemIcon = (item: StorageItem): string => {
     switch (item.type) {
       case 'url':
         return '🔗'

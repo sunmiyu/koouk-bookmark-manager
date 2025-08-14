@@ -6,175 +6,20 @@
   "id": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
-  "orientation": "portrait-primary",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
-  "categories": ["productivity", "education", "knowledge", "utilities", "lifestyle"],
-  "lang": "ko-KR",
-  "dir": "ltr",
-  "prefer_related_applications": false,
-  "edge_side_panel": {
-    "preferred_width": 400
-  },
-  "launch_handler": {
-    "client_mode": "focus-existing"
-  },
-  "handle_links": "preferred",
   "icons": [
     {
-      "src": "/icon-192x192.png",
+      "src": "./icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/icon-512x512.png",
+      "src": "./icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshots/mobile-home.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "KOOUK 홈 화면"
-    },
-    {
-      "src": "/screenshots/mobile-workspace.png", 
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "My Folder"
-    },
-    {
-      "src": "/screenshots/desktop-dashboard.png",
-      "sizes": "1920x1080", 
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "KOOUK 데스크톱 대시보드"
-    }
-  ],
-  "share_target": {
-    "action": "/share-receiver",
-    "method": "POST",
-    "enctype": "multipart/form-data",
-    "params": {
-      "title": "title",
-      "text": "text", 
-      "url": "url",
-      "files": [
-        {
-          "name": "media",
-          "accept": [
-            "image/*",
-            "video/*", 
-            "audio/*",
-            "text/plain",
-            "text/html",
-            "application/pdf",
-            "application/json",
-            "text/markdown",
-            "application/msword",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-          ]
-        }
-      ]
-    }
-  },
-  "file_handlers": [
-    {
-      "action": "/handle-file",
-      "accept": {
-        "text/plain": [".txt", ".md"],
-        "text/html": [".html", ".htm"],
-        "application/pdf": [".pdf"],
-        "image/*": [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"]
-      }
-    }
-  ],
-  "protocol_handlers": [
-    {
-      "protocol": "web+koouk",
-      "url": "/protocol-handler?url=%s"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "빠른 메모 작성",
-      "short_name": "메모",
-      "description": "새로운 메모를 빠르게 작성하기",
-      "url": "/quick-add?type=memo",
-      "icons": [
-        {
-          "src": "/icons/shortcut-memo.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "URL 북마크",
-      "short_name": "북마크", 
-      "description": "현재 페이지를 북마크에 저장",
-      "url": "/quick-add?type=url",
-      "icons": [
-        {
-          "src": "/icons/shortcut-bookmark.png",
-          "sizes": "96x96", 
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "My Folder",
-      "short_name": "내 폴더",
-      "description": "나의 폴더로 이동", 
-      "url": "/",
-      "icons": [
-        {
-          "src": "/icons/shortcut-workspace.png",
-          "sizes": "96x96",
-          "type": "image/png" 
-        }
-      ]
-    },
-    {
-      "name": "Market Place 탐색",
-      "short_name": "마켓플레이스",
-      "description": "다른 사용자들의 지식을 탐색하기",
-      "url": "/marketplace", 
-      "icons": [
-        {
-          "src": "/icons/shortcut-marketplace.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    }
-  ],
-  "related_applications": [],
-  "iarc_rating_id": "",
-  "permissions": [
-    "storage",
-    "notifications"
-  ],
-  "features": [
-    "CrossOriginEmbedderPolicy"
   ]
 }

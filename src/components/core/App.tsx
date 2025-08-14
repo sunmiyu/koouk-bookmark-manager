@@ -66,13 +66,6 @@ export default function App() {
     }
   }, [])
 
-  // Redirect to dashboard if user is not authenticated and trying to access protected tabs
-  useEffect(() => {
-    if (!user && (activeTab === 'my-folder' || activeTab === 'marketplace' || activeTab === 'bookmarks')) {
-      setActiveTab('dashboard')
-    }
-  }, [user, activeTab])
-  
   // SharedFolder import functionality
   const handleImportSharedFolder = (sharedFolder: SharedFolder) => {
     // Get existing folders from localStorage
@@ -110,6 +103,13 @@ export default function App() {
     setActiveTab('my-folder')
   }
   const { user, signIn } = useAuth()
+
+  // Redirect to dashboard if user is not authenticated and trying to access protected tabs
+  useEffect(() => {
+    if (!user && (activeTab === 'my-folder' || activeTab === 'marketplace' || activeTab === 'bookmarks')) {
+      setActiveTab('dashboard')
+    }
+  }, [user, activeTab])
 
   const handleSignIn = async () => {
     setShowUserMenu(false)

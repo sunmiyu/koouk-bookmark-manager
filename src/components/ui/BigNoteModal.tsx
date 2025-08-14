@@ -1,44 +1,60 @@
 'use client'
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { X, Save, Type, Bold, Italic, List, ListOrdered } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { X, Save } from 'lucide-react'
+import { FolderItem } from '@/types/folder'
 
 interface BigNoteModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (title: string, content: string) => void
-  folderId?: string
-  folderName?: string
+  onSave: (title: string, content: string, folderId: string) => void
+  allFolders: FolderItem[]
+  selectedFolderId?: string
+  editNote?: {
+    id: string
+    title: string
+    content: string
+    folderId: string
+  }
 }
 
 export default function BigNoteModal({
   isOpen,
   onClose,
   onSave,
-  // folderId,
-  folderName
+  allFolders,
+  selectedFolderId,
+  editNote
 }: BigNoteModalProps) {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
+  const [targetFolderId, setTargetFolderId] = useState(selectedFolderId || '')
+
+  useEffect(() => {
+    if (isOpen) {
+      if (editNote) {
+        setTitle(editNote.title)
+        setContent(editNote.content)
+        setTargetFolderId(editNote.folderId)
+      } else {
+        setTitle('')
+        setContent('')
+        setTargetFolderId(selectedFolderId || allFolders[0]?.id || '')
+      }
+    }
+  }, [isOpen, editNote, selectedFolderId, allFolders])
 
   const handleSave = () => {
-    if (!title.trim() && !content.trim()) {
-      alert('Please enter a title or content')
-      return
-    }
-
-    const finalTitle = title.trim() || 'Big Note'
-    onSave(finalTitle, content.trim())
+    if (!title.trim() || !content.trim() || !targetFolderId) return
     
-    // Reset form
-    setTitle('')
-    setContent('')
+    onSave(title.trim(), content.trim(), targetFolderId)
     onClose()
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+    if (e.key === 'Escape') {
+      onClose()
+    } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       handleSave()
     }
   }
@@ -47,107 +63,89 @@ export default function BigNoteModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-pink-50 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden border-2 border-pink-200"
-      >
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-pink-200">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">📄</span>
-            <h2 className="text-lg font-semibold text-gray-900">Long Form Note</h2>
-            {folderName && (
-              <span className="text-sm text-gray-500">→ {folderName}</span>
-            )}
-          </div>
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">
+            {editNote ? 'Edit Memo' : 'Create New Memo'}
+          </h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-pink-100 transition-colors"
+            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <X className="w-4 h-4 text-gray-500" />
+            <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="flex flex-col h-[calc(90vh-140px)]">
-          {/* Title */}
-          <div className="p-4 border-b border-pink-200">
+        <div className="flex-1 p-4 space-y-4 overflow-y-auto">
+          {/* Title Input */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Title
+            </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter memo title..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               onKeyDown={handleKeyDown}
-              placeholder="Note title..."
-              className="w-full px-0 py-2 text-xl font-semibold border-none focus:outline-none bg-transparent placeholder-gray-400"
-              autoFocus
             />
           </div>
 
-          {/* Toolbar */}
-          <div className="flex items-center gap-2 p-3 border-b border-pink-200 bg-pink-25">
-            <button className="p-2 hover:bg-pink-100 rounded transition-colors" title="Bold">
-              <Bold className="w-4 h-4" />
-            </button>
-            <button className="p-2 hover:bg-pink-100 rounded transition-colors" title="Italic">
-              <Italic className="w-4 h-4" />
-            </button>
-            <div className="w-px h-4 bg-pink-300 mx-1" />
-            <button className="p-2 hover:bg-pink-100 rounded transition-colors" title="Bullet List">
-              <List className="w-4 h-4" />
-            </button>
-            <button className="p-2 hover:bg-pink-100 rounded transition-colors" title="Numbered List">
-              <ListOrdered className="w-4 h-4" />
-            </button>
-            <div className="w-px h-4 bg-pink-300 mx-1" />
-            <button className="p-2 hover:bg-pink-100 rounded transition-colors" title="Heading">
-              <Type className="w-4 h-4" />
-            </button>
+          {/* Folder Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Save to Folder
+            </label>
+            <select
+              value={targetFolderId}
+              onChange={(e) => setTargetFolderId(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              {allFolders.map((folder) => (
+                <option key={folder.id} value={folder.id}>
+                  {folder.name}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* Content Area */}
-          <div className="flex-1 p-4">
+          {/* Content Textarea */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Content
+            </label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
+              placeholder="Write your memo content here..."
+              rows={12}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               onKeyDown={handleKeyDown}
-              placeholder="Start writing your detailed note here...
-
-You can write multiple paragraphs, create lists, and organize your thoughts in a structured way."
-              className="w-full h-full border-none focus:outline-none resize-none bg-transparent placeholder-gray-400 leading-relaxed"
             />
-          </div>
-
-          {/* Word Count */}
-          <div className="px-4 pb-2">
-            <div className="text-xs text-gray-500 text-right">
-              {content.split(/\s+/).filter(word => word.length > 0).length} words • {content.length} characters
-            </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between p-4 border-t border-pink-200">
-          <div className="text-xs text-gray-500">
-            💡 Tip: Press Cmd+Enter (Mac) or Ctrl+Enter (Windows) to save quickly
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 text-gray-700 hover:bg-pink-100 rounded-lg transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              className="flex items-center gap-2 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors font-medium"
-            >
-              <Save className="w-4 h-4" />
-              Save Note
-            </button>
-          </div>
+        <div className="flex items-center justify-end gap-3 p-4 border-t border-gray-200">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={!title.trim() || !content.trim() || !targetFolderId}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          >
+            <Save className="w-4 h-4" />
+            {editNote ? 'Update' : 'Save'}
+          </button>
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }

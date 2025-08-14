@@ -8,7 +8,6 @@ interface FolderSelectorProps {
   selectedFolderId?: string
   onFolderSelect: (folderId: string) => void
   onCreateFolder: () => void
-  onOpenQuickNote?: () => void
   onOpenBigNote?: () => void
   className?: string
 }
@@ -18,7 +17,6 @@ export default function FolderSelector({
   selectedFolderId,
   onFolderSelect,
   onCreateFolder,
-  onOpenQuickNote,
   onOpenBigNote,
   className = ''
 }: FolderSelectorProps) {
@@ -53,16 +51,6 @@ export default function FolderSelector({
           +New
         </button>
         
-        {/* +Note 버튼 */}
-        {onOpenQuickNote && (
-          <button
-            onClick={onOpenQuickNote}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium text-yellow-600 bg-yellow-50 hover:bg-yellow-100 transition-colors"
-          >
-            📝
-            +Note
-          </button>
-        )}
         
         {/* +Memo 버튼 */}
         {onOpenBigNote && (

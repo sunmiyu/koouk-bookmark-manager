@@ -43,7 +43,7 @@ export default function FolderDetail({
   // 썸네일 생성 함수
   const getThumbnail = (item: StorageItem): string | null => {
     if (item.type === 'video') {
-      if (item.metadata?.thumbnail) return item.metadata.thumbnail
+      if (item.metadata?.thumbnail) return String(item.metadata.thumbnail)
       if (isYouTubeUrl(item.content)) {
         return getYouTubeThumbnail(item.content)
       }
@@ -53,7 +53,7 @@ export default function FolderDetail({
       return item.content
     }
     if (item.type === 'url') {
-      if (item.metadata?.thumbnail) return item.metadata.thumbnail
+      if (item.metadata?.thumbnail) return String(item.metadata.thumbnail)
       if (isYouTubeUrl(item.content)) {
         return getYouTubeThumbnail(item.content)
       }
@@ -75,13 +75,6 @@ export default function FolderDetail({
     return null
   }
 
-  // 표시할 제목 가져오기 (유튜브 영상 제목 및 웹페이지 제목 포함)
-  const getDisplayTitle = (item: StorageItem): string => {
-    if (item.metadata?.title) {
-      return item.metadata.title as string
-    }
-    return item.name
-  }
 
   // 아이템 타입별 아이콘 (썸네일이 없을 때 사용)
   const getItemIcon = (item: StorageItem): string => {
@@ -244,7 +237,7 @@ export default function FolderDetail({
                       {getThumbnail(item) ? (
                         <Image 
                           src={getThumbnail(item)!} 
-                          alt={getDisplayTitle(item)}
+                          alt={item.metadata?.title ? String(item.metadata.title) : item.name}
                           fill
                           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                           onError={(e) => {
@@ -289,7 +282,7 @@ export default function FolderDetail({
                       {/* 비디오 지속시간 */}
                       {item.type === 'video' && item.metadata?.duration && (
                         <div className="absolute bottom-3 right-3 bg-black/80 text-white px-2.5 py-1 rounded-md text-xs font-medium">
-                          {Math.floor(item.metadata.duration / 60)}:{(item.metadata.duration % 60).toString().padStart(2, '0')}
+                          {Math.floor(Number(item.metadata.duration) / 60)}:{(Number(item.metadata.duration) % 60).toString().padStart(2, '0')}
                         </div>
                       )}
 
@@ -325,32 +318,20 @@ export default function FolderDetail({
                     
                     {/* 콘텐츠 정보 영역 */}
                     <div className="p-3">
-                      {/* 제목 */}
                       <h3 className="font-semibold text-gray-900 text-sm mb-1 line-clamp-2 leading-tight">
-                        {getDisplayTitle(item)}
+                        {item.metadata?.title ? String(item.metadata.title) : item.name}
                       </h3>
                       
-                      {/* 설명 또는 도메인 */}
-                      {item.metadata?.description && (
-                        <p className="text-xs text-gray-500 line-clamp-1 mb-1 leading-relaxed">
-                          {item.metadata.description as string}
-                        </p>
-                      )}
+                      {/* 설명 - 임시 비활성화 */}
                       
-                      {/* 하단 정보 */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center text-xs text-gray-400">
-                          {item.metadata?.domain && (
-                            <span className="truncate max-w-24">{item.metadata.domain as string}</span>
-                          )}
-                          {!item.metadata?.domain && (
-                            <span>
-                              {new Date(item.createdAt).toLocaleDateString('en-US', {
-                                month: 'short',
-                                day: 'numeric'
-                              })}
-                            </span>
-                          )}
+                          <span>
+                            {new Date(item.createdAt).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric'
+                            })}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -363,7 +344,7 @@ export default function FolderDetail({
                       {getThumbnail(item) ? (
                         <Image 
                           src={getThumbnail(item)!} 
-                          alt={getDisplayTitle(item)}
+                          alt={item.metadata?.title ? String(item.metadata.title) : item.name}
                           fill
                           className={`w-full h-full ${
                             item.type === 'url' ? 'object-contain p-1' : 'object-cover'
@@ -388,7 +369,7 @@ export default function FolderDetail({
                     
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium text-gray-900 text-sm truncate">
-                        {getDisplayTitle(item)}
+                        {item.metadata?.title ? String(item.metadata.title) : item.name}
                       </h3>
                       {getTextPreview(item) ? (
                         <p className="text-xs text-gray-500 truncate">

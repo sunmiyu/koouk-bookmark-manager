@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { FolderItem } from '@/types/folder'
 // import { SharedFolder } from '@/types/share'
 import { motion } from 'framer-motion'
-import { Folder, Bookmark, Share2, TrendingUp, Users, Star } from 'lucide-react'
+import { Folder, Bookmark, Share2, Star } from 'lucide-react'
 
 interface DashboardProps {
   onNavigateToSection?: (section: 'my-folder' | 'marketplace' | 'bookmarks') => void
@@ -110,7 +110,7 @@ export default function Dashboard({ onNavigateToSection }: DashboardProps) {
         </motion.div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
           {statCards.map((card, index) => (
             <motion.div
               key={card.title}
@@ -140,64 +140,13 @@ export default function Dashboard({ onNavigateToSection }: DashboardProps) {
           ))}
         </div>
 
-        {/* Quick Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-gray-50 rounded-xl p-6"
-        >
-          <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5" />
-            Quick Actions
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <button
-              onClick={() => onNavigateToSection?.('my-folder')}
-              className="flex items-center gap-3 p-3 bg-white rounded-lg hover:shadow-md transition-all text-left"
-            >
-              <Folder className="w-5 h-5 text-blue-600" />
-              <div>
-                <div className="font-medium text-sm text-gray-900">Create Folder</div>
-                <div className="text-xs text-gray-500">Start organizing</div>
-              </div>
-            </button>
-            <button
-              onClick={() => onNavigateToSection?.('marketplace')}
-              className="flex items-center gap-3 p-3 bg-white rounded-lg hover:shadow-md transition-all text-left"
-            >
-              <Share2 className="w-5 h-5 text-purple-600" />
-              <div>
-                <div className="font-medium text-sm text-gray-900">Explore Market</div>
-                <div className="text-xs text-gray-500">Find collections</div>
-              </div>
-            </button>
-            <button
-              onClick={() => onNavigateToSection?.('bookmarks')}
-              className="flex items-center gap-3 p-3 bg-white rounded-lg hover:shadow-md transition-all text-left"
-            >
-              <Bookmark className="w-5 h-5 text-green-600" />
-              <div>
-                <div className="font-medium text-sm text-gray-900">View Bookmarks</div>
-                <div className="text-xs text-gray-500">Quick access</div>
-              </div>
-            </button>
-            <button className="flex items-center gap-3 p-3 bg-white rounded-lg hover:shadow-md transition-all text-left">
-              <Users className="w-5 h-5 text-orange-600" />
-              <div>
-                <div className="font-medium text-sm text-gray-900">Community</div>
-                <div className="text-xs text-gray-500">Join discussions</div>
-              </div>
-            </button>
-          </div>
-        </motion.div>
 
         {/* Footer */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="text-center mt-12 text-gray-500"
+          transition={{ delay: 0.4 }}
+          className="text-center text-gray-500"
         >
           <div className="flex items-center justify-center gap-2 mb-2">
             <Star className="w-4 h-4 fill-current text-yellow-400" />

@@ -11,7 +11,6 @@ import { SharedFolderData } from '@/components/ui/ShareFolderModal'
 import { SharedFolder, ShareCategory } from '@/types/share'
 import { useToast } from '@/hooks/useToast'
 import Toast from '@/components/ui/Toast'
-import QuickNoteModal from '@/components/ui/QuickNoteModal'
 import BigNoteModal from '@/components/ui/BigNoteModal'
 
 interface MyFolderContentProps {
@@ -25,7 +24,6 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
   const [isLoading, setIsLoading] = useState(true)
   const [showCreateFolderModal, setShowCreateFolderModal] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
-  const [showQuickNoteModal, setShowQuickNoteModal] = useState(false)
   const [showBigNoteModal, setShowBigNoteModal] = useState(false)
   const { toast, showSuccess, hideToast } = useToast()
 
@@ -244,14 +242,16 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
   }
 
   // 노트 저장 핸들러
-  const handleSaveNote = (title: string, content: string, type: 'memo' | 'document' = 'memo') => {
-    if (!selectedFolderId) {
+  const handleSaveNote = (title: string, content: string, folderId: string) => {
+    if (!folderId) {
       alert('Please select a folder first')
       return
     }
 
-    const noteItem = createStorageItem(title, type, content, selectedFolderId)
-    handleAddItem(noteItem, selectedFolderId)
+    // 콘텐츠 길이에 따라 memo 또는 document 타입 결정
+    const type = content.length > 500 ? 'document' : 'memo'
+    const noteItem = createStorageItem(title, type, content, folderId)
+    handleAddItem(noteItem, folderId)
     showSuccess(`📝 "${title}" saved successfully!`)
   }
 
@@ -308,7 +308,6 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
               selectedFolderId={selectedFolderId}
               onFolderSelect={handleFolderSelect}
               onCreateFolder={handleCreateFolder}
-              onOpenQuickNote={() => setShowQuickNoteModal(true)}
               onOpenBigNote={() => setShowBigNoteModal(true)}
             />
           )}
@@ -362,22 +361,13 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
         </div>
       )}
 
-      {/* Quick Note Modal */}
-      <QuickNoteModal
-        isOpen={showQuickNoteModal}
-        onClose={() => setShowQuickNoteModal(false)}
-        onSave={handleSaveNote}
-        folderId={selectedFolderId}
-        folderName={selectedFolder?.name}
-      />
-
       {/* Big Note Modal */}
       <BigNoteModal
         isOpen={showBigNoteModal}
         onClose={() => setShowBigNoteModal(false)}
         onSave={handleSaveNote}
-        folderId={selectedFolderId}
-        folderName={selectedFolder?.name}
+        allFolders={folders}
+        selectedFolderId={selectedFolderId}
       />
 
       {/* Toast Notification */}

@@ -1,216 +1,275 @@
-# KOOUK - Your Personal Storage Hub
+# KOOUK - Personal Lifestyle Management Platform
 
-> 흩어져 있는 모든 정보를 한 곳에. 찾고 싶을 때 바로 찾는 개인 저장 공간.
+> "Notion is complex → Koouk is intuitive with no learning curve needed"
 
-## 🎯 서비스 개요
+## 🎯 Project Overview
 
-**KOOUK**은 개인의 디지털 정보를 하나로 모으는 스마트 저장 공간입니다. 
-유튜브 링크, 인스타그램 게시물, 카카오톡 대화, 애플 메모장... 여기저기 흩어진 소중한 정보들을 한 곳에서 관리하고, 강력한 검색으로 필요할 때 즉시 찾을 수 있습니다.
+**KOOUK** is a **personal lifestyle management platform** that serves as your daily digital assistant. Unlike productivity tools focused on work, Koouk specializes in organizing and accessing personal information for daily routines and lifestyle management.
 
-## 💡 핵심 가치
+## 💡 Core Philosophy
 
-### 🔍 **초강화 검색**
-- 저장된 모든 콘텐츠를 텍스트, 태그, 카테고리로 검색
-- URL 제목, 설명, 메모까지 전체 검색
-- 스마트 필터링으로 원하는 정보 즉시 발견
+### 🚀 **Mission Statement**
+"Easy Easy Super Easy" - Zero learning curve, instantly usable personal storage hub
 
-### 📱 **원클릭 저장**
-- URL 복사 → 붙여넣기 → 자동 저장
-- 유튜브, 인스타, 웹사이트 썸네일 자동 생성
-- 드래그 & 드롭으로 이미지 저장
+### 🎨 **Design Principles**
+- **Intuitive Simplicity**: No tutorials needed, 3-second understanding rule
+- **Mobile-First**: Optimized for smartphone-centric usage patterns  
+- **Emotional Design**: Calm, warm, and comfortable UI/UX
+- **Designer Mindset**: Bold design decisions for visual consistency
 
-### 🧠 **스마트 추천**
-- 저장 패턴 분석으로 개인 성향 파악
-- 비슷한 관심사 기반 콘텐츠 추천
-- 카테고리별 트렌드 제안
+### 🌟 **Core Values**
+- **Lifestyle-Focused**: Personal life management, not work productivity
+- **Community-Driven**: 1200+ shared folders in Market Place
+- **Korean-Optimized**: Designed for Korean users' digital habits
+- **Progressive Web App**: Native app experience on all devices
 
-## 🗂️ 저장 가능한 콘텐츠
+## 🎪 Main Features & User Experience
 
-### 📺 **영상 콘텐츠**
-- YouTube 영상 (썸네일, 제목, 채널명 자동 추출)
-- Instagram 릴스/게시물
-- TikTok, 기타 SNS 영상
+### 📁 **My Folder Tab**
+- **Folder Management**: Create, organize, and share personal folders
+- **Content Storage**: Links, notes, images, documents with auto-metadata extraction
+- **Zero Learning Curve**: Intuitive folder structure everyone understands
 
-### 🔗 **웹 콘텐츠**
-- 뉴스 기사, 블로그 포스트
-- 쇼핑몰 상품 페이지
-- 참고 자료, 문서
+### 🔖 **Bookmarks Tab**  
+- **Smart Bookmarking**: Auto-categorization with thumbnail generation
+- **Visual Discovery**: Pinterest-style grid for easy browsing
+- **PWA Integration**: Share from any browser directly to Koouk
 
-### 🖼️ **이미지 & 파일**
-- 사진, 스크린샷
-- 문서, PDF
-- 메모, 노트
+### 🏪 **Market Place Tab**
+- **Community Hub**: 1200+ shared folders from the community
+- **Discovery Engine**: Smart filtering by category, popularity, and recency
+- **Social Features**: Like, download, and contribute valuable content
 
-### 🍽️ **라이프스타일**
-- 맛집 정보 (지도, 메뉴, 리뷰)
-- 여행지 (장소, 일정, 후기)
-- 쇼핑 위시리스트
+## 🚀 Key User Journeys
 
-### 📝 **개인 기록**
-- 짧은 메모 (Quick Note)
-- 긴 글 (Big Note)
-- 아이디어, 일기
-
-## 🔥 주요 기능
-
-### ⚡ **즉시 저장**
+### ⚡ **Lightning-Fast Content Saving**
 ```
-URL 복사 → KOOUK 접속 → Ctrl+V → 저장 완료
+Copy URL → Open Koouk → Paste → Auto-saved with metadata
 ```
 
-### 🔍 **강력한 검색**
+### 🔍 **Universal Search Experience**  
 ```
-"파리 여행" 검색 → 여행지, 맛집, 사진, 메모까지 한 번에
-```
-
-### 🏷️ **스마트 태그**
-```
-자동 카테고리 분류 + 사용자 커스텀 태그
+Search "travel paris" → Find folders, bookmarks, notes instantly
 ```
 
-### 📊 **개인 인사이트**
+### 🏷️ **Smart Organization**
 ```
-이달에 저장한 콘텐츠 분석 → 관심사 트렌드 파악
+Auto-categorization + Custom tags + Folder hierarchy
 ```
 
-## 🎨 사용자 경험
+### 🌐 **Cross-Platform Sync**
+```
+Save on mobile → Access on desktop → Share via PWA
+```
 
-### 📱 **모바일 최적화**
-- 한 손으로 조작 가능한 인터페이스
-- 빠른 스와이프 네비게이션
-- 오프라인에서도 저장된 콘텐츠 확인
+## 🛠️ Technical Architecture
 
-### 💻 **데스크톱 파워**
-- 멀티 탭으로 빠른 정보 저장
-- 드래그 & 드롭 대량 업로드
-- 키보드 단축키 지원
+### 🎨 **Frontend Stack**
+- **Framework**: Next.js 15.4.4 with App Router
+- **Language**: TypeScript with strict mode
+- **Styling**: Tailwind CSS 4 with custom theme system
+- **State Management**: React Context API + localStorage
+- **PWA**: Service workers for offline support
 
-### 🌐 **크로스 플랫폼**
-- 모든 기기에서 동기화
-- 브라우저 확장 프로그램
-- PWA 앱 설치 지원
+### 🔐 **Backend & Services**
+- **Database**: Supabase PostgreSQL with real-time features
+- **Authentication**: Google OAuth via Supabase Auth
+- **Storage**: Supabase + localStorage fallback strategy
+- **APIs**: Weather, YouTube, RSS feeds integration
 
-## 💼 비즈니스 모델
+### 📱 **Mobile-First Design**
+- **Touch-Optimized**: 44px minimum touch targets
+- **Responsive**: 320px to 4K screen support
+- **Gestures**: Swipe navigation and pull-to-refresh
+- **Performance**: Optimized for 3G networks
 
-### 🆓 **무료 플랜**
-- 카테고리당 100개 아이템
-- 기본 검색 기능
-- 웹 접근
+## 💰 Business Model & Pricing
 
-### 💎 **프로 플랜** ($9.99/월)
-- 카테고리당 1000개 아이템
-- 고급 검색 & 필터
-- 브라우저 확장 프로그램
-- 백업 & 동기화
+### 🆓 **Free Plan**
+- 50 items per category
+- Basic features and search
+- Web access only
 
-### 🚀 **프리미엄 플랜** ($19.99/월)
-- 무제한 저장
-- AI 기반 스마트 추천
-- 팀 공유 기능
-- API 접근
+### 💎 **Pro Plan - $6.99/month**
+- 500 items per category  
+- 2 Mini Functions (expense tracker, diary, etc.)
+- Enhanced search and filtering
+- PWA installation
 
-## 🛠️ 기술 스택
+### 🚀 **Premium Plan - $12.99/month**
+- Unlimited items per category
+- 4 Mini Functions access
+- Priority customer support
+- Advanced analytics dashboard
 
-### **Frontend**
-- Next.js 15 + TypeScript
-- Tailwind CSS
-- React Context API
-- PWA 지원
+## 🎯 Competitive Advantage
 
-### **Backend**
-- Supabase (Database + Auth)
-- Edge Functions
-- Real-time Subscriptions
+| Platform | Target Audience | Strength | Limitation |
+|----------|----------------|----------|------------|
+| **Notion** | Teams/Productivity | Powerful editing | Too complex for personal use |
+| **Pinterest** | Visual Discovery | Great for images | Limited text/link management |
+| **Pocket** | Read Later | Simple bookmarking | Basic organization |
+| **KOOUK** | Personal Lifestyle | **Comprehensive + Intuitive** | - |
 
-### **AI & ML**
-- 콘텐츠 분류 AI
-- 개인화 추천 엔진
-- 자동 태그 생성
+### 🌟 **Why Koouk Wins**
+- **Simpler than Notion**: No learning curve required
+- **More comprehensive than Pinterest**: Handles all content types
+- **Better organized than Pocket**: Smart folder system + community
+- **Korean-optimized**: Built for Korean digital habits
 
-### **External APIs**
-- YouTube Data API
-- Instagram Graph API
-- Web Scraping Service
-- Image Recognition API
+## 🚀 Development Roadmap
 
-## 🚀 로드맵
+### **2024 Q4 - Foundation** ✅
+- [x] Core MVP with 3-tab structure (My Folder, Bookmarks, Market Place)
+- [x] PWA implementation with offline support
+- [x] Basic folder management and content storage
+- [x] Community Market Place with 1200+ shared folders
 
-### **Q1 2024**
-- [x] MVP 개발 완료
-- [x] 기본 저장 기능
-- [x] 검색 시스템 구축
+### **2025 Q1 - Enhancement**
+- [ ] Mini Functions system (14 lifestyle widgets)
+- [ ] Advanced search with AI-powered suggestions  
+- [ ] Mobile app optimization and gesture support
+- [ ] Enhanced user onboarding flow
 
-### **Q2 2024**
-- [ ] AI 추천 시스템
-- [ ] 모바일 앱 출시
-- [ ] 브라우저 확장 프로그램
+### **2025 Q2 - Scale**
+- [ ] Real-time collaboration features
+- [ ] Advanced analytics dashboard
+- [ ] API platform for third-party integrations
+- [ ] Performance optimization for 10K+ users
 
-### **Q3 2024**
-- [ ] 팀 공유 기능
-- [ ] 고급 분석 대시보드
-- [ ] API 플랫폼 오픈
+### **2025 Q3 - Global**
+- [ ] Multi-language support expansion
+- [ ] Enterprise features and pricing tiers
+- [ ] Advanced AI recommendation engine
+- [ ] Cross-platform desktop applications
 
-### **Q4 2024**
-- [ ] 글로벌 서비스 확장
-- [ ] 파트너십 확대
-- [ ] 엔터프라이즈 솔루션
+## 📊 Market Opportunity
 
-## 🎯 경쟁 우위
-
-| 서비스 | 타겟 | 장점 | 한계 |
-|--------|------|------|------|
-| **Notion** | 팀/생산성 | 강력한 편집 | 개인 정보 저장에 과함 |
-| **Pinterest** | 이미지 중심 | 시각적 | 텍스트/링크 관리 부족 |
-| **Pocket** | 읽기 목록 | 간단함 | 카테고리 관리 제한적 |
-| **KOOUK** | 개인 저장소 | **종합적 관리 + 강력한 검색** | - |
-
-## 📊 시장 기회
-
-- **개인 정보 관리 시장**: $5.2B (연 15% 성장)
-- **북마크 관리 도구**: 사용자 2억+ 
-- **콘텐츠 큐레이션**: 젊은 세대 핵심 니즈
-- **디지털 미니멀리즘**: 하나로 통합하는 트렌드
+- **Personal Information Management**: $5.2B market (15% annual growth)
+- **Digital Organization Tools**: 200M+ active users globally
+- **Korean Digital Market**: High smartphone adoption, KakaoTalk integration
+- **Lifestyle Apps Trend**: Moving from productivity to personal wellness
 
 ---
 
-## 🚀 시작하기
+## 🚀 Getting Started
 
-### 개발 환경 설정
+### Development Setup
 
 ```bash
-# 저장소 클론
+# Clone the repository
 git clone https://github.com/your-username/koouk-clone.git
 cd koouk-clone
 
-# 의존성 설치
+# Install dependencies
 npm install
 
-# 환경 변수 설정
+# Set up environment variables
 cp .env.example .env.local
 
-# 개발 서버 실행
+# Start development server
 npm run dev
 ```
 
-### 배포
+### Essential Commands
 
 ```bash
-# Vercel 배포
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run lint         # Run ESLint checks
+npm run start        # Start production server
+```
+
+### Environment Configuration
+
+Create `.env.local` with required API keys:
+- Supabase URL and anon key
+- Google OAuth credentials
+- OpenWeatherMap API key
+- YouTube Data API key
+
+### Deployment
+
+```bash
+# Deploy to Vercel (recommended)
 vercel --prod
 
-# 또는 Docker
+# Or using Docker
 docker build -t koouk .
 docker run -p 3000:3000 koouk
 ```
 
 ---
 
-## 📬 연락처
+## 📋 Project Structure
 
-- **이메일**: hello@koouk.io
-- **웹사이트**: https://koouk.io
-- **GitHub**: https://github.com/koouk-io
+```
+src/
+├── app/                 # Next.js App Router pages
+├── components/          # Reusable UI components
+│   ├── auth/           # Authentication components
+│   ├── core/           # Core app components
+│   ├── mobile/         # Mobile-optimized components
+│   ├── ui/             # UI component library
+│   └── workspace/      # Main workspace tabs
+├── contexts/           # React Context providers
+├── hooks/              # Custom React hooks
+├── lib/                # Utility functions
+└── types/              # TypeScript type definitions
+```
 
 ---
 
-**KOOUK** - 흩어진 정보의 완벽한 정리, 필요할 때의 즉시 검색 ✨
+## 🎯 Design Philosophy
+
+> **"Easy Easy Super Easy"** - No learning curve required
+
+### Core Principles
+- **Mobile-First**: Touch-optimized for smartphone users
+- **Intuitive Design**: 3-second understanding rule
+- **Emotional UI**: Calm, warm, and comfortable experience
+- **Zero Configuration**: Works perfectly out of the box
+
+### Visual Guidelines
+- **Minimalist Borders**: Use shadows and spacing instead
+- **Consistent Spacing**: 8px grid system throughout
+- **Central Alignment**: All content centered for any screen size
+- **Hidden Scrollbars**: Clean visual presentation
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please read our contributing guidelines:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Code Style
+- TypeScript strict mode enabled
+- ESLint + Prettier configuration
+- Mobile-first CSS approach
+- Component-based architecture
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 📬 Contact & Support
+
+- **Website**: https://koouk.im
+- **Email**: support@koouk.im
+- **Issues**: [GitHub Issues](https://github.com/koouk-io/koouk-clone/issues)
+
+---
+
+**KOOUK** - Where all your scattered information finds its perfect home ✨
+
+*"Easy Easy Super Easy" - Personal lifestyle management made intuitive*

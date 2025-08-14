@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, User, Shield, Bell, HelpCircle, FileText, LogOut } from 'lucide-react'
 import { useAuth } from '@/components/auth/AuthContext'
@@ -9,10 +10,25 @@ import { useRouter } from 'next/navigation'
 export default function Settings() {
   const { user } = useAuth()
   const router = useRouter()
+  const [previousPage, setPreviousPage] = useState<string>('/')
+
+  useEffect(() => {
+    // Get the previous page from localStorage or default to dashboard
+    const savedPreviousPage = localStorage.getItem('koouk-previous-page')
+    if (savedPreviousPage) {
+      setPreviousPage(savedPreviousPage)
+      // Clear it after reading
+      localStorage.removeItem('koouk-previous-page')
+    }
+  }, [])
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     router.push('/')
+  }
+
+  const handleBack = () => {
+    router.push(previousPage)
   }
 
   return (
@@ -21,13 +37,13 @@ export default function Settings() {
       <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-6 py-4">
           <div className="flex items-center gap-4">
-            <Link 
-              href="/"
+            <button 
+              onClick={handleBack}
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               <span className="text-sm">Back to Koouk</span>
-            </Link>
+            </button>
             <div className="h-4 w-px bg-gray-300" />
             <h1 className="text-lg font-semibold text-gray-900">Settings</h1>
           </div>

@@ -104,13 +104,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('🔐 Initializing auth...')
         const startTime = performance.now()
         
-        // 빠른 세션 체크를 위해 타임아웃 설정
-        const sessionPromise = supabase.auth.getSession()
-        const timeoutPromise = new Promise(resolve => 
-          setTimeout(() => resolve({ data: { session: null }, error: new Error('Timeout') }), 2000)
-        )
-        
-        const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any
+        // 세션 체크 (타임아웃 제거)
+        const { data: { session } } = await supabase.auth.getSession()
         const authUser = session?.user ?? null
         setUser(authUser)
         

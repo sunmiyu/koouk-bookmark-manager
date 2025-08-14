@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Settings, LogOut, MessageCircle } from 'lucide-react'
-import { useAuth } from '../auth/AuthContext'
+import { useOptimisticAuth } from '@/hooks/useOptimisticAuth'
 import { supabase } from '@/lib/supabase'
 import Dashboard from '../workspace/Dashboard'
 import MyFolderContent from '../workspace/MyFolderContent'
@@ -157,7 +157,7 @@ export default function App() {
     // Navigate to my-folder tab
     setActiveTab('my-folder')
   }
-  const { user, signIn } = useAuth()
+  const { user, loading, isOptimistic, signIn, signOut } = useOptimisticAuth()
 
   // Redirect to dashboard if user is not authenticated and trying to access protected tabs
   useEffect(() => {
@@ -335,8 +335,18 @@ export default function App() {
                         touchAction: 'manipulation'
                       }}
                     >
-                      <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center text-xs font-medium">
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium relative ${
+                        isOptimistic 
+                          ? 'bg-gray-400 text-white animate-pulse' 
+                          : user 
+                          ? 'bg-black text-white' 
+                          : 'bg-gray-200 text-gray-600'
+                      }`}>
                         {user?.email?.[0]?.toUpperCase() || 'U'}
+                        {isOptimistic && (
+                          <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full animate-pulse" 
+                               title="Netflix-style: Verifying login..."/>
+                        )}
                       </div>
                     </button>
                   </div>
@@ -420,8 +430,14 @@ export default function App() {
             {user ? (
               <>
                 <div className="px-3 py-2 border-b border-gray-100 text-center">
-                  <div className="text-xs font-medium text-black">{user?.email?.split('@')[0] || 'User'}</div>
-                  <div className="text-[10px] text-gray-500">{user?.email}</div>
+                  <div className={`text-xs font-medium ${isOptimistic ? 'text-gray-400' : 'text-black'}`}>
+                    {user?.email?.split('@')[0] || 'User'}
+                    {isOptimistic && <span className="text-yellow-600 ml-1">⚡</span>}
+                  </div>
+                  <div className={`text-[10px] ${isOptimistic ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {user?.email}
+                    {isOptimistic && <div className="text-yellow-600 text-[9px] mt-0.5">Netflix-style loading...</div>}
+                  </div>
                 </div>
                 
                 <Link

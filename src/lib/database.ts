@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { Database } from '@/types/database'
+import { handleSupabaseError } from '@/utils/errorHandler'
 
 type Tables = Database['public']['Tables']
 // type Folders = Tables['folders']
@@ -12,11 +13,48 @@ type Tables = Database['public']['Tables']
  * 데이터베이스 서비스 헬퍼 함수들
  */
 export class DatabaseService {
+  /**
+   * Supabase 쿼리를 안전하게 실행하는 래퍼 함수
+   */
+  private static async executeQuery<T>(
+    queryFn: () => Promise<{ data: T | null; error: any }>,
+    operation: string
+  ): Promise<T> {
+    try {
+      const { data, error } = await queryFn()
+      if (error) {
+        const message = handleSupabaseError(error, operation)
+        throw new Error(message)
+      }
+      if (data === null) {
+        throw new Error('데이터를 찾을 수 없습니다.')
+      }
+      return data
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('로그인이 필요합니다')) {
+        throw error
+      }
+      const message = handleSupabaseError(error, operation)
+      throw new Error(message)
+    }
+  }
   // === 사용자 관련 ===
   static async getCurrentUser() {
-    const { data: { user }, error } = await supabase.auth.getUser()
-    if (error || !user) throw new Error('User not authenticated')
-    return user
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser()
+      if (error) {
+        const message = handleSupabaseError(error, 'getCurrentUser')
+        throw new Error(message)
+      }
+      if (!user) throw new Error('User not authenticated')
+      return user
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('로그인이 필요합니다')) {
+        throw error
+      }
+      const message = handleSupabaseError(error, 'getCurrentUser')
+      throw new Error(message)
+    }
   }
 
   static async getUserProfile(userId: string) {
@@ -85,18 +123,27 @@ export class DatabaseService {
 
   // === 폴더 관련 ===
   static async getUserFolders(userId: string) {
-    const { data, error } = await supabase
-      .from('folders')
-      .select(`
-        *,
-        storage_items (*)
-      `)
-      .eq('user_id', userId)
-      .order('sort_order', { ascending: true })
-      .order('created_at', { ascending: false })
-    
-    if (error) throw error
-    return data
+    try {
+      const { data, error } = await supabase
+        .from('folders')
+        .select(`
+          *,
+          storage_items (*)
+        `)
+        .eq('user_id', userId)
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: false })
+      
+      if (error) {
+        const message = handleSupabaseError(error, 'getUserFolders')
+        throw new Error(message)
+      }
+      
+      return data || []
+    } catch (error) {
+      const message = handleSupabaseError(error, 'getUserFolders')
+      throw new Error(message)
+    }
   }
 
   static async createFolder(userId: string, folderData: Omit<Tables['folders']['Insert'], 'user_id'>) {

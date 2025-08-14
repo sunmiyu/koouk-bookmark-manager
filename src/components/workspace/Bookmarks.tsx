@@ -9,7 +9,6 @@ import BookmarkCard, { Bookmark } from '../ui/BookmarkCard'
 import CategoryFilter from '../ui/CategoryFilter'
 import { useAuth } from '@/components/auth/AuthContext'
 import { DatabaseService } from '@/lib/database'
-import type { Database } from '@/types/database'
 
 // type DbBookmark = Database['public']['Tables']['bookmarks']['Row']
 

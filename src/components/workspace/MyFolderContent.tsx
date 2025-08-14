@@ -13,6 +13,8 @@ import { useAuth } from '@/components/auth/AuthContext'
 import { DatabaseService } from '@/lib/database'
 import Toast from '@/components/ui/Toast'
 import BigNoteModal from '@/components/ui/BigNoteModal'
+import InstallPrompt from '@/components/pwa/InstallPrompt'
+import SharedContentHandler from '@/components/pwa/SharedContentHandler'
 import type { Database } from '@/types/database'
 
 type Json = Database['public']['Tables']['storage_items']['Row']['metadata']
@@ -33,6 +35,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
   const [showCreateFolderModal, setShowCreateFolderModal] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
   const [showBigNoteModal, setShowBigNoteModal] = useState(false)
+  const [showInstallPrompt, setShowInstallPrompt] = useState(true)
   const { toast, showSuccess, hideToast } = useToast()
 
   // 선택된 폴더
@@ -50,7 +53,15 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
         setIsLoading(true)
         
         // Supabase에서 폴더와 아이템 데이터 로드
-        const dbFolders = await DatabaseService.getUserFolders(user.id)
+        const dbFolders = await DatabaseService.getUserFolders(user.id) as Array<{
+          id: string
+          name: string
+          created_at: string
+          updated_at: string
+          color: string
+          icon: string
+          storage_items?: DbStorageItem[]
+        }>
         
         // 데이터베이스 형식을 기존 FolderItem 형식으로 변환
         const convertedFolders: FolderItem[] = dbFolders.map(dbFolder => {
@@ -449,6 +460,17 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
         onClose={() => setShowBigNoteModal(false)}
         onSave={handleSaveNote}
         allFolders={folders}
+        selectedFolderId={selectedFolderId}
+      />
+
+      {/* PWA Components */}
+      {showInstallPrompt && (
+        <InstallPrompt onDismiss={() => setShowInstallPrompt(false)} />
+      )}
+      
+      <SharedContentHandler
+        onAddItem={handleAddItem}
+        folders={folders}
         selectedFolderId={selectedFolderId}
       />
 

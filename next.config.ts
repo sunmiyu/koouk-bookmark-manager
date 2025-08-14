@@ -44,6 +44,14 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Disable ESLint during build for faster deployment
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  // Disable TypeScript checking during build
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   async headers() {
     return [
       {

@@ -1,7 +1,8 @@
-// KOOUK Service Worker - 최신 PWA 표준
-const CACHE_NAME = 'koouk-v1.3.1';
-const STATIC_CACHE = 'koouk-static-v1.3.1';
-const DYNAMIC_CACHE = 'koouk-dynamic-v1.3.1';
+// KOOUK Service Worker - Supabase 통합 버전
+const CACHE_NAME = 'koouk-v2.0.0';
+const STATIC_CACHE = 'koouk-static-v2.0.0';
+const DYNAMIC_CACHE = 'koouk-dynamic-v2.0.0';
+const API_CACHE = 'koouk-api-v2.0.0';
 
 // 캐시할 정적 리소스들 - 실제 존재하는 파일들만
 const STATIC_ASSETS = [
@@ -52,7 +53,7 @@ self.addEventListener('activate', (event) => {
       .then(cacheNames => {
         return Promise.all(
           cacheNames.map(cache => {
-            if (cache !== STATIC_CACHE && cache !== DYNAMIC_CACHE) {
+            if (cache !== STATIC_CACHE && cache !== DYNAMIC_CACHE && cache !== API_CACHE) {
               console.log('🗑️ Deleting old cache:', cache);
               return caches.delete(cache);
             }
@@ -66,71 +67,141 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch 이벤트 - 네트워크 우선 전략
+// Fetch 이벤트 - 향상된 캐싱 전략
 self.addEventListener('fetch', (event) => {
-  // POST 요청은 캐시하지 않음
-  if (event.request.method !== 'GET') {
-    return;
-  }
-
   const url = new URL(event.request.url);
   
-  // 같은 도메인의 요청만 처리
-  if (url.origin !== location.origin) {
+  // Supabase API 요청 처리
+  if (url.hostname.includes('supabase.co')) {
+    event.respondWith(handleSupabaseRequest(event.request));
+    return;
+  }
+  
+  // POST 요청은 캐시하지 않음 (단, 오프라인 큐에 저장)
+  if (event.request.method !== 'GET') {
+    if (url.origin === location.origin) {
+      event.respondWith(handleNonGetRequest(event.request));
+    }
     return;
   }
 
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // 성공적인 응답인 경우 캐시에 저장
-        if (response && response.status === 200) {
-          const responseClone = response.clone();
-          
-          caches.open(DYNAMIC_CACHE)
-            .then(cache => {
-              cache.put(event.request, responseClone);
-            });
-        }
-        
-        return response;
-      })
-      .catch(() => {
-        // 네트워크 실패 시 캐시에서 찾기
-        return caches.match(event.request)
-          .then(cachedResponse => {
-            if (cachedResponse) {
-              return cachedResponse;
-            }
-            
-            // API 요청인 경우 JSON 응답
-            if (url.pathname.startsWith('/api/')) {
-              return new Response(
-                JSON.stringify({
-                  error: 'Offline mode',
-                  message: '오프라인 상태입니다. 연결을 확인해주세요.'
-                }),
-                {
-                  headers: { 'Content-Type': 'application/json' },
-                  status: 503
-                }
-              );
-            }
-            
-            // HTML 페이지인 경우 오프라인 페이지 반환
-            if (event.request.headers.get('accept').includes('text/html')) {
-              return caches.match('/offline') || 
-                     caches.match('/') ||
-                     new Response('오프라인 상태입니다.', { 
-                       headers: { 'Content-Type': 'text/plain; charset=utf-8' } 
-                     });
-            }
-            
-            return new Response('리소스를 찾을 수 없습니다.', { status: 404 });
-          });
-      })
-  );
+  // 같은 도메인의 GET 요청 처리
+  if (url.origin === location.origin) {
+    event.respondWith(handleSameOriginRequest(event.request));
+  }
 });
+
+// Supabase 요청 처리
+async function handleSupabaseRequest(request) {
+  try {
+    const response = await fetch(request);
+    
+    // 읽기 요청의 경우 성공한 응답을 캐시
+    if (request.method === 'GET' && response.ok) {
+      const cache = await caches.open(API_CACHE);
+      cache.put(request, response.clone());
+    }
+    
+    return response;
+  } catch (error) {
+    // 오프라인 시 캐시된 데이터 반환 (GET 요청만)
+    if (request.method === 'GET') {
+      const cachedResponse = await caches.match(request);
+      if (cachedResponse) {
+        console.log('📱 오프라인: 캐시된 Supabase 데이터 반환');
+        return cachedResponse;
+      }
+    }
+    
+    // 오프라인에서 변경 요청은 큐에 저장
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method)) {
+      await queueOfflineRequest(request);
+    }
+    
+    return new Response(
+      JSON.stringify({
+        error: 'offline',
+        message: '오프라인 상태입니다. 연결 시 동기화됩니다.',
+        queued: ['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method)
+      }),
+      {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+}
+
+// 동일 도메인 요청 처리
+async function handleSameOriginRequest(request) {
+  try {
+    const response = await fetch(request);
+    
+    // 성공적인 응답 캐시
+    if (response && response.status === 200 && response.headers.get('cache-control') !== 'no-cache') {
+      const cache = await caches.open(DYNAMIC_CACHE);
+      cache.put(request, response.clone());
+    }
+    
+    return response;
+  } catch (error) {
+    // 캐시에서 찾기
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    
+    // API 요청인 경우
+    const url = new URL(request.url);
+    if (url.pathname.startsWith('/api/')) {
+      return new Response(
+        JSON.stringify({
+          error: 'offline',
+          message: '오프라인 상태입니다. 연결을 확인해주세요.'
+        }),
+        {
+          headers: { 'Content-Type': 'application/json' },
+          status: 503
+        }
+      );
+    }
+    
+    // HTML 페이지인 경우
+    if (request.headers.get('accept')?.includes('text/html')) {
+      const offlinePage = await caches.match('/offline');
+      const homePage = await caches.match('/');
+      
+      return offlinePage || homePage || new Response(
+        '오프라인 상태입니다.', 
+        { headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
+      );
+    }
+    
+    return new Response('리소스를 찾을 수 없습니다.', { status: 404 });
+  }
+}
+
+// POST/PUT/DELETE 등의 요청 처리
+async function handleNonGetRequest(request) {
+  try {
+    return await fetch(request);
+  } catch (error) {
+    // 오프라인에서는 큐에 저장
+    await queueOfflineRequest(request);
+    
+    return new Response(
+      JSON.stringify({
+        error: 'offline',
+        message: '요청이 오프라인 큐에 저장되었습니다. 연결 시 자동으로 처리됩니다.',
+        queued: true
+      }),
+      {
+        status: 202, // Accepted
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+}
 
 // 백그라운드 동기화 (향후 확장용)
 self.addEventListener('sync', (event) => {
@@ -201,11 +272,114 @@ self.addEventListener('message', (event) => {
   }
 });
 
+// 오프라인 요청 큐 관리
+async function queueOfflineRequest(request) {
+  try {
+    const requestData = {
+      url: request.url,
+      method: request.method,
+      headers: [...request.headers.entries()].reduce((obj, [key, value]) => {
+        obj[key] = value;
+        return obj;
+      }, {}),
+      body: request.method !== 'GET' ? await request.text() : null,
+      timestamp: Date.now()
+    };
+
+    const db = await openOfflineDB();
+    const transaction = db.transaction(['requests'], 'readwrite');
+    const store = transaction.objectStore('requests');
+    
+    await store.add(requestData);
+    console.log('📥 오프라인 요청 큐에 저장:', request.method, request.url);
+    
+    return true;
+  } catch (error) {
+    console.error('❌ 오프라인 요청 큐 저장 실패:', error);
+    return false;
+  }
+}
+
+// 오프라인 요청 처리
+async function processOfflineQueue() {
+  try {
+    const db = await openOfflineDB();
+    const transaction = db.transaction(['requests'], 'readwrite');
+    const store = transaction.objectStore('requests');
+    const requests = await store.getAll();
+
+    if (requests.length === 0) {
+      return { processed: 0, failed: 0 };
+    }
+
+    let processed = 0;
+    let failed = 0;
+
+    for (const requestData of requests) {
+      try {
+        const response = await fetch(requestData.url, {
+          method: requestData.method,
+          headers: requestData.headers,
+          body: requestData.body
+        });
+
+        if (response.ok) {
+          // 성공한 요청은 큐에서 제거
+          await store.delete(requestData.id);
+          processed++;
+          console.log('✅ 오프라인 요청 처리 완료:', requestData.method, requestData.url);
+        } else {
+          failed++;
+        }
+      } catch (error) {
+        console.error('❌ 오프라인 요청 처리 실패:', error);
+        failed++;
+      }
+    }
+
+    console.log(`🔄 오프라인 동기화 완료: ${processed}개 성공, ${failed}개 실패`);
+    return { processed, failed };
+  } catch (error) {
+    console.error('❌ 오프라인 큐 처리 실패:', error);
+    return { processed: 0, failed: 0 };
+  }
+}
+
+// IndexedDB 초기화
+async function openOfflineDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('KooukOfflineDB', 1);
+    
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+    
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      
+      if (!db.objectStoreNames.contains('requests')) {
+        const store = db.createObjectStore('requests', { keyPath: 'id', autoIncrement: true });
+        store.createIndex('timestamp', 'timestamp', { unique: false });
+        store.createIndex('method', 'method', { unique: false });
+      }
+    };
+  });
+}
+
 // 유틸리티 함수들
 async function syncOfflineData() {
   try {
     console.log('🔄 Syncing offline data...');
-    // 오프라인에서 저장된 데이터를 서버와 동기화
+    const result = await processOfflineQueue();
+    
+    // 클라이언트에게 동기화 완료 알림
+    const clients = await self.clients.matchAll();
+    clients.forEach(client => {
+      client.postMessage({
+        type: 'SYNC_COMPLETE',
+        data: result
+      });
+    });
+    
     return true;
   } catch (error) {
     console.error('❌ Sync failed:', error);

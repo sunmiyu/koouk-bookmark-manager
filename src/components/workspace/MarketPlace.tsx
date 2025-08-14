@@ -11,7 +11,6 @@ import CategoryFilter from '../ui/CategoryFilter'
 import SortOptions from '../ui/SortOptions'
 import SharedFolderCard from '../ui/SharedFolderCard'
 import EditSharedFolderModal from '../ui/EditSharedFolderModal'
-import type { Database } from '@/types/database'
 
 // type DbSharedFolder = Database['public']['Tables']['shared_folders']['Row']
 

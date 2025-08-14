@@ -300,7 +300,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
 
       {/* 입력 시스템 - 페이지 최하단 고정 */}
       <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white shadow-lg z-40">
-        <div className="p-4 space-y-4 max-w-screen-xl mx-auto">
+        <div className="p-3 space-y-2 max-w-screen-xl mx-auto">
           {/* 폴더 선택 키워드 */}
           {folders.length > 0 && (
             <FolderSelector

@@ -48,6 +48,31 @@ export async function POST(request: NextRequest) {
       $('title').text() ||
       ''
 
+    // 네이버 카페 특화 처리
+    if (validUrl.hostname.includes('cafe.naver.com')) {
+      // 카페 글 제목 추출
+      const cafeTitle = 
+        $('.ArticleContentBox .title_text').text() ||
+        $('.article_header .title').text() ||
+        $('.tit').text() ||
+        $('h3.title_text').text()
+      
+      if (cafeTitle) {
+        metadata.title = cafeTitle.trim()
+      }
+      
+      // URL 정리 (iframe_url 파라미터 제거)
+      try {
+        const cleanUrl = new URL(validUrl)
+        if (cleanUrl.searchParams.has('iframe_url_utf8')) {
+          cleanUrl.searchParams.delete('iframe_url_utf8')
+          metadata.url = cleanUrl.toString()
+        }
+      } catch {
+        // URL 정리 실패시 원본 유지
+      }
+    }
+
     // 설명 추출
     metadata.description = 
       $('meta[property="og:description"]').attr('content') ||
@@ -55,12 +80,31 @@ export async function POST(request: NextRequest) {
       $('meta[name="description"]').attr('content') ||
       ''
 
-    // 이미지 추출 (우선순위: og:image > twitter:image > 첫 번째 img 태그)
+    // 이미지 추출 (네이버 블로그 특화 처리 포함)
     let imageUrl = 
       $('meta[property="og:image"]').attr('content') ||
       $('meta[name="twitter:image"]').attr('content') ||
-      $('img').first().attr('src') ||
       ''
+
+    // 네이버 블로그 특화 처리
+    if (!imageUrl && validUrl.hostname.includes('blog.naver.com')) {
+      // 네이버 블로그의 대표 이미지 추출
+      const naverImage = 
+        $('.se-main-container img').first().attr('src') ||
+        $('.se-component-image img').first().attr('src') ||
+        $('._img').first().attr('src') ||
+        $('img[src*="blogfiles.naver.net"]').first().attr('src') ||
+        $('img[src*="pstatic.net"]').first().attr('src')
+      
+      if (naverImage) {
+        imageUrl = naverImage
+      }
+    }
+
+    // 일반 사이트 폴백
+    if (!imageUrl) {
+      imageUrl = $('img').first().attr('src') || ''
+    }
 
     // 상대 URL을 절대 URL로 변환
     if (imageUrl) {
@@ -77,6 +121,25 @@ export async function POST(request: NextRequest) {
         metadata.image = ''
       }
     }
+
+    // 텍스트 정리 및 디코딩
+    metadata.title = metadata.title
+      .replace(/\s+/g, ' ') // 연속된 공백 제거
+      .trim()
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+
+    metadata.description = metadata.description
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
 
     // 제목이 너무 길면 자르기
     if (metadata.title.length > 100) {

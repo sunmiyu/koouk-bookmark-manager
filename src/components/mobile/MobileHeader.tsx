@@ -67,10 +67,10 @@ export default function MobileHeader({
           language="en"
         />
 
-        {/* Feedback Button - Match PC style */}
+        {/* Feedback Button - Match PC style exactly */}
         <button 
           onClick={onShowFeedbackModal}
-          className="flex items-center justify-center w-8 h-8 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-all duration-150 active:scale-95 select-none"
+          className="flex items-center justify-center w-8 h-8 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-all duration-150 sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:w-auto sm:h-auto active:scale-95 select-none"
           title="Feedback"
           style={{
             WebkitTapHighlightColor: 'transparent',
@@ -78,6 +78,7 @@ export default function MobileHeader({
           }}
         >
           <MessageCircle className="w-4 h-4" />
+          <span className="hidden sm:inline">Feedback</span>
         </button>
 
         {/* User Account - Mobile Implementation */}

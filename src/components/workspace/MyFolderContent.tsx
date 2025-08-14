@@ -192,7 +192,10 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
       
     } catch (error) {
       console.error('Failed to create folder:', error)
-      showSuccess('Failed to create folder')
+      // 에러 메시지 개선
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create folder'
+      showSuccess(errorMessage) // Toast로 에러 메시지 표시
+      // 모달은 닫지 않고 사용자가 다시 시도할 수 있도록 유지
     }
   }
 

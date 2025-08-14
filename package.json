@@ -9,7 +9,11 @@
     "build:fast": "SKIP_LINT=true next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "validate-env": "node validate-env.js",
+    "check-links": "linkinator https://www.koouk.im --recurse --silent",
+    "lighthouse": "lhci autorun",
+    "deploy-check": "npm run build && npm run validate-env"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

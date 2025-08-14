@@ -20,13 +20,30 @@ interface OptimisticAuthState {
 
 const STORAGE_KEY = 'koouk-last-auth-state'
 
-// Netflix 스타일: localStorage에서 마지막 상태를 즉시 가져옴
+// Netflix 스타일: localStorage에서 마지막 상태를 즉시 가져옴 (안전하게)
 const getOptimisticState = (): Partial<OptimisticAuthState> => {
-  if (typeof window === 'undefined') return { loading: true }
+  // 서버사이드에서는 기본값 반환
+  if (typeof window === 'undefined') {
+    return { 
+      loading: true,
+      user: null,
+      userProfile: null,
+      userSettings: null,
+      isOptimistic: false 
+    }
+  }
   
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
-    if (!stored) return { loading: false, user: null }
+    if (!stored) {
+      return { 
+        loading: false, 
+        user: null,
+        userProfile: null,
+        userSettings: null,
+        isOptimistic: false 
+      }
+    }
     
     const parsed = JSON.parse(stored)
     const isRecent = Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000 // 24시간
@@ -35,17 +52,23 @@ const getOptimisticState = (): Partial<OptimisticAuthState> => {
       console.log('🎬 Netflix-style: Using optimistic auth state')
       return {
         user: parsed.user,
-        userProfile: parsed.userProfile,
-        userSettings: parsed.userSettings,
+        userProfile: parsed.userProfile || null,
+        userSettings: parsed.userSettings || null,
         loading: false,
         isOptimistic: true
       }
     }
   } catch (error) {
-    console.warn('Failed to load optimistic auth state:', error)
+    console.warn('🎬 Failed to load optimistic auth state:', error)
   }
   
-  return { loading: false, user: null }
+  return { 
+    loading: false, 
+    user: null,
+    userProfile: null,
+    userSettings: null,
+    isOptimistic: false 
+  }
 }
 
 // 상태를 localStorage에 저장
@@ -69,18 +92,31 @@ export function useOptimisticAuth() {
   // 🎬 Netflix Debug
   console.log('🎬 useOptimisticAuth hook called')
   
-  // 1단계: 즉시 낙관적 상태로 시작 (Netflix처럼)
+  // 1단계: 즉시 낙관적 상태로 시작 (Netflix처럼) - 안전한 초기화
   const [state, setState] = useState<OptimisticAuthState>(() => {
-    const initialState = {
-      user: null,
-      userProfile: null,
-      userSettings: null,
-      loading: true,
-      isOptimistic: false,
-      ...getOptimisticState()
+    try {
+      const optimisticState = getOptimisticState()
+      const initialState: OptimisticAuthState = {
+        user: null,
+        userProfile: null,
+        userSettings: null,
+        loading: true,
+        isOptimistic: false,
+        ...optimisticState
+      }
+      console.log('🎬 Initial Netflix Auth State:', initialState)
+      return initialState
+    } catch (error) {
+      console.error('🎬 useState initialization error:', error)
+      // 안전한 기본값 반환
+      return {
+        user: null,
+        userProfile: null,
+        userSettings: null,
+        loading: false,
+        isOptimistic: false
+      }
     }
-    console.log('🎬 Initial Netflix Auth State:', initialState)
-    return initialState
   })
 
   // 사용자 데이터 로드

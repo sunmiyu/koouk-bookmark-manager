@@ -144,35 +144,44 @@ export function useOptimisticAuth() {
     }
   }, [])
 
-  // 로그인
+  // 🎬 Netflix + 개선된 Gmail 로그인
   const signIn = useCallback(async () => {
     try {
       setState(prev => ({ ...prev, loading: true }))
+      console.log('🎬 Starting Google sign in...')
       
-      const { error } = await supabase.auth.signInWithOAuth({
+      // 현재 도메인 확인
+      const redirectUrl = `${window.location.origin}/auth/callback`
+      console.log('🎬 Redirect URL:', redirectUrl)
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
-            prompt: 'consent',
-          }
+            prompt: 'select_account' // 계정 선택 강제
+          },
+          scopes: 'email profile',
+          // PKCE 플로우 사용 (더 안전)
+          skipBrowserRedirect: false
         }
       })
+
+      if (error) {
+        console.error('🎬 OAuth initiation error:', error)
+        alert(`로그인 시작 실패: ${error.message}`)
+        setState(prev => ({ ...prev, loading: false }))
+        return
+      }
       
-      if (error) throw error
-      
+      console.log('🎬 OAuth initiation successful:', data)
       analytics.login('google')
       
     } catch (error) {
-      console.error('Sign in error:', error)
+      console.error('🎬 Sign in error:', error)
       setState(prev => ({ ...prev, loading: false }))
-      
-      if (error instanceof Error) {
-        alert(`Login failed: ${error.message}. Please try again.`)
-      } else {
-        alert('Login failed. Please try again.')
-      }
+      alert('로그인 중 오류가 발생했습니다')
     }
   }, [])
 

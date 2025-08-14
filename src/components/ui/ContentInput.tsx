@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Send, Paperclip, FileText, Image, Video, X } from 'lucide-react'
 import { FolderItem, StorageItem, createStorageItem } from '@/types/folder'
 import { isYouTubeUrl, getYouTubeThumbnail, getYouTubeMetadata } from '@/utils/youtube'
+import { extractMetadata as extractWebMetadata, isValidUrl } from '@/utils/metadata'
 import { useDevice } from '@/hooks/useDevice'
 import { useToast } from '@/hooks/useToast'
 import Toast from './Toast'
@@ -97,6 +98,20 @@ export default function ContentInput({
       } catch (error) {
         console.error('Failed to fetch YouTube metadata:', error)
       }
+    } else if (type === 'url' && isValidUrl(content)) {
+      // 일반 웹페이지 Meta 정보 추출
+      try {
+        const webMetadata = await extractWebMetadata(content)
+        if (webMetadata) {
+          metadata.title = webMetadata.title
+          metadata.description = webMetadata.description
+          metadata.thumbnail = webMetadata.image
+          metadata.domain = webMetadata.domain
+          metadata.platform = 'web'
+        }
+      } catch (error) {
+        console.error('Failed to fetch web metadata:', error)
+      }
     }
 
     return metadata
@@ -158,11 +173,11 @@ export default function ContentInput({
         // 제목 결정 로직 개선
         let title = 'Content'
         if (type === 'video' && isYouTubeUrl(input.trim())) {
-          title = 'YouTube Video'
+          title = metadata.title as string || 'YouTube Video'
         } else if (type === 'video') {
           title = 'Video'
         } else if (type === 'url') {
-          title = 'Link'
+          title = metadata.title as string || 'Link'
         } else if (type === 'memo') {
           title = 'Memo'
         } else if (type === 'document') {

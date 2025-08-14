@@ -14,6 +14,7 @@ import { SharedFolder } from '@/types/share'
 import { createFolder } from '@/types/folder'
 import SearchInterface from '../ui/SearchInterface'
 import FeedbackModal from '../modals/FeedbackModal'
+import SignoutModal from '../ui/SignoutModal'
 import TopNavigation from '../mobile/TopNavigation'
 import MobileHeader from '../mobile/MobileHeader'
 import { useDevice } from '@/hooks/useDevice'
@@ -24,11 +25,20 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
+  const [showSignoutModal, setShowSignoutModal] = useState(false)
   
-  // Handle shared content from PWA Web Share Target
+  // Handle URL parameters for tab restoration
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
+      
+      // Handle tab parameter from URL
+      const tabParam = params.get('tab')
+      if (tabParam && (tabParam === 'marketplace' || tabParam === 'bookmarks' || tabParam === 'my-folder')) {
+        setActiveTab(tabParam)
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname)
+      }
       
       if (params.get('shared') === 'true') {
         const title = params.get('title')
@@ -94,16 +104,16 @@ export default function App() {
   }
   const { user } = useAuth()
 
-  const handleSignOut = async () => {
-    if (!confirm('Are you sure you want to sign out? All data will be reset.')) {
-      return
-    }
+  const handleSignOut = () => {
+    setShowSignoutModal(true)
+    setShowUserMenu(false)
+  }
+
+  const handleConfirmSignOut = async () => {
+    setShowSignoutModal(false)
     
     try {
       console.log('🔐 Starting logout process...')
-      
-      // 1. Close user menu immediately
-      setShowUserMenu(false)
       
       // 2. Sign out from Supabase first
       console.log('🔒 Signing out from Supabase...')
@@ -166,33 +176,33 @@ export default function App() {
 
                 {/* Center - PC Navigation */}
                 <div className="flex-1 flex justify-center mx-4">
-                  <div className="flex space-x-8">
+                  <div className="flex space-x-1">
                     <button
                       onClick={() => setActiveTab('my-folder')}
-                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 transform ${
                         activeTab === 'my-folder'
-                          ? 'border-black text-black'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                          ? 'bg-black text-white shadow-md'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 hover:scale-105 active:scale-95'
                       }`}
                     >
                       My Folder
                     </button>
                     <button
                       onClick={() => setActiveTab('bookmarks')}
-                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 transform ${
                         activeTab === 'bookmarks'
-                          ? 'border-black text-black'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                          ? 'bg-black text-white shadow-md'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 hover:scale-105 active:scale-95'
                       }`}
                     >
                       Bookmarks
                     </button>
                     <button
                       onClick={() => setActiveTab('marketplace')}
-                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 transform ${
                         activeTab === 'marketplace'
-                          ? 'border-black text-black'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                          ? 'bg-black text-white shadow-md'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 hover:scale-105 active:scale-95'
                       }`}
                     >
                       Market Place
@@ -202,16 +212,14 @@ export default function App() {
 
                 {/* Right side elements */}
                 <div className="flex items-center gap-0.5 sm:gap-3">
-                  {/* Enhanced Search Interface - Hide on dashboard */}
-                  {activeTab !== 'dashboard' && (
-                    <SearchInterface
-                      searchQuery={searchQuery}
-                      onSearchChange={setSearchQuery}
-                      searchScope={activeTab === 'my-folder' ? 'my-folder' : activeTab === 'marketplace' ? 'market-place' : 'bookmarks'}
-                      placeholder="Search..."
-                      language="en"
-                    />
-                  )}
+                  {/* Enhanced Search Interface - Always show */}
+                  <SearchInterface
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    searchScope={activeTab === 'my-folder' ? 'my-folder' : activeTab === 'marketplace' ? 'market-place' : 'bookmarks'}
+                    placeholder="Search..."
+                    language="en"
+                  />
 
                   {/* Feedback Button - responsive design */}
                   <button 
@@ -256,18 +264,16 @@ export default function App() {
 
                 />
 
-                {/* Navigation tabs - Hide on dashboard */}
-                {activeTab !== 'dashboard' && (
-                  <div className="flex justify-center border-t border-gray-100 py-2">
-                    <TopNavigation 
-                      activeTab={activeTab}
-                      onTabChange={(tab) => {
-                        console.log('Mobile TopNavigation tab change:', tab)
-                        setActiveTab(tab)
-                      }}
-                    />
-                  </div>
-                )}
+                {/* Navigation tabs - Always show */}
+                <div className="flex justify-center border-t border-gray-100 py-2">
+                  <TopNavigation 
+                    activeTab={activeTab}
+                    onTabChange={(tab) => {
+                      console.log('Mobile TopNavigation tab change:', tab)
+                      setActiveTab(tab)
+                    }}
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -280,7 +286,9 @@ export default function App() {
         device.width >= 768 ? 'min-h-[calc(100vh-64px)]' : 'min-h-[calc(100vh-100px)]'
       }`}>
         {activeTab === 'dashboard' ? (
-          <Dashboard onNavigateToSection={(section) => setActiveTab(section)} />
+          <Dashboard onNavigateToSection={(section) => {
+            setActiveTab(section)
+          }} />
         ) : activeTab === 'my-folder' ? (
           <MyFolderContent searchQuery={searchQuery} />
         ) : activeTab === 'bookmarks' ? (
@@ -320,6 +328,18 @@ export default function App() {
               href="/settings"
               onClick={() => {
                 console.log('🟢 Settings clicked')
+                // Save current page state to localStorage
+                const currentPageData = {
+                  tab: activeTab,
+                  query: searchQuery
+                }
+                localStorage.setItem('koouk-previous-page-data', JSON.stringify(currentPageData))
+                // Create URL based on current tab
+                let pageUrl = '/'
+                if (activeTab === 'marketplace') pageUrl += '?tab=marketplace'
+                else if (activeTab === 'bookmarks') pageUrl += '?tab=bookmarks'
+                else if (activeTab === 'my-folder') pageUrl += '?tab=my-folder'
+                localStorage.setItem('koouk-previous-page', pageUrl)
                 setShowUserMenu(false)
               }}
               className="w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
@@ -349,6 +369,13 @@ export default function App() {
       <FeedbackModal 
         isOpen={showFeedbackModal}
         onClose={() => setShowFeedbackModal(false)}
+      />
+
+      {/* Signout Modal */}
+      <SignoutModal
+        isOpen={showSignoutModal}
+        onClose={() => setShowSignoutModal(false)}
+        onConfirm={handleConfirmSignOut}
       />
     </div>
   )

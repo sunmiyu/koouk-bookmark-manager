@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import { ArrowLeft, MoreVertical, ExternalLink, Trash2, Grid, List, Share2 } from 'lucide-react'
 import { FolderItem, StorageItem } from '@/types/folder'
+import { isYouTubeUrl, getYouTubeThumbnail } from '@/utils/youtube'
 import DocumentModal from './DocumentModal'
 import ShareFolderModal, { SharedFolderData } from './ShareFolderModal'
 
@@ -38,7 +40,50 @@ export default function FolderDetail({
     return false
   })
 
-  // 아이템 타입별 아이콘
+  // 썸네일 생성 함수
+  const getThumbnail = (item: StorageItem) => {
+    if (item.type === 'video') {
+      if (item.metadata?.thumbnail) return item.metadata.thumbnail
+      if (isYouTubeUrl(item.content)) {
+        return getYouTubeThumbnail(item.content)
+      }
+      return null
+    }
+    if (item.type === 'image') {
+      return item.content
+    }
+    if (item.type === 'url') {
+      if (item.metadata?.thumbnail) return item.metadata.thumbnail
+      if (isYouTubeUrl(item.content)) {
+        return getYouTubeThumbnail(item.content)
+      }
+      try {
+        const domain = new URL(item.content).hostname
+        return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`
+      } catch {
+        return null
+      }
+    }
+    return null
+  }
+
+  // 텍스트 미리보기 함수
+  const getTextPreview = (item: StorageItem) => {
+    if (item.type === 'document' || item.type === 'memo') {
+      return item.content.substring(0, 120) + (item.content.length > 120 ? '...' : '')
+    }
+    return null
+  }
+
+  // 표시할 제목 가져오기 (유튜브 영상 제목 및 웹페이지 제목 포함)
+  const getDisplayTitle = (item: StorageItem) => {
+    if (item.metadata?.title) {
+      return item.metadata.title as string
+    }
+    return item.name
+  }
+
+  // 아이템 타입별 아이콘 (썸네일이 없을 때 사용)
   const getItemIcon = (item: StorageItem) => {
     switch (item.type) {
       case 'url':
@@ -186,84 +231,130 @@ export default function FolderDetail({
                 transition={{ delay: index * 0.05 }}
                 className={
                   viewMode === 'grid'
-                    ? 'bg-white rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100 p-4 group cursor-pointer'
+                    ? 'group cursor-pointer'
                     : 'bg-white rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100 p-3 flex items-center gap-3 group cursor-pointer'
                 }
                 onClick={() => handleItemClick(item)}
               >
                 {viewMode === 'grid' ? (
-                  // 그리드 뷰
-                  <>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-2xl">{getItemIcon(item)}</span>
+                  // 그리드 뷰 - 모바일 이미지 스타일
+                  <div className="relative overflow-hidden rounded-2xl bg-white shadow-sm border border-gray-100 group-hover:shadow-lg transition-all duration-300">
+                    {/* 썸네일/미리보기 영역 */}
+                    <div className="relative bg-gray-50 aspect-[4/3] overflow-hidden">
+                      {getThumbnail(item) ? (
+                        <Image 
+                          src={getThumbnail(item)!} 
+                          alt={getDisplayTitle(item)}
+                          fill
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement
+                            target.style.display = 'none'
+                            const fallback = target.nextElementSibling as HTMLElement
+                            if (fallback) fallback.style.display = 'flex'
+                          }}
+                        />
+                      ) : null}
+                      
+                      {/* 텍스트 미리보기 */}
+                      {!getThumbnail(item) && getTextPreview(item) && (
+                        <div className="absolute inset-0 p-4 flex flex-col justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
+                          <div className="text-sm text-gray-700 leading-relaxed line-clamp-4 font-medium">
+                            {getTextPreview(item)}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* 아이콘 폴백 */}
+                      <div 
+                        className="w-full h-full absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100" 
+                        style={{ display: (getThumbnail(item) || getTextPreview(item)) ? 'none' : 'flex' }}
+                      >
+                        <div className="w-16 h-16 rounded-2xl bg-white shadow-md flex items-center justify-center text-gray-400 group-hover:scale-110 transition-all duration-300">
+                          <span className="text-2xl">{getItemIcon(item)}</span>
+                        </div>
+                      </div>
+
+                      {/* 더보기 버튼 */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
                           setSelectedItem(selectedItem === item.id ? null : item.id)
                         }}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded"
+                        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-black/20 rounded-full bg-black/20 backdrop-blur-sm"
                       >
-                        <MoreVertical size={14} />
+                        <MoreVertical size={16} className="text-white" />
                       </button>
+
+                      {/* 비디오 지속시간 */}
+                      {item.type === 'video' && item.metadata?.duration && (
+                        <div className="absolute bottom-3 right-3 bg-black/80 text-white px-2.5 py-1 rounded-md text-xs font-medium">
+                          {Math.floor(item.metadata.duration / 60)}:{(item.metadata.duration % 60).toString().padStart(2, '0')}
+                        </div>
+                      )}
+
+                      {/* 타입 뱃지 */}
+                      <div className="absolute top-3 left-3">
+                        {item.type === 'video' && (
+                          <div className="bg-red-500 text-white px-2 py-1 rounded-md text-xs font-medium">
+                            Video
+                          </div>
+                        )}
+                        {item.type === 'url' && (
+                          <div className="bg-blue-500 text-white px-2 py-1 rounded-md text-xs font-medium">
+                            Link
+                          </div>
+                        )}
+                        {item.type === 'image' && (
+                          <div className="bg-green-500 text-white px-2 py-1 rounded-md text-xs font-medium">
+                            Image
+                          </div>
+                        )}
+                        {item.type === 'document' && (
+                          <div className="bg-orange-500 text-white px-2 py-1 rounded-md text-xs font-medium">
+                            Doc
+                          </div>
+                        )}
+                        {item.type === 'memo' && (
+                          <div className="bg-yellow-500 text-white px-2 py-1 rounded-md text-xs font-medium">
+                            Memo
+                          </div>
+                        )}
+                      </div>
                     </div>
                     
-                    <h3 className="font-medium text-gray-900 text-sm mb-2 line-clamp-2">
-                      {item.name}
-                    </h3>
-                    
-                    {'content' in item && item.content && (
-                      <p className="text-xs text-gray-500 line-clamp-2 mb-3">
-                        {item.content}
-                      </p>
-                    )}
-                    
-                    <div className="flex items-center justify-between text-xs text-gray-400">
-                      <span className="capitalize">{item.type}</span>
-                      <span>
-                        {new Date(item.createdAt).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric'
-                        })}
-                      </span>
-                    </div>
-                  </>
-                ) : (
-                  // 리스트 뷰
-                  <>
-                    <span className="text-xl">{getItemIcon(item)}</span>
-                    
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-gray-900 text-sm truncate">
-                        {item.name}
+                    {/* 콘텐츠 정보 영역 */}
+                    <div className="p-3">
+                      {/* 제목 */}
+                      <h3 className="font-semibold text-gray-900 text-sm mb-1 line-clamp-2 leading-tight">
+                        {getDisplayTitle(item)}
                       </h3>
-                      {'content' in item && item.content && (
-                        <p className="text-xs text-gray-500 truncate">
-                          {item.content}
+                      
+                      {/* 설명 또는 도메인 */}
+                      {item.metadata?.description && (
+                        <p className="text-xs text-gray-500 line-clamp-1 mb-1 leading-relaxed">
+                          {item.metadata.description as string}
                         </p>
                       )}
+                      
+                      {/* 하단 정보 */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center text-xs text-gray-400">
+                          {item.metadata?.domain && (
+                            <span className="truncate max-w-24">{item.metadata.domain as string}</span>
+                          )}
+                          {!item.metadata?.domain && (
+                            <span>
+                              {new Date(item.createdAt).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric'
+                              })}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    
-                    <div className="flex items-center gap-2 text-xs text-gray-400">
-                      <span className="capitalize">{item.type}</span>
-                      <span>•</span>
-                      <span>
-                        {new Date(item.createdAt).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric'
-                        })}
-                      </span>
-                    </div>
-                    
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setSelectedItem(selectedItem === item.id ? null : item.id)
-                      }}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded"
-                    >
-                      <MoreVertical size={14} />
-                    </button>
-                  </>
+                  </div>
                 )}
 
                 {/* 아이템 메뉴 */}

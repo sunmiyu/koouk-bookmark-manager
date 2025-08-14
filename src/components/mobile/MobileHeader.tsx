@@ -35,7 +35,7 @@ export default function MobileHeader({
   }
 
   return (
-    <div className="flex items-center justify-between h-12 min-h-[48px] px-3 bg-white border-b border-gray-200">
+    <div className="flex items-center justify-between h-16 min-h-[64px] px-3 bg-white border-b border-gray-200">
       {/* Logo */}
       <div className="flex items-center flex-shrink-0">
         <button 

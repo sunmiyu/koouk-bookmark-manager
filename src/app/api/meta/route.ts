@@ -131,6 +131,11 @@ export async function POST(request: NextRequest) {
       .replace(/&gt;/g, '>')
       .replace(/&quot;/g, '"')
       .replace(/&#39;/g, "'")
+      // 깨진 특수문자 처리  
+      .replace(/♦+/g, '') // 다이아몬드 문자 제거
+      .replace(/[^\x20-\x7E\xA0-\uFFFF]/g, '') // 유효하지 않은 문자 제거
+      .replace(/\s+/g, ' ') // 다시 공백 정리
+      .trim()
 
     metadata.description = metadata.description
       .replace(/\s+/g, ' ')

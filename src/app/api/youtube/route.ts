@@ -20,13 +20,24 @@ async function scrapeYouTubeTitle(url: string) {
     
     const html = await response.text()
     
-    // YouTube 페이지에서 제목 추출
+    // YouTube 페이지에서 제목 추출 (여러 방법 시도)
     const titleMatch = html.match(/<title>([^<]+)<\/title>/)
     if (titleMatch) {
       let title = titleMatch[1]
       // " - YouTube" 부분 제거
       title = title.replace(/ - YouTube$/, '')
-      return title
+      // HTML 엔티티 디코딩
+      title = title
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .trim()
+      
+      if (title && title !== 'YouTube') {
+        return title
+      }
     }
     
     // og:title 메타 태그에서 추출

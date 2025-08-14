@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import smooth interaction effects */
-@import '../styles/smooth-interactions.css';
-
 /* Koouk Design System - Minimal & Clean */
 :root {
   /* Neutral Grays - Primary Palette */

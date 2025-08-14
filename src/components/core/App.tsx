@@ -21,7 +21,7 @@ import { useDevice } from '@/hooks/useDevice'
 
 export default function App() {
   const device = useDevice()
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks'>('dashboard')
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks'>('my-folder')
   const [searchQuery, setSearchQuery] = useState('')
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
@@ -75,17 +75,24 @@ export default function App() {
     }
   }
   
-  // Handle URL parameters for tab restoration
+  // Handle URL parameters for tab restoration and localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
       
       // Handle tab parameter from URL
       const tabParam = params.get('tab')
-      if (tabParam && (tabParam === 'marketplace' || tabParam === 'bookmarks' || tabParam === 'my-folder')) {
-        setActiveTab(tabParam)
+      if (tabParam && (tabParam === 'marketplace' || tabParam === 'bookmarks' || tabParam === 'my-folder' || tabParam === 'dashboard')) {
+        setActiveTab(tabParam as any)
+        localStorage.setItem('koouk-last-tab', tabParam)
         // Clean up URL
         window.history.replaceState({}, document.title, window.location.pathname)
+      } else {
+        // Load from localStorage if no URL parameter
+        const savedTab = localStorage.getItem('koouk-last-tab')
+        if (savedTab && (savedTab === 'marketplace' || savedTab === 'bookmarks' || savedTab === 'my-folder' || savedTab === 'dashboard')) {
+          setActiveTab(savedTab as any)
+        }
       }
       
       if (params.get('shared') === 'true') {
@@ -176,6 +183,10 @@ export default function App() {
       return
     }
     setActiveTab(tab)
+    // Save to localStorage for persistence across refreshes
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('koouk-last-tab', tab)
+    }
   }
 
   const handleSignOut = () => {

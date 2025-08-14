@@ -5,6 +5,17 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { ArrowLeft, MoreVertical, ExternalLink, Trash2, Grid, List, Share2 } from 'lucide-react'
 import { FolderItem, StorageItem } from '@/types/folder'
+
+// 메타데이터 타입 정의
+interface ItemMetadata {
+  title?: string
+  description?: string
+  domain?: string
+  thumbnail?: string
+  duration?: number
+  platform?: string
+  [key: string]: unknown
+}
 import { isYouTubeUrl, getYouTubeThumbnail } from '@/utils/youtube'
 import DocumentModal from './DocumentModal'
 import ShareFolderModal, { SharedFolderData } from './ShareFolderModal'
@@ -237,7 +248,7 @@ export default function FolderDetail({
                       {getThumbnail(item) ? (
                         <Image 
                           src={getThumbnail(item)!} 
-                          alt={item.metadata?.title ? String(item.metadata.title) : item.name}
+                          alt={(item.metadata as ItemMetadata)?.title || item.name}
                           fill
                           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                           onError={(e) => {
@@ -319,19 +330,27 @@ export default function FolderDetail({
                     {/* 콘텐츠 정보 영역 */}
                     <div className="p-3">
                       <h3 className="font-semibold text-gray-900 text-sm mb-1 line-clamp-2 leading-tight">
-                        {item.metadata?.title ? String(item.metadata.title) : item.name}
+                        {(item.metadata as ItemMetadata)?.title || item.name}
                       </h3>
                       
-                      {/* 설명 - 임시 비활성화 */}
+                      {(item.metadata as ItemMetadata)?.description && (
+                        <p className="text-xs text-gray-500 line-clamp-1 mb-1 leading-relaxed">
+                          {String((item.metadata as ItemMetadata).description)}
+                        </p>
+                      )}
                       
                       <div className="flex items-center justify-between">
                         <div className="flex items-center text-xs text-gray-400">
-                          <span>
-                            {new Date(item.createdAt).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric'
-                            })}
-                          </span>
+                          {(item.metadata as ItemMetadata)?.domain ? (
+                            <span className="truncate max-w-24">{String((item.metadata as ItemMetadata).domain)}</span>
+                          ) : (
+                            <span>
+                              {new Date(item.createdAt).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric'
+                              })}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -344,7 +363,7 @@ export default function FolderDetail({
                       {getThumbnail(item) ? (
                         <Image 
                           src={getThumbnail(item)!} 
-                          alt={item.metadata?.title ? String(item.metadata.title) : item.name}
+                          alt={(item.metadata as ItemMetadata)?.title || item.name}
                           fill
                           className={`w-full h-full ${
                             item.type === 'url' ? 'object-contain p-1' : 'object-cover'
@@ -369,7 +388,7 @@ export default function FolderDetail({
                     
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium text-gray-900 text-sm truncate">
-                        {item.metadata?.title ? String(item.metadata.title) : item.name}
+                        {(item.metadata as ItemMetadata)?.title || item.name}
                       </h3>
                       {getTextPreview(item) ? (
                         <p className="text-xs text-gray-500 truncate">

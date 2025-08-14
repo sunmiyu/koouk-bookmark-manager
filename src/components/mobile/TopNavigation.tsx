@@ -69,14 +69,18 @@ export default function TopNavigation({ activeTab, onTabChange }: TopNavigationP
             key={tab.id}
             onClick={() => handleTabPress(tab.id)}
             className={`
-              px-3 py-1.5 text-sm font-medium relative
-              transition-colors duration-200 rounded-md
+              px-3 py-1.5 text-sm font-medium relative select-none
+              transition-all duration-200 rounded-md
               ${isActive 
                 ? 'bg-gray-100 text-black' 
                 : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
               }
             `}
-            whileTap={{ scale: 0.98 }}
+            whileTap={{ scale: 0.95 }}
+            style={{
+              WebkitTapHighlightColor: 'transparent',
+              touchAction: 'manipulation'
+            }}
           >
             <span className="relative z-10">
               {tab.label}

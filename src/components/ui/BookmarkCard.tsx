@@ -35,16 +35,20 @@ export default function BookmarkCard({
   return (
     <motion.button
       onClick={() => onOpenBookmark(bookmark)}
-      className="w-full px-3 py-2.5 hover:bg-gray-50 transition-colors text-left border-b border-gray-100 last:border-b-0 group"
+      className="w-full px-3 py-1.5 hover:bg-gray-50 transition-all duration-150 text-left border-b border-gray-100 last:border-b-0 group select-none"
       whileTap={{ scale: 0.98 }}
-      style={{ minHeight: '44px' }}
+      style={{ 
+        minHeight: '36px',
+        WebkitTapHighlightColor: 'transparent',
+        touchAction: 'manipulation'
+      }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
     >
       {/* 통합된 컴팩트 레이아웃 - 모바일과 PC 동일 */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5">
         {/* 파비콘 */}
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-gray-50 border border-gray-100">
+        <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 bg-gray-50 border border-gray-100">
           {bookmark.favicon ? (
             <Image 
               src={bookmark.favicon} 
@@ -63,7 +67,7 @@ export default function BookmarkCard({
         
         {/* 제목 */}
         <div className="flex-1 min-w-0">
-          <span className="font-medium text-gray-900 text-sm truncate block">{bookmark.title}</span>
+          <span className="font-medium text-gray-900 text-xs sm:text-sm truncate block">{bookmark.title}</span>
         </div>
         
         {/* URL 도메인 - PC에서 더 넓게 */}
@@ -95,10 +99,14 @@ export default function BookmarkCard({
               e.stopPropagation()
               onToggleFavorite(bookmark.id)
             }}
-            className={`p-1 rounded hover:bg-gray-100 transition-colors ${
+            className={`p-1 rounded hover:bg-gray-100 transition-all duration-150 active:scale-95 select-none ${
               bookmark.isFavorite ? 'text-yellow-500' : 'text-gray-400'
             }`}
             title={bookmark.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+            style={{
+              WebkitTapHighlightColor: 'transparent',
+              touchAction: 'manipulation'
+            }}
           >
             <Star className={`w-3 h-3 ${bookmark.isFavorite ? 'fill-current' : ''}`} />
           </button>
@@ -107,8 +115,12 @@ export default function BookmarkCard({
               e.stopPropagation()
               onDeleteBookmark(bookmark.id)
             }}
-            className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-500 transition-colors"
+            className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-500 transition-all duration-150 active:scale-95 select-none"
             title="Delete bookmark"
+            style={{
+              WebkitTapHighlightColor: 'transparent',
+              touchAction: 'manipulation'
+            }}
           >
             <Trash2 className="w-3 h-3" />
           </button>

@@ -27,6 +27,54 @@ export default function App() {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
   const [showSignoutModal, setShowSignoutModal] = useState(false)
   
+  // Swipe gesture state
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [touchEnd, setTouchEnd] = useState<number | null>(null)
+  
+  // Minimum swipe distance (in px)
+  const minSwipeDistance = 50
+  
+  // Tab order for swipe navigation (excluding dashboard)
+  const tabOrder: ('my-folder' | 'bookmarks' | 'marketplace')[] = ['my-folder', 'bookmarks', 'marketplace']
+  
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null) // otherwise the swipe is fired even with usual touch events
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+  
+  const onTouchMove = (e: React.TouchEvent) => setTouchEnd(e.targetTouches[0].clientX)
+  
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+    
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > minSwipeDistance
+    const isRightSwipe = distance < -minSwipeDistance
+    
+    // Only handle swipes on non-dashboard tabs and on mobile
+    if ((isLeftSwipe || isRightSwipe) && activeTab !== 'dashboard' && device.width < 768) {
+      const currentIndex = tabOrder.indexOf(activeTab as 'my-folder' | 'bookmarks' | 'marketplace')
+      
+      if (isLeftSwipe && currentIndex < tabOrder.length - 1) {
+        // Swipe left: go to next tab
+        const nextTab = tabOrder[currentIndex + 1]
+        // Haptic feedback
+        if ('vibrate' in navigator) {
+          navigator.vibrate(10)
+        }
+        handleTabChange(nextTab)
+      } else if (isRightSwipe && currentIndex > 0) {
+        // Swipe right: go to previous tab
+        const prevTab = tabOrder[currentIndex - 1]
+        // Haptic feedback
+        if ('vibrate' in navigator) {
+          navigator.vibrate(10)
+        }
+        handleTabChange(prevTab)
+      }
+    }
+  }
+  
   // Handle URL parameters for tab restoration
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -139,37 +187,27 @@ export default function App() {
     setShowSignoutModal(false)
     
     try {
-      console.log('🔐 Starting logout process...')
-      
-      // 2. Sign out from Supabase first
-      console.log('🔒 Signing out from Supabase...')
+      // Sign out from Supabase first
       const { error } = await supabase.auth.signOut()
       if (error) {
         console.error('Supabase sign out error:', error)
-      } else {
-        console.log('✅ Supabase sign out successful')
       }
       
-      // 3. Clear all localStorage
-      console.log('💾 Clearing all localStorage...')
+      // Clear all localStorage
       if (typeof window !== 'undefined') {
         localStorage.clear()
-        console.log('✅ localStorage completely cleared')
       }
       
-      // 4. Clear all sessionStorage
-      console.log('📝 Clearing all sessionStorage...')
+      // Clear all sessionStorage
       if (typeof window !== 'undefined') {
         sessionStorage.clear()
-        console.log('✅ sessionStorage completely cleared')
       }
       
-      // 5. Reload page for complete reset
-      console.log('🔄 Reloading page...')
+      // Reload page for complete reset
       window.location.reload()
       
     } catch (error) {
-      console.error('💥 Sign out error, doing emergency reload:', error)
+      console.error('Sign out error, doing emergency reload:', error)
       // Emergency reload if complete failure
       window.location.reload()
     }
@@ -205,31 +243,43 @@ export default function App() {
                   <div className="flex space-x-1">
                     <button
                       onClick={() => handleTabChange('my-folder')}
-                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 transform ${
+                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 transform select-none ${
                         activeTab === 'my-folder'
                           ? 'bg-black text-white shadow-md'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 hover:scale-105 active:scale-95'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 hover:scale-[1.02] active:scale-95'
                       }`}
+                      style={{
+                        WebkitTapHighlightColor: 'transparent',
+                        touchAction: 'manipulation'
+                      }}
                     >
                       My Folder
                     </button>
                     <button
                       onClick={() => handleTabChange('bookmarks')}
-                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 transform ${
+                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 transform select-none ${
                         activeTab === 'bookmarks'
                           ? 'bg-black text-white shadow-md'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 hover:scale-105 active:scale-95'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 hover:scale-[1.02] active:scale-95'
                       }`}
+                      style={{
+                        WebkitTapHighlightColor: 'transparent',
+                        touchAction: 'manipulation'
+                      }}
                     >
                       Bookmarks
                     </button>
                     <button
                       onClick={() => handleTabChange('marketplace')}
-                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 transform ${
+                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 transform select-none ${
                         activeTab === 'marketplace'
                           ? 'bg-black text-white shadow-md'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 hover:scale-105 active:scale-95'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 hover:scale-[1.02] active:scale-95'
                       }`}
+                      style={{
+                        WebkitTapHighlightColor: 'transparent',
+                        touchAction: 'manipulation'
+                      }}
                     >
                       Market Place
                     </button>
@@ -250,8 +300,12 @@ export default function App() {
                   {/* Feedback Button - responsive design */}
                   <button 
                     onClick={() => setShowFeedbackModal(true)}
-                    className="flex items-center justify-center w-8 h-8 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:w-auto sm:h-auto"
+                    className="flex items-center justify-center w-8 h-8 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-all duration-150 sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:w-auto sm:h-auto active:scale-95 select-none"
                     title="Feedback"
+                    style={{
+                      WebkitTapHighlightColor: 'transparent',
+                      touchAction: 'manipulation'
+                    }}
                   >
                     <MessageCircle className="w-4 h-4" />
                     <span className="hidden sm:inline">Feedback</span>
@@ -261,11 +315,14 @@ export default function App() {
                   <div className="relative">
                     <button
                       onClick={() => {
-                        console.log('🔵 User menu button clicked')
                         setShowUserMenu(!showUserMenu)
                       }}
-                      className="flex items-center gap-1.5 p-1.5 hover:bg-gray-50 rounded-md transition-colors cursor-pointer"
+                      className="flex items-center gap-1.5 p-1.5 hover:bg-gray-50 rounded-md transition-all duration-150 cursor-pointer active:scale-95 select-none"
                       type="button"
+                      style={{
+                        WebkitTapHighlightColor: 'transparent',
+                        touchAction: 'manipulation'
+                      }}
                     >
                       <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center text-xs font-medium">
                         {user?.email?.[0]?.toUpperCase() || 'U'}
@@ -284,22 +341,22 @@ export default function App() {
                   onSearchChange={setSearchQuery}
                   onShowFeedbackModal={() => setShowFeedbackModal(true)}
                   onShowUserMenu={() => {
-                    console.log('🔵 Mobile user menu button clicked')
                     setShowUserMenu(!showUserMenu)
                   }}
-
+                  onLogoClick={() => handleTabChange('dashboard')}
                 />
 
-                {/* Navigation tabs - Always show */}
-                <div className="flex justify-center border-t border-gray-100 py-1">
-                  <TopNavigation 
-                    activeTab={activeTab}
-                    onTabChange={(tab) => {
-                      console.log('Mobile TopNavigation tab change:', tab)
-                      handleTabChange(tab)
-                    }}
-                  />
-                </div>
+                {/* Navigation tabs - Hide on dashboard */}
+                {activeTab !== 'dashboard' && (
+                  <div className="flex justify-center border-t border-gray-100 py-1">
+                    <TopNavigation 
+                      activeTab={activeTab}
+                      onTabChange={(tab) => {
+                        handleTabChange(tab)
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -307,10 +364,15 @@ export default function App() {
       </header>
 
 
-      {/* Main Content */}
-      <main className={`w-full px-2 sm:px-8 sm:max-w-6xl sm:mx-auto pt-2 sm:pt-6 pb-4 sm:pb-8 ${
-        device.width >= 768 ? 'min-h-[calc(100vh-64px)]' : 'min-h-[calc(100vh-100px)]'
-      }`}>
+      {/* Main Content with smooth transitions */}
+      <main 
+        className={`w-full px-2 sm:px-8 sm:max-w-6xl sm:mx-auto pt-2 sm:pt-6 pb-4 sm:pb-8 transition-all duration-300 ease-out ${
+          device.width >= 768 ? 'min-h-[calc(100vh-64px)]' : 'min-h-[calc(100vh-100px)]'
+        }`}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
         {activeTab === 'dashboard' ? (
           <Dashboard onNavigateToSection={(section) => {
             handleTabChange(section)
@@ -335,7 +397,6 @@ export default function App() {
             className="fixed inset-0 bg-transparent"
             style={{ zIndex: 10000 }}
             onClick={() => {
-              console.log('🔴 Overlay clicked - closing menu')
               setShowUserMenu(false)
             }}
           />
@@ -355,7 +416,6 @@ export default function App() {
                 <Link
                   href="/settings"
                   onClick={() => {
-                    console.log('🟢 Settings clicked')
                     // Save current page state to localStorage
                     const currentPageData = {
                       tab: activeTab,
@@ -378,7 +438,6 @@ export default function App() {
                 
                 <button
                   onClick={() => {
-                    console.log('🔴 NEW Sign out button clicked!')
                     setShowUserMenu(false)
                     handleSignOut()
                   }}
@@ -398,8 +457,12 @@ export default function App() {
                 
                 <button
                   onClick={handleSignIn}
-                  className="w-full flex items-center justify-center gap-2.5 px-3 py-2 text-xs bg-black text-white hover:bg-gray-800 rounded-md transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2.5 px-3 py-2 text-xs bg-black text-white hover:bg-gray-800 rounded-md transition-all duration-150 cursor-pointer active:scale-95 select-none"
                   type="button"
+                  style={{
+                    WebkitTapHighlightColor: 'transparent',
+                    touchAction: 'manipulation'
+                  }}
                 >
                   <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

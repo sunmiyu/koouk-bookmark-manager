@@ -327,81 +327,92 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
         <div className="grid grid-cols-2 gap-1 mb-4 border-b border-gray-200">
           <button
             onClick={() => setCurrentView('marketplace')}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors text-center ${
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-150 text-center active:scale-95 select-none ${
               currentView === 'marketplace'
                 ? 'bg-white text-gray-900 border-b-2 border-blue-500'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
+            style={{
+              WebkitTapHighlightColor: 'transparent',
+              touchAction: 'manipulation'
+            }}
           >
             Browse Market Place
           </button>
           <button
             onClick={() => setCurrentView('my-shared')}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors text-center ${
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-150 text-center active:scale-95 select-none ${
               currentView === 'my-shared'
                 ? 'bg-white text-gray-900 border-b-2 border-blue-500'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
+            style={{
+              WebkitTapHighlightColor: 'transparent',
+              touchAction: 'manipulation'
+            }}
           >
             My Shared Folders
           </button>
         </div>
 
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-semibold text-gray-900">
-              {currentView === 'marketplace' 
-                ? `${filteredFolders.length} ${filteredFolders.length === 1 ? 'shared folder' : 'shared folders'}`
-                : `${filteredFolders.filter(f => f.author.id === 'current-user').length} folders shared by you`
-              }
-            </h2>
-            <p className="text-sm text-gray-500 mt-1">
-              {currentView === 'marketplace' ? 'Browse and discover amazing collections' : 'Manage your shared folders'}
-            </p>
+        <div className="mb-4">
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-semibold text-gray-900">
+                {currentView === 'marketplace' 
+                  ? `${filteredFolders.length} ${filteredFolders.length === 1 ? 'shared folder' : 'shared folders'}`
+                  : `${filteredFolders.filter(f => f.author.id === 'current-user').length} folders shared by you`
+                }
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">
+                {currentView === 'marketplace' ? 'Browse and discover amazing collections' : 'Manage your shared folders'}
+              </p>
+            </div>
           </div>
           
-          {/* 정렬 드롭다운 - 모바일에서 더 크고 오른쪽 배치 */}
-          <div className="ml-3 flex-shrink-0">
-            <SortOptions
-              options={sortOptions}
-              selectedSort={sortOrder}
-              onSortChange={(sort) => setSortOrder(sort as 'popular' | 'recent' | 'helpful')}
-            />
-          </div>
+          {/* 필터 섹션 - Market Place에서만 표시 */}
+          {currentView === 'marketplace' && (
+            <div className="flex flex-col sm:flex-row gap-3">
+              {/* 모바일: 드롭다운들을 한 줄에 50:50 배치 */}
+              <div className="flex sm:hidden gap-2">
+                <div className="flex-1">
+                  <CategoryFilter
+                    categories={categories}
+                    selectedCategory={selectedCategory}
+                    onCategoryChange={setSelectedCategory}
+                    showDropdownOnMobile={true}
+                  />
+                </div>
+                <div className="flex-1">
+                  <SortOptions
+                    options={sortOptions}
+                    selectedSort={sortOrder}
+                    onSortChange={(sort) => setSortOrder(sort as 'popular' | 'recent' | 'helpful')}
+                  />
+                </div>
+              </div>
+              
+              {/* PC: 기존 레이아웃 유지 */}
+              <div className="hidden sm:flex items-center justify-between w-full">
+                <div className="flex-1">
+                  <CategoryFilter
+                    categories={categories}
+                    selectedCategory={selectedCategory}
+                    onCategoryChange={setSelectedCategory}
+                    showDropdownOnMobile={false}
+                  />
+                </div>
+                <div className="ml-3 flex-shrink-0">
+                  <SortOptions
+                    options={sortOptions}
+                    selectedSort={sortOrder}
+                    onSortChange={(sort) => setSortOrder(sort as 'popular' | 'recent' | 'helpful')}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-
-        {/* 필터 섹션 - Market Place에서만 표시 */}
-        {currentView === 'marketplace' && (
-          <div className="flex flex-col sm:flex-row gap-3">
-            {/* 모바일: 카테고리 드롭다운 */}
-            <div className="block sm:hidden">
-              <CategoryFilter
-                categories={categories}
-                selectedCategory={selectedCategory}
-                onCategoryChange={setSelectedCategory}
-                showDropdownOnMobile={true}
-              />
-            </div>
-
-            {/* PC: 카테고리 탭 - 통일된 텍스트 크기 */}
-            <div className="hidden sm:flex flex-wrap gap-2">
-              {categories.map((category) => (
-                <button
-                  key={category.value}
-                  onClick={() => setSelectedCategory(category.value)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${
-                    selectedCategory === category.value
-                      ? 'bg-black text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <span className="text-xs">{category.emoji}</span>
-                  <span>{category.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* 폴더 그리드 */}

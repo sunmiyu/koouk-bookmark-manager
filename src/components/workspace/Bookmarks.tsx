@@ -395,8 +395,12 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
                 setBookmarks(prev => [newBookmark, ...prev])
               }
             }}
-            className="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            className="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-150 active:scale-95 select-none"
             title="Add Bookmark"
+            style={{
+              WebkitTapHighlightColor: 'transparent',
+              touchAction: 'manipulation'
+            }}
           >
             <Plus className="w-5 h-5" />
           </button>
@@ -436,8 +440,12 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
               setBookmarks(prev => [newBookmark, ...prev])
             }
           }}
-          className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
+          className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-150 flex items-center gap-2 active:scale-95 select-none"
           title="Add Bookmark"
+          style={{
+            WebkitTapHighlightColor: 'transparent',
+            touchAction: 'manipulation'
+          }}
         >
           <Plus className="w-4 h-4" />
           <span className="text-xs font-medium">Add Bookmark</span>

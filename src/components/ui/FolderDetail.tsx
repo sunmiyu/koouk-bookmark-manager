@@ -139,54 +139,54 @@ export default function FolderDetail({
   return (
     <div className="flex flex-col h-full">
       {/* 헤더 */}
-      <div className="bg-white border-b border-gray-200 p-4">
+      <div className="bg-white border-b border-gray-200 p-2 sm:p-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               onClick={onBack}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-1 hover:bg-gray-100 rounded-md transition-all duration-150 active:scale-95 select-none"
+              style={{
+                WebkitTapHighlightColor: 'transparent',
+                touchAction: 'manipulation'
+              }}
             >
-              <ArrowLeft size={18} />
+              <ArrowLeft size={16} />
             </button>
             
-            <div className="flex items-center gap-3">
-              <div 
-                className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ 
-                  backgroundColor: folder.color + '20',
-                  border: `2px solid ${folder.color}30`
-                }}
-              >
-                <span className="text-lg">{folder.icon || '📁'}</span>
-              </div>
-              
-              <div>
-                <h1 className="text-base sm:text-lg font-semibold text-gray-900">{folder.name}</h1>
-                <p className="text-sm text-gray-500">
-                  {filteredItems.length} {filteredItems.length === 1 ? 'item' : 'items'}
-                </p>
-              </div>
+            <div>
+              <h1 className="text-sm sm:text-base font-semibold text-gray-900">{folder.name}</h1>
+              <p className="text-xs text-gray-500">
+                {filteredItems.length} {filteredItems.length === 1 ? 'item' : 'items'}
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             {/* 뷰 모드 토글 */}
-            <div className="flex items-center bg-gray-100 rounded-lg p-1">
+            <div className="flex items-center bg-gray-100 rounded-md p-0.5">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded transition-colors ${
+                className={`p-1 rounded transition-all duration-150 active:scale-95 select-none ${
                   viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
                 }`}
+                style={{
+                  WebkitTapHighlightColor: 'transparent',
+                  touchAction: 'manipulation'
+                }}
               >
-                <Grid size={16} />
+                <Grid size={14} />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded transition-colors ${
+                className={`p-1 rounded transition-all duration-150 active:scale-95 select-none ${
                   viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
                 }`}
+                style={{
+                  WebkitTapHighlightColor: 'transparent',
+                  touchAction: 'manipulation'
+                }}
               >
-                <List size={16} />
+                <List size={14} />
               </button>
             </div>
 
@@ -194,10 +194,14 @@ export default function FolderDetail({
             {onShareFolder && (
               <button
                 onClick={() => setShareModalOpen(true)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-1 hover:bg-gray-100 rounded-md transition-all duration-150 active:scale-95 select-none"
                 title="Share to Market Place"
+                style={{
+                  WebkitTapHighlightColor: 'transparent',
+                  touchAction: 'manipulation'
+                }}
               >
-                <Share2 size={16} />
+                <Share2 size={14} />
               </button>
             )}
           </div>
@@ -285,7 +289,11 @@ export default function FolderDetail({
                           e.stopPropagation()
                           setSelectedItem(selectedItem === item.id ? null : item.id)
                         }}
-                        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-black/20 rounded-full bg-black/20 backdrop-blur-sm"
+                        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-150 p-2 hover:bg-black/20 rounded-full bg-black/20 backdrop-blur-sm active:scale-95 select-none"
+                        style={{
+                          WebkitTapHighlightColor: 'transparent',
+                          touchAction: 'manipulation'
+                        }}
                       >
                         <MoreVertical size={16} className="text-white" />
                       </button>
@@ -417,7 +425,11 @@ export default function FolderDetail({
                         e.stopPropagation()
                         setSelectedItem(selectedItem === item.id ? null : item.id)
                       }}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded"
+                      className="opacity-0 group-hover:opacity-100 transition-all duration-150 p-1 hover:bg-gray-100 rounded active:scale-95 select-none"
+                      style={{
+                        WebkitTapHighlightColor: 'transparent',
+                        touchAction: 'manipulation'
+                      }}
                     >
                       <MoreVertical size={14} />
                     </button>
@@ -434,7 +446,11 @@ export default function FolderDetail({
                           if ('content' in item) window.open(item.content, '_blank')
                           setSelectedItem(null)
                         }}
-                        className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 w-full text-left"
+                        className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 w-full text-left transition-all duration-150 active:scale-95 select-none"
+                        style={{
+                          WebkitTapHighlightColor: 'transparent',
+                          touchAction: 'manipulation'
+                        }}
                       >
                         <ExternalLink size={14} />
                         Open
@@ -448,7 +464,11 @@ export default function FolderDetail({
                           handleDeleteItem(item.id)
                           setSelectedItem(null)
                         }}
-                        className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 w-full text-left text-red-600"
+                        className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 w-full text-left text-red-600 transition-all duration-150 active:scale-95 select-none"
+                        style={{
+                          WebkitTapHighlightColor: 'transparent',
+                          touchAction: 'manipulation'
+                        }}
                       >
                         <Trash2 size={14} />
                         Delete

@@ -1,15 +1,13 @@
 'use client'
 
 import { useAuth } from '@/components/auth/AuthContext'
-import { lazy, Suspense, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { lazy, Suspense } from 'react'
 
 // Lazy load heavy components to reduce initial bundle size
 const App = lazy(() => import('@/components/core/App'))
 
 export default function HomePage() {
-  const { user, loading } = useAuth()
-  const router = useRouter()
+  const { loading } = useAuth()
 
   if (loading) {
     return (

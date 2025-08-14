@@ -96,12 +96,12 @@ export default function Dashboard({ onNavigateToSection }: DashboardProps) {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-6 sm:mb-12"
         >
-          <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-white text-2xl font-bold">K</span>
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-black rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <span className="text-white text-xl sm:text-2xl font-bold">K</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
             Welcome to KOOUK
           </h1>
           <p className="text-gray-600 text-sm sm:text-base">
@@ -110,30 +110,30 @@ export default function Dashboard({ onNavigateToSection }: DashboardProps) {
         </motion.div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6 mb-8 sm:mb-16">
           {statCards.map((card, index) => (
             <motion.div
               key={card.title}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className={`${card.bgColor} rounded-xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group`}
+              className={`${card.bgColor} rounded-xl p-3 sm:p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group`}
               onClick={() => onNavigateToSection?.(card.section)}
             >
-              <div className="flex items-start gap-4">
-                <div className={`w-12 h-12 ${card.bgColor} rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                  <card.icon className={`w-6 h-6 ${card.iconColor}`} />
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className={`w-8 h-8 sm:w-12 sm:h-12 ${card.bgColor} rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                  <card.icon className={`w-4 h-4 sm:w-6 sm:h-6 ${card.iconColor}`} />
                 </div>
                 <div className="flex-1">
-                  <h3 className={`font-semibold ${card.textColor} mb-1`}>
+                  <h3 className={`text-sm sm:text-base font-semibold ${card.textColor} mb-0.5 sm:mb-1`}>
                     {card.title}
                   </h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                     {card.description}
                   </p>
                 </div>
               </div>
-              <div className="mt-4 flex items-center text-xs text-gray-500">
+              <div className="mt-2 sm:mt-4 flex items-center text-xs text-gray-500">
                 <span>Click to explore →</span>
               </div>
             </motion.div>

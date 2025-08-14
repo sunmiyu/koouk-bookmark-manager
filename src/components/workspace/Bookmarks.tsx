@@ -353,7 +353,7 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
         {/* 모바일 헤더 - 통일된 스타일 */}
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-base font-semibold text-gray-900">
               {filteredBookmarks.length} {filteredBookmarks.length === 1 ? 'bookmark' : 'bookmarks'}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
@@ -460,8 +460,8 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
         showDropdownOnMobile={false}
       />
 
-      {/* Bookmarks List - Unified Compact Design for Mobile and PC */}
-      <div className="space-y-0">
+      {/* Bookmarks Grid - Mobile 촘촘한 그리드, Desktop 리스트 */}
+      <div className="grid grid-cols-2 gap-1.5 sm:space-y-0 sm:grid-cols-1">
         {filteredBookmarks.map((bookmark) => (
           <BookmarkCard
             key={bookmark.id}

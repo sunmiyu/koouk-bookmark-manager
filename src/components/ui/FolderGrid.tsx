@@ -38,7 +38,7 @@ export default function FolderGrid({
       {/* 헤더 - 통일된 스타일 */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-base font-semibold text-gray-900">
             {filteredFolders.length} {filteredFolders.length === 1 ? 'folder' : 'folders'}
           </h2>
           <p className="text-sm text-gray-500 mt-1">
@@ -89,9 +89,17 @@ export default function FolderGrid({
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 text-sm line-clamp-2 leading-tight">
-                      {folder.name || 'Untitled Folder'}
-                    </h3>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-gray-900 text-sm line-clamp-1 leading-tight flex-1 mr-2">
+                        {folder.name || 'Untitled Folder'}
+                      </h3>
+                      <span className="text-xs text-gray-400 flex-shrink-0">
+                        {new Date(folder.updatedAt || folder.createdAt).toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })}
+                      </span>
+                    </div>
                     <p className="text-xs text-gray-500 mt-1">
                       {itemCount} {itemCount === 1 ? 'item' : 'items'}
                     </p>
@@ -121,15 +129,7 @@ export default function FolderGrid({
                   )}
                 </div>
 
-                {/* 하단: 업데이트 시간 (항상 최하단) */}
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <span className="text-xs text-gray-400">
-                    {new Date(folder.updatedAt || folder.createdAt).toLocaleDateString('en-US', { 
-                      month: 'short', 
-                      day: 'numeric' 
-                    })}
-                  </span>
-                </div>
+
               </div>
             </motion.button>
           )

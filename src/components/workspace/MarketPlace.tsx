@@ -358,7 +358,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
         <div className="mb-4">
           <div className="flex items-start justify-between mb-3">
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-base font-semibold text-gray-900">
                 {currentView === 'marketplace' 
                   ? `${filteredFolders.length} ${filteredFolders.length === 1 ? 'shared folder' : 'shared folders'}`
                   : `${filteredFolders.filter(f => f.author.id === 'current-user').length} folders shared by you`
@@ -423,7 +423,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
           <p className="text-sm text-gray-500">Try different keywords</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 sm:gap-4">
           {filteredFolders.map((sharedFolder) => (
             <SharedFolderCard
               key={sharedFolder.id}

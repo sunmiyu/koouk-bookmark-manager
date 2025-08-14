@@ -460,8 +460,8 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
         showDropdownOnMobile={false}
       />
 
-      {/* Bookmarks Grid - Mobile 촘촘한 그리드, Desktop 리스트 */}
-      <div className="grid grid-cols-2 gap-1.5 sm:space-y-0 sm:grid-cols-1">
+      {/* Bookmarks List - Unified Compact Design for Mobile and PC */}
+      <div className="space-y-0">
         {filteredBookmarks.map((bookmark) => (
           <BookmarkCard
             key={bookmark.id}

@@ -266,7 +266,7 @@ export default function FolderDetail({
                       
                       {/* 텍스트 미리보기 */}
                       {!getThumbnail(item) && getTextPreview(item) && (
-                        <div className="absolute inset-0 p-4 flex flex-col justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
+                        <div className="absolute inset-0 p-4 flex flex-col justify-start bg-gradient-to-br from-blue-50 to-indigo-50">
                           <div className="text-sm text-gray-700 leading-relaxed line-clamp-4 font-medium">
                             {getTextPreview(item)}
                           </div>

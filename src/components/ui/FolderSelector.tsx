@@ -26,7 +26,7 @@ export default function FolderSelector({
         <button
           key={folder.id}
           onClick={() => onFolderSelect(folder.id)}
-          className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-all ${
+          className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs font-medium transition-all ${
             selectedFolderId === folder.id 
               ? 'bg-blue-500 text-white shadow-md' 
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -45,7 +45,7 @@ export default function FolderSelector({
         {/* +New 폴더 생성 버튼 */}
         <button
           onClick={onCreateFolder}
-          className="flex items-center gap-0.5 px-2 py-1 rounded-full text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors"
+          className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors"
         >
           <Plus size={10} />
           +New
@@ -55,7 +55,7 @@ export default function FolderSelector({
         {onOpenBigNote && (
           <button
             onClick={onOpenBigNote}
-            className="flex items-center gap-0.5 px-2 py-1 rounded-full text-xs font-medium text-pink-600 bg-pink-50 hover:bg-pink-100 transition-colors"
+            className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs font-medium text-pink-600 bg-pink-50 hover:bg-pink-100 transition-colors"
           >
             📄
             +Memo

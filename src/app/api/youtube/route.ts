@@ -12,7 +12,7 @@ async function scrapeYouTubeTitle(url: string) {
   try {
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
       }
     })
     
@@ -20,13 +20,42 @@ async function scrapeYouTubeTitle(url: string) {
     
     const html = await response.text()
     
-    // YouTube 페이지에서 제목 추출 (여러 방법 시도)
+    // 1. ytInitialPlayerResponse에서 제목 추출 (가장 정확함)
+    const playerResponseMatch = html.match(/ytInitialPlayerResponse\s*=\s*({.+?});/)
+    if (playerResponseMatch) {
+      try {
+        const playerResponse = JSON.parse(playerResponseMatch[1])
+        const title = playerResponse?.videoDetails?.title
+        if (title) {
+          return title
+        }
+      } catch {
+        console.log('Failed to parse ytInitialPlayerResponse')
+      }
+    }
+    
+    // 2. ytInitialData에서 제목 추출
+    const initialDataMatch = html.match(/ytInitialData\s*=\s*({.+?});/)
+    if (initialDataMatch) {
+      try {
+        const initialData = JSON.parse(initialDataMatch[1])
+        const contents = initialData?.contents?.twoColumnWatchNextResults?.results?.results?.contents
+        if (contents && contents[0]) {
+          const title = contents[0]?.videoPrimaryInfoRenderer?.title?.runs?.[0]?.text
+          if (title) {
+            return title
+          }
+        }
+      } catch {
+        console.log('Failed to parse ytInitialData')
+      }
+    }
+    
+    // 3. title 태그에서 추출
     const titleMatch = html.match(/<title>([^<]+)<\/title>/)
     if (titleMatch) {
       let title = titleMatch[1]
-      // " - YouTube" 부분 제거
       title = title.replace(/ - YouTube$/, '')
-      // HTML 엔티티 디코딩
       title = title
         .replace(/&amp;/g, '&')
         .replace(/&lt;/g, '<')
@@ -40,7 +69,7 @@ async function scrapeYouTubeTitle(url: string) {
       }
     }
     
-    // og:title 메타 태그에서 추출
+    // 4. og:title 메타 태그에서 추출
     const ogTitleMatch = html.match(/<meta property="og:title" content="([^"]+)"/)
     if (ogTitleMatch) {
       return ogTitleMatch[1]

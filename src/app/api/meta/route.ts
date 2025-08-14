@@ -17,6 +17,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid URL' }, { status: 400 })
     }
 
+    // YouTube URL인 경우 YouTube API로 리다이렉트
+    if (validUrl.hostname.includes('youtube.com') || validUrl.hostname.includes('youtu.be')) {
+      try {
+        const youtubeResponse = await fetch(`${request.nextUrl.origin}/api/youtube?url=${encodeURIComponent(url)}`)
+        if (youtubeResponse.ok) {
+          const youtubeData = await youtubeResponse.json()
+          return NextResponse.json({
+            title: youtubeData.title || 'YouTube Video',
+            description: youtubeData.description || '',
+            image: youtubeData.thumbnail || '',
+            url: validUrl.toString(),
+            domain: validUrl.hostname
+          })
+        }
+      } catch (error) {
+        console.error('YouTube API call failed:', error)
+        // YouTube API 실패시 일반 메타데이터 추출로 계속 진행
+      }
+    }
+
     // 웹페이지 HTML 가져오기
     const response = await fetch(validUrl.toString(), {
       headers: {

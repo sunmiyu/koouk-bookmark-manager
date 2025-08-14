@@ -47,12 +47,6 @@ export default function SharedFolderCard({
           <Heart className="w-3.5 h-3.5 text-gray-600 fill-current" />
         </button>
 
-        {/* 카테고리 태그 */}
-        <div className="absolute bottom-3 left-3">
-          <span className="px-2 py-1 bg-black/80 text-white text-xs rounded-full">
-            {currentCategory?.label}
-          </span>
-        </div>
       </div>
 
       {/* 컨텐츠 - 컴팩트한 레이아웃 */}
@@ -68,11 +62,25 @@ export default function SharedFolderCard({
               </div>
             )}
           </div>
-          {/* Add 버튼 - 작성자 옆에 작게 */}
+          {/* PC: Add 버튼 + 카테고리 */}
+          <div className="hidden sm:flex items-center gap-2">
+            <span className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
+              {currentCategory?.label}
+            </span>
+            {!isOwnFolder && (
+              <button
+                onClick={() => onImportFolder?.(sharedFolder)}
+                className="px-1.5 py-0.5 bg-black text-white text-xs rounded hover:bg-gray-800 transition-colors"
+              >
+                Add
+              </button>
+            )}
+          </div>
+          {/* 모바일: Add 버튼만 */}
           {!isOwnFolder && (
             <button
               onClick={() => onImportFolder?.(sharedFolder)}
-              className="px-2 py-1 bg-black text-white text-xs rounded hover:bg-gray-800 transition-colors"
+              className="sm:hidden px-1.5 py-0.5 bg-black text-white text-xs rounded hover:bg-gray-800 transition-colors"
             >
               Add
             </button>
@@ -102,9 +110,16 @@ export default function SharedFolderCard({
               📥 {sharedFolder.stats.downloads}
             </span>
           </div>
-          <span className="hidden sm:inline">
-            {new Date(sharedFolder.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-          </span>
+          <div className="flex items-center gap-2">
+            {/* 모바일: 카테고리 표시 */}
+            <span className="sm:hidden px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
+              {currentCategory?.label}
+            </span>
+            {/* PC: 날짜만 표시 (카테고리는 상단 Add 버튼 옆에) */}
+            <span className="hidden sm:inline">
+              {new Date(sharedFolder.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            </span>
+          </div>
         </div>
 
         {/* 액션 버튼 - Own folder일 때만 Edit 버튼 */}

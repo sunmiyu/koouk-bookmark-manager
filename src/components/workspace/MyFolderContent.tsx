@@ -300,7 +300,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
 
       {/* 입력 시스템 - 페이지 최하단 고정 */}
       <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white shadow-lg z-40">
-        <div className="px-3 pt-2 pb-3 max-w-screen-xl mx-auto">
+        <div className="px-3 pt-1.5 pb-2.5 max-w-screen-xl mx-auto">
           {/* 폴더 선택 키워드 - 입력바에 바짝 붙임 */}
           {folders.length > 0 && (
             <FolderSelector
@@ -309,7 +309,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
               onFolderSelect={handleFolderSelect}
               onCreateFolder={handleCreateFolder}
               onOpenBigNote={() => setShowBigNoteModal(true)}
-              className="mb-1.5"
+              className="mb-1"
             />
           )}
           

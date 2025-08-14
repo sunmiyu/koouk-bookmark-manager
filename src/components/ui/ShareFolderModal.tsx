@@ -131,7 +131,7 @@ export default function ShareFolderModal({
         className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">
             Share Folder to Market Place
           </h2>
@@ -144,15 +144,15 @@ export default function ShareFolderModal({
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+        <div className="p-4 overflow-y-auto max-h-[calc(90vh-120px)]">
           {/* Cover Image Upload */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Cover Image (Optional)
             </label>
             <div className="relative">
               {coverImage ? (
-                <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100">
+                <div className="relative aspect-[3/1] rounded-lg overflow-hidden bg-gray-100">
                   <Image
                     src={coverImage}
                     alt="Cover preview"
@@ -170,7 +170,7 @@ export default function ShareFolderModal({
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploading}
-                  className="w-full aspect-video border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-gray-400 transition-colors disabled:opacity-50"
+                  className="w-full aspect-[3/1] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-gray-400 transition-colors disabled:opacity-50"
                 >
                   <Upload className="w-8 h-8 text-gray-400 mb-2" />
                   <span className="text-sm text-gray-600">
@@ -189,7 +189,7 @@ export default function ShareFolderModal({
           </div>
 
           {/* Folder Title */}
-          <div className="mb-6">
+          <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Folder Title *
             </label>
@@ -203,27 +203,27 @@ export default function ShareFolderModal({
           </div>
 
           {/* Folder Content Analysis */}
-          <div className="mb-6">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">Folder Contents</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="bg-gray-50 rounded-lg p-3 text-center">
-                <LinkIcon className="w-5 h-5 text-blue-600 mx-auto mb-1" />
-                <div className="text-lg font-semibold text-gray-900">{stats.urls}</div>
+          <div className="mb-4">
+            <h3 className="text-sm font-medium text-gray-700 mb-2">Folder Contents</h3>
+            <div className="grid grid-cols-4 gap-2">
+              <div className="bg-gray-50 rounded-lg p-2 text-center">
+                <LinkIcon className="w-4 h-4 text-blue-600 mx-auto mb-1" />
+                <div className="text-sm font-semibold text-gray-900">{stats.urls}</div>
                 <div className="text-xs text-gray-600">URLs</div>
               </div>
-              <div className="bg-gray-50 rounded-lg p-3 text-center">
-                <Video className="w-5 h-5 text-red-600 mx-auto mb-1" />
-                <div className="text-lg font-semibold text-gray-900">{stats.videos}</div>
+              <div className="bg-gray-50 rounded-lg p-2 text-center">
+                <Video className="w-4 h-4 text-red-600 mx-auto mb-1" />
+                <div className="text-sm font-semibold text-gray-900">{stats.videos}</div>
                 <div className="text-xs text-gray-600">Videos</div>
               </div>
-              <div className="bg-gray-50 rounded-lg p-3 text-center">
-                <FileText className="w-5 h-5 text-green-600 mx-auto mb-1" />
-                <div className="text-lg font-semibold text-gray-900">{stats.documents}</div>
+              <div className="bg-gray-50 rounded-lg p-2 text-center">
+                <FileText className="w-4 h-4 text-green-600 mx-auto mb-1" />
+                <div className="text-sm font-semibold text-gray-900">{stats.documents}</div>
                 <div className="text-xs text-gray-600">Documents</div>
               </div>
-              <div className="bg-gray-50 rounded-lg p-3 text-center">
-                <ImageIcon className="w-5 h-5 text-purple-600 mx-auto mb-1" />
-                <div className="text-lg font-semibold text-gray-900">{stats.images}</div>
+              <div className="bg-gray-50 rounded-lg p-2 text-center">
+                <ImageIcon className="w-4 h-4 text-purple-600 mx-auto mb-1" />
+                <div className="text-sm font-semibold text-gray-900">{stats.images}</div>
                 <div className="text-xs text-gray-600">Images</div>
               </div>
             </div>
@@ -290,7 +290,7 @@ export default function ShareFolderModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
+        <div className="flex items-center justify-end gap-3 p-4 border-t border-gray-200">
           <button
             onClick={onClose}
             className="px-6 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"

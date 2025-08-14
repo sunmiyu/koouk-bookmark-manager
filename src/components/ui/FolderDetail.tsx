@@ -355,6 +355,73 @@ export default function FolderDetail({
                       </div>
                     </div>
                   </div>
+                ) : (
+                  // 리스트 뷰
+                  <>
+                    {/* 썸네일 또는 아이콘 */}
+                    <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 relative">
+                      {getThumbnail(item) ? (
+                        <Image 
+                          src={getThumbnail(item)!} 
+                          alt={getDisplayTitle(item)}
+                          fill
+                          className={`w-full h-full ${
+                            item.type === 'url' ? 'object-contain p-1' : 'object-cover'
+                          }`}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement
+                            target.style.display = 'none'
+                            const fallback = target.nextElementSibling as HTMLElement
+                            if (fallback) fallback.style.display = 'flex'
+                          }}
+                        />
+                      ) : null}
+                      
+                      {/* 아이콘 폴백 */}
+                      <div 
+                        className="w-full h-full absolute inset-0 flex items-center justify-center" 
+                        style={{ display: getThumbnail(item) ? 'none' : 'flex' }}
+                      >
+                        <span className="text-lg">{getItemIcon(item)}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-gray-900 text-sm truncate">
+                        {getDisplayTitle(item)}
+                      </h3>
+                      {getTextPreview(item) ? (
+                        <p className="text-xs text-gray-500 truncate">
+                          {getTextPreview(item)}
+                        </p>
+                      ) : item.type === 'url' && (
+                        <p className="text-xs text-gray-500 truncate">
+                          {item.content}
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center gap-2 text-xs text-gray-400">
+                      <span className="capitalize">{item.type}</span>
+                      <span>•</span>
+                      <span>
+                        {new Date(item.createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                    
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setSelectedItem(selectedItem === item.id ? null : item.id)
+                      }}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded"
+                    >
+                      <MoreVertical size={14} />
+                    </button>
+                  </>
                 )}
 
                 {/* 아이템 메뉴 */}

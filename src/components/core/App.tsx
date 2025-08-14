@@ -83,7 +83,7 @@ export default function App() {
       // Handle tab parameter from URL
       const tabParam = params.get('tab')
       if (tabParam && (tabParam === 'marketplace' || tabParam === 'bookmarks' || tabParam === 'my-folder' || tabParam === 'dashboard')) {
-        setActiveTab(tabParam as any)
+        setActiveTab(tabParam as 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks')
         localStorage.setItem('koouk-last-tab', tabParam)
         // Clean up URL
         window.history.replaceState({}, document.title, window.location.pathname)
@@ -91,7 +91,7 @@ export default function App() {
         // Load from localStorage if no URL parameter
         const savedTab = localStorage.getItem('koouk-last-tab')
         if (savedTab && (savedTab === 'marketplace' || savedTab === 'bookmarks' || savedTab === 'my-folder' || savedTab === 'dashboard')) {
-          setActiveTab(savedTab as any)
+          setActiveTab(savedTab as 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks')
         }
       }
       

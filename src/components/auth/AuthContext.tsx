@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 사용자 데이터 로드 함수 - setTimeout 제거하고 즉시 실행
   const loadUserData = async (authUser: User) => {
     try {
-      console.log('🔄 Loading user data for:', authUser.email)
+      console.log('🔄 Loading user data for:', authUser.email) 
       
       // 1. 사용자 프로필 확인/생성 (에러에 강함)
       let profile: UserProfile | null = null

@@ -83,15 +83,32 @@ export default function App() {
       // Handle tab parameter from URL
       const tabParam = params.get('tab')
       if (tabParam && (tabParam === 'marketplace' || tabParam === 'bookmarks' || tabParam === 'my-folder' || tabParam === 'dashboard')) {
-        setActiveTab(tabParam as 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks')
-        localStorage.setItem('koouk-last-tab', tabParam)
+        // 보호된 탭인지 확인
+        const isProtectedTab = tabParam === 'my-folder' || tabParam === 'marketplace' || tabParam === 'bookmarks'
+        
+        if (isProtectedTab && !user) {
+          // 사용자가 없으면 dashboard로
+          setActiveTab('dashboard')
+        } else {
+          setActiveTab(tabParam as 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks')
+          localStorage.setItem('koouk-last-tab', tabParam)
+        }
+        
         // Clean up URL
         window.history.replaceState({}, document.title, window.location.pathname)
       } else {
         // Load from localStorage if no URL parameter
         const savedTab = localStorage.getItem('koouk-last-tab')
         if (savedTab && (savedTab === 'marketplace' || savedTab === 'bookmarks' || savedTab === 'my-folder' || savedTab === 'dashboard')) {
-          setActiveTab(savedTab as 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks')
+          // 보호된 탭인지 확인
+          const isProtectedTab = savedTab === 'my-folder' || savedTab === 'marketplace' || savedTab === 'bookmarks'
+          
+          if (isProtectedTab && !user) {
+            // 사용자가 없으면 dashboard로
+            setActiveTab('dashboard')
+          } else {
+            setActiveTab(savedTab as 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks')
+          }
         }
       }
       
@@ -114,12 +131,16 @@ export default function App() {
           // Clean up URL
           window.history.replaceState({}, document.title, window.location.pathname)
           
-          // Navigate to my-folder tab to handle the shared content
-          setActiveTab('my-folder')
+          // Navigate to my-folder tab only if user is authenticated
+          if (user) {
+            setActiveTab('my-folder')
+          } else {
+            setActiveTab('dashboard')
+          }
         }
       }
     }
-  }, [])
+  }, [user])
 
   // SharedFolder import functionality
   const handleImportSharedFolder = (sharedFolder: SharedFolder) => {
@@ -159,18 +180,9 @@ export default function App() {
   }
   const { user, signIn, signOut } = useAuth()
   
-  // 디버그용 로그 - 더 상세하게
-  console.log('🔍 App.tsx - Current user:', user?.email, 'User ID:', user?.id, 'User object:', user)
-  console.log('🔍 App.tsx - Current activeTab:', activeTab)
 
-  // Redirect to dashboard if user is not authenticated and trying to access protected tabs
-  useEffect(() => {
-    console.log('🔍 useEffect - user:', user?.email, 'activeTab:', activeTab)
-    if (!user && (activeTab === 'my-folder' || activeTab === 'marketplace' || activeTab === 'bookmarks')) {
-      console.log('❌ Redirecting to dashboard - user not found')
-      setActiveTab('dashboard')
-    }
-  }, [user, activeTab])
+
+
 
   const handleSignIn = async () => {
     setShowUserMenu(false)
@@ -182,17 +194,13 @@ export default function App() {
   }
 
   const handleTabChange = (tab: 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks') => {
-    console.log('🚀 Tab change requested:', tab, 'Current user:', user?.email)
-    
     // Check if user is trying to access protected tabs without authentication
     if (!user && (tab === 'my-folder' || tab === 'marketplace' || tab === 'bookmarks')) {
-      console.log('❌ User not authenticated, showing login menu')
       // Show user menu to prompt login
       setShowUserMenu(true)
       return
     }
     
-    console.log('✅ Tab change allowed, switching to:', tab)
     setActiveTab(tab)
     // Save to localStorage for persistence across refreshes
     if (typeof window !== 'undefined') {

@@ -58,14 +58,14 @@ export class DatabaseService {
   }
 
   static async getUserProfile(userId: string) {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', userId)
-      .single()
-    
-    if (error) throw error
-    return data
+    return this.executeQuery(
+      () => supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single(),
+      'getUserProfile'
+    )
   }
 
   static async updateUserProfile(userId: string, updates: Tables['users']['Update']) {
@@ -82,17 +82,19 @@ export class DatabaseService {
 
   // === 사용자 설정 ===
   static async getUserSettings(userId: string) {
-    const { data, error } = await supabase
-      .from('user_settings')
-      .select('*')
-      .eq('user_id', userId)
-      .single()
-    
-    if (error) {
+    try {
+      return await this.executeQuery(
+        () => supabase
+          .from('user_settings')
+          .select('*')
+          .eq('user_id', userId)
+          .single(),
+        'getUserSettings'
+      )
+    } catch (error) {
       // 설정이 없으면 기본값으로 생성
       return this.createUserSettings(userId)
     }
-    return data
   }
 
   static async createUserSettings(userId: string, settings?: Partial<Tables['user_settings']['Insert']>) {

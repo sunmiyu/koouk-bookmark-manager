@@ -35,29 +35,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log('🔄 Loading user data for:', authUser.email)
       
-      // 1. 사용자 프로필 확인/생성
-      let profile: UserProfile
+      // 1. 사용자 프로필 확인/생성 (에러에 강함)
+      let profile: UserProfile | null = null
       try {
         profile = await DatabaseService.getUserProfile(authUser.id)
-      } catch {
-        const { data, error } = await supabase
-          .from('users')
-          .upsert({
-            id: authUser.id,
-            email: authUser.email!,
-            name: authUser.user_metadata?.name || authUser.email?.split('@')[0],
-            avatar_url: authUser.user_metadata?.avatar_url,
-            is_verified: !!authUser.email_confirmed_at
-          })
-          .select()
-          .single()
-        
-        if (error) throw error
-        profile = data
+        setUserProfile(profile)
+        console.log('✅ Profile loaded successfully')
+      } catch (profileError) {
+        console.warn('⚠️ Profile load failed, trying to create:', profileError)
+        try {
+          const { data, error } = await supabase
+            .from('users')
+            .upsert({
+              id: authUser.id,
+              email: authUser.email!,
+              name: authUser.user_metadata?.name || authUser.email?.split('@')[0],
+              avatar_url: authUser.user_metadata?.avatar_url,
+              is_verified: !!authUser.email_confirmed_at
+            })
+            .select()
+            .single()
+          
+          if (!error && data) {
+            profile = data
+            setUserProfile(profile)
+            console.log('✅ Profile created successfully')
+          } else {
+            console.error('❌ Profile creation failed:', error)
+            // 프로필이 없어도 인증은 유지
+          }
+        } catch (createError) {
+          console.error('❌ Profile creation error:', createError)
+          // 프로필이 없어도 인증은 유지
+        }
       }
-      setUserProfile(profile)
 
-      // GA4 사용자 정보 설정
+      // GA4 사용자 정보 설정 (프로필이 없어도 설정)
       setUserId(authUser.id)
       setUserProperties({
         user_type: profile ? 'registered' : 'new_user',
@@ -65,17 +78,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         created_at: profile?.created_at ? new Date(profile.created_at).toISOString() : new Date().toISOString()
       })
 
-      // 2. 사용자 설정 확인/생성
-      let settings: UserSettings
+      // 2. 사용자 설정 확인/생성 (에러에 강함)
       try {
-        settings = await DatabaseService.getUserSettings(authUser.id)
-      } catch {
-        settings = await DatabaseService.createUserSettings(authUser.id)
+        const settings = await DatabaseService.getUserSettings(authUser.id)
+        setUserSettings(settings)
+        console.log('✅ Settings loaded successfully')
+      } catch (settingsError) {
+        console.warn('⚠️ Settings load failed:', settingsError)
+        // 설정이 없어도 인증은 유지
       }
-      setUserSettings(settings)
 
       // 3. 데이터 마이그레이션 체크 및 실행 (백그라운드에서 즉시 실행)
-      // setTimeout 제거하고 Promise로 백그라운드 실행
       DataMigration.checkMigrationStatus()
         .then(async (migrationStatus) => {
           if (!migrationStatus.migrated) {
@@ -93,9 +106,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.error('Background migration error:', error)
         })
 
-      console.log('✅ User data loaded successfully')
+      console.log('✅ User data loading completed')
     } catch (error) {
-      console.error('Failed to load user data:', error)
+      console.error('❌ Critical error in loadUserData:', error)
+      // 치명적 에러가 있어도 사용자 인증 상태는 유지
     }
   }
 

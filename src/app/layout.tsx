@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
-// AuthProvider removed - using Netflix-style optimistic auth
+import { AuthProvider } from '@/components/auth/AuthContext'
 import ServiceWorkerRegistration from '@/components/pwa/ServiceWorkerRegistration'
 import GoogleAnalytics, { ConsentBanner, PerformanceMonitor } from '@/components/analytics/GoogleAnalytics'
 
@@ -45,7 +45,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
         <ServiceWorkerRegistration />
         <GoogleAnalytics />
         <PerformanceMonitor />

@@ -151,23 +151,47 @@ export class DatabaseService {
   static async createFolder(userId: string, folderData: Omit<Tables['folders']['Insert'], 'user_id'>) {
     console.log('🗂️ Creating folder for user:', userId, 'with data:', folderData)
     
-    const adminClient = getSupabaseAdmin()
-    const { data, error } = await adminClient
-      .from('folders')
-      .insert({
-        user_id: userId,
-        ...folderData
-      })
-      .select()
-      .single()
-    
-    if (error) {
-      console.error('❌ Folder creation error:', error)
+    try {
+      // 사용자 인증 상태 확인
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      console.log('🔐 Current auth user:', user?.id)
+      
+      if (authError) {
+        console.error('❌ Auth error:', authError)
+        throw new Error('Authentication failed')
+      }
+      
+      if (!user || user.id !== userId) {
+        console.error('❌ User mismatch - requested:', userId, 'actual:', user?.id)
+        throw new Error('User authentication mismatch')
+      }
+
+      // 일반 supabase client 사용 (RLS 정책 적용)
+      const { data, error } = await supabase
+        .from('folders')
+        .insert({
+          user_id: userId,
+          ...folderData
+        })
+        .select()
+        .single()
+      
+      if (error) {
+        console.error('❌ Folder creation error details:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        })
+        throw error
+      }
+      
+      console.log('✅ Folder created successfully:', data)
+      return data
+    } catch (error) {
+      console.error('❌ Create folder catch block:', error)
       throw error
     }
-    
-    console.log('✅ Folder created successfully:', data)
-    return data
   }
 
   static async updateFolder(folderId: string, updates: Tables['folders']['Update']) {
@@ -207,8 +231,8 @@ export class DatabaseService {
   static async createStorageItem(userId: string, itemData: Omit<Tables['storage_items']['Insert'], 'user_id'>) {
     console.log('📝 Creating storage item for user:', userId, 'with data:', itemData)
     
-    const adminClient = getSupabaseAdmin()
-    const { data, error } = await adminClient
+    // 일반 supabase client 사용 (RLS 정책 적용)
+    const { data, error } = await supabase
       .from('storage_items')
       .insert({
         user_id: userId,

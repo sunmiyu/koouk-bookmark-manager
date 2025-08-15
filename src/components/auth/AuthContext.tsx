@@ -193,8 +193,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           queryParams: {
             access_type: 'offline',
             prompt: 'select_account',
-            include_granted_scopes: 'true',
-            approval_prompt: 'force'
+            include_granted_scopes: 'true'
           }
         }
       })

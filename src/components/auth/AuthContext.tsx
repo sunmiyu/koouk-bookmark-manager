@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadUserProfile = useCallback(async (userId: string) => {
     try {
       // Load or create user profile
-      let profile = await DatabaseService.getUserProfile(userId)
+      let profile: UserProfile | null = (await DatabaseService.getUserProfile(userId)) as UserProfile | null
       
       if (!profile) {
         const { data: { user: authUser } } = await supabase.auth.getUser()
@@ -58,12 +58,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .single()
           
           if (!error && data) {
-            profile = data
+            profile = data as UserProfile
           }
         }
       }
       
-      setUserProfile(profile || null)
+      setUserProfile(profile)
       
       // Load user settings
       try {

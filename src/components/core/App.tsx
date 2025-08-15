@@ -405,7 +405,7 @@ export default function App() {
       >
         {activeTab === 'dashboard' ? (
           user ? (
-            <DashboardPage onNavigate={handleTabChange} />
+            <DashboardPage onNavigate={(tab: string) => handleTabChange(tab as 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks')} />
           ) : (
             <OnboardingPage />
           )

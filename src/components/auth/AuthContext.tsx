@@ -30,15 +30,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // 사용자 데이터 로드 함수
+  // 사용자 데이터 로드 함수 - setTimeout 제거하고 즉시 실행
   const loadUserData = async (authUser: User) => {
     try {
+      console.log('🔄 Loading user data for:', authUser.email)
+      
       // 1. 사용자 프로필 확인/생성
       let profile: UserProfile
       try {
         profile = await DatabaseService.getUserProfile(authUser.id)
       } catch {
-        // 프로필이 없으면 생성
         const { data, error } = await supabase
           .from('users')
           .upsert({
@@ -73,10 +74,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       setUserSettings(settings)
 
-      // 3. 데이터 마이그레이션 체크 및 실행 (필요한 경우만)
-      setTimeout(async () => {
-        try {
-          const migrationStatus = await DataMigration.checkMigrationStatus()
+      // 3. 데이터 마이그레이션 체크 및 실행 (백그라운드에서 즉시 실행)
+      // setTimeout 제거하고 Promise로 백그라운드 실행
+      DataMigration.checkMigrationStatus()
+        .then(async (migrationStatus) => {
           if (!migrationStatus.migrated) {
             console.log('🔄 Starting background data migration...')
             const migrationResult = await DataMigration.migrateAllData()
@@ -87,45 +88,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               console.error('❌ Background migration failed:', migrationResult.error)
             }
           }
-        } catch (error) {
+        })
+        .catch(error => {
           console.error('Background migration error:', error)
-        }
-      }, 2000) // 2초 후에 실행
+        })
 
+      console.log('✅ User data loaded successfully')
     } catch (error) {
       console.error('Failed to load user data:', error)
     }
   }
 
   useEffect(() => {
-    // Initialize auth state
+    // Initialize auth state - 단순화된 초기화
     const initAuth = async () => {
       try {
         console.log('🔐 Initializing auth...')
         const startTime = performance.now()
         
-        // 세션 체크 (타임아웃 제거)
+        // 세션 체크
         const { data: { session } } = await supabase.auth.getSession()
         const authUser = session?.user ?? null
-        setUser(authUser)
         
         console.log(`⚡ Auth check completed in ${Math.round(performance.now() - startTime)}ms`)
         
         if (authUser) {
-          console.log('👤 User found, setting up minimal state...')
-          
-          // 즉시 기본 사용자 정보만 설정 (UI 표시용)
+          console.log('👤 User found, loading data...')
           setUser(authUser)
-          setLoading(false)
           
-          // 나머지는 백그라운드에서 천천히 로드
-          setTimeout(() => {
-            loadUserData(authUser).catch(console.error)
-          }, 100)
+          // 즉시 사용자 데이터 로드 (setTimeout 제거)
+          await loadUserData(authUser)
         } else {
-          console.log('🚫 No user, skipping data load')
-          setLoading(false)
+          console.log('🚫 No user found')
         }
+        
+        setLoading(false)
       } catch (error) {
         console.error('Auth initialization error:', error)
         setLoading(false)
@@ -137,12 +134,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('🔄 Auth state changed:', event)
         const authUser = session?.user ?? null
         setUser(authUser)
         
-        if (authUser) {
+        if (authUser && event === 'SIGNED_IN') {
           await loadUserData(authUser)
-        } else {
+        } else if (!authUser) {
           // 로그아웃 시 상태 클리어
           setUserProfile(null)
           setUserSettings(null)
@@ -166,7 +164,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           redirectTo: `${window.location.origin}/auth/callback`,
           queryParams: {
             access_type: 'offline',
-            prompt: 'consent',
+            prompt: 'select_account',
           }
         }
       })
@@ -177,18 +175,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       console.log('🔐 OAuth redirect initiated successfully')
-      
-      // GA4 로그인 시작 추적
       analytics.login('google')
-      
-      // OAuth 리디렉션이 시작되면 로딩 상태를 유지하지 않음
-      // (페이지가 이동하기 때문)
       
     } catch (error) {
       console.error('Sign in error:', error)
-      setLoading(false) // 에러가 있을 때만 로딩 해제
+      setLoading(false)
       
-      // 사용자에게 에러 알림
       if (error instanceof Error) {
         alert(`Login failed: ${error.message}. Please try again.`)
       } else {
@@ -201,24 +193,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true)
       
-      // Attempt to sign out from Supabase
       const { error } = await supabase.auth.signOut()
       if (error) {
         console.error('Supabase sign out error:', error)
       }
       
-      // Always clear user state regardless of Supabase response
+      // 상태 클리어
       setUser(null)
       setUserProfile(null)
       setUserSettings(null)
       
-      // GA4 로그아웃 추적
       analytics.logout()
       
       // Clear auth-related localStorage items
       if (typeof window !== 'undefined') {
         localStorage.removeItem('koouk-auth-token')
-        // Clear all possible auth keys
         Object.keys(localStorage).forEach(key => {
           if (key.includes('supabase') || key.includes('auth-token')) {
             localStorage.removeItem(key)
@@ -228,7 +217,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
     } catch (error) {
       console.error('Sign out error:', error)
-      // Even if error occurs, clear user state
       setUser(null)
       setUserProfile(null)
       setUserSettings(null)

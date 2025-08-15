@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, User, Shield, Bell, HelpCircle, FileText, LogOut } from 'lucide-react'
-import { useOptimisticAuth } from '@/hooks/useOptimisticAuth'
+import { useAuth } from '@/components/auth/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 
 export default function Settings() {
-  const { user } = useOptimisticAuth()
+  const { user } = useAuth()
   const router = useRouter()
   const [previousPage, setPreviousPage] = useState<string>('/')
 

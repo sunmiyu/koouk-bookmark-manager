@@ -13,20 +13,14 @@ export default function AuthCallback() {
       try {
         console.log('🎬 Auth callback started')
         
-        // URL에서 해시와 쿼리 파라미터 모두 확인
-        const hashParams = new URLSearchParams(window.location.hash.substring(1))
+        // URL에서 코드와 에러 확인
         const searchParams = new URLSearchParams(window.location.search)
-        
-        // 에러 체크 (hash와 search 모두)
-        const authError = hashParams.get('error') || searchParams.get('error')
+        const authError = searchParams.get('error')
         const authCode = searchParams.get('code')
-        const accessToken = hashParams.get('access_token')
         
         console.log('🎬 Auth params:', { 
           hasCode: !!authCode, 
-          hasToken: !!accessToken, 
           error: authError,
-          hash: window.location.hash,
           search: window.location.search
         })
 
@@ -37,7 +31,7 @@ export default function AuthCallback() {
           return
         }
 
-        // PKCE 플로우 (authorization code)
+        // PKCE 플로우 처리 (권장 방식)
         if (authCode) {
           console.log('🎬 Processing authorization code...')
           
@@ -52,27 +46,6 @@ export default function AuthCallback() {
           
           if (data.session) {
             console.log('🎬 ✅ 세션 생성 성공:', data.session.user.email)
-            router.push('/')
-            return
-          }
-        }
-
-        // Implicit 플로우 (access token in hash)
-        if (accessToken) {
-          console.log('🎬 Processing access token from hash...')
-          
-          // Supabase가 자동으로 URL 해시를 처리하도록 함
-          const { data, error } = await supabase.auth.getSession()
-          
-          if (error) {
-            console.error('🎬 Session retrieval error:', error)
-            setError(`세션 오류: ${error.message}`)
-            setTimeout(() => router.push('/'), 3000)
-            return
-          }
-          
-          if (data.session) {
-            console.log('🎬 ✅ 세션 확인 성공:', data.session.user.email)
             router.push('/')
             return
           }
@@ -94,7 +67,7 @@ export default function AuthCallback() {
           return
         }
 
-        // 모든 경우에 해당하지 않으면 홈으로
+        // 인증 정보가 없으면 홈으로
         console.log('🎬 No valid auth state found, redirecting home')
         setError('인증 정보를 찾을 수 없습니다')
         setTimeout(() => router.push('/'), 2000)
@@ -106,7 +79,6 @@ export default function AuthCallback() {
       }
     }
 
-    // DOM이 완전히 로드된 후 실행
     if (typeof window !== 'undefined') {
       handleAuthCallback()
     }
@@ -139,7 +111,7 @@ export default function AuthCallback() {
         ) : (
           <>
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-400">🎬 Netflix-style 인증을 완료하는 중...</p>
+            <p className="text-gray-400">🔐 로그인을 완료하는 중...</p>
           </>
         )}
       </div>

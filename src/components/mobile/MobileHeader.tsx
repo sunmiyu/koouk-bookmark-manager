@@ -3,7 +3,7 @@
 
 import Image from 'next/image'
 import { MessageCircle } from 'lucide-react'
-import { useOptimisticAuth } from '@/hooks/useOptimisticAuth'
+import { useAuth } from '../auth/AuthContext'
 import SearchInterface from '@/components/ui/SearchInterface'
 
 interface MobileHeaderProps {
@@ -23,7 +23,7 @@ export default function MobileHeader({
   onShowUserMenu,
   onLogoClick
 }: MobileHeaderProps) {
-  const { user } = useOptimisticAuth()
+  const { user } = useAuth()
 
   const handleLogoClick = () => {
     if (onLogoClick) {

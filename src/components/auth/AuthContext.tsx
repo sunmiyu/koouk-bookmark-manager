@@ -210,10 +210,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          // 🔧 수정: 올바른 콜백 URL 사용
-          redirectTo: typeof window !== 'undefined' 
-            ? `${window.location.origin}/auth/callback`
-            : 'https://www.koouk.im/auth/callback',
           queryParams: {
             access_type: 'offline',
             prompt: 'select_account',

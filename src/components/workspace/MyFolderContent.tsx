@@ -135,7 +135,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
     }
 
     loadData()
-  }, [user?.id, loading, userSettings]) // 🔧 user.id와 loading 추가
+  }, [user?.id, userSettings]) // 🔧 loading 제거하여 무한루프 방지
 
   // 폴더 선택 상태 저장
   const saveSelectedFolder = async (folderId: string) => {

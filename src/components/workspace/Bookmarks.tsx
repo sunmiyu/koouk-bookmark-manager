@@ -92,7 +92,7 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
     }
 
     loadBookmarks()
-  }, [user, loading]) // 🔧 user와 loading 둘 다 의존성에 포함
+  }, [user]) // 🔧 user만 의존성으로 설정하여 무한루프 방지
 
   // 검색 및 필터링
   useEffect(() => {

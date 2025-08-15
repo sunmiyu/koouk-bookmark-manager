@@ -309,7 +309,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
     }
 
     loadData()
-  }, [user?.id, loading]) // 🔧 user.id와 loading 둘 다 의존성에 포함
+  }, [user?.id]) // 🔧 loading 제거하여 무한루프 방지
 
   // 검색, 필터링, 정렬
   useEffect(() => {

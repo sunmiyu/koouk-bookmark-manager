@@ -21,7 +21,7 @@ import { useDevice } from '@/hooks/useDevice'
 export default function App() {
   const device = useDevice()
   const { user, signIn, signOut } = useAuth()
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks'>('my-folder')
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks'>('dashboard')
   const [searchQuery, setSearchQuery] = useState('')
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
@@ -111,15 +111,19 @@ export default function App() {
           // URL 정리
           window.history.replaceState({}, document.title, window.location.pathname)
         } else {
-          // localStorage에서 복원
-          const savedTab = localStorage.getItem('koouk-last-tab')
-          if (savedTab && ['marketplace', 'bookmarks', 'my-folder', 'dashboard'].includes(savedTab)) {
-            const isProtectedTab = ['my-folder', 'marketplace', 'bookmarks'].includes(savedTab)
-            
-            if (isProtectedTab && !user?.id) {
-              handleTabChange('dashboard', false)
-            } else {
+          // localStorage에서 복원 (로그인된 경우만)
+          if (user?.id) {
+            const savedTab = localStorage.getItem('koouk-last-tab')
+            if (savedTab && ['marketplace', 'bookmarks', 'my-folder', 'dashboard'].includes(savedTab)) {
               handleTabChange(savedTab as any, false)
+            }
+          } else {
+            // 로그인 안된 상태에서는 무조건 dashboard
+            handleTabChange('dashboard', false)
+            // 보호된 탭 정보 정리
+            const savedTab = localStorage.getItem('koouk-last-tab')
+            if (savedTab && ['my-folder', 'marketplace', 'bookmarks'].includes(savedTab)) {
+              localStorage.removeItem('koouk-last-tab')
             }
           }
         }

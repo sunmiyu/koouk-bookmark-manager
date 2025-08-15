@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { useCrossPlatformState } from '@/hooks/useCrossPlatformState'
 import { useDevice } from '@/hooks/useDevice'
+import { useAuth } from '@/components/auth/AuthContext'
 
 interface TopNavigationProps {
   activeTab?: 'dashboard' | 'my-folder' | 'bookmarks' | 'marketplace'
@@ -12,6 +13,7 @@ interface TopNavigationProps {
 export default function TopNavigation({ activeTab, onTabChange }: TopNavigationProps) {
   const { state, updateNavigation } = useCrossPlatformState()
   const device = useDevice()
+  const { user } = useAuth()
 
   // PC에서는 렌더링하지 않음 (PC는 기존 헤더 사용)
   if (device.isDesktop) return null
@@ -32,6 +34,11 @@ export default function TopNavigation({ activeTab, onTabChange }: TopNavigationP
   ]
 
   const handleTabPress = (tabId: 'my-folder' | 'bookmarks' | 'marketplace') => {
+    // 로그인하지 않은 경우 아무것도 하지 않음 (부모에서 처리)
+    if (!user) {
+      return
+    }
+
     // 햅틱 피드백 (지원되는 경우)
     if ('vibrate' in navigator) {
       navigator.vibrate(10)
@@ -68,15 +75,18 @@ export default function TopNavigation({ activeTab, onTabChange }: TopNavigationP
           <motion.button
             key={tab.id}
             onClick={() => handleTabPress(tab.id)}
+            disabled={!user}
             className={`
               px-3 py-1.5 text-sm font-medium relative select-none
               transition-all duration-200 rounded-md
-              ${isActive 
+              ${!user 
+                ? 'text-gray-400 cursor-not-allowed opacity-60'
+                : isActive 
                 ? 'bg-gray-100 text-black' 
                 : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
               }
             `}
-            whileTap={{ scale: 0.95 }}
+            whileTap={user ? { scale: 0.95 } : {}}
             style={{
               WebkitTapHighlightColor: 'transparent',
               touchAction: 'manipulation'

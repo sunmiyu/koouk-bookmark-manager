@@ -1,9 +1,8 @@
 'use client'
 
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react'
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { DatabaseService } from '@/lib/database'
-import { DataMigration } from '@/utils/dataMigration'
 import type { User } from '@supabase/supabase-js'
 import type { Database } from '@/types/database'
 import { analytics, setUserId, setUserProperties } from '@/lib/analytics'
@@ -16,6 +15,7 @@ interface AuthContextType {
   userProfile: UserProfile | null
   userSettings: UserSettings | null
   loading: boolean
+  error: string | null
   signIn: () => Promise<void>
   signOut: () => Promise<void>
   updateUserSettings: (updates: Partial<UserSettings>) => Promise<void>
@@ -29,28 +29,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   
-  const isLoadingUserData = useRef(false)
-  const lastLoadedUserId = useRef<string | null>(null)
-
-  const loadUserData = async (authUser: User) => {
-    if (isLoadingUserData.current || lastLoadedUserId.current === authUser.id) {
-      console.log('🔄 Skipping duplicate loadUserData call for:', authUser.email)
-      return
-    }
-
+  // Load user profile and settings
+  const loadUserProfile = useCallback(async (userId: string) => {
     try {
-      isLoadingUserData.current = true
-      console.log('🔄 Loading user data for:', authUser.email)
+      // Load or create user profile
+      let profile = await DatabaseService.getUserProfile(userId)
       
-      let profile: UserProfile | null = null
-      try {
-        profile = await DatabaseService.getUserProfile(authUser.id)
-        setUserProfile(profile)
-        console.log('✅ Profile loaded successfully')
-      } catch (profileError) {
-        console.warn('⚠️ Profile load failed, trying to create:', profileError)
-        try {
+      if (!profile) {
+        const { data: { user: authUser } } = await supabase.auth.getUser()
+        
+        if (authUser) {
           const { data, error } = await supabase
             .from('users')
             .upsert({
@@ -58,147 +48,129 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               email: authUser.email!,
               name: authUser.user_metadata?.name || authUser.email?.split('@')[0],
               avatar_url: authUser.user_metadata?.avatar_url,
-              is_verified: !!authUser.email_confirmed_at
+              is_verified: !!authUser.email_confirmed_at,
+              user_plan: 'free' as const,
+              plan_expires_at: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
             })
             .select()
             .single()
           
           if (!error && data) {
             profile = data
-            setUserProfile(profile)
-            console.log('✅ Profile created successfully')
-          } else {
-            console.error('❌ Profile creation failed:', error)
           }
-        } catch (createError) {
-          console.error('❌ Profile creation error:', createError)
         }
       }
-
-      setUserId(authUser.id)
-      setUserProperties({
-        user_type: profile ? 'registered' : 'new_user',
-        provider: 'google',
-        created_at: profile?.created_at ? new Date(profile.created_at).toISOString() : new Date().toISOString()
-      })
-
+      
+      setUserProfile(profile || null)
+      
+      // Load user settings
       try {
-        const settings = await DatabaseService.getUserSettings(authUser.id)
+        const settings = await DatabaseService.getUserSettings(userId)
         setUserSettings(settings)
-        console.log('✅ Settings loaded successfully')
       } catch (settingsError) {
-        console.warn('⚠️ Settings load failed:', settingsError)
+        console.warn('Could not load user settings:', settingsError)
       }
 
-      DataMigration.checkMigrationStatus()
-        .then(async (migrationStatus) => {
-          if (!migrationStatus.migrated) {
-            console.log('🔄 Starting background data migration...')
-            const migrationResult = await DataMigration.migrateAllData()
-            if (migrationResult.success) {
-              console.log('✅ Background migration completed successfully')
-              await DataMigration.cleanupLocalStorage()
-            } else {
-              console.error('❌ Background migration failed:', migrationResult.error)
-            }
-          }
+      // Set analytics user
+      if (profile) {
+        setUserId(userId)
+        setUserProperties({
+          user_type: 'registered',
+          provider: 'google',
+          created_at: profile.created_at
         })
-        .catch(error => {
-          console.error('Background migration error:', error)
-        })
-
-      lastLoadedUserId.current = authUser.id
-      console.log('✅ User data loading completed')
+      }
+      
     } catch (error) {
-      console.error('❌ Critical error in loadUserData:', error)
-    } finally {
-      isLoadingUserData.current = false
+      console.error('Error loading user profile:', error)
+      setError('Failed to load user profile')
     }
-  }
+  }, [])
 
-  useEffect(() => {
-    let mounted = true
-
-    const initAuth = async () => {
-      try {
-        console.log('🔐 Initializing auth...')
-        const startTime = performance.now()
-        
-        const { data: { session }, error } = await supabase.auth.getSession()
-        
-        if (error && error.message.includes('Refresh Token')) {
-          console.warn('🔄 Invalid refresh token, clearing auth state')
+  // Authentication state management
+  const initializeAuth = useCallback(async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      
+      if (sessionError) {
+        console.error('Auth session error:', sessionError)
+        if (sessionError.message.includes('refresh_token')) {
           await supabase.auth.signOut()
-          if (mounted) {
+        }
+        setError('Authentication session expired')
+        return
+      }
+      
+      if (session?.user) {
+        setUser(session.user)
+        await loadUserProfile(session.user.id)
+      }
+    } catch (error) {
+      console.error('Auth initialization error:', error)
+      setError('Failed to initialize authentication')
+    } finally {
+      setLoading(false)
+    }
+  }, [loadUserProfile])
+
+
+
+  // Auth state change handler
+  useEffect(() => {
+    initializeAuth()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state change:', event)
+        
+        setError(null)
+        
+        switch (event) {
+          case 'SIGNED_IN':
+            if (session?.user) {
+              setUser(session.user)
+              await loadUserProfile(session.user.id)
+              setLoading(false)
+            }
+            break
+            
+          case 'SIGNED_OUT':
             setUser(null)
             setUserProfile(null)
             setUserSettings(null)
             setLoading(false)
-          }
-          return
+            break
+            
+          case 'TOKEN_REFRESHED':
+            if (session?.user) {
+              setUser(session.user)
+            }
+            break
+            
+          default:
+            setLoading(false)
         }
-        
-        const authUser = session?.user ?? null
-        console.log(`⚡ Auth check completed in ${Math.round(performance.now() - startTime)}ms`)
-        
-        if (mounted) {
-          if (authUser) {
-            console.log('👤 User found, loading data...')
-            setUser(authUser)
-            await loadUserData(authUser)
-          } else {
-            console.log('🚫 No user found')
-          }
-          setLoading(false)
-        }
-      } catch (error) {
-        console.error('Auth initialization error:', error)
-        if (mounted) setLoading(false)
-      }
-    }
-
-    initAuth()
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return
-        
-        console.log('🔄 Auth state changed:', event, 'User:', session?.user?.email)
-        const authUser = session?.user ?? null
-        
-        if (event === 'SIGNED_IN' && authUser) {
-          console.log('✅ User signed in, loading data...')
-          setUser(authUser)
-          await loadUserData(authUser)
-        } else if (event === 'SIGNED_OUT' || !authUser) {
-          console.log('❌ User signed out, clearing state...')
-          setUser(null)
-          setUserProfile(null)
-          setUserSettings(null)
-          lastLoadedUserId.current = null
-        } else if (event === 'TOKEN_REFRESHED' && authUser) {
-          console.log('🔄 Token refreshed for:', authUser.email)
-          setUser(authUser)
-        }
-        
-        setLoading(false)
       }
     )
 
-    return () => {
-      mounted = false
-      subscription.unsubscribe()
-    }
-  }, [])
+    return () => subscription.unsubscribe()
+  }, [initializeAuth, loadUserProfile])
 
-  const signIn = async () => {
+  // Sign in with Google
+  const signIn = useCallback(async () => {
     try {
       setLoading(true)
-      console.log('🔐 Starting Google OAuth flow...')
+      setError(null)
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
           queryParams: {
             access_type: 'offline',
             prompt: 'select_account',
@@ -206,79 +178,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       })
       
-      if (error) {
-        console.error('OAuth initiation error:', error)
-        throw error
-      }
+      if (error) throw error
       
-      console.log('🔐 OAuth redirect initiated successfully')
       analytics.login('google')
       
     } catch (error) {
       console.error('Sign in error:', error)
+      setError('Sign in failed. Please try again.')
       setLoading(false)
-      
-      if (error instanceof Error) {
-        alert(`Login failed: ${error.message}. Please try again.`)
-      } else {
-        alert('Login failed. Please try again.')
-      }
     }
-  }
+  }, [])
 
-  const signOut = async () => {
+  // Sign out
+  const signOut = useCallback(async () => {
     try {
       setLoading(true)
-      console.log('🔄 Starting sign out process...')
+      setError(null)
       
+      // Clear state immediately
       setUser(null)
       setUserProfile(null)
       setUserSettings(null)
-      lastLoadedUserId.current = null
-      isLoadingUserData.current = false
       
-      const { error } = await supabase.auth.signOut()
+      await supabase.auth.signOut()
       
-      if (error) {
-        console.error('Supabase sign out error:', error)
-      } else {
-        console.log('✅ Successfully signed out from Supabase')
+      // Clear storage
+      if (typeof window !== 'undefined') {
+        Object.keys(localStorage).forEach(key => {
+          if (key.includes('supabase') || key.includes('koouk-auth')) {
+            localStorage.removeItem(key)
+          }
+        })
       }
       
       analytics.logout()
       
-      if (typeof window !== 'undefined') {
-        try {
-          Object.keys(localStorage).forEach(key => {
-            if (key.includes('supabase') || key.includes('auth')) {
-              localStorage.removeItem(key)
-            }
-          })
-          
-          Object.keys(sessionStorage).forEach(key => {
-            if (key.includes('supabase') || key.includes('auth')) {
-              sessionStorage.removeItem(key)
-            }
-          })
-          
-          console.log('✅ Browser storage cleared')
-        } catch (storageError) {
-          console.error('Storage clear error:', storageError)
-        }
-      }
-      
     } catch (error) {
       console.error('Sign out error:', error)
-      setUser(null)
-      setUserProfile(null)
-      setUserSettings(null)
+      setError('Sign out failed')
     } finally {
       setLoading(false)
-      console.log('🔄 Sign out process completed')
     }
-  }
+  }, [])
 
-  const updateUserSettings = async (updates: Partial<UserSettings>) => {
+  // Update user settings
+  const updateUserSettings = useCallback(async (updates: Partial<UserSettings>) => {
     if (!user || !userSettings) return
     
     try {
@@ -288,19 +232,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Failed to update user settings:', error)
       throw error
     }
-  }
+  }, [user, userSettings])
 
-  const refreshUserData = async () => {
+  // Refresh user data
+  const refreshUserData = useCallback(async () => {
     if (!user) return
     
     try {
-      lastLoadedUserId.current = null
-      await loadUserData(user)
+      await loadUserProfile(user.id)
     } catch (error) {
       console.error('Failed to refresh user data:', error)
       throw error
     }
-  }
+  }, [user, loadUserProfile])
 
   return (
     <AuthContext.Provider value={{ 
@@ -308,6 +252,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       userProfile, 
       userSettings, 
       loading, 
+      error,
       signIn, 
       signOut, 
       updateUserSettings, 
@@ -325,3 +270,5 @@ export function useAuth() {
   }
   return context
 }
+
+export type { UserProfile, UserSettings }

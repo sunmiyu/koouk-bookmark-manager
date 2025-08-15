@@ -5,6 +5,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Settings, LogOut, MessageCircle } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
+import OnboardingPage from '../onboarding/OnboardingPage'
+import DashboardPage from '../dashboard/DashboardPage'
 import Dashboard from '../workspace/Dashboard'
 import MyFolderContent from '../workspace/MyFolderContent'
 import MarketPlace from '../workspace/MarketPlace'
@@ -17,10 +19,12 @@ import SignoutModal from '../ui/SignoutModal'
 import TopNavigation from '../mobile/TopNavigation'
 import MobileHeader from '../mobile/MobileHeader'
 import { useDevice } from '@/hooks/useDevice'
+import { useRouter } from 'next/navigation'
 
 export default function App() {
   const device = useDevice()
-  const { user, signIn, signOut } = useAuth()
+  const router = useRouter()
+  const { user, signIn, signOut, loading, error } = useAuth()
   const [activeTab, setActiveTab] = useState<'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks'>('dashboard')
   const [searchQuery, setSearchQuery] = useState('')
   const [showUserMenu, setShowUserMenu] = useState(false)
@@ -219,11 +223,50 @@ export default function App() {
     
     try {
       await signOut()
+      // 로그아웃 성공 후 goodbye 페이지로 리다이렉트
+      router.push('/goodbye')
     } catch (error) {
       console.error('Sign out error:', error)
-      window.location.reload()
+      // 에러 발생 시에도 goodbye 페이지로 이동
+      router.push('/goodbye')
     }
-  }, [signOut])
+  }, [signOut, router])
+
+  // Show loading state during auth initialization
+  if (loading && !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show error state if there's an auth error
+  if (error && !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8 text-center">
+          <div className="rounded-full h-12 w-12 bg-red-100 flex items-center justify-center mx-auto mb-4">
+            <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Authentication Error</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+            disabled={loading}
+          >
+            {loading ? 'Loading...' : 'Reload Page'}
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -253,31 +296,43 @@ export default function App() {
                   <div className="flex space-x-1">
                     <button
                       onClick={() => handleTabChange('my-folder')}
+                      disabled={!user}
                       className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 transform select-none ${
-                        activeTab === 'my-folder'
+                        !user 
+                          ? 'text-gray-400 cursor-not-allowed opacity-60'
+                          : activeTab === 'my-folder'
                           ? 'bg-black text-white shadow-md'
                           : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 hover:scale-[1.02] active:scale-95'
                       }`}
+                      title={!user ? 'Please sign in to access My Folder' : ''}
                     >
                       My Folder
                     </button>
                     <button
                       onClick={() => handleTabChange('bookmarks')}
+                      disabled={!user}
                       className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 transform select-none ${
-                        activeTab === 'bookmarks'
+                        !user 
+                          ? 'text-gray-400 cursor-not-allowed opacity-60'
+                          : activeTab === 'bookmarks'
                           ? 'bg-black text-white shadow-md'
                           : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 hover:scale-[1.02] active:scale-95'
                       }`}
+                      title={!user ? 'Please sign in to access Bookmarks' : ''}
                     >
                       Bookmarks
                     </button>
                     <button
                       onClick={() => handleTabChange('marketplace')}
+                      disabled={!user}
                       className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 transform select-none ${
-                        activeTab === 'marketplace'
+                        !user 
+                          ? 'text-gray-400 cursor-not-allowed opacity-60'
+                          : activeTab === 'marketplace'
                           ? 'bg-black text-white shadow-md'
                           : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 hover:scale-[1.02] active:scale-95'
                       }`}
+                      title={!user ? 'Please sign in to access Market Place' : ''}
                     >
                       Market Place
                     </button>
@@ -349,7 +404,11 @@ export default function App() {
         onTouchEnd={onTouchEnd}
       >
         {activeTab === 'dashboard' ? (
-          <Dashboard onNavigateToSection={handleTabChange} />
+          user ? (
+            <DashboardPage onNavigate={handleTabChange} />
+          ) : (
+            <OnboardingPage />
+          )
         ) : activeTab === 'my-folder' ? (
           <MyFolderContent searchQuery={searchQuery} />
         ) : activeTab === 'bookmarks' ? (

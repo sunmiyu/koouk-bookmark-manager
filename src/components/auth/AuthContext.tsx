@@ -172,10 +172,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true)
       console.log('🔐 Starting Google OAuth flow...')
       
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}`,
           queryParams: {
             access_type: 'offline',
             prompt: 'select_account',
@@ -206,36 +206,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       setLoading(true)
+      console.log('🔄 Starting sign out process...')
       
-      const { error } = await supabase.auth.signOut()
-      if (error) {
-        console.error('Supabase sign out error:', error)
-      }
-      
-      // 상태 클리어
+      // 상태를 먼저 클리어 (즉시 UI 반영)
       setUser(null)
       setUserProfile(null)
       setUserSettings(null)
       
+      // Supabase 로그아웃
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.error('Supabase sign out error:', error)
+        // 에러가 있어도 로컬 상태는 이미 클리어됨
+      } else {
+        console.log('✅ Successfully signed out from Supabase')
+      }
+      
       analytics.logout()
       
-      // Clear auth-related localStorage items
+      // localStorage 정리
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('koouk-auth-token')
-        Object.keys(localStorage).forEach(key => {
-          if (key.includes('supabase') || key.includes('auth-token')) {
-            localStorage.removeItem(key)
-          }
-        })
+        try {
+          localStorage.removeItem('koouk-auth-token')
+          Object.keys(localStorage).forEach(key => {
+            if (key.includes('supabase') || key.includes('auth-token')) {
+              localStorage.removeItem(key)
+            }
+          })
+          console.log('✅ localStorage cleared')
+        } catch (storageError) {
+          console.error('localStorage clear error:', storageError)
+        }
       }
       
     } catch (error) {
       console.error('Sign out error:', error)
+      // 에러가 있어도 로컬 상태는 클리어
       setUser(null)
       setUserProfile(null)
       setUserSettings(null)
     } finally {
       setLoading(false)
+      console.log('🔄 Sign out process completed')
     }
   }
 

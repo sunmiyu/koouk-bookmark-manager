@@ -21,21 +21,15 @@ export async function POST(request: NextRequest) {
       .from('feedback')
       .insert({
         user_id: user?.id || null,
-        feedback_type: 'error_report',
-        content: JSON.stringify({
+        type: 'error_report',
+        subject: `Error: ${errorReport.severity} - ${errorReport.context || 'Unknown'}`,
+        message: JSON.stringify({
           message: errorReport.message,
           stack: errorReport.stack,
           context: errorReport.context,
           metadata: errorReport.metadata,
           severity: errorReport.severity
         }),
-        metadata: {
-          errorId: errorReport.id,
-          severity: errorReport.severity,
-          context: errorReport.context,
-          userAgent: errorReport.metadata?.userAgent,
-          url: errorReport.metadata?.url
-        },
         status: 'pending'
       })
       .select()
@@ -99,13 +93,9 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from('feedback')
       .select('*')
-      .eq('feedback_type', 'error_report')
+      .eq('type', 'error_report')
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
-
-    if (severity) {
-      query = query.eq('metadata->>severity', severity)
-    }
 
     const { data, error } = await query
 

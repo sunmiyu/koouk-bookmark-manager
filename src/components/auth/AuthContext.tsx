@@ -35,21 +35,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadUserData = async (authUser: User) => {
     if (isLoadingUserData.current || lastLoadedUserId.current === authUser.id) {
-      console.log('= Skipping duplicate loadUserData call for:', authUser.email)
+      console.log('🔄 Skipping duplicate loadUserData call for:', authUser.email)
       return
     }
 
     try {
       isLoadingUserData.current = true
-      console.log('= Loading user data for:', authUser.email)
+      console.log('🔄 Loading user data for:', authUser.email)
       
       let profile: UserProfile | null = null
       try {
         profile = await DatabaseService.getUserProfile(authUser.id)
         setUserProfile(profile)
-        console.log(' Profile loaded successfully')
+        console.log('✅ Profile loaded successfully')
       } catch (profileError) {
-        console.warn('� Profile load failed, trying to create:', profileError)
+        console.warn('⚠️ Profile load failed, trying to create:', profileError)
         try {
           const { data, error } = await supabase
             .from('users')
@@ -66,12 +66,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (!error && data) {
             profile = data
             setUserProfile(profile)
-            console.log(' Profile created successfully')
+            console.log('✅ Profile created successfully')
           } else {
-            console.error('L Profile creation failed:', error)
+            console.error('❌ Profile creation failed:', error)
           }
         } catch (createError) {
-          console.error('L Profile creation error:', createError)
+          console.error('❌ Profile creation error:', createError)
         }
       }
 
@@ -85,21 +85,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const settings = await DatabaseService.getUserSettings(authUser.id)
         setUserSettings(settings)
-        console.log(' Settings loaded successfully')
+        console.log('✅ Settings loaded successfully')
       } catch (settingsError) {
-        console.warn('� Settings load failed:', settingsError)
+        console.warn('⚠️ Settings load failed:', settingsError)
       }
 
       DataMigration.checkMigrationStatus()
         .then(async (migrationStatus) => {
           if (!migrationStatus.migrated) {
-            console.log('= Starting background data migration...')
+            console.log('🔄 Starting background data migration...')
             const migrationResult = await DataMigration.migrateAllData()
             if (migrationResult.success) {
-              console.log(' Background migration completed successfully')
+              console.log('✅ Background migration completed successfully')
               await DataMigration.cleanupLocalStorage()
             } else {
-              console.error('L Background migration failed:', migrationResult.error)
+              console.error('❌ Background migration failed:', migrationResult.error)
             }
           }
         })
@@ -108,9 +108,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         })
 
       lastLoadedUserId.current = authUser.id
-      console.log(' User data loading completed')
+      console.log('✅ User data loading completed')
     } catch (error) {
-      console.error('L Critical error in loadUserData:', error)
+      console.error('❌ Critical error in loadUserData:', error)
     } finally {
       isLoadingUserData.current = false
     }
@@ -121,13 +121,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const initAuth = async () => {
       try {
-        console.log('= Initializing auth...')
+        console.log('🔐 Initializing auth...')
         const startTime = performance.now()
         
         const { data: { session }, error } = await supabase.auth.getSession()
         
         if (error && error.message.includes('Refresh Token')) {
-          console.warn('= Invalid refresh token, clearing auth state')
+          console.warn('🔄 Invalid refresh token, clearing auth state')
           await supabase.auth.signOut()
           if (mounted) {
             setUser(null)
@@ -139,15 +139,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         
         const authUser = session?.user ?? null
-        console.log(`� Auth check completed in ${Math.round(performance.now() - startTime)}ms`)
+        console.log(`⚡ Auth check completed in ${Math.round(performance.now() - startTime)}ms`)
         
         if (mounted) {
           if (authUser) {
-            console.log('=d User found, loading data...')
+            console.log('👤 User found, loading data...')
             setUser(authUser)
             await loadUserData(authUser)
           } else {
-            console.log('=� No user found')
+            console.log('🚫 No user found')
           }
           setLoading(false)
         }
@@ -163,21 +163,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       async (event, session) => {
         if (!mounted) return
         
-        console.log('= Auth state changed:', event, 'User:', session?.user?.email)
+        console.log('🔄 Auth state changed:', event, 'User:', session?.user?.email)
         const authUser = session?.user ?? null
         
         if (event === 'SIGNED_IN' && authUser) {
-          console.log(' User signed in, loading data...')
+          console.log('✅ User signed in, loading data...')
           setUser(authUser)
           await loadUserData(authUser)
         } else if (event === 'SIGNED_OUT' || !authUser) {
-          console.log('L User signed out, clearing state...')
+          console.log('❌ User signed out, clearing state...')
           setUser(null)
           setUserProfile(null)
           setUserSettings(null)
           lastLoadedUserId.current = null
         } else if (event === 'TOKEN_REFRESHED' && authUser) {
-          console.log('= Token refreshed for:', authUser.email)
+          console.log('🔄 Token refreshed for:', authUser.email)
           setUser(authUser)
         }
         
@@ -194,9 +194,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async () => {
     try {
       setLoading(true)
-      console.log('= Starting Google OAuth flow...')
+      console.log('🔐 Starting Google OAuth flow...')
       
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           queryParams: {
@@ -211,7 +211,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw error
       }
       
-      console.log('= OAuth redirect initiated successfully')
+      console.log('🔐 OAuth redirect initiated successfully')
       analytics.login('google')
       
     } catch (error) {
@@ -229,7 +229,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       setLoading(true)
-      console.log('= Starting sign out process...')
+      console.log('🔄 Starting sign out process...')
       
       setUser(null)
       setUserProfile(null)
@@ -242,7 +242,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) {
         console.error('Supabase sign out error:', error)
       } else {
-        console.log(' Successfully signed out from Supabase')
+        console.log('✅ Successfully signed out from Supabase')
       }
       
       analytics.logout()
@@ -261,7 +261,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
           })
           
-          console.log(' Browser storage cleared')
+          console.log('✅ Browser storage cleared')
         } catch (storageError) {
           console.error('Storage clear error:', storageError)
         }
@@ -274,7 +274,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUserSettings(null)
     } finally {
       setLoading(false)
-      console.log('= Sign out process completed')
+      console.log('🔄 Sign out process completed')
     }
   }
 

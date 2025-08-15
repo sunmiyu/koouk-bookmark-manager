@@ -10,13 +10,8 @@ import CategoryFilter from '../ui/CategoryFilter'
 import { useAuth } from '../auth/AuthContext'
 import { DatabaseService } from '@/lib/database'
 
-// type DbBookmark = Database['public']['Tables']['bookmarks']['Row']
-
-
-
-
 export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }) {
-  const { user } = useAuth()
+  const { user, loading } = useAuth() // 🔧 loading 추가
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('most-used')
@@ -36,18 +31,27 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
     { value: 'tech', label: 'Technology' }
   ]
 
-  // 데이터베이스에서 북마크 로드
+  // 데이터베이스에서 북마크 로드 - 개선된 버전
   useEffect(() => {
+    // 🔒 핵심: 사용자 인증 및 로딩 상태 체크
     if (!user) {
+      console.log('👤 No user found, skipping bookmarks load')
       setIsLoading(false)
+      setBookmarks([])
+      return
+    }
+
+    if (loading) {
+      console.log('⏳ Auth still loading, waiting for bookmarks...')
       return
     }
 
     const loadBookmarks = async () => {
-      setIsLoading(true)
-      
       try {
-        // Supabase에서 북마크 데이터 로드
+        setIsLoading(true)
+        console.log('📚 Loading bookmarks for user:', user.email)
+        
+        // ✅ 안전한 데이터베이스 호출
         const dbBookmarks = await DatabaseService.getUserBookmarks(user.id)
         
         // 데이터베이스 형식을 기존 Bookmark 형식으로 변환
@@ -67,9 +71,20 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
         }))
 
         setBookmarks(convertedBookmarks)
+        console.log('✅ Bookmarks loaded successfully:', convertedBookmarks.length)
         
       } catch (error) {
-        console.error('Failed to load bookmarks:', error)
+        console.error('❌ Failed to load bookmarks:', error)
+        
+        // 🚨 토큰 에러 구체적 처리
+        if (error.message?.includes('No authorization token') || 
+            error.message?.includes('JWT') || 
+            error.message?.includes('authorization')) {
+          console.error('🚨 Authorization token missing - user may need to re-login')
+          // 선택적: 사용자에게 재로그인 안내
+          // alert('Please sign in again to access your bookmarks.')
+        }
+        
         setBookmarks([])
       } finally {
         setIsLoading(false)
@@ -77,223 +92,7 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
     }
 
     loadBookmarks()
-  }, [user])
-
-  // 샘플 북마크 데이터 (참고용 - 실제로는 사용하지 않음)
-  /*
-  const sampleBookmarks: Bookmark[] = [
-        {
-          id: '1',
-          title: 'GitHub - React',
-          url: 'https://github.com/facebook/react',
-          description: 'A declarative, efficient, and flexible JavaScript library for building user interfaces.',
-          favicon: 'https://github.com/favicon.ico',
-          tags: ['react', 'javascript', 'library'],
-          createdAt: '2024-01-15T10:00:00Z',
-          updatedAt: '2024-01-15T10:00:00Z',
-          category: 'tech',
-          isFavorite: true,
-          usageCount: 78,
-          lastUsedAt: '2025-08-10T14:30:00Z'
-        },
-        {
-          id: '2',
-          title: 'Next.js Documentation',
-          url: 'https://nextjs.org/docs',
-          description: 'Learn about Next.js features and API.',
-          favicon: 'https://nextjs.org/favicon.ico',
-          tags: ['nextjs', 'react', 'documentation'],
-          createdAt: '2024-01-14T09:00:00Z',
-          updatedAt: '2024-01-14T09:00:00Z',
-          category: 'tech',
-          isFavorite: false,
-          usageCount: 65,
-          lastUsedAt: '2025-08-09T16:45:00Z'
-        },
-        {
-          id: '3',
-          title: 'Tailwind CSS',
-          url: 'https://tailwindcss.com',
-          description: 'A utility-first CSS framework for rapidly building custom user interfaces.',
-          favicon: 'https://tailwindcss.com/favicon.ico',
-          tags: ['css', 'framework', 'styling'],
-          createdAt: '2024-01-13T14:00:00Z',
-          updatedAt: '2024-01-13T14:00:00Z',
-          category: 'tech',
-          isFavorite: true,
-          usageCount: 52,
-          lastUsedAt: '2025-08-08T11:20:00Z'
-        },
-        {
-          id: '4',
-          title: 'Google',
-          url: 'https://www.google.com',
-          description: 'Search the world\'s information',
-          favicon: 'https://www.google.com/favicon.ico',
-          tags: ['search', 'google'],
-          createdAt: '2024-01-12T08:00:00Z',
-          updatedAt: '2024-01-12T08:00:00Z',
-          category: 'work',
-          isFavorite: false,
-          usageCount: 34,
-          lastUsedAt: '2025-08-07T13:15:00Z'
-        },
-        {
-          id: '5',
-          title: 'YouTube',
-          url: 'https://www.youtube.com',
-          description: 'Enjoy the videos and music you love',
-          favicon: 'https://www.youtube.com/favicon.ico',
-          tags: ['video', 'entertainment', 'music'],
-          createdAt: '2024-01-11T15:00:00Z',
-          updatedAt: '2024-01-11T15:00:00Z',
-          category: 'entertainment',
-          isFavorite: true,
-          usageCount: 28,
-          lastUsedAt: '2025-08-06T19:30:00Z'
-        },
-        {
-          id: '6',
-          title: 'Stack Overflow',
-          url: 'https://stackoverflow.com',
-          description: 'Where developers learn, share, & build careers',
-          favicon: 'https://stackoverflow.com/favicon.ico',
-          tags: ['programming', 'help', 'community'],
-          createdAt: '2024-01-10T12:00:00Z',
-          updatedAt: '2024-01-10T12:00:00Z',
-          category: 'tech',
-          isFavorite: false,
-          usageCount: 71,
-          lastUsedAt: '2025-08-11T09:45:00Z'
-        },
-        {
-          id: '7',
-          title: 'Gmail',
-          url: 'https://mail.google.com',
-          description: 'Email from Google',
-          favicon: 'https://mail.google.com/favicon.ico',
-          tags: ['email', 'google', 'communication'],
-          createdAt: '2024-01-09T08:30:00Z',
-          updatedAt: '2024-01-09T08:30:00Z',
-          category: 'work',
-          isFavorite: true,
-          usageCount: 89,
-          lastUsedAt: '2025-08-11T08:00:00Z'
-        },
-        {
-          id: '8',
-          title: 'Notion',
-          url: 'https://www.notion.so',
-          description: 'One platform. Every team.',
-          favicon: 'https://www.notion.so/favicon.ico',
-          tags: ['productivity', 'notes', 'collaboration'],
-          createdAt: '2024-01-08T16:20:00Z',
-          updatedAt: '2024-01-08T16:20:00Z',
-          category: 'work',
-          isFavorite: true,
-          usageCount: 43,
-          lastUsedAt: '2025-08-05T15:20:00Z'
-        },
-        {
-          id: '9',
-          title: 'Netflix',
-          url: 'https://www.netflix.com',
-          description: 'Watch TV shows and movies online',
-          favicon: 'https://www.netflix.com/favicon.ico',
-          tags: ['streaming', 'movies', 'tv'],
-          createdAt: '2024-01-07T20:00:00Z',
-          updatedAt: '2024-01-07T20:00:00Z',
-          category: 'entertainment',
-          isFavorite: false,
-          usageCount: 15,
-          lastUsedAt: '2025-08-04T21:30:00Z'
-        },
-        {
-          id: '10',
-          title: 'MDN Web Docs',
-          url: 'https://developer.mozilla.org',
-          description: 'Resources for developers, by developers',
-          favicon: 'https://developer.mozilla.org/favicon.ico',
-          tags: ['documentation', 'web', 'javascript'],
-          createdAt: '2024-01-06T14:15:00Z',
-          updatedAt: '2024-01-06T14:15:00Z',
-          category: 'tech',
-          isFavorite: false,
-          usageCount: 37,
-          lastUsedAt: '2025-08-03T10:45:00Z'
-        },
-        {
-          id: '11',
-          title: 'Figma',
-          url: 'https://www.figma.com',
-          description: 'The collaborative interface design tool',
-          favicon: 'https://www.figma.com/favicon.ico',
-          tags: ['design', 'ui', 'collaboration'],
-          createdAt: '2024-01-05T11:30:00Z',
-          updatedAt: '2024-01-05T11:30:00Z',
-          category: 'work',
-          isFavorite: true,
-          usageCount: 59,
-          lastUsedAt: '2025-08-02T14:00:00Z'
-        },
-        {
-          id: '12',
-          title: 'Spotify',
-          url: 'https://open.spotify.com',
-          description: 'Music for everyone',
-          favicon: 'https://open.spotify.com/favicon.ico',
-          tags: ['music', 'streaming', 'playlist'],
-          createdAt: '2024-01-04T09:45:00Z',
-          updatedAt: '2024-01-04T09:45:00Z',
-          category: 'entertainment',
-          isFavorite: false,
-          usageCount: 22,
-          lastUsedAt: '2025-08-01T16:20:00Z'
-        },
-        {
-          id: '13',
-          title: 'Amazon',
-          url: 'https://www.amazon.com',
-          description: 'Online shopping for everything',
-          favicon: 'https://www.amazon.com/favicon.ico',
-          tags: ['shopping', 'ecommerce', 'delivery'],
-          createdAt: '2024-01-03T15:10:00Z',
-          updatedAt: '2024-01-03T15:10:00Z',
-          category: 'shopping',
-          isFavorite: false,
-          usageCount: 12,
-          lastUsedAt: '2025-07-30T12:30:00Z'
-        },
-        {
-          id: '14',
-          title: 'Hacker News',
-          url: 'https://news.ycombinator.com',
-          description: 'Social news website focusing on computer science',
-          favicon: 'https://news.ycombinator.com/favicon.ico',
-          tags: ['news', 'tech', 'community'],
-          createdAt: '2024-01-02T13:25:00Z',
-          updatedAt: '2024-01-02T13:25:00Z',
-          category: 'news',
-          isFavorite: true,
-          usageCount: 31,
-          lastUsedAt: '2025-07-29T08:15:00Z'
-        },
-        {
-          id: '15',
-          title: 'LinkedIn',
-          url: 'https://www.linkedin.com',
-          description: 'Professional networking platform',
-          favicon: 'https://www.linkedin.com/favicon.ico',
-          tags: ['professional', 'networking', 'career'],
-          createdAt: '2024-01-01T10:00:00Z',
-          updatedAt: '2024-01-01T10:00:00Z',
-          category: 'social',
-          isFavorite: false,
-          usageCount: 8,
-          lastUsedAt: '2025-07-28T17:45:00Z'
-        }
-      ]
-  */
+  }, [user, loading]) // 🔧 user와 loading 둘 다 의존성에 포함
 
   // 검색 및 필터링
   useEffect(() => {
@@ -301,7 +100,6 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
 
     // 카테고리 필터
     if (selectedCategory === 'most-used') {
-      // Most Used: usageCount가 높은 순으로 정렬하고 상위 10개만 표시
       filtered = filtered
         .sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0))
         .slice(0, 10)
@@ -352,6 +150,51 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
     }
   }
 
+  // 🔒 로딩 또는 인증되지 않은 사용자 처리
+  if (loading || !user) {
+    return (
+      <div className="h-96 flex items-center justify-center">
+        <div className="text-center">
+          {loading ? (
+            <>
+              {/* 로딩 스켈레톤 */}
+              <div className="space-y-0 max-w-2xl mx-auto">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="flex items-center gap-3 px-3 py-3 border-b border-gray-100">
+                    <div className="w-8 h-8 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-lg animate-pulse"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse"></div>
+                      <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-2/3 animate-pulse"></div>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="w-3 h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse"></div>
+                      <div className="w-3 h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 flex justify-center">
+                <div className="relative">
+                  <div className="w-8 h-8 border-2 border-gray-200 rounded-full"></div>
+                  <div className="absolute inset-0 w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="text-gray-500">
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Search className="w-6 h-6 text-gray-400" />
+              </div>
+              <h3 className="text-sm font-medium text-gray-900 mb-1">Please sign in</h3>
+              <p className="text-xs text-gray-500">Sign in to access your bookmarks</p>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // 실제 북마크 데이터가 로딩 중인 경우
   if (isLoading) {
     return (
       <div className="h-96 flex items-center justify-center">
@@ -522,8 +365,6 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
           </p>
         </div>
       )}
-      
-
     </div>
   )
 }

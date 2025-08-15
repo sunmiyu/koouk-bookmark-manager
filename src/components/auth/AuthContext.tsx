@@ -14,7 +14,7 @@ interface AuthContextType {
   user: User | null
   userProfile: UserProfile | null
   userSettings: UserSettings | null
-  loading: boolean
+  status: 'idle' | 'loading' | 'authenticated' | 'error'
   error: string | null
   signIn: () => Promise<void>
   signOut: () => Promise<void>
@@ -28,13 +28,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [status, setStatus] = useState<'idle' | 'loading' | 'authenticated' | 'error'>('loading')
   const [error, setError] = useState<string | null>(null)
   
   // Load user profile and settings
-  const loadUserProfile = useCallback(async (userId: string) => {
+  const loadUserProfile = useCallback(async (userId: string): Promise<void> => {
     try {
-      // Load or create user profile
       let profile: UserProfile | null = (await DatabaseService.getUserProfile(userId)) as UserProfile | null
       
       if (!profile) {
@@ -65,15 +64,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       setUserProfile(profile)
       
-      // Load user settings
-      try {
-        const settings = await DatabaseService.getUserSettings(userId)
-        setUserSettings(settings)
-      } catch (settingsError) {
-        console.warn('Could not load user settings:', settingsError)
-      }
-
-      // Set analytics user
       if (profile) {
         setUserId(userId)
         setUserProperties({
@@ -82,17 +72,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           created_at: profile.created_at
         })
       }
+
+      // Load user settings (non-blocking)
+      try {
+        const settings = await DatabaseService.getUserSettings(userId)
+        setUserSettings(settings)
+      } catch (settingsError) {
+        console.warn('Could not load user settings:', settingsError)
+      }
       
     } catch (error) {
       console.error('Error loading user profile:', error)
-      setError('Failed to load user profile')
+      throw error
     }
   }, [])
 
-  // Authentication state management
-  const initializeAuth = useCallback(async () => {
+  // Initialize auth state
+  const initializeAuth = useCallback(async (): Promise<void> => {
     try {
-      setLoading(true)
+      setStatus('loading')
       setError(null)
       
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
@@ -102,23 +100,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (sessionError.message.includes('refresh_token')) {
           await supabase.auth.signOut()
         }
-        setError('Authentication session expired')
-        return
+        throw new Error('Authentication session expired')
       }
       
       if (session?.user) {
         setUser(session.user)
         await loadUserProfile(session.user.id)
+        setStatus('authenticated')
+      } else {
+        setStatus('idle')
       }
     } catch (error) {
       console.error('Auth initialization error:', error)
-      setError('Failed to initialize authentication')
-    } finally {
-      setLoading(false)
+      setError(error instanceof Error ? error.message : 'Failed to initialize authentication')
+      setStatus('error')
     }
   }, [loadUserProfile])
-
-
 
   // Auth state change handler
   useEffect(() => {
@@ -130,30 +127,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         setError(null)
         
-        switch (event) {
-          case 'SIGNED_IN':
-            if (session?.user) {
-              setUser(session.user)
-              await loadUserProfile(session.user.id)
-              setLoading(false)
-            }
-            break
-            
-          case 'SIGNED_OUT':
-            setUser(null)
-            setUserProfile(null)
-            setUserSettings(null)
-            setLoading(false)
-            break
-            
-          case 'TOKEN_REFRESHED':
-            if (session?.user) {
-              setUser(session.user)
-            }
-            break
-            
-          default:
-            setLoading(false)
+        try {
+          switch (event) {
+            case 'SIGNED_IN':
+              if (session?.user) {
+                setUser(session.user)
+                await loadUserProfile(session.user.id)
+                setStatus('authenticated')
+              }
+              break
+              
+            case 'SIGNED_OUT':
+              setUser(null)
+              setUserProfile(null)
+              setUserSettings(null)
+              setStatus('idle')
+              break
+              
+            case 'TOKEN_REFRESHED':
+              if (session?.user) {
+                setUser(session.user)
+                setStatus('authenticated')
+              }
+              break
+              
+            default:
+              if (!session?.user) {
+                setStatus('idle')
+              }
+          }
+        } catch (error) {
+          console.error('Auth state change error:', error)
+          setError(error instanceof Error ? error.message : 'Authentication error occurred')
+          setStatus('error')
         }
       }
     )
@@ -162,9 +168,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [initializeAuth, loadUserProfile])
 
   // Sign in with Google
-  const signIn = useCallback(async () => {
+  const signIn = useCallback(async (): Promise<void> => {
     try {
-      setLoading(true)
+      setStatus('loading')
       setError(null)
       
       const { error } = await supabase.auth.signInWithOAuth({
@@ -185,21 +191,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Sign in error:', error)
       setError('Sign in failed. Please try again.')
-      setLoading(false)
+      setStatus('error')
+      throw error
     }
   }, [])
 
-  // Sign out
-  const signOut = useCallback(async () => {
+  // Sign out - 즉시 UI 업데이트, 백그라운드 정리
+  const signOut = useCallback(async (): Promise<void> => {
+    // 즉시 상태 클리어 (UI 반응성)
+    setUser(null)
+    setUserProfile(null)
+    setUserSettings(null)
+    setStatus('idle')
+    setError(null)
+    
     try {
-      setLoading(true)
-      setError(null)
-      
-      // Clear state immediately
-      setUser(null)
-      setUserProfile(null)
-      setUserSettings(null)
-      
+      // 백그라운드에서 정리 작업
       await supabase.auth.signOut()
       
       // Clear storage
@@ -214,15 +221,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       analytics.logout()
       
     } catch (error) {
-      console.error('Sign out error:', error)
-      setError('Sign out failed')
-    } finally {
-      setLoading(false)
+      console.error('Sign out cleanup error:', error)
+      // 에러가 발생해도 이미 상태는 클리어됨
     }
   }, [])
 
   // Update user settings
-  const updateUserSettings = useCallback(async (updates: Partial<UserSettings>) => {
+  const updateUserSettings = useCallback(async (updates: Partial<UserSettings>): Promise<void> => {
     if (!user || !userSettings) return
     
     try {
@@ -235,7 +240,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, userSettings])
 
   // Refresh user data
-  const refreshUserData = useCallback(async () => {
+  const refreshUserData = useCallback(async (): Promise<void> => {
     if (!user) return
     
     try {
@@ -251,7 +256,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user, 
       userProfile, 
       userSettings, 
-      loading, 
+      status,
       error,
       signIn, 
       signOut, 
@@ -269,6 +274,15 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider')
   }
   return context
+}
+
+// Legacy loading 호환성
+export function useAuthCompat() {
+  const auth = useAuth()
+  return {
+    ...auth,
+    loading: auth.status === 'loading'
+  }
 }
 
 export type { UserProfile, UserSettings }

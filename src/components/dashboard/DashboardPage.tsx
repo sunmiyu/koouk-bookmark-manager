@@ -2,13 +2,22 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/components/auth/AuthContext'
-import { Folder, Bookmark, Share, Download } from 'lucide-react'
+import { Folder, Bookmark, Share, Download, TrendingUp, Clock, Star, Users, Store } from 'lucide-react'
 
 interface DashboardStats {
   myFolders: number
   bookmarks: number
   sharedFolders: number
   receivedFolders: number
+}
+
+interface RecentActivity {
+  id: string
+  type: 'folder' | 'bookmark' | 'share'
+  title: string
+  timestamp: string
+  icon: React.ReactNode
+  color: string
 }
 
 export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string) => void }) {
@@ -20,6 +29,8 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
     receivedFolders: 0
   })
 
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([])
+
   useEffect(() => {
     // Load actual stats from localStorage and database
     const loadStats = () => {
@@ -28,7 +39,7 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
         const folders = localStorage.getItem('koouk-folders')
         const myFoldersCount = folders ? JSON.parse(folders).length : 0
 
-        // Bookmarks count
+        // Bookmarks count  
         const bookmarks = localStorage.getItem('koouk-bookmarks')
         const bookmarksCount = bookmarks ? JSON.parse(bookmarks).length : 0
 
@@ -42,6 +53,34 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
           sharedFolders: sharedCount,
           receivedFolders: receivedCount
         })
+
+        // Mock recent activity
+        setRecentActivity([
+          {
+            id: '1',
+            type: 'folder',
+            title: 'Created "Design Resources" folder',
+            timestamp: '2 hours ago',
+            icon: <Folder className="w-4 h-4" />,
+            color: 'text-blue-600'
+          },
+          {
+            id: '2', 
+            type: 'bookmark',
+            title: 'Bookmarked "React Best Practices"',
+            timestamp: '5 hours ago',
+            icon: <Bookmark className="w-4 h-4" />,
+            color: 'text-green-600'
+          },
+          {
+            id: '3',
+            type: 'share',
+            title: 'Shared folder with community',
+            timestamp: '1 day ago',
+            icon: <Share className="w-4 h-4" />,
+            color: 'text-purple-600'
+          }
+        ])
       } catch (error) {
         console.error('Error loading dashboard stats:', error)
       }
@@ -54,67 +93,191 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
     {
       title: "My Folders",
       count: stats.myFolders,
-      icon: <Folder className="w-8 h-8 text-blue-500" />,
+      icon: <Folder className="w-8 h-8" />,
       description: "Personal collections",
-      color: "bg-blue-50 border-blue-200",
+      color: "bg-blue-50 border-blue-200 hover:bg-blue-100 text-blue-600",
+      trend: "+12% this week",
+      trendIcon: <TrendingUp className="w-4 h-4 text-green-500" />,
       onClick: () => onNavigate('my-folder')
     },
     {
-      title: "Bookmarks",
+      title: "Bookmarks", 
       count: stats.bookmarks,
-      icon: <Bookmark className="w-8 h-8 text-green-500" />,
+      icon: <Bookmark className="w-8 h-8" />,
       description: "Saved websites",
-      color: "bg-green-50 border-green-200",
+      color: "bg-green-50 border-green-200 hover:bg-green-100 text-green-600",
+      trend: "+8% this week",
+      trendIcon: <TrendingUp className="w-4 h-4 text-green-500" />,
       onClick: () => onNavigate('bookmarks')
     },
     {
       title: "Shared",
       count: stats.sharedFolders,
-      icon: <Share className="w-8 h-8 text-purple-500" />,
+      icon: <Share className="w-8 h-8" />,
       description: "Folders you shared",
-      color: "bg-purple-50 border-purple-200",
+      color: "bg-purple-50 border-purple-200 hover:bg-purple-100 text-purple-600",
+      trend: "+23% this week",
+      trendIcon: <TrendingUp className="w-4 h-4 text-green-500" />,
       onClick: () => onNavigate('marketplace')
     },
     {
       title: "Received",
       count: stats.receivedFolders,
-      icon: <Download className="w-8 h-8 text-orange-500" />,
-      description: "Folders from community",
-      color: "bg-orange-50 border-orange-200",
+      icon: <Download className="w-8 h-8" />,
+      description: "From community",
+      color: "bg-orange-50 border-orange-200 hover:bg-orange-100 text-orange-600",
+      trend: "+15% this week",
+      trendIcon: <TrendingUp className="w-4 h-4 text-green-500" />,
       onClick: () => onNavigate('marketplace')
     }
   ]
 
-
+  const quickActions = [
+    {
+      title: "Create New Folder",
+      description: "Start organizing your content",
+      icon: <Folder className="w-6 h-6 text-blue-600" />,
+      color: "bg-blue-50 border-blue-200 hover:bg-blue-100",
+      action: () => onNavigate('my-folder')
+    },
+    {
+      title: "Add Bookmark",
+      description: "Save a website for later",
+      icon: <Bookmark className="w-6 h-6 text-green-600" />,
+      color: "bg-green-50 border-green-200 hover:bg-green-100",
+      action: () => onNavigate('bookmarks')
+    },
+    {
+      title: "Explore Market",
+      description: "Discover community content",
+      icon: <Store className="w-6 h-6 text-purple-600" />,
+      color: "bg-purple-50 border-purple-200 hover:bg-purple-100",
+      action: () => onNavigate('marketplace')
+    }
+  ]
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {statsCards.map((card, index) => (
-          <div
-            key={index}
-            onClick={card.onClick}
-            className={`${card.color} rounded-2xl p-6 border-2 cursor-pointer hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1`}
-          >
-            <div className="flex items-center justify-between mb-4">
-              {card.icon}
-              <span className="text-3xl font-bold text-gray-900">
-                {card.count}
-              </span>
+    <div className="min-h-[calc(100vh-64px)] bg-gray-50">
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        {/* Welcome Header */}
+        <div className="mb-8">
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 border border-blue-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  Welcome back, {userProfile?.name || user?.email?.split('@')[0]}! 👋
+                </h1>
+                <p className="text-lg text-gray-600">
+                  Here's what's happening with your digital organization
+                </p>
+              </div>
+              <div className="hidden md:flex items-center space-x-2 bg-white rounded-full px-4 py-2">
+                <Star className="w-5 h-5 text-yellow-500 fill-current" />
+                <span className="text-sm font-medium text-gray-700">
+                  {userProfile?.user_plan?.toUpperCase() || 'FREE'} Plan
+                </span>
+              </div>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">
-              {card.title}
-            </h3>
-            <p className="text-gray-600 text-sm">
-              {card.description}
-            </p>
           </div>
-        ))}
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {statsCards.map((card, index) => (
+            <div
+              key={index}
+              onClick={card.onClick}
+              className={`${card.color.split(' ').slice(0, 3).join(' ')} rounded-2xl p-6 border-2 cursor-pointer hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200 group`}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className={`${card.color.split(' ')[3]} group-hover:scale-110 transition-transform duration-200`}>
+                  {card.icon}
+                </div>
+                <span className="text-3xl font-bold text-gray-900">
+                  {card.count}
+                </span>
+              </div>
+              
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                {card.title}
+              </h3>
+              
+              <p className="text-gray-600 text-sm mb-3">
+                {card.description}
+              </p>
+
+              <div className="flex items-center space-x-1">
+                {card.trendIcon}
+                <span className="text-xs text-green-600 font-medium">
+                  {card.trend}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Quick Actions */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Quick Actions</h2>
+                <Users className="w-6 h-6 text-gray-400" />
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-4">
+                {quickActions.map((action, index) => (
+                  <button
+                    key={index}
+                    onClick={action.action}
+                    className={`${action.color} rounded-xl p-4 border-2 text-left hover:shadow-md transform hover:-translate-y-1 transition-all duration-200 group`}
+                  >
+                    <div className="mb-3 group-hover:scale-110 transition-transform duration-200">
+                      {action.icon}
+                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-1">
+                      {action.title}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      {action.description}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Activity */}
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900">Recent Activity</h2>
+              <Clock className="w-5 h-5 text-gray-400" />
+            </div>
+
+            <div className="space-y-4">
+              {recentActivity.map((activity, index) => (
+                <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-xl hover:bg-gray-50 transition-colors duration-200">
+                  <div className={`${activity.color} p-2 rounded-full bg-opacity-10`}>
+                    {activity.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {activity.title}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {activity.timestamp}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button className="w-full mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium">
+              View all activity
+            </button>
+          </div>
+        </div>
       </div>
-
-
     </div>
   )
 }

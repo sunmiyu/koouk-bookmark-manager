@@ -1,209 +1,57 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Settings, LogOut, MessageCircle } from 'lucide-react'
-import { useAuth } from '../auth/AuthContext'
+import { useAuthCompat } from '../auth/AuthContext'
 import OnboardingPage from '../onboarding/OnboardingPage'
 import DashboardPage from '../dashboard/DashboardPage'
-import Dashboard from '../workspace/Dashboard'
 import MyFolderContent from '../workspace/MyFolderContent'
 import MarketPlace from '../workspace/MarketPlace'
 import Bookmarks from '../workspace/Bookmarks'
-import { SharedFolder } from '@/types/share'
-import { createFolder } from '@/types/folder'
-import SearchInterface from '../ui/SearchInterface'
 import FeedbackModal from '../modals/FeedbackModal'
 import SignoutModal from '../ui/SignoutModal'
-import TopNavigation from '../mobile/TopNavigation'
-import MobileHeader from '../mobile/MobileHeader'
 import { useDevice } from '@/hooks/useDevice'
 import { useRouter } from 'next/navigation'
+
+type TabType = 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks'
 
 export default function App() {
   const device = useDevice()
   const router = useRouter()
-  const { user, signIn, signOut, loading, error } = useAuth()
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks'>('dashboard')
+  const { user, signIn, signOut, loading, error, status } = useAuthCompat()
+  
+  // Main app state
+  const [activeTab, setActiveTab] = useState<TabType>('dashboard')
   const [searchQuery, setSearchQuery] = useState('')
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
   const [showSignoutModal, setShowSignoutModal] = useState(false)
-  
-  // 무한루프 방지를 위한 초기화 플래그
-  const isInitialized = useRef(false)
-  
-  // Swipe gesture state
+  const [isInitialized, setIsInitialized] = useState(false)
+
+  // Swipe gesture state for mobile
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
-  
   const minSwipeDistance = 50
-  const tabOrder: ('my-folder' | 'bookmarks' | 'marketplace')[] = ['my-folder', 'bookmarks', 'marketplace']
-  
-  // 탭 변경 함수 최적화 (무한루프 방지)
-  const handleTabChange = useCallback((
-    tab: 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks', 
-    saveToStorage = true
-  ) => {
-    // 보호된 탭 체크
-    if (!user?.id && (tab === 'my-folder' || tab === 'marketplace' || tab === 'bookmarks')) {
+
+  // Tab navigation
+  const handleTabChange = useCallback((tab: TabType) => {
+    // Check if user needs to be logged in for protected tabs
+    if (!user?.id && ['my-folder', 'marketplace', 'bookmarks'].includes(tab)) {
       setShowUserMenu(true)
       return
     }
     
     setActiveTab(tab)
     
-    // localStorage 저장 (선택적)
-    if (saveToStorage && typeof window !== 'undefined') {
+    // Save to localStorage
+    if (typeof window !== 'undefined') {
       localStorage.setItem('koouk-last-tab', tab)
     }
   }, [user?.id])
-  
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null)
-    setTouchStart(e.targetTouches[0].clientX)
-  }
-  
-  const onTouchMove = (e: React.TouchEvent) => setTouchEnd(e.targetTouches[0].clientX)
-  
-  const onTouchEnd = useCallback(() => {
-    if (!touchStart || !touchEnd) return
-    
-    const distance = touchStart - touchEnd
-    const isLeftSwipe = distance > minSwipeDistance
-    const isRightSwipe = distance < -minSwipeDistance
-    
-    if ((isLeftSwipe || isRightSwipe) && activeTab !== 'dashboard' && device.width < 768) {
-      const currentIndex = tabOrder.indexOf(activeTab as 'my-folder' | 'bookmarks' | 'marketplace')
-      
-      if (isLeftSwipe && currentIndex < tabOrder.length - 1) {
-        const nextTab = tabOrder[currentIndex + 1]
-        if ('vibrate' in navigator) {
-          navigator.vibrate(10)
-        }
-        handleTabChange(nextTab)
-      } else if (isRightSwipe && currentIndex > 0) {
-        const prevTab = tabOrder[currentIndex - 1]
-        if ('vibrate' in navigator) {
-          navigator.vibrate(10)
-        }
-        handleTabChange(prevTab)
-      }
-    }
-  }, [touchStart, touchEnd, activeTab, device.width, handleTabChange])
 
-  // URL 파라미터 및 localStorage 처리 (개선된 버전)
-  useEffect(() => {
-    if (typeof window === 'undefined' || isInitialized.current) return
-    
-    const initializeApp = () => {
-      try {
-        const params = new URLSearchParams(window.location.search)
-        const tabParam = params.get('tab')
-        
-        // URL 파라미터 처리
-        if (tabParam && ['marketplace', 'bookmarks', 'my-folder', 'dashboard'].includes(tabParam)) {
-          const isProtectedTab = ['my-folder', 'marketplace', 'bookmarks'].includes(tabParam)
-          
-          if (isProtectedTab && !user?.id) {
-            handleTabChange('dashboard', false)
-          } else {
-            handleTabChange(tabParam as any, true)
-          }
-          
-          // URL 정리
-          window.history.replaceState({}, document.title, window.location.pathname)
-        } else {
-          // localStorage에서 복원 (로그인된 경우만)
-          if (user?.id) {
-            const savedTab = localStorage.getItem('koouk-last-tab')
-            if (savedTab && ['marketplace', 'bookmarks', 'my-folder', 'dashboard'].includes(savedTab)) {
-              handleTabChange(savedTab as any, false)
-            }
-          } else {
-            // 로그인 안된 상태에서는 무조건 dashboard
-            handleTabChange('dashboard', false)
-            // 보호된 탭 정보 정리
-            const savedTab = localStorage.getItem('koouk-last-tab')
-            if (savedTab && ['my-folder', 'marketplace', 'bookmarks'].includes(savedTab)) {
-              localStorage.removeItem('koouk-last-tab')
-            }
-          }
-        }
-        
-        // 공유 콘텐츠 처리
-        if (params.get('shared') === 'true') {
-          const title = params.get('title')
-          const text = params.get('text')
-          const url = params.get('url')
-          
-          if (title || text || url) {
-            const sharedContent = {
-              title: title || 'Shared Content',
-              text: text || '',
-              url: url || ''
-            }
-            
-            sessionStorage.setItem('koouk-shared-content', JSON.stringify(sharedContent))
-            window.history.replaceState({}, document.title, window.location.pathname)
-            
-            if (user?.id) {
-              handleTabChange('my-folder', false)
-            } else {
-              handleTabChange('dashboard', false)
-            }
-          }
-        }
-        
-        isInitialized.current = true
-      } catch (error) {
-        console.error('App initialization error:', error)
-        handleTabChange('dashboard', false)
-        isInitialized.current = true
-      }
-    }
-
-    // 약간의 지연을 두어 AuthContext가 먼저 초기화되도록 함
-    const timeoutId = setTimeout(initializeApp, 100)
-    
-    return () => {
-      clearTimeout(timeoutId)
-    }
-  }, [user?.id]) // handleTabChange 의존성 제거하여 무한루프 방지
-
-  // SharedFolder import functionality
-  const handleImportSharedFolder = useCallback((sharedFolder: SharedFolder) => {
-    try {
-      const savedFolders = localStorage.getItem('koouk-folders')
-      let folders = []
-      
-      if (savedFolders) {
-        folders = JSON.parse(savedFolders)
-      }
-      
-      const newFolder = createFolder(
-        sharedFolder.title,
-        undefined,
-        {
-          color: '#F97316',
-          icon: sharedFolder.folder.icon || '📁'
-        }
-      )
-      
-      newFolder.children = [...sharedFolder.folder.children]
-      newFolder.updatedAt = new Date().toISOString()
-      
-      const updatedFolders = [newFolder, ...folders]
-      localStorage.setItem('koouk-folders', JSON.stringify(updatedFolders))
-      localStorage.setItem('koouk-selected-folder', newFolder.id)
-      
-      handleTabChange('my-folder')
-    } catch (error) {
-      console.error('Import folder error:', error)
-    }
-  }, [handleTabChange])
-
+  // Authentication handlers
   const handleSignIn = useCallback(async () => {
     setShowUserMenu(false)
     try {
@@ -223,17 +71,89 @@ export default function App() {
     
     try {
       await signOut()
-      // 로그아웃 성공 후 goodbye 페이지로 리다이렉트
-      router.push('/goodbye')
     } catch (error) {
       console.error('Sign out error:', error)
-      // 에러 발생 시에도 goodbye 페이지로 이동
+    } finally {
       router.push('/goodbye')
     }
   }, [signOut, router])
 
-  // Show loading state during auth initialization
-  if (loading && !user) {
+  // Touch/swipe handlers for mobile
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null)
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const onTouchEnd = useCallback(() => {
+    if (!touchStart || !touchEnd) return
+    
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > minSwipeDistance
+    const isRightSwipe = distance < -minSwipeDistance
+    
+    if ((isLeftSwipe || isRightSwipe) && activeTab !== 'dashboard' && device.width < 768) {
+      const tabs: TabType[] = ['my-folder', 'bookmarks', 'marketplace']
+      const currentIndex = tabs.indexOf(activeTab as any)
+      
+      if (isLeftSwipe && currentIndex < tabs.length - 1) {
+        handleTabChange(tabs[currentIndex + 1])
+      } else if (isRightSwipe && currentIndex > 0) {
+        handleTabChange(tabs[currentIndex - 1])
+      }
+    }
+  }, [touchStart, touchEnd, activeTab, device.width, handleTabChange])
+
+  // App initialization
+  useEffect(() => {
+    if (isInitialized || status === 'loading') return
+
+    const initializeApp = () => {
+      try {
+        const params = new URLSearchParams(window.location.search)
+        const tabParam = params.get('tab')
+        
+        // Handle URL tab parameter
+        if (tabParam && ['dashboard', 'my-folder', 'marketplace', 'bookmarks'].includes(tabParam)) {
+          const isProtectedTab = ['my-folder', 'marketplace', 'bookmarks'].includes(tabParam)
+          
+          if (isProtectedTab && !user?.id) {
+            handleTabChange('dashboard')
+          } else {
+            handleTabChange(tabParam as TabType)
+          }
+          
+          // Clean up URL
+          window.history.replaceState({}, document.title, window.location.pathname)
+        } else if (user?.id) {
+          // Restore from localStorage for logged in users
+          const savedTab = localStorage.getItem('koouk-last-tab')
+          if (savedTab && ['dashboard', 'my-folder', 'marketplace', 'bookmarks'].includes(savedTab)) {
+            handleTabChange(savedTab as TabType)
+          }
+        } else {
+          // Default to dashboard for non-logged in users
+          handleTabChange('dashboard')
+        }
+        
+        setIsInitialized(true)
+      } catch (error) {
+        console.error('App initialization error:', error)
+        handleTabChange('dashboard')
+        setIsInitialized(true)
+      }
+    }
+
+    if (status === 'idle' || status === 'authenticated' || status === 'error') {
+      initializeApp()
+    }
+  }, [status, user?.id, handleTabChange, isInitialized])
+
+  // Loading state
+  if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -244,24 +164,23 @@ export default function App() {
     )
   }
 
-  // Show error state if there's an auth error
-  if (error && !user) {
+  // Error state
+  if (status === 'error' && !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8 text-center">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center border border-gray-200">
           <div className="rounded-full h-12 w-12 bg-red-100 flex items-center justify-center mx-auto mb-4">
             <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Authentication Error</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
+          <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
-            disabled={loading}
+            className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 transition-colors font-medium"
           >
-            {loading ? 'Loading...' : 'Reload Page'}
+            Reload Page
           </button>
         </div>
       </div>
@@ -269,143 +188,167 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* 기존 JSX 코드는 동일하게 유지 */}
-      <header className="border-b border-gray-200 bg-white sticky top-0 z-50 w-full">
-        {/* 헤더 내용은 원본과 동일 */}
-        <div className="w-full bg-white">
-          <div className="w-full px-3 sm:px-8 sm:max-w-6xl sm:mx-auto">
-            {device.width >= 768 ? (
-              <div className="flex items-center justify-between h-16 min-h-[64px]">
-                <div className="flex items-center">
-                  <button 
-                    onClick={() => handleTabChange('dashboard')}
-                    className="hover:opacity-80 transition-opacity"
-                  >
-                    <Image 
-                      src="/koouk-logo.svg" 
-                      alt="KOOUK" 
-                      width={100}
-                      height={24}
-                      className="h-6 w-auto"
-                    />
-                  </button>
-                </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
+        <div className="w-full px-4 sm:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center justify-between h-16">
+              {/* Logo */}
+              <button 
+                onClick={() => handleTabChange('dashboard')}
+                className="hover:opacity-80 transition-opacity"
+              >
+                <Image 
+                  src="/koouk-logo.svg" 
+                  alt="KOOUK" 
+                  width={100}
+                  height={24}
+                  className="h-6 w-auto"
+                />
+              </button>
 
-                <div className="flex-1 flex justify-center mx-4">
-                  <div className="flex space-x-1">
+              {/* Desktop Navigation */}
+              {device.width >= 768 && (
+                <div className="flex-1 flex justify-center mx-8">
+                  <div className="flex space-x-2">
                     <button
                       onClick={() => handleTabChange('my-folder')}
                       disabled={!user}
-                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 transform select-none ${
-                        !user 
-                          ? 'text-gray-400 cursor-not-allowed opacity-60'
-                          : activeTab === 'my-folder'
-                          ? 'bg-black text-white shadow-md'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 hover:scale-[1.02] active:scale-95'
+                      className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                        activeTab === 'my-folder'
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : user 
+                            ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
+                            : 'text-gray-400 cursor-not-allowed'
                       }`}
-                      title={!user ? 'Please sign in to access My Folder' : ''}
                     >
                       My Folder
                     </button>
                     <button
                       onClick={() => handleTabChange('bookmarks')}
                       disabled={!user}
-                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 transform select-none ${
-                        !user 
-                          ? 'text-gray-400 cursor-not-allowed opacity-60'
-                          : activeTab === 'bookmarks'
-                          ? 'bg-black text-white shadow-md'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 hover:scale-[1.02] active:scale-95'
+                      className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                        activeTab === 'bookmarks'
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : user 
+                            ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
+                            : 'text-gray-400 cursor-not-allowed'
                       }`}
-                      title={!user ? 'Please sign in to access Bookmarks' : ''}
                     >
                       Bookmarks
                     </button>
                     <button
                       onClick={() => handleTabChange('marketplace')}
                       disabled={!user}
-                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 transform select-none ${
-                        !user 
-                          ? 'text-gray-400 cursor-not-allowed opacity-60'
-                          : activeTab === 'marketplace'
-                          ? 'bg-black text-white shadow-md'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 hover:scale-[1.02] active:scale-95'
+                      className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                        activeTab === 'marketplace'
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : user 
+                            ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
+                            : 'text-gray-400 cursor-not-allowed'
                       }`}
-                      title={!user ? 'Please sign in to access Market Place' : ''}
                     >
                       Market Place
                     </button>
                   </div>
                 </div>
+              )}
 
-                <div className="flex items-center gap-0.5 sm:gap-3">
-                  <SearchInterface
-                    searchQuery={searchQuery}
-                    onSearchChange={setSearchQuery}
-                    searchScope={activeTab === 'my-folder' ? 'my-folder' : activeTab === 'marketplace' ? 'market-place' : 'bookmarks'}
-                    placeholder="Search..."
-                    language="en"
-                  />
+              {/* Right Side Actions */}
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => setShowFeedbackModal(true)}
+                  className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+                  title="Send feedback"
+                >
+                  <MessageCircle size={20} />
+                </button>
 
-                  <button 
-                    onClick={() => setShowFeedbackModal(true)}
-                    className="flex items-center justify-center w-8 h-8 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-all duration-150 sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:w-auto sm:h-auto active:scale-95 select-none"
-                    title="Feedback"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    <span className="hidden sm:inline">Feedback</span>
-                  </button>
-
+                {user ? (
                   <div className="relative">
                     <button
                       onClick={() => setShowUserMenu(!showUserMenu)}
-                      className="flex items-center gap-1.5 p-1.5 hover:bg-gray-50 rounded-md transition-all duration-150 cursor-pointer active:scale-95 select-none"
-                      type="button"
+                      className="flex items-center space-x-3 p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                     >
-                      <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center text-xs font-medium">
-                        {user?.email?.[0]?.toUpperCase() || 'U'}
-                      </div>
+                      {user.user_metadata?.avatar_url ? (
+                        <Image 
+                          src={user.user_metadata.avatar_url} 
+                          alt="Profile" 
+                          width={32}
+                          height={32}
+                          className="w-8 h-8 rounded-full"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                          <span className="text-white text-sm font-medium">
+                            {user.email?.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                      <span className="text-sm font-medium truncate max-w-24 hidden sm:block">
+                        {user.user_metadata?.name || user.email?.split('@')[0]}
+                      </span>
                     </button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div>
-                <MobileHeader
-                  activeTab={activeTab}
-                  searchQuery={searchQuery}
-                  onSearchChange={setSearchQuery}
-                  onShowFeedbackModal={() => setShowFeedbackModal(true)}
-                  onShowUserMenu={() => setShowUserMenu(!showUserMenu)}
-                  onLogoClick={() => handleTabChange('dashboard')}
-                />
 
-                {activeTab !== 'dashboard' && (
-                  <div className="flex justify-center border-t border-gray-100 py-1">
-                    <TopNavigation 
-                      activeTab={activeTab}
-                      onTabChange={handleTabChange}
-                    />
+                    {/* User Menu Dropdown */}
+                    {showUserMenu && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg z-50 border border-gray-200">
+                        <div className="py-1">
+                          <div className="px-4 py-2 text-xs text-gray-500 border-b border-gray-100">
+                            {user.email}
+                          </div>
+                          <Link
+                            href="/settings"
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                            onClick={() => setShowUserMenu(false)}
+                          >
+                            <Settings size={16} className="mr-3" />
+                            Settings
+                          </Link>
+                          <button
+                            onClick={handleSignOut}
+                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          >
+                            <LogOut size={16} className="mr-3" />
+                            Sign out
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
+                ) : (
+                  <button
+                    onClick={handleSignIn}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                  >
+                    Sign In
+                  </button>
                 )}
               </div>
-            )}
+            </div>
           </div>
         </div>
       </header>
 
+      {/* Click outside to close user menu */}
+      {showUserMenu && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setShowUserMenu(false)}
+        />
+      )}
+
+      {/* Main Content */}
       <main 
-        className={`w-full px-2 sm:px-8 sm:max-w-6xl sm:mx-auto pt-2 sm:pt-6 pb-4 sm:pb-8 transition-all duration-300 ease-out ${
-          device.width >= 768 ? 'min-h-[calc(100vh-64px)]' : 'min-h-[calc(100vh-100px)]'
-        }`}
+        className="pb-safe"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
         {activeTab === 'dashboard' ? (
           user ? (
-            <DashboardPage onNavigate={(tab: string) => handleTabChange(tab as 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks')} />
+            <DashboardPage onNavigate={(tab: string) => handleTabChange(tab as TabType)} />
           ) : (
             <OnboardingPage />
           )
@@ -413,100 +356,82 @@ export default function App() {
           <MyFolderContent searchQuery={searchQuery} />
         ) : activeTab === 'bookmarks' ? (
           <Bookmarks searchQuery={searchQuery} />
-        ) : (
-          <MarketPlace 
-            searchQuery={searchQuery} 
-            onImportFolder={handleImportSharedFolder}
-          />
-        )}
+        ) : activeTab === 'marketplace' ? (
+          <MarketPlace searchQuery={searchQuery} />
+        ) : null}
       </main>
 
-      {/* 나머지 모달 및 UI 요소들은 원본과 동일 */}
-      {showUserMenu && (
-        <>
-          <div
-            className="fixed inset-0 bg-transparent"
-            style={{ zIndex: 10000 }}
-            onClick={() => setShowUserMenu(false)}
-          />
-          
-          <div
-            className="fixed top-20 right-4 w-48 bg-white rounded-lg shadow-2xl border border-gray-200 py-2"
-            style={{ zIndex: 10001 }}
-          >
-            {user ? (
-              <>
-                <div className="px-3 py-2 border-b border-gray-100 text-center">
-                  <div className="text-xs font-medium text-black">{user?.email?.split('@')[0] || 'User'}</div>
-                  <div className="text-[10px] text-gray-500">{user?.email}</div>
-                </div>
-                
-                <Link
-                  href="/settings"
-                  onClick={() => {
-                    const currentPageData = {
-                      tab: activeTab,
-                      query: searchQuery
-                    }
-                    localStorage.setItem('koouk-previous-page-data', JSON.stringify(currentPageData))
-                    let pageUrl = '/'
-                    if (activeTab === 'marketplace') pageUrl += '?tab=marketplace'
-                    else if (activeTab === 'bookmarks') pageUrl += '?tab=bookmarks'
-                    else if (activeTab === 'my-folder') pageUrl += '?tab=my-folder'
-                    localStorage.setItem('koouk-previous-page', pageUrl)
-                    setShowUserMenu(false)
-                  }}
-                  className="w-full flex items-center justify-center gap-2.5 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  <Settings className="w-3.5 h-3.5" />
-                  Settings
-                </Link>
-                
-                <button
-                  onClick={handleSignOut}
-                  className="w-full flex items-center justify-center gap-2.5 px-3 py-2 text-xs text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                  type="button"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                  Sign Out
-                </button>
-              </>
-            ) : (
-              <div className="px-3 py-2">
-                <div className="text-center mb-3">
-                  <div className="text-xs font-medium text-black">Welcome to KOOUK</div>
-                  <div className="text-[10px] text-gray-500">Sign in to save your data</div>
-                </div>
-                
-                <button
-                  onClick={handleSignIn}
-                  className="w-full flex items-center justify-center gap-2.5 px-3 py-2 text-xs bg-black text-white hover:bg-gray-800 rounded-md transition-all duration-150 cursor-pointer active:scale-95 select-none"
-                  type="button"
-                >
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                  </svg>
-                  Sign in with Google
-                </button>
+      {/* Mobile Navigation */}
+      {device.width < 768 && (
+        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+          <div className="flex">
+            <button
+              onClick={() => handleTabChange('my-folder')}
+              disabled={!user}
+              className={`flex-1 flex flex-col items-center justify-center py-3 text-xs font-medium transition-colors ${
+                activeTab === 'my-folder'
+                  ? 'text-blue-600'
+                  : user
+                    ? 'text-gray-600 hover:text-blue-600'
+                    : 'text-gray-400'
+              }`}
+            >
+              <div className={`w-6 h-6 mb-1 flex items-center justify-center ${!user ? 'opacity-50' : ''}`}>
+                📁
               </div>
-            )}
+              My Folder
+            </button>
+            <button
+              onClick={() => handleTabChange('bookmarks')}
+              disabled={!user}
+              className={`flex-1 flex flex-col items-center justify-center py-3 text-xs font-medium transition-colors ${
+                activeTab === 'bookmarks'
+                  ? 'text-blue-600'
+                  : user
+                    ? 'text-gray-600 hover:text-blue-600'
+                    : 'text-gray-400'
+              }`}
+            >
+              <div className={`w-6 h-6 mb-1 flex items-center justify-center ${!user ? 'opacity-50' : ''}`}>
+                🔖
+              </div>
+              Bookmarks
+            </button>
+            <button
+              onClick={() => handleTabChange('marketplace')}
+              disabled={!user}
+              className={`flex-1 flex flex-col items-center justify-center py-3 text-xs font-medium transition-colors ${
+                activeTab === 'marketplace'
+                  ? 'text-blue-600'
+                  : user
+                    ? 'text-gray-600 hover:text-blue-600'
+                    : 'text-gray-400'
+              }`}
+            >
+              <div className={`w-6 h-6 mb-1 flex items-center justify-center ${!user ? 'opacity-50' : ''}`}>
+                🛍️
+              </div>
+              Market Place
+            </button>
           </div>
-        </>
+        </nav>
       )}
 
-      <FeedbackModal 
-        isOpen={showFeedbackModal}
-        onClose={() => setShowFeedbackModal(false)}
-      />
+      {/* Modals */}
+      {showFeedbackModal && (
+        <FeedbackModal 
+          isOpen={showFeedbackModal}
+          onClose={() => setShowFeedbackModal(false)} 
+        />
+      )}
 
-      <SignoutModal
-        isOpen={showSignoutModal}
-        onClose={() => setShowSignoutModal(false)}
-        onConfirm={handleConfirmSignOut}
-      />
+      {showSignoutModal && (
+        <SignoutModal 
+          isOpen={showSignoutModal}
+          onConfirm={handleConfirmSignOut}
+          onClose={() => setShowSignoutModal(false)}
+        />
+      )}
     </div>
   )
 }

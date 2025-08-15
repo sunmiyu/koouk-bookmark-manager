@@ -157,7 +157,7 @@ export default function App() {
     // Navigate to my-folder tab
     setActiveTab('my-folder')
   }
-  const { user, signIn } = useAuth()
+  const { user, signIn, signOut } = useAuth()
 
   // Redirect to dashboard if user is not authenticated and trying to access protected tabs
   useEffect(() => {
@@ -198,28 +198,11 @@ export default function App() {
     setShowSignoutModal(false)
     
     try {
-      // Sign out from Supabase first
-      const { error } = await supabase.auth.signOut()
-      if (error) {
-        console.error('Supabase sign out error:', error)
-      }
-      
-      // Clear all localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.clear()
-      }
-      
-      // Clear all sessionStorage
-      if (typeof window !== 'undefined') {
-        sessionStorage.clear()
-      }
-      
-      // Reload page for complete reset
-      window.location.reload()
-      
+      // Use AuthContext signOut function instead of direct supabase call
+      await signOut()
     } catch (error) {
-      console.error('Sign out error, doing emergency reload:', error)
-      // Emergency reload if complete failure
+      console.error('Sign out error:', error)
+      // Fallback: force page reload
       window.location.reload()
     }
   }

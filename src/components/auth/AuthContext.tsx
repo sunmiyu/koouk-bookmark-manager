@@ -160,13 +160,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔄 Auth state changed:', event)
+        console.log('🔄 Auth state changed:', event, 'User:', session?.user?.email)
         const authUser = session?.user ?? null
         setUser(authUser)
         
-        if (authUser && event === 'SIGNED_IN') {
+        // 사용자가 있으면 데이터 로드 (이벤트 타입에 관계없이)
+        if (authUser) {
+          console.log('✅ User detected, loading data...')
           await loadUserData(authUser)
-        } else if (!authUser) {
+        } else {
+          console.log('❌ No user, clearing state...')
           // 로그아웃 시 상태 클리어
           setUserProfile(null)
           setUserSettings(null)

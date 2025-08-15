@@ -120,8 +120,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('🔐 Initializing auth...')
         const startTime = performance.now()
         
-        // 세션 체크
-        const { data: { session } } = await supabase.auth.getSession()
+        // 세션 체크 - refresh token 에러 핸들링 추가
+        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        // Refresh token 에러 처리
+        if (error && error.message.includes('Refresh Token')) {
+          console.warn('🔄 Invalid refresh token, clearing auth state')
+          await supabase.auth.signOut()
+          setUser(null)
+          setUserProfile(null)
+          setUserSettings(null)
+          setLoading(false)
+          return
+        }
+        
         const authUser = session?.user ?? null
         
         console.log(`⚡ Auth check completed in ${Math.round(performance.now() - startTime)}ms`)

@@ -21,6 +21,7 @@ import { useDevice } from '@/hooks/useDevice'
 
 export default function App() {
   const device = useDevice()
+  const { user, signIn, signOut } = useAuth()
   const [activeTab, setActiveTab] = useState<'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks'>('my-folder')
   const [searchQuery, setSearchQuery] = useState('')
   const [showUserMenu, setShowUserMenu] = useState(false)
@@ -178,11 +179,6 @@ export default function App() {
     // Navigate to my-folder tab
     setActiveTab('my-folder')
   }
-  const { user, signIn, signOut } = useAuth()
-  
-
-
-
 
   const handleSignIn = async () => {
     setShowUserMenu(false)

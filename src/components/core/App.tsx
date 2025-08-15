@@ -159,12 +159,15 @@ export default function App() {
   }
   const { user, signIn, signOut } = useAuth()
   
-  // 디버그용 로그
-  console.log('🔍 App.tsx - Current user:', user?.email, 'User ID:', user?.id)
+  // 디버그용 로그 - 더 상세하게
+  console.log('🔍 App.tsx - Current user:', user?.email, 'User ID:', user?.id, 'User object:', user)
+  console.log('🔍 App.tsx - Current activeTab:', activeTab)
 
   // Redirect to dashboard if user is not authenticated and trying to access protected tabs
   useEffect(() => {
+    console.log('🔍 useEffect - user:', user?.email, 'activeTab:', activeTab)
     if (!user && (activeTab === 'my-folder' || activeTab === 'marketplace' || activeTab === 'bookmarks')) {
+      console.log('❌ Redirecting to dashboard - user not found')
       setActiveTab('dashboard')
     }
   }, [user, activeTab])

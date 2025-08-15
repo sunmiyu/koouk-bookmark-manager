@@ -25,10 +25,13 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  console.log('🎯 AuthProvider rendering... timestamp:', new Date().toISOString())
   const [user, setUser] = useState<User | null>(null)
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
   const [loading, setLoading] = useState(true)
+  
+  console.log('🎯 AuthProvider initial state - user:', user?.email, 'loading:', loading)
 
   // 사용자 데이터 로드 함수 - setTimeout 제거하고 즉시 실행
   const loadUserData = async (authUser: User) => {
@@ -114,6 +117,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
+    console.log('🔄 AuthProvider useEffect starting...')
+    
     // Initialize auth state - 단순화된 초기화
     const initAuth = async () => {
       try {
@@ -121,7 +126,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const startTime = performance.now()
         
         // 세션 체크 - refresh token 에러 핸들링 추가
+        console.log('🔍 Checking Supabase session...')
         const { data: { session }, error } = await supabase.auth.getSession()
+        console.log('🔍 Supabase session result - session:', !!session, 'user:', session?.user?.email, 'error:', error?.message)
         
         // Refresh token 에러 처리
         if (error && error.message.includes('Refresh Token')) {

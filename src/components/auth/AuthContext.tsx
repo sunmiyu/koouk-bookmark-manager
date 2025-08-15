@@ -187,10 +187,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}`,
+          redirectTo: typeof window !== 'undefined' 
+            ? `${window.location.origin}` 
+            : 'https://www.koouk.im',
           queryParams: {
             access_type: 'offline',
             prompt: 'select_account',
+            include_granted_scopes: 'true'
           }
         }
       })
@@ -225,8 +228,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUserProfile(null)
       setUserSettings(null)
       
-      // Supabase 로그아웃 - scope 명시적 지정
+      // Supabase 로그아웃 - scope 명시적 지정  
       const { error } = await supabase.auth.signOut({ scope: 'local' })
+      
+      // Google OAuth 세션도 완전히 정리하기 위한 추가 처리
+      if (typeof window !== 'undefined') {
+        // Google OAuth 관련 쿠키 정리
+        document.cookie.split(";").forEach(function(c) { 
+          document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+        });
+      }
       if (error) {
         console.error('Supabase sign out error:', error)
         // 에러가 있어도 로컬 상태는 이미 클리어됨
@@ -254,7 +265,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
           })
           
-          console.log('✅ All browser storage cleared')
+          // Google OAuth iframe 정리 (숨겨진 Google 세션 방지)
+          const iframes = document.querySelectorAll('iframe[src*="accounts.google.com"]')
+          iframes.forEach(iframe => iframe.remove())
+          
+          console.log('✅ All browser storage and Google sessions cleared')
         } catch (storageError) {
           console.error('Storage clear error:', storageError)
         }

@@ -26,7 +26,7 @@ interface MyFolderContentProps {
 }
 
 export default function MyFolderContent({ searchQuery = '' }: MyFolderContentProps) {
-  const { user, userSettings, updateUserSettings, loading } = useAuth() // 🔧 loading 추가
+  const { user, userSettings, updateUserSettings } = useAuth() // loading 의존성 제거
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
   const [currentView, setCurrentView] = useState<'grid' | 'detail'>('grid')

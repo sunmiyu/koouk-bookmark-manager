@@ -166,7 +166,7 @@ export default function App() {
     return () => {
       clearTimeout(timeoutId)
     }
-  }, [user?.id, handleTabChange])
+  }, [user?.id]) // handleTabChange 의존성 제거하여 무한루프 방지
 
   // SharedFolder import functionality
   const handleImportSharedFolder = useCallback((sharedFolder: SharedFolder) => {

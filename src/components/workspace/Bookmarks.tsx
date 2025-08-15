@@ -11,7 +11,7 @@ import { useAuth } from '../auth/AuthContext'
 import { DatabaseService } from '@/lib/database'
 
 export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }) {
-  const { user, loading } = useAuth() // 🔧 loading 추가
+  const { user } = useAuth() // loading 의존성 제거
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('most-used')

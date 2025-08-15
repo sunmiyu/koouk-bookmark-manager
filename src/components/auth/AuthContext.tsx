@@ -60,9 +60,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .upsert({
               id: authUser.id,
               email: authUser.email!,
-              name: authUser.user_metadata?.name || authUser.email?.split('@')[0],
-              avatar_url: authUser.user_metadata?.avatar_url,
-              is_verified: !!authUser.email_confirmed_at
+              name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'User',
+              avatar_url: authUser.user_metadata?.avatar_url || null,
+              is_verified: !!authUser.email_confirmed_at,
+              user_plan: 'free' as const,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
             })
             .select()
             .single()

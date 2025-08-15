@@ -18,7 +18,7 @@ interface MarketPlaceProps {
 }
 
 export default function MarketPlace({ searchQuery = '', onImportFolder }: MarketPlaceProps) {
-  const { user, loading } = useAuth() // 🔧 loading 추가
+  const { user } = useAuth() // loading 의존성 제거
   const { toast, showSuccess, hideToast } = useToast()
   const [sharedFolders, setSharedFolders] = useState<SharedFolder[]>([])
   const [filteredFolders, setFilteredFolders] = useState<SharedFolder[]>([])

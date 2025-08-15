@@ -19,8 +19,6 @@ import type { Database } from '@/types/database'
 import { analytics } from '@/lib/analytics'
 
 type Json = Database['public']['Tables']['storage_items']['Row']['metadata']
-
-// type DbFolder = Database['public']['Tables']['folders']['Row']
 type DbStorageItem = Database['public']['Tables']['storage_items']['Row']
 
 interface MyFolderContentProps {
@@ -28,7 +26,7 @@ interface MyFolderContentProps {
 }
 
 export default function MyFolderContent({ searchQuery = '' }: MyFolderContentProps) {
-  const { user, userSettings, updateUserSettings } = useAuth()
+  const { user, userSettings, updateUserSettings, loading } = useAuth() // 🔧 loading 추가
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
   const [currentView, setCurrentView] = useState<'grid' | 'detail'>('grid')
@@ -42,18 +40,26 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
   // 선택된 폴더
   const selectedFolder = folders.find(f => f.id === selectedFolderId)
 
-  // 데이터베이스에서 데이터 로드
+  // 데이터베이스에서 데이터 로드 - 개선된 버전
   useEffect(() => {
+    // 🔒 핵심: 사용자 인증 및 로딩 상태 체크
     if (!user) {
+      console.log('👤 No user found, skipping folder data load')
       setIsLoading(false)
+      return
+    }
+
+    if (loading) {
+      console.log('⏳ Auth still loading, waiting for folder data...')
       return
     }
 
     const loadData = async () => {
       try {
         setIsLoading(true)
+        console.log('📁 Loading folders for user:', user.email)
         
-        // Supabase에서 폴더와 아이템 데이터 로드
+        // ✅ 안전한 데이터베이스 호출
         const dbFolders = await DatabaseService.getUserFolders(user.id) as Array<{
           id: string
           name: string
@@ -109,9 +115,19 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
 
         // 검색 엔진 인덱스 업데이트
         searchEngine.updateIndex(convertedFolders)
+        console.log('✅ Folders loaded successfully:', convertedFolders.length)
         
       } catch (error) {
-        console.error('Failed to load folders:', error)
+        console.error('❌ Failed to load folders:', error)
+        
+        // 🚨 토큰 에러 구체적 처리
+        if (error.message?.includes('No authorization token') || 
+            error.message?.includes('JWT') || 
+            error.message?.includes('authorization')) {
+          console.error('🚨 Authorization token missing - user may need to re-login')
+          // 선택적: 사용자에게 재로그인 안내
+        }
+        
         setFolders([])
       } finally {
         setIsLoading(false)
@@ -119,16 +135,24 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
     }
 
     loadData()
-  }, [user, userSettings])
+  }, [user?.id, loading, userSettings]) // 🔧 user.id와 loading 추가
 
   // 폴더 선택 상태 저장
   const saveSelectedFolder = async (folderId: string) => {
-    if (!user || !updateUserSettings) return
+    if (!user?.id || !updateUserSettings) {
+      console.log('👤 No user or updateUserSettings function available')
+      return
+    }
     
     try {
       await updateUserSettings({ selected_folder_id: folderId })
     } catch (error) {
       console.error('Failed to save selected folder:', error)
+      
+      // 🚨 토큰 에러 처리
+      if (error.message?.includes('No authorization token')) {
+        console.error('🚨 Authorization token missing for saving folder selection')
+      }
     }
   }
 
@@ -156,12 +180,18 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
   }
 
   const handleConfirmCreateFolder = async () => {
-    if (!user) return
+    if (!user?.id) {
+      console.error('❌ No user found for folder creation')
+      showSuccess('Please sign in to create folders')
+      return
+    }
     
     const folderName = newFolderName.trim() || 'New Folder'
     
     try {
-      // 데이터베이스에 새 폴더 생성
+      console.log('📁 Creating folder for user:', user.email)
+      
+      // ✅ 안전한 데이터베이스 호출
       const dbFolder = await DatabaseService.createFolder(user.id, {
         name: folderName,
         color: '#3B82F6',
@@ -194,21 +224,37 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
       setShowCreateFolderModal(false)
       setNewFolderName('')
       
+      console.log('✅ Folder created successfully:', folderName)
+      
     } catch (error) {
-      console.error('Failed to create folder:', error)
-      // 에러 메시지 개선
-      const errorMessage = error instanceof Error ? error.message : 'Failed to create folder'
-      showSuccess(errorMessage) // Toast로 에러 메시지 표시
-      // 모달은 닫지 않고 사용자가 다시 시도할 수 있도록 유지
+      console.error('❌ Failed to create folder:', error)
+      
+      // 🚨 토큰 에러 처리
+      if (error.message?.includes('No authorization token') || 
+          error.message?.includes('JWT') || 
+          error.message?.includes('authorization')) {
+        console.error('🚨 Authorization token missing for folder creation')
+        showSuccess('Please sign in again to create folders')
+      } else {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to create folder'
+        showSuccess(errorMessage)
+      }
+      // 에러 시 모달은 닫지 않고 사용자가 다시 시도할 수 있도록 유지
     }
   }
 
   // 아이템 추가
   const handleAddItem = async (item: StorageItem, folderId: string) => {
-    if (!user) return
+    if (!user?.id) {
+      console.error('❌ No user found for item creation')
+      showSuccess('Please sign in to add items')
+      return
+    }
     
     try {
-      // 데이터베이스에 새 아이템 생성
+      console.log('📝 Adding item for user:', user.email)
+      
+      // ✅ 안전한 데이터베이스 호출
       const dbItem = await DatabaseService.createStorageItem(user.id, {
         folder_id: folderId,
         name: item.name,
@@ -252,19 +298,34 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
       })
       
       handleFoldersChange(updatedFolders)
+      console.log('✅ Item added successfully:', item.name)
       
     } catch (error) {
-      console.error('Failed to add item:', error)
-      showSuccess('Failed to add item')
+      console.error('❌ Failed to add item:', error)
+      
+      // 🚨 토큰 에러 처리
+      if (error.message?.includes('No authorization token') || 
+          error.message?.includes('JWT') || 
+          error.message?.includes('authorization')) {
+        console.error('🚨 Authorization token missing for item creation')
+        showSuccess('Please sign in again to add items')
+      } else {
+        showSuccess('Failed to add item')
+      }
     }
   }
 
   // 아이템 삭제
   const handleItemDelete = async (itemId: string) => {
-    if (!selectedFolderId) return
+    if (!selectedFolderId || !user?.id) {
+      console.error('❌ No user or selected folder for item deletion')
+      return
+    }
     
     try {
-      // 데이터베이스에서 아이템 삭제
+      console.log('🗑️ Deleting item for user:', user.email)
+      
+      // ✅ 안전한 데이터베이스 호출
       await DatabaseService.deleteStorageItem(itemId)
 
       // 로컬 상태 업데이트
@@ -280,10 +341,20 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
       })
       
       handleFoldersChange(updatedFolders)
+      console.log('✅ Item deleted successfully')
       
     } catch (error) {
-      console.error('Failed to delete item:', error)
-      showSuccess('Failed to delete item')
+      console.error('❌ Failed to delete item:', error)
+      
+      // 🚨 토큰 에러 처리
+      if (error.message?.includes('No authorization token') || 
+          error.message?.includes('JWT') || 
+          error.message?.includes('authorization')) {
+        console.error('🚨 Authorization token missing for item deletion')
+        showSuccess('Please sign in again to delete items')
+      } else {
+        showSuccess('Failed to delete item')
+      }
     }
   }
 
@@ -293,21 +364,32 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
     setSelectedFolderId(undefined)
     
     // 사용자 설정에서 선택된 폴더 클리어
-    if (user && updateUserSettings) {
+    if (user?.id && updateUserSettings) {
       try {
         await updateUserSettings({ selected_folder_id: null })
       } catch (error) {
         console.error('Failed to clear selected folder:', error)
+        
+        // 🚨 토큰 에러 처리
+        if (error.message?.includes('No authorization token')) {
+          console.error('🚨 Authorization token missing for clearing folder selection')
+        }
       }
     }
   }
 
   // 폴더 공유
   const handleShareFolder = async (sharedFolderData: SharedFolderData, folder: FolderItem) => {
-    if (!user) return
+    if (!user?.id) {
+      console.error('❌ No user found for folder sharing')
+      showSuccess('Please sign in to share folders')
+      return
+    }
     
     try {
-      // 데이터베이스에 공유 폴더 생성
+      console.log('📢 Sharing folder for user:', user.email)
+      
+      // ✅ 안전한 데이터베이스 호출
       const dbSharedFolder = await DatabaseService.createSharedFolder(user.id, {
         folder_id: folder.id,
         title: sharedFolderData.title,
@@ -332,11 +414,20 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
       })
 
       showSuccess(`📢 "${sharedFolderData.title}" has been shared to Market Place!`)
+      console.log('✅ Folder shared successfully:', dbSharedFolder)
       
-      console.log('Folder shared successfully:', dbSharedFolder)
     } catch (error) {
-      console.error('Error sharing folder:', error)
-      showSuccess('Failed to share folder. Please try again.')
+      console.error('❌ Error sharing folder:', error)
+      
+      // 🚨 토큰 에러 처리
+      if (error.message?.includes('No authorization token') || 
+          error.message?.includes('JWT') || 
+          error.message?.includes('authorization')) {
+        console.error('🚨 Authorization token missing for folder sharing')
+        showSuccess('Please sign in again to share folders')
+      } else {
+        showSuccess('Failed to share folder. Please try again.')
+      }
     }
   }
 
@@ -347,6 +438,11 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
       return
     }
 
+    if (!user?.id) {
+      showSuccess('Please sign in to save notes')
+      return
+    }
+
     // 콘텐츠 길이에 따라 memo 또는 document 타입 결정
     const type = content.length > 500 ? 'document' : 'memo'
     const noteItem = createStorageItem(title, type, content, folderId)
@@ -354,6 +450,41 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
     showSuccess(`📝 "${title}" saved successfully!`)
   }
 
+  // 🔒 로딩 또는 인증되지 않은 사용자 처리
+  if (loading || !user) {
+    return (
+      <div className="h-96 flex items-center justify-center">
+        <div className="text-center">
+          {loading ? (
+            <>
+              <div className="space-y-4 max-w-xs mx-auto">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-xl animate-pulse" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse" />
+                    <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-3/4 animate-pulse" />
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 flex justify-center">
+                <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+              </div>
+            </>
+          ) : (
+            <div className="text-gray-500">
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <span className="text-2xl">📁</span>
+              </div>
+              <h3 className="text-sm font-medium text-gray-900 mb-1">Please sign in</h3>
+              <p className="text-xs text-gray-500">Sign in to access your folders</p>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // 실제 폴더 데이터가 로딩 중인 경우
   if (isLoading) {
     return (
       <div className="h-96 flex items-center justify-center">

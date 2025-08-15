@@ -49,10 +49,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
       return
     }
 
-    if (loading) {
-      console.log('⏳ Auth still loading, waiting for folder data...')
-      return
-    }
+    // loading 상태 체크 제거 - user 상태만으로 충분
 
     const loadData = async () => {
       try {
@@ -450,12 +447,13 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
     showSuccess(`📝 "${title}" saved successfully!`)
   }
 
-  // 🔒 로딩 또는 인증되지 않은 사용자 처리
-  if (loading || !user) {
+  // 🔒 인증되지 않은 사용자 처리
+  if (!user) {
     return (
       <div className="h-96 flex items-center justify-center">
         <div className="text-center">
-          {loading ? (
+          {/* AuthContext loading 처리 제거 - 로그인 여부는 user 상태만으로 판단 */}
+          {false ? (
             <>
               <div className="space-y-4 max-w-xs mx-auto">
                 <div className="flex items-center gap-3">

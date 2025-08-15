@@ -180,11 +180,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
 
   // 데이터베이스에서 공유 폴더 데이터 로드 - 개선된 버전
   useEffect(() => {
-    // 🔒 AuthContext 로딩 상태 체크
-    if (loading) {
-      console.log('⏳ Auth loading, waiting for marketplace data...')
-      return
-    }
+    // AuthContext loading 상태 체크 제거 - user 상태만으로 충분
 
     const loadData = async () => {
       try {
@@ -394,8 +390,8 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
     }
   }
 
-  // 🔒 로딩 상태 처리
-  if (loading || isLoading) {
+  // 🔒 데이터 로딩 상태 처리
+  if (isLoading) {
     return (
       <div className="h-96 flex items-center justify-center">
         <div className="text-center">

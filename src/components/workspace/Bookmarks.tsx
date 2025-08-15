@@ -41,10 +41,7 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
       return
     }
 
-    if (loading) {
-      console.log('⏳ Auth still loading, waiting for bookmarks...')
-      return
-    }
+    // loading 상태 체크 제거 - user 상태만으로 충분
 
     const loadBookmarks = async () => {
       try {
@@ -150,12 +147,13 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
     }
   }
 
-  // 🔒 로딩 또는 인증되지 않은 사용자 처리
-  if (loading || !user) {
+  // 🔒 인증되지 않은 사용자 처리
+  if (!user) {
     return (
       <div className="h-96 flex items-center justify-center">
         <div className="text-center">
-          {loading ? (
+          {/* AuthContext loading 처리 제거 - 로그인 여부는 user 상태만으로 판단 */}
+          {false ? (
             <>
               {/* 로딩 스켈레톤 */}
               <div className="space-y-0 max-w-2xl mx-auto">

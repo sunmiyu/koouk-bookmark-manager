@@ -1,11 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Settings, LogOut, MessageCircle } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
-import { supabase } from '@/lib/supabase'
 import Dashboard from '../workspace/Dashboard'
 import MyFolderContent from '../workspace/MyFolderContent'
 import MarketPlace from '../workspace/MarketPlace'
@@ -28,210 +27,209 @@ export default function App() {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
   const [showSignoutModal, setShowSignoutModal] = useState(false)
   
+  // 무한루프 방지를 위한 초기화 플래그
+  const isInitialized = useRef(false)
+  
   // Swipe gesture state
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
   
-  // Minimum swipe distance (in px)
   const minSwipeDistance = 50
-  
-  // Tab order for swipe navigation (excluding dashboard)
   const tabOrder: ('my-folder' | 'bookmarks' | 'marketplace')[] = ['my-folder', 'bookmarks', 'marketplace']
   
+  // 탭 변경 함수 최적화 (무한루프 방지)
+  const handleTabChange = useCallback((
+    tab: 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks', 
+    saveToStorage = true
+  ) => {
+    // 보호된 탭 체크
+    if (!user?.id && (tab === 'my-folder' || tab === 'marketplace' || tab === 'bookmarks')) {
+      setShowUserMenu(true)
+      return
+    }
+    
+    setActiveTab(tab)
+    
+    // localStorage 저장 (선택적)
+    if (saveToStorage && typeof window !== 'undefined') {
+      localStorage.setItem('koouk-last-tab', tab)
+    }
+  }, [user?.id])
+  
   const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null) // otherwise the swipe is fired even with usual touch events
+    setTouchEnd(null)
     setTouchStart(e.targetTouches[0].clientX)
   }
   
   const onTouchMove = (e: React.TouchEvent) => setTouchEnd(e.targetTouches[0].clientX)
   
-  const onTouchEnd = () => {
+  const onTouchEnd = useCallback(() => {
     if (!touchStart || !touchEnd) return
     
     const distance = touchStart - touchEnd
     const isLeftSwipe = distance > minSwipeDistance
     const isRightSwipe = distance < -minSwipeDistance
     
-    // Only handle swipes on non-dashboard tabs and on mobile
     if ((isLeftSwipe || isRightSwipe) && activeTab !== 'dashboard' && device.width < 768) {
       const currentIndex = tabOrder.indexOf(activeTab as 'my-folder' | 'bookmarks' | 'marketplace')
       
       if (isLeftSwipe && currentIndex < tabOrder.length - 1) {
-        // Swipe left: go to next tab
         const nextTab = tabOrder[currentIndex + 1]
-        // Haptic feedback
         if ('vibrate' in navigator) {
           navigator.vibrate(10)
         }
         handleTabChange(nextTab)
       } else if (isRightSwipe && currentIndex > 0) {
-        // Swipe right: go to previous tab
         const prevTab = tabOrder[currentIndex - 1]
-        // Haptic feedback
         if ('vibrate' in navigator) {
           navigator.vibrate(10)
         }
         handleTabChange(prevTab)
       }
     }
-  }
-  
-  // Handle URL parameters for tab restoration and localStorage
+  }, [touchStart, touchEnd, activeTab, device.width, handleTabChange])
+
+  // URL 파라미터 및 localStorage 처리 (개선된 버전)
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      
-      // Handle tab parameter from URL
-      const tabParam = params.get('tab')
-      if (tabParam && (tabParam === 'marketplace' || tabParam === 'bookmarks' || tabParam === 'my-folder' || tabParam === 'dashboard')) {
-        // 보호된 탭인지 확인
-        const isProtectedTab = tabParam === 'my-folder' || tabParam === 'marketplace' || tabParam === 'bookmarks'
+    if (typeof window === 'undefined' || isInitialized.current) return
+    
+    const initializeApp = () => {
+      try {
+        const params = new URLSearchParams(window.location.search)
+        const tabParam = params.get('tab')
         
-        if (isProtectedTab && !user) {
-          // 사용자가 없으면 dashboard로
-          setActiveTab('dashboard')
-        } else {
-          setActiveTab(tabParam as 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks')
-          localStorage.setItem('koouk-last-tab', tabParam)
-        }
-        
-        // Clean up URL
-        window.history.replaceState({}, document.title, window.location.pathname)
-      } else {
-        // Load from localStorage if no URL parameter
-        const savedTab = localStorage.getItem('koouk-last-tab')
-        if (savedTab && (savedTab === 'marketplace' || savedTab === 'bookmarks' || savedTab === 'my-folder' || savedTab === 'dashboard')) {
-          // 보호된 탭인지 확인
-          const isProtectedTab = savedTab === 'my-folder' || savedTab === 'marketplace' || savedTab === 'bookmarks'
+        // URL 파라미터 처리
+        if (tabParam && ['marketplace', 'bookmarks', 'my-folder', 'dashboard'].includes(tabParam)) {
+          const isProtectedTab = ['my-folder', 'marketplace', 'bookmarks'].includes(tabParam)
           
-          if (isProtectedTab && !user) {
-            // 사용자가 없으면 dashboard로
-            setActiveTab('dashboard')
+          if (isProtectedTab && !user?.id) {
+            handleTabChange('dashboard', false)
           } else {
-            setActiveTab(savedTab as 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks')
-          }
-        }
-      }
-      
-      if (params.get('shared') === 'true') {
-        const title = params.get('title')
-        const text = params.get('text')
-        const url = params.get('url')
-        
-        // Show notification or handle the shared content
-        if (title || text || url) {
-          const sharedContent = {
-            title: title || 'Shared Content',
-            text: text || '',
-            url: url || ''
+            handleTabChange(tabParam as any, true)
           }
           
-          // Store shared content for handling by folder
-          sessionStorage.setItem('koouk-shared-content', JSON.stringify(sharedContent))
-          
-          // Clean up URL
+          // URL 정리
           window.history.replaceState({}, document.title, window.location.pathname)
-          
-          // Navigate to my-folder tab only if user is authenticated
-          if (user) {
-            setActiveTab('my-folder')
-          } else {
-            setActiveTab('dashboard')
+        } else {
+          // localStorage에서 복원
+          const savedTab = localStorage.getItem('koouk-last-tab')
+          if (savedTab && ['marketplace', 'bookmarks', 'my-folder', 'dashboard'].includes(savedTab)) {
+            const isProtectedTab = ['my-folder', 'marketplace', 'bookmarks'].includes(savedTab)
+            
+            if (isProtectedTab && !user?.id) {
+              handleTabChange('dashboard', false)
+            } else {
+              handleTabChange(savedTab as any, false)
+            }
           }
         }
+        
+        // 공유 콘텐츠 처리
+        if (params.get('shared') === 'true') {
+          const title = params.get('title')
+          const text = params.get('text')
+          const url = params.get('url')
+          
+          if (title || text || url) {
+            const sharedContent = {
+              title: title || 'Shared Content',
+              text: text || '',
+              url: url || ''
+            }
+            
+            sessionStorage.setItem('koouk-shared-content', JSON.stringify(sharedContent))
+            window.history.replaceState({}, document.title, window.location.pathname)
+            
+            if (user?.id) {
+              handleTabChange('my-folder', false)
+            } else {
+              handleTabChange('dashboard', false)
+            }
+          }
+        }
+        
+        isInitialized.current = true
+      } catch (error) {
+        console.error('App initialization error:', error)
+        handleTabChange('dashboard', false)
+        isInitialized.current = true
       }
     }
-  }, [user])
+
+    // 약간의 지연을 두어 AuthContext가 먼저 초기화되도록 함
+    const timeoutId = setTimeout(initializeApp, 100)
+    
+    return () => {
+      clearTimeout(timeoutId)
+    }
+  }, [user?.id, handleTabChange])
 
   // SharedFolder import functionality
-  const handleImportSharedFolder = (sharedFolder: SharedFolder) => {
-    // Get existing folders from localStorage
-    const savedFolders = localStorage.getItem('koouk-folders')
-    let folders = []
-    
-    if (savedFolders) {
-      folders = JSON.parse(savedFolders)
-    }
-    
-    // Create new folder with same properties as shared folder
-    const newFolder = createFolder(
-      sharedFolder.title,
-      undefined,
-      {
-        color: '#F97316', // 주황색으로 변경 (Market Place에서 가져온 폴더 구분)
-        icon: sharedFolder.folder.icon || '📁'
+  const handleImportSharedFolder = useCallback((sharedFolder: SharedFolder) => {
+    try {
+      const savedFolders = localStorage.getItem('koouk-folders')
+      let folders = []
+      
+      if (savedFolders) {
+        folders = JSON.parse(savedFolders)
       }
-    )
-    
-    // Copy all children from shared folder
-    newFolder.children = [...sharedFolder.folder.children]
-    newFolder.updatedAt = new Date().toISOString()
-    
-    // Add new folder to the front
-    const updatedFolders = [newFolder, ...folders]
-    
-    // Save to local storage
-    localStorage.setItem('koouk-folders', JSON.stringify(updatedFolders))
-    
-    // Set selected folder to newly added folder
-    localStorage.setItem('koouk-selected-folder', newFolder.id)
-    
-    // Navigate to my-folder tab
-    setActiveTab('my-folder')
-  }
+      
+      const newFolder = createFolder(
+        sharedFolder.title,
+        undefined,
+        {
+          color: '#F97316',
+          icon: sharedFolder.folder.icon || '📁'
+        }
+      )
+      
+      newFolder.children = [...sharedFolder.folder.children]
+      newFolder.updatedAt = new Date().toISOString()
+      
+      const updatedFolders = [newFolder, ...folders]
+      localStorage.setItem('koouk-folders', JSON.stringify(updatedFolders))
+      localStorage.setItem('koouk-selected-folder', newFolder.id)
+      
+      handleTabChange('my-folder')
+    } catch (error) {
+      console.error('Import folder error:', error)
+    }
+  }, [handleTabChange])
 
-  const handleSignIn = async () => {
+  const handleSignIn = useCallback(async () => {
     setShowUserMenu(false)
     try {
       await signIn()
     } catch (error) {
       console.error('Sign in error:', error)
     }
-  }
+  }, [signIn])
 
-  const handleTabChange = (tab: 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks') => {
-    // Check if user is trying to access protected tabs without authentication
-    if (!user && (tab === 'my-folder' || tab === 'marketplace' || tab === 'bookmarks')) {
-      // Show user menu to prompt login
-      setShowUserMenu(true)
-      return
-    }
-    
-    setActiveTab(tab)
-    // Save to localStorage for persistence across refreshes
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('koouk-last-tab', tab)
-    }
-  }
-
-  const handleSignOut = () => {
+  const handleSignOut = useCallback(() => {
     setShowSignoutModal(true)
     setShowUserMenu(false)
-  }
+  }, [])
 
-  const handleConfirmSignOut = async () => {
+  const handleConfirmSignOut = useCallback(async () => {
     setShowSignoutModal(false)
     
     try {
-      // Use AuthContext signOut function instead of direct supabase call
       await signOut()
     } catch (error) {
       console.error('Sign out error:', error)
-      // Fallback: force page reload
       window.location.reload()
     }
-  }
+  }, [signOut])
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Fixed Header for Mobile/Desktop */}
+      {/* 기존 JSX 코드는 동일하게 유지 */}
       <header className="border-b border-gray-200 bg-white sticky top-0 z-50 w-full">
+        {/* 헤더 내용은 원본과 동일 */}
         <div className="w-full bg-white">
           <div className="w-full px-3 sm:px-8 sm:max-w-6xl sm:mx-auto">
-            {/* PC: Single row with all elements */}
             {device.width >= 768 ? (
               <div className="flex items-center justify-between h-16 min-h-[64px]">
-                {/* Logo */}
                 <div className="flex items-center">
                   <button 
                     onClick={() => handleTabChange('dashboard')}
@@ -247,7 +245,6 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* Center - PC Navigation */}
                 <div className="flex-1 flex justify-center mx-4">
                   <div className="flex space-x-1">
                     <button
@@ -257,10 +254,6 @@ export default function App() {
                           ? 'bg-black text-white shadow-md'
                           : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 hover:scale-[1.02] active:scale-95'
                       }`}
-                      style={{
-                        WebkitTapHighlightColor: 'transparent',
-                        touchAction: 'manipulation'
-                      }}
                     >
                       My Folder
                     </button>
@@ -271,10 +264,6 @@ export default function App() {
                           ? 'bg-black text-white shadow-md'
                           : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 hover:scale-[1.02] active:scale-95'
                       }`}
-                      style={{
-                        WebkitTapHighlightColor: 'transparent',
-                        touchAction: 'manipulation'
-                      }}
                     >
                       Bookmarks
                     </button>
@@ -285,19 +274,13 @@ export default function App() {
                           ? 'bg-black text-white shadow-md'
                           : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 hover:scale-[1.02] active:scale-95'
                       }`}
-                      style={{
-                        WebkitTapHighlightColor: 'transparent',
-                        touchAction: 'manipulation'
-                      }}
                     >
                       Market Place
                     </button>
                   </div>
                 </div>
 
-                {/* Right side elements */}
                 <div className="flex items-center gap-0.5 sm:gap-3">
-                  {/* Enhanced Search Interface - Always show */}
                   <SearchInterface
                     searchQuery={searchQuery}
                     onSearchChange={setSearchQuery}
@@ -306,32 +289,20 @@ export default function App() {
                     language="en"
                   />
 
-                  {/* Feedback Button - responsive design */}
                   <button 
                     onClick={() => setShowFeedbackModal(true)}
                     className="flex items-center justify-center w-8 h-8 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-all duration-150 sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:w-auto sm:h-auto active:scale-95 select-none"
                     title="Feedback"
-                    style={{
-                      WebkitTapHighlightColor: 'transparent',
-                      touchAction: 'manipulation'
-                    }}
                   >
                     <MessageCircle className="w-4 h-4" />
                     <span className="hidden sm:inline">Feedback</span>
                   </button>
 
-                  {/* User Account - Completely New Implementation */}
                   <div className="relative">
                     <button
-                      onClick={() => {
-                        setShowUserMenu(!showUserMenu)
-                      }}
+                      onClick={() => setShowUserMenu(!showUserMenu)}
                       className="flex items-center gap-1.5 p-1.5 hover:bg-gray-50 rounded-md transition-all duration-150 cursor-pointer active:scale-95 select-none"
                       type="button"
-                      style={{
-                        WebkitTapHighlightColor: 'transparent',
-                        touchAction: 'manipulation'
-                      }}
                     >
                       <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center text-xs font-medium">
                         {user?.email?.[0]?.toUpperCase() || 'U'}
@@ -340,29 +311,22 @@ export default function App() {
                   </div>
                 </div>
               </div>
-) : (
-              /* Mobile: New Mobile Header Component + Navigation */
+            ) : (
               <div>
-                {/* Mobile Header */}
                 <MobileHeader
                   activeTab={activeTab}
                   searchQuery={searchQuery}
                   onSearchChange={setSearchQuery}
                   onShowFeedbackModal={() => setShowFeedbackModal(true)}
-                  onShowUserMenu={() => {
-                    setShowUserMenu(!showUserMenu)
-                  }}
+                  onShowUserMenu={() => setShowUserMenu(!showUserMenu)}
                   onLogoClick={() => handleTabChange('dashboard')}
                 />
 
-                {/* Navigation tabs - Hide on dashboard */}
                 {activeTab !== 'dashboard' && (
                   <div className="flex justify-center border-t border-gray-100 py-1">
                     <TopNavigation 
                       activeTab={activeTab}
-                      onTabChange={(tab) => {
-                        handleTabChange(tab)
-                      }}
+                      onTabChange={handleTabChange}
                     />
                   </div>
                 )}
@@ -372,8 +336,6 @@ export default function App() {
         </div>
       </header>
 
-
-      {/* Main Content with smooth transitions */}
       <main 
         className={`w-full px-2 sm:px-8 sm:max-w-6xl sm:mx-auto pt-2 sm:pt-6 pb-4 sm:pb-8 transition-all duration-300 ease-out ${
           device.width >= 768 ? 'min-h-[calc(100vh-64px)]' : 'min-h-[calc(100vh-100px)]'
@@ -383,9 +345,7 @@ export default function App() {
         onTouchEnd={onTouchEnd}
       >
         {activeTab === 'dashboard' ? (
-          <Dashboard onNavigateToSection={(section) => {
-            handleTabChange(section)
-          }} />
+          <Dashboard onNavigateToSection={handleTabChange} />
         ) : activeTab === 'my-folder' ? (
           <MyFolderContent searchQuery={searchQuery} />
         ) : activeTab === 'bookmarks' ? (
@@ -398,19 +358,15 @@ export default function App() {
         )}
       </main>
 
-      {/* New User Dropdown Menu - Fixed Position */}
+      {/* 나머지 모달 및 UI 요소들은 원본과 동일 */}
       {showUserMenu && (
         <>
-          {/* Overlay */}
           <div
             className="fixed inset-0 bg-transparent"
             style={{ zIndex: 10000 }}
-            onClick={() => {
-              setShowUserMenu(false)
-            }}
+            onClick={() => setShowUserMenu(false)}
           />
           
-          {/* Dropdown Menu */}
           <div
             className="fixed top-20 right-4 w-48 bg-white rounded-lg shadow-2xl border border-gray-200 py-2"
             style={{ zIndex: 10001 }}
@@ -425,13 +381,11 @@ export default function App() {
                 <Link
                   href="/settings"
                   onClick={() => {
-                    // Save current page state to localStorage
                     const currentPageData = {
                       tab: activeTab,
                       query: searchQuery
                     }
                     localStorage.setItem('koouk-previous-page-data', JSON.stringify(currentPageData))
-                    // Create URL based on current tab
                     let pageUrl = '/'
                     if (activeTab === 'marketplace') pageUrl += '?tab=marketplace'
                     else if (activeTab === 'bookmarks') pageUrl += '?tab=bookmarks'
@@ -446,10 +400,7 @@ export default function App() {
                 </Link>
                 
                 <button
-                  onClick={() => {
-                    setShowUserMenu(false)
-                    handleSignOut()
-                  }}
+                  onClick={handleSignOut}
                   className="w-full flex items-center justify-center gap-2.5 px-3 py-2 text-xs text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                   type="button"
                 >
@@ -468,10 +419,6 @@ export default function App() {
                   onClick={handleSignIn}
                   className="w-full flex items-center justify-center gap-2.5 px-3 py-2 text-xs bg-black text-white hover:bg-gray-800 rounded-md transition-all duration-150 cursor-pointer active:scale-95 select-none"
                   type="button"
-                  style={{
-                    WebkitTapHighlightColor: 'transparent',
-                    touchAction: 'manipulation'
-                  }}
                 >
                   <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -487,14 +434,11 @@ export default function App() {
         </>
       )}
 
-
-      {/* Feedback Modal */}
       <FeedbackModal 
         isOpen={showFeedbackModal}
         onClose={() => setShowFeedbackModal(false)}
       />
 
-      {/* Signout Modal */}
       <SignoutModal
         isOpen={showSignoutModal}
         onClose={() => setShowSignoutModal(false)}

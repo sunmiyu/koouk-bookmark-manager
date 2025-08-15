@@ -225,8 +225,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUserProfile(null)
       setUserSettings(null)
       
-      // Supabase 로그아웃
-      const { error } = await supabase.auth.signOut()
+      // Supabase 로그아웃 - scope 명시적 지정
+      const { error } = await supabase.auth.signOut({ scope: 'local' })
       if (error) {
         console.error('Supabase sign out error:', error)
         // 에러가 있어도 로컬 상태는 이미 클리어됨
@@ -236,18 +236,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       analytics.logout()
       
-      // localStorage 정리
+      // 완전한 브라우저 데이터 정리
       if (typeof window !== 'undefined') {
         try {
+          // localStorage 정리
           localStorage.removeItem('koouk-auth-token')
           Object.keys(localStorage).forEach(key => {
             if (key.includes('supabase') || key.includes('auth-token')) {
               localStorage.removeItem(key)
             }
           })
-          console.log('✅ localStorage cleared')
+          
+          // sessionStorage 정리
+          Object.keys(sessionStorage).forEach(key => {
+            if (key.includes('supabase') || key.includes('auth-token')) {
+              sessionStorage.removeItem(key)
+            }
+          })
+          
+          console.log('✅ All browser storage cleared')
         } catch (storageError) {
-          console.error('localStorage clear error:', storageError)
+          console.error('Storage clear error:', storageError)
         }
       }
       

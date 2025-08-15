@@ -4,11 +4,10 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, User, Shield, Bell, HelpCircle, FileText, LogOut } from 'lucide-react'
 import { useAuth } from '@/components/auth/AuthContext'
-import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 
 export default function Settings() {
-  const { user } = useAuth()
+  const { user, signOut } = useAuth()
   const router = useRouter()
   const [previousPage, setPreviousPage] = useState<string>('/')
 
@@ -23,8 +22,14 @@ export default function Settings() {
   }, [])
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    router.push('/')
+    try {
+      await signOut()
+      router.push('/')
+    } catch (error) {
+      console.error('Settings signOut error:', error)
+      // Fallback: force navigation anyway
+      router.push('/')
+    }
   }
 
   const handleBack = () => {

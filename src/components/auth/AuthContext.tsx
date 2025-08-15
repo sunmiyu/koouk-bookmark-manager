@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { DatabaseService } from '@/lib/database'
 import { DataMigration } from '@/utils/dataMigration'
@@ -29,13 +29,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
   const [loading, setLoading] = useState(true)
+  
+  // 무한루프 방지를 위한 ref
+  const isLoadingUserData = useRef(false)
+  const lastLoadedUserId = useRef<string | null>(null)
 
-  // 사용자 데이터 로드 함수 - setTimeout 제거하고 즉시 실행
+  // 사용자 데이터 로드 함수 - 중복 호출 방지
   const loadUserData = async (authUser: User) => {
+    // 중복 호출 방지
+    if (isLoadingUserData.current || lastLoadedUserId.current === authUser.id) {
+      console.log('🔄 Skipping duplicate loadUserData call for:', authUser.email)
+      return
+    }
+
     try {
-      console.log('🔄 Loading user data for:', authUser.email) 
+      isLoadingUserData.current = true
+      console.log('🔄 Loading user data for:', authUser.email)
       
-      // 1. 사용자 프로필 확인/생성 (에러에 강함)
+      // 1. 사용자 프로필 확인/생성
       let profile: UserProfile | null = null
       try {
         profile = await DatabaseService.getUserProfile(authUser.id)
@@ -62,15 +73,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.log('✅ Profile created successfully')
           } else {
             console.error('❌ Profile creation failed:', error)
-            // 프로필이 없어도 인증은 유지
           }
         } catch (createError) {
           console.error('❌ Profile creation error:', createError)
-          // 프로필이 없어도 인증은 유지
         }
       }
 
-      // GA4 사용자 정보 설정 (프로필이 없어도 설정)
+      // GA4 사용자 정보 설정
       setUserId(authUser.id)
       setUserProperties({
         user_type: profile ? 'registered' : 'new_user',
@@ -78,17 +87,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         created_at: profile?.created_at ? new Date(profile.created_at).toISOString() : new Date().toISOString()
       })
 
-      // 2. 사용자 설정 확인/생성 (에러에 강함)
+      // 2. 사용자 설정 확인/생성
       try {
         const settings = await DatabaseService.getUserSettings(authUser.id)
         setUserSettings(settings)
         console.log('✅ Settings loaded successfully')
       } catch (settingsError) {
         console.warn('⚠️ Settings load failed:', settingsError)
-        // 설정이 없어도 인증은 유지
       }
 
-      // 3. 데이터 마이그레이션 체크 및 실행 (백그라운드에서 즉시 실행)
+      // 3. 데이터 마이그레이션 (백그라운드)
       DataMigration.checkMigrationStatus()
         .then(async (migrationStatus) => {
           if (!migrationStatus.migrated) {
@@ -106,80 +114,92 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.error('Background migration error:', error)
         })
 
+      lastLoadedUserId.current = authUser.id
       console.log('✅ User data loading completed')
     } catch (error) {
       console.error('❌ Critical error in loadUserData:', error)
-      // 치명적 에러가 있어도 사용자 인증 상태는 유지
+    } finally {
+      isLoadingUserData.current = false
     }
   }
 
   useEffect(() => {
-    // Initialize auth state - 단순화된 초기화
+    let mounted = true
+
     const initAuth = async () => {
       try {
         console.log('🔐 Initializing auth...')
         const startTime = performance.now()
         
-        // 세션 체크 - refresh token 에러 핸들링 추가
+        // 세션 체크 - refresh token 에러 핸들링
         const { data: { session }, error } = await supabase.auth.getSession()
         
-        // Refresh token 에러 처리
         if (error && error.message.includes('Refresh Token')) {
           console.warn('🔄 Invalid refresh token, clearing auth state')
           await supabase.auth.signOut()
-          setUser(null)
-          setUserProfile(null)
-          setUserSettings(null)
-          setLoading(false)
+          if (mounted) {
+            setUser(null)
+            setUserProfile(null)
+            setUserSettings(null)
+            setLoading(false)
+          }
           return
         }
         
         const authUser = session?.user ?? null
-        
         console.log(`⚡ Auth check completed in ${Math.round(performance.now() - startTime)}ms`)
         
-        if (authUser) {
-          console.log('👤 User found, loading data...')
-          setUser(authUser)
-          
-          // 즉시 사용자 데이터 로드 (setTimeout 제거)
-          await loadUserData(authUser)
-        } else {
-          console.log('🚫 No user found')
+        if (mounted) {
+          if (authUser) {
+            console.log('👤 User found, loading data...')
+            setUser(authUser)
+            await loadUserData(authUser)
+          } else {
+            console.log('🚫 No user found')
+          }
+          setLoading(false)
         }
-        
-        setLoading(false)
       } catch (error) {
         console.error('Auth initialization error:', error)
-        setLoading(false)
+        if (mounted) setLoading(false)
       }
     }
 
     initAuth()
 
-    // Listen for auth changes
+    // Auth state change listener - 이벤트 타입별 처리
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return
+        
         console.log('🔄 Auth state changed:', event, 'User:', session?.user?.email)
         const authUser = session?.user ?? null
-        setUser(authUser)
         
-        // 사용자가 있으면 데이터 로드 (이벤트 타입에 관계없이)
-        if (authUser) {
-          console.log('✅ User detected, loading data...')
+        // 이벤트 타입에 따른 처리
+        if (event === 'SIGNED_IN' && authUser) {
+          console.log('✅ User signed in, loading data...')
+          setUser(authUser)
           await loadUserData(authUser)
-        } else {
-          console.log('❌ No user, clearing state...')
-          // 로그아웃 시 상태 클리어
+        } else if (event === 'SIGNED_OUT' || !authUser) {
+          console.log('❌ User signed out, clearing state...')
+          setUser(null)
           setUserProfile(null)
           setUserSettings(null)
+          lastLoadedUserId.current = null
+        } else if (event === 'TOKEN_REFRESHED' && authUser) {
+          console.log('🔄 Token refreshed for:', authUser.email)
+          setUser(authUser)
+          // TOKEN_REFRESHED에서는 데이터 다시 로드하지 않음 (무한루프 방지)
         }
         
         setLoading(false)
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signIn = async () => {
@@ -190,13 +210,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
+          // 🔧 수정: 올바른 콜백 URL 사용
           redirectTo: typeof window !== 'undefined' 
-            ? `${window.location.origin}` 
-            : 'https://www.koouk.im',
+            ? `${window.location.origin}/auth/callback`
+            : 'https://www.koouk.im/auth/callback',
           queryParams: {
             access_type: 'offline',
             prompt: 'select_account',
-            include_granted_scopes: 'true'
           }
         }
       })
@@ -226,53 +246,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true)
       console.log('🔄 Starting sign out process...')
       
-      // 상태를 먼저 클리어 (즉시 UI 반영)
+      // 즉시 상태 클리어
       setUser(null)
       setUserProfile(null)
       setUserSettings(null)
+      lastLoadedUserId.current = null
+      isLoadingUserData.current = false
       
-      // Supabase 로그아웃 - scope 명시적 지정  
-      const { error } = await supabase.auth.signOut({ scope: 'local' })
+      // Supabase 로그아웃
+      const { error } = await supabase.auth.signOut()
       
-      // Google OAuth 세션도 완전히 정리하기 위한 추가 처리
-      if (typeof window !== 'undefined') {
-        // Google OAuth 관련 쿠키 정리
-        document.cookie.split(";").forEach(function(c) { 
-          document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
-        });
-      }
       if (error) {
         console.error('Supabase sign out error:', error)
-        // 에러가 있어도 로컬 상태는 이미 클리어됨
       } else {
         console.log('✅ Successfully signed out from Supabase')
       }
       
       analytics.logout()
       
-      // 완전한 브라우저 데이터 정리
+      // 브라우저 데이터 정리
       if (typeof window !== 'undefined') {
         try {
           // localStorage 정리
-          localStorage.removeItem('koouk-auth-token')
           Object.keys(localStorage).forEach(key => {
-            if (key.includes('supabase') || key.includes('auth-token')) {
+            if (key.includes('supabase') || key.includes('auth')) {
               localStorage.removeItem(key)
             }
           })
           
           // sessionStorage 정리
           Object.keys(sessionStorage).forEach(key => {
-            if (key.includes('supabase') || key.includes('auth-token')) {
+            if (key.includes('supabase') || key.includes('auth')) {
               sessionStorage.removeItem(key)
             }
           })
           
-          // Google OAuth iframe 정리 (숨겨진 Google 세션 방지)
-          const iframes = document.querySelectorAll('iframe[src*="accounts.google.com"]')
-          iframes.forEach(iframe => iframe.remove())
-          
-          console.log('✅ All browser storage and Google sessions cleared')
+          console.log('✅ Browser storage cleared')
         } catch (storageError) {
           console.error('Storage clear error:', storageError)
         }
@@ -280,7 +289,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
     } catch (error) {
       console.error('Sign out error:', error)
-      // 에러가 있어도 로컬 상태는 클리어
       setUser(null)
       setUserProfile(null)
       setUserSettings(null)
@@ -306,6 +314,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!user) return
     
     try {
+      // 강제로 다시 로드할 때는 캐시 무시
+      lastLoadedUserId.current = null
       await loadUserData(user)
     } catch (error) {
       console.error('Failed to refresh user data:', error)

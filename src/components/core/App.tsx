@@ -158,6 +158,9 @@ export default function App() {
     setActiveTab('my-folder')
   }
   const { user, signIn, signOut } = useAuth()
+  
+  // 디버그용 로그
+  console.log('🔍 App.tsx - Current user:', user?.email, 'User ID:', user?.id)
 
   // Redirect to dashboard if user is not authenticated and trying to access protected tabs
   useEffect(() => {
@@ -176,12 +179,17 @@ export default function App() {
   }
 
   const handleTabChange = (tab: 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks') => {
+    console.log('🚀 Tab change requested:', tab, 'Current user:', user?.email)
+    
     // Check if user is trying to access protected tabs without authentication
     if (!user && (tab === 'my-folder' || tab === 'marketplace' || tab === 'bookmarks')) {
+      console.log('❌ User not authenticated, showing login menu')
       // Show user menu to prompt login
       setShowUserMenu(true)
       return
     }
+    
+    console.log('✅ Tab change allowed, switching to:', tab)
     setActiveTab(tab)
     // Save to localStorage for persistence across refreshes
     if (typeof window !== 'undefined') {

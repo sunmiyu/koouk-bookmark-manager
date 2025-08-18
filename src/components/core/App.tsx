@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Settings, LogOut, MessageCircle } from 'lucide-react'
 import { useAuthCompat } from '../auth/AuthContext'
+import { useOptimizedAuth } from '@/hooks/useOptimizedAuth'
 import OnboardingPage from '../onboarding/OnboardingPage'
 import DashboardPage from '../dashboard/DashboardPage'
 import MyFolderContent from '../workspace/MyFolderContent'
@@ -20,11 +21,12 @@ type TabType = 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks'
 export default function App() {
   const device = useDevice()
   const router = useRouter()
-  const { user, signIn, signOut, loading, error, status } = useAuthCompat()
+  const { user, signIn, signOut, error, status } = useAuthCompat()
+  const optimizedAuth = useOptimizedAuth()
   
   // Main app state
   const [activeTab, setActiveTab] = useState<TabType>('dashboard')
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery] = useState('')
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
   const [showSignoutModal, setShowSignoutModal] = useState(false)
@@ -97,7 +99,7 @@ export default function App() {
     
     if ((isLeftSwipe || isRightSwipe) && activeTab !== 'dashboard' && device.width < 768) {
       const tabs: TabType[] = ['my-folder', 'bookmarks', 'marketplace']
-      const currentIndex = tabs.indexOf(activeTab as any)
+      const currentIndex = tabs.indexOf(activeTab as TabType)
       
       if (isLeftSwipe && currentIndex < tabs.length - 1) {
         handleTabChange(tabs[currentIndex + 1])
@@ -152,13 +154,70 @@ export default function App() {
     }
   }, [status, user?.id, handleTabChange, isInitialized])
 
-  // Loading state
+  // 🚀 OPTIMIZATION 11: Progressive loading with skeleton UI
   if (status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+      <div className="min-h-screen bg-gray-50">
+        {/* Mobile Header Skeleton */}
+        <div className="md:hidden bg-white border-b border-gray-200 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-full animate-pulse"></div>
+              <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-24 animate-pulse"></div>
+            </div>
+            <div className="w-8 h-8 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+
+        {/* Main Content Skeleton */}
+        <div className="flex-1 p-4">
+          <div className="max-w-4xl mx-auto space-y-6">
+            {/* Dashboard Cards Skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white rounded-xl p-6 border border-gray-100">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-xl animate-pulse"></div>
+                    <div className="flex-1">
+                      <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-24 animate-pulse mb-2"></div>
+                      <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-32 animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Content Grid Skeleton */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                <div key={i} className="bg-white rounded-xl p-4 border border-gray-100">
+                  <div className="aspect-square bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-lg animate-pulse mb-3"></div>
+                  <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse mb-2"></div>
+                  <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-3/4 animate-pulse"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Navigation Skeleton */}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+          <div className="flex justify-around">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex flex-col items-center gap-1">
+                <div className="w-6 h-6 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse"></div>
+                <div className="h-2 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-8 animate-pulse"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Loading indicator */}
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-white rounded-full px-4 py-2 shadow-lg border border-gray-200 flex items-center gap-2">
+            <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-sm text-gray-600">Loading your workspace...</span>
+          </div>
         </div>
       </div>
     )
@@ -188,10 +247,10 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen-safe bg-gray-50">
       {/* Header */}
       <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
-        <div className="w-full px-4 sm:px-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-between h-16">
               {/* Logo */}
@@ -211,13 +270,13 @@ export default function App() {
               {/* Desktop Navigation */}
               {device.width >= 768 && (
                 <div className="flex-1 flex justify-center mx-8">
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-3">
                     <button
                       onClick={() => handleTabChange('my-folder')}
                       disabled={!user}
-                      className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                      className={`px-6 py-2.5 min-h-[44px] rounded-full text-sm font-medium transition-all duration-200 flex items-center justify-center ${
                         activeTab === 'my-folder'
-                          ? 'bg-blue-600 text-white shadow-lg'
+                          ? 'bg-black text-white shadow-lg'
                           : user 
                             ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
                             : 'text-gray-400 cursor-not-allowed'
@@ -228,9 +287,9 @@ export default function App() {
                     <button
                       onClick={() => handleTabChange('bookmarks')}
                       disabled={!user}
-                      className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                      className={`px-6 py-2.5 min-h-[44px] rounded-full text-sm font-medium transition-all duration-200 flex items-center justify-center ${
                         activeTab === 'bookmarks'
-                          ? 'bg-blue-600 text-white shadow-lg'
+                          ? 'bg-black text-white shadow-lg'
                           : user 
                             ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
                             : 'text-gray-400 cursor-not-allowed'
@@ -241,9 +300,9 @@ export default function App() {
                     <button
                       onClick={() => handleTabChange('marketplace')}
                       disabled={!user}
-                      className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                      className={`px-6 py-2.5 min-h-[44px] rounded-full text-sm font-medium transition-all duration-200 flex items-center justify-center ${
                         activeTab === 'marketplace'
-                          ? 'bg-blue-600 text-white shadow-lg'
+                          ? 'bg-black text-white shadow-lg'
                           : user 
                             ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
                             : 'text-gray-400 cursor-not-allowed'
@@ -317,13 +376,11 @@ export default function App() {
                       </div>
                     )}
                   </div>
-                ) : (
+) : (
                   <button
-                    onClick={handleSignIn}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-                  >
-                    Sign In
-                  </button>
+                    {...optimizedAuth.getLoginButtonProps()}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  />
                 )}
               </div>
             </div>

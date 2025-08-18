@@ -25,7 +25,8 @@
       "mcp__serena__find_symbol",
       "mcp__serena__replace_symbol_body",
       "Bash(cp:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "WebSearch"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

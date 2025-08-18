@@ -168,7 +168,7 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
                   Welcome back, {userProfile?.name || user?.email?.split('@')[0]}! 👋
                 </h1>
                 <p className="text-lg text-gray-600">
-                  Here's what's happening with your digital organization
+                  Here&apos;s what&apos;s happening with your digital organization
                 </p>
               </div>
               <div className="hidden md:flex items-center space-x-2 bg-white rounded-full px-4 py-2">

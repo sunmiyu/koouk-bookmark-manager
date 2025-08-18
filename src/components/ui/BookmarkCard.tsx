@@ -35,10 +35,10 @@ export default function BookmarkCard({
   return (
     <motion.button
       onClick={() => onOpenBookmark(bookmark)}
-      className="w-full px-3 py-0.5 hover:bg-gray-50 transition-all duration-150 text-left border-b border-gray-100 last:border-b-0 group select-none"
+      className="w-full px-3 py-2 sm:py-1 hover:bg-gray-50 transition-all duration-150 text-left border-b border-gray-100 last:border-b-0 group select-none"
       whileTap={{ scale: 0.98 }}
       style={{ 
-        minHeight: '28px',
+        minHeight: '44px',
         WebkitTapHighlightColor: 'transparent',
         touchAction: 'manipulation'
       }}

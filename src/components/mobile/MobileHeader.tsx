@@ -35,7 +35,7 @@ export default function MobileHeader({
   }
 
   return (
-    <div className="flex items-center justify-between h-16 min-h-[64px] px-3 bg-white border-b border-gray-200">
+    <div className="flex items-center justify-between h-16 min-h-[64px] safe-area-px-4 sm:safe-area-px-6 bg-white border-b border-gray-200">
       {/* Logo */}
       <div className="flex items-center flex-shrink-0">
         <button 
@@ -56,8 +56,8 @@ export default function MobileHeader({
         </button>
       </div>
 
-      {/* Right side elements - Compact for mobile */}
-      <div className="flex items-center gap-2">
+      {/* Right side elements - Touch-optimized spacing */}
+      <div className="flex items-center gap-3 sm:gap-4">
         {/* Enhanced Search Interface - Always show */}
         <SearchInterface
           searchQuery={searchQuery}
@@ -67,10 +67,10 @@ export default function MobileHeader({
           language="en"
         />
 
-        {/* Feedback Button - Match PC style exactly */}
+        {/* Feedback Button - Touch-optimized */}
         <button 
           onClick={onShowFeedbackModal}
-          className="flex items-center justify-center w-8 h-8 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-all duration-150 sm:gap-1.5 sm:px-2.5 sm:py-1.5 sm:w-auto sm:h-auto active:scale-95 select-none"
+          className="flex items-center justify-center min-w-[44px] min-h-[44px] w-11 h-11 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-all duration-150 sm:gap-1.5 sm:px-3 sm:py-2 sm:w-auto active:scale-95 select-none"
           title="Feedback"
           style={{
             WebkitTapHighlightColor: 'transparent',
@@ -81,18 +81,18 @@ export default function MobileHeader({
           <span className="hidden sm:inline">Feedback</span>
         </button>
 
-        {/* User Account - Mobile Implementation */}
+        {/* User Account - Touch-optimized */}
         <div className="relative">
           <button
             onClick={onShowUserMenu}
-            className="flex items-center gap-1 p-1 hover:bg-gray-50 rounded-md transition-all duration-150 cursor-pointer active:scale-95 select-none"
+            className="flex items-center justify-center min-w-[44px] min-h-[44px] p-2 hover:bg-gray-50 rounded-md transition-all duration-150 cursor-pointer active:scale-95 select-none"
             type="button"
             style={{
               WebkitTapHighlightColor: 'transparent',
               touchAction: 'manipulation'
             }}
           >
-            <div className="w-6 h-6 bg-black text-white rounded-full flex items-center justify-center text-xs font-medium">
+            <div className="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center text-sm font-medium">
               {user?.email?.[0]?.toUpperCase() || 'U'}
             </div>
           </button>

@@ -94,6 +94,13 @@ export async function GET(request: NextRequest) {
       .from('feedback')
       .select('*')
       .eq('type', 'error_report')
+
+    // Apply severity filter if provided
+    if (severity) {
+      query = query.eq('severity', severity)
+    }
+
+    query = query
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 

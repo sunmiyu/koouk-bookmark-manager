@@ -276,9 +276,9 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
             console.error('❌ Failed to load user folders:', userError)
             
             // 🚨 토큰 에러 구체적 처리
-            if (userError.message?.includes('No authorization token') || 
-                userError.message?.includes('JWT') || 
-                userError.message?.includes('authorization')) {
+            if ((userError as Error)?.message?.includes('No authorization token') || 
+                (userError as Error)?.message?.includes('JWT') || 
+                (userError as Error)?.message?.includes('authorization')) {
               console.error('🚨 Authorization token missing for user folders')
             }
             // 사용자 폴더 로드 실패해도 퍼블릭 데이터는 표시

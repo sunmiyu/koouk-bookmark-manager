@@ -118,9 +118,9 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
         console.error('❌ Failed to load folders:', error)
         
         // 🚨 토큰 에러 구체적 처리
-        if (error.message?.includes('No authorization token') || 
-            error.message?.includes('JWT') || 
-            error.message?.includes('authorization')) {
+        if ((error as Error)?.message?.includes('No authorization token') || 
+            (error as Error)?.message?.includes('JWT') || 
+            (error as Error)?.message?.includes('authorization')) {
           console.error('🚨 Authorization token missing - user may need to re-login')
           // 선택적: 사용자에게 재로그인 안내
         }
@@ -132,7 +132,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
     }
 
     loadData()
-  }, [user?.id, userSettings]) // 🔧 loading 제거하여 무한루프 방지
+  }, [user?.id, userSettings, user]) // 🔧 loading 제거하여 무한루프 방지
 
   // 폴더 선택 상태 저장
   const saveSelectedFolder = async (folderId: string) => {
@@ -147,7 +147,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
       console.error('Failed to save selected folder:', error)
       
       // 🚨 토큰 에러 처리
-      if (error.message?.includes('No authorization token')) {
+      if ((error as Error)?.message?.includes('No authorization token')) {
         console.error('🚨 Authorization token missing for saving folder selection')
       }
     }
@@ -227,9 +227,9 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
       console.error('❌ Failed to create folder:', error)
       
       // 🚨 토큰 에러 처리
-      if (error.message?.includes('No authorization token') || 
-          error.message?.includes('JWT') || 
-          error.message?.includes('authorization')) {
+      if ((error as Error)?.message?.includes('No authorization token') || 
+          (error as Error)?.message?.includes('JWT') || 
+          (error as Error)?.message?.includes('authorization')) {
         console.error('🚨 Authorization token missing for folder creation')
         showSuccess('Please sign in again to create folders')
       } else {
@@ -301,9 +301,9 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
       console.error('❌ Failed to add item:', error)
       
       // 🚨 토큰 에러 처리
-      if (error.message?.includes('No authorization token') || 
-          error.message?.includes('JWT') || 
-          error.message?.includes('authorization')) {
+      if ((error as Error)?.message?.includes('No authorization token') || 
+          (error as Error)?.message?.includes('JWT') || 
+          (error as Error)?.message?.includes('authorization')) {
         console.error('🚨 Authorization token missing for item creation')
         showSuccess('Please sign in again to add items')
       } else {
@@ -344,9 +344,9 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
       console.error('❌ Failed to delete item:', error)
       
       // 🚨 토큰 에러 처리
-      if (error.message?.includes('No authorization token') || 
-          error.message?.includes('JWT') || 
-          error.message?.includes('authorization')) {
+      if ((error as Error)?.message?.includes('No authorization token') || 
+          (error as Error)?.message?.includes('JWT') || 
+          (error as Error)?.message?.includes('authorization')) {
         console.error('🚨 Authorization token missing for item deletion')
         showSuccess('Please sign in again to delete items')
       } else {
@@ -368,7 +368,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
         console.error('Failed to clear selected folder:', error)
         
         // 🚨 토큰 에러 처리
-        if (error.message?.includes('No authorization token')) {
+        if ((error as Error)?.message?.includes('No authorization token')) {
           console.error('🚨 Authorization token missing for clearing folder selection')
         }
       }
@@ -417,9 +417,9 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
       console.error('❌ Error sharing folder:', error)
       
       // 🚨 토큰 에러 처리
-      if (error.message?.includes('No authorization token') || 
-          error.message?.includes('JWT') || 
-          error.message?.includes('authorization')) {
+      if ((error as Error)?.message?.includes('No authorization token') || 
+          (error as Error)?.message?.includes('JWT') || 
+          (error as Error)?.message?.includes('authorization')) {
         console.error('🚨 Authorization token missing for folder sharing')
         showSuccess('Please sign in again to share folders')
       } else {
@@ -482,22 +482,34 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
     )
   }
 
-  // 실제 폴더 데이터가 로딩 중인 경우
+  // 🚀 OPTIMIZATION 14: Enhanced progressive loading with folder grid skeleton
   if (isLoading) {
     return (
-      <div className="h-96 flex items-center justify-center">
-        <div className="text-center">
-          <div className="space-y-4 max-w-xs mx-auto">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-xl animate-pulse" />
-              <div className="flex-1 space-y-2">
-                <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse" />
-                <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-3/4 animate-pulse" />
+      <div className="flex-1 p-4">
+        {/* Header skeleton */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="h-6 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-32 animate-pulse"></div>
+          <div className="w-8 h-8 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse"></div>
+        </div>
+
+        {/* Folder grid skeleton */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <div key={i} className="bg-white rounded-xl p-3 sm:p-4 border border-gray-100 hover:shadow-md transition-all duration-200">
+              <div className="aspect-square bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-lg animate-pulse mb-3"></div>
+              <div className="space-y-2">
+                <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse"></div>
+                <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-2/3 animate-pulse"></div>
               </div>
             </div>
-          </div>
-          <div className="mt-6 flex justify-center">
-            <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+          ))}
+        </div>
+
+        {/* Floating loading indicator */}
+        <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-40">
+          <div className="bg-white rounded-full px-4 py-2 shadow-lg border border-gray-200 flex items-center gap-2">
+            <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-sm text-gray-600">Loading your folders...</span>
           </div>
         </div>
       </div>

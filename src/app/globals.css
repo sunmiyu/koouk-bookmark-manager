@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Safe Area Support */
+@import '../styles/safe-area.css';
+
 /* Koouk Design System - Minimal & Clean */
 :root {
   /* Neutral Grays - Primary Palette */

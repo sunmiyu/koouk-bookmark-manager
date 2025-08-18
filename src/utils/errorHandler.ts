@@ -19,7 +19,7 @@ export interface ErrorReport {
   stack?: string
   context?: string
   userId?: string
-  metadata: Record<string, any>
+  metadata: Record<string, unknown>
   timestamp: string
   severity: 'low' | 'medium' | 'high' | 'critical'
   resolved: boolean
@@ -102,7 +102,7 @@ class ErrorHandler {
   /**
    * Supabase 관련 에러 전용 핸들러
    */
-  handleSupabaseError(error: any, context: string = 'Database operation'): string {
+  handleSupabaseError(error: unknown, context: string = 'Database operation'): string {
     const severity = this.getSupabaseErrorSeverity(error)
     
     const errorInfo: ErrorInfo = {
@@ -118,7 +118,7 @@ class ErrorHandler {
   /**
    * 네트워크 에러 전용 핸들러
    */
-  handleNetworkError(error: any, context: string = 'Network request'): string {
+  handleNetworkError(error: unknown, context: string = 'Network request'): string {
     const errorInfo: ErrorInfo = {
       error: error instanceof Error ? error : new Error(String(error)),
       context: `Network: ${context}`,
@@ -132,7 +132,7 @@ class ErrorHandler {
   /**
    * PWA 관련 에러 핸들러
    */
-  handlePWAError(error: any, context: string = 'PWA operation'): string {
+  handlePWAError(error: unknown, context: string = 'PWA operation'): string {
     const errorInfo: ErrorInfo = {
       error: error instanceof Error ? error : new Error(String(error)),
       context: `PWA: ${context}`,
@@ -194,8 +194,8 @@ class ErrorHandler {
     return '일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.'
   }
 
-  private getSupabaseErrorSeverity(error: any): ErrorInfo['severity'] {
-    const message = error.message?.toLowerCase() || ''
+  private getSupabaseErrorSeverity(error: unknown): ErrorInfo['severity'] {
+    const message = (error as Error)?.message?.toLowerCase() || ''
     
     if (message.includes('not authenticated') || message.includes('jwt')) {
       return 'medium'
@@ -312,14 +312,14 @@ export const handleError = (error: Error, context?: string, severity: ErrorInfo[
   })
 }
 
-export const handleSupabaseError = (error: any, context?: string): string => {
+export const handleSupabaseError = (error: unknown, context?: string): string => {
   return errorHandler.handleSupabaseError(error, context)
 }
 
-export const handleNetworkError = (error: any, context?: string): string => {
+export const handleNetworkError = (error: unknown, context?: string): string => {
   return errorHandler.handleNetworkError(error, context)
 }
 
-export const handlePWAError = (error: any, context?: string): string => {
+export const handlePWAError = (error: unknown, context?: string): string => {
   return errorHandler.handlePWAError(error, context)
 }

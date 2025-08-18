@@ -90,13 +90,13 @@ export default function Dashboard({ onNavigateToSection }: DashboardProps) {
   ]
 
   return (
-    <div className="flex-1 px-4 py-6 lg:p-6">
+    <div className="flex-1 px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
       {/* Header */}
       <div className="max-w-4xl mx-auto">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-6 sm:mb-12"
+          className="text-center mb-6 sm:mb-8 lg:mb-12"
         >
           <div className="w-12 h-12 sm:w-16 sm:h-16 bg-black rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
             <span className="text-white text-xl sm:text-2xl font-bold">K</span>
@@ -110,7 +110,7 @@ export default function Dashboard({ onNavigateToSection }: DashboardProps) {
         </motion.div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6 mb-8 sm:mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-8 sm:mb-12 lg:mb-16">
           {statCards.map((card, index) => (
             <motion.div
               key={card.title}

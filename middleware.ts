@@ -30,7 +30,6 @@ export async function middleware(request: NextRequest) {
   if (isProduction && request.nextUrl.pathname.startsWith('/api/')) {
     const identifier = request.headers.get('x-forwarded-for') || 
                        request.headers.get('x-real-ip') || 
-                       request.ip || 
                        'anonymous'
     
     try {

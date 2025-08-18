@@ -6,17 +6,7 @@
 // GA4 Measurement ID
 export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-JDNMQKM9J4'
 
-// gtag function 타입 정의
-declare global {
-  interface Window {
-    gtag: (
-      command: 'config' | 'event' | 'js' | 'consent',
-      targetId: string | Date | 'default' | 'update',
-      config?: Record<string, any>
-    ) => void
-    dataLayer: any[]
-  }
-}
+// gtag function and dataLayer are defined in global.d.ts
 
 // Analytics 초기화
 export const initializeAnalytics = () => {
@@ -30,8 +20,8 @@ export const initializeAnalytics = () => {
 
   // gtag 초기화
   window.dataLayer = window.dataLayer || []
-  window.gtag = function gtag(...args: any[]) {
-    window.dataLayer.push(args)
+  window.gtag = function gtag(...args: unknown[]) {
+    window.dataLayer?.push(args)
   }
   
   window.gtag('js', new Date())
@@ -70,7 +60,7 @@ export const trackPageView = (url?: string, title?: string) => {
 }
 
 // 커스텀 이벤트 추적
-export const trackEvent = (eventName: string, parameters?: Record<string, any>) => {
+export const trackEvent = (eventName: string, parameters?: Record<string, unknown>) => {
   if (typeof window === 'undefined' || !window.gtag) return
 
   window.gtag('event', eventName, {
@@ -266,7 +256,7 @@ export const ecommerce = {
     })
   },
 
-  purchase: (transactionId: string, value: number, items: any[]) => {
+  purchase: (transactionId: string, value: number, items: unknown[]) => {
     trackEvent('purchase', {
       transaction_id: transactionId,
       value,
@@ -312,7 +302,7 @@ export const setUserProperties = (properties: Record<string, string>) => {
 // 디버그 모드 (개발환경에서만)
 export const enableDebugMode = () => {
   if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
-    window.gtag('config', GA_MEASUREMENT_ID, {
+    window.gtag?.('config', GA_MEASUREMENT_ID, {
       debug_mode: true
     })
     console.log('📊 GA4 Debug mode enabled')

@@ -56,11 +56,11 @@ export function useAnalytics() {
   }, [])
 
   // PWA 관련 이벤트
-  const trackPWA = useCallback({
+  const trackPWA = useCallback(() => ({
     install: () => analytics.installPWA(),
     showPrompt: () => analytics.showInstallPrompt(),
     offlineAction: (action: string) => analytics.offlineAction(action)
-  }, [])
+  }), [])
 
   // 사용자 행동 추적
   const trackUserAction = useCallback((action: string, category: string, label?: string, value?: number) => {
@@ -112,7 +112,7 @@ export function useAnalytics() {
  * 성능 측정을 위한 Hook
  */
 export function usePerformanceTracker() {
-  const trackTiming = useCallback((name: string, fn: () => Promise<any>) => {
+  const trackTiming = useCallback((name: string, fn: () => Promise<unknown>) => {
     return async () => {
       const startTime = performance.now()
       try {
@@ -129,7 +129,7 @@ export function usePerformanceTracker() {
     }
   }, [])
 
-  const trackSyncTiming = useCallback((name: string, fn: () => any) => {
+  const trackSyncTiming = useCallback((name: string, fn: () => unknown) => {
     return () => {
       const startTime = performance.now()
       try {

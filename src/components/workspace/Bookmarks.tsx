@@ -74,9 +74,9 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
         console.error('❌ Failed to load bookmarks:', error)
         
         // 🚨 토큰 에러 구체적 처리
-        if (error.message?.includes('No authorization token') || 
-            error.message?.includes('JWT') || 
-            error.message?.includes('authorization')) {
+        if ((error as Error)?.message?.includes('No authorization token') || 
+            (error as Error)?.message?.includes('JWT') || 
+            (error as Error)?.message?.includes('authorization')) {
           console.error('🚨 Authorization token missing - user may need to re-login')
           // 선택적: 사용자에게 재로그인 안내
           // alert('Please sign in again to access your bookmarks.')

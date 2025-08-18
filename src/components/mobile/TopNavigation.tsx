@@ -59,7 +59,7 @@ export default function TopNavigation({ activeTab, onTabChange }: TopNavigationP
   }
 
   return (
-    <div className="flex space-x-1">
+    <div className="flex space-x-2 px-4">
       {tabs.map((tab) => {
         // 활성 탭 확인
         const appTabMap: Record<string, string> = {
@@ -77,8 +77,8 @@ export default function TopNavigation({ activeTab, onTabChange }: TopNavigationP
             onClick={() => handleTabPress(tab.id)}
             disabled={!user}
             className={`
-              px-3 py-1.5 text-sm font-medium relative select-none
-              transition-all duration-200 rounded-md
+              px-4 py-2.5 min-w-[80px] min-h-[44px] text-sm font-medium relative select-none
+              transition-all duration-200 rounded-md flex items-center justify-center
               ${!user 
                 ? 'text-gray-400 cursor-not-allowed opacity-60'
                 : isActive 

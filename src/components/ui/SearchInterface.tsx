@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, X, Clock, TrendingUp, Globe, FileText, Folder, Share2 } from 'lucide-react'
+import { Search, X, Clock, TrendingUp, FileText, Folder, Share2 } from 'lucide-react'
 import { searchEngine } from '@/lib/search-engine'
 import { useAnalytics } from '@/hooks/useAnalytics'
 
@@ -86,7 +86,7 @@ export default function SearchInterface({
 
     const debounceTimer = setTimeout(performSearch, 300)
     return () => clearTimeout(debounceTimer)
-  }, [searchQuery, searchScope, language])
+  }, [searchQuery, searchScope, language, trackSearch])
 
   // Auto-complete suggestions
   useEffect(() => {
@@ -164,14 +164,13 @@ export default function SearchInterface({
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           onFocus={() => setIsOpen(true)}
-          className="w-40 sm:w-72 pl-4 pr-11 py-2 h-8 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+          className="w-32 sm:w-48 lg:w-64 max-w-[200px] sm:max-w-[300px] pl-4 pr-11 py-2 h-8 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
         />
         {searchQuery && (
           <button
             onClick={() => {
               onSearchChange('')
               setResults([])
-              setShowTranslation(false)
             }}
             className="absolute right-9 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
           >
@@ -189,20 +188,7 @@ export default function SearchInterface({
             exit={{ opacity: 0, y: 5 }}
             className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-96 overflow-hidden"
           >
-            {/* Translation suggestions */}
-            {showTranslation && (
-              <div className="p-3 border-b border-gray-100">
-                <button
-                  onClick={handleTranslatedSearch}
-                  className="w-full flex items-center gap-2 p-2 text-left text-sm text-blue-600 hover:bg-blue-50 rounded"
-                >
-                  <Globe className="w-4 h-4" />
-                  <span className="flex-1">
-                    Search: &ldquo;<span className="font-medium">{translatedQuery}</span>&rdquo;
-                  </span>
-                </button>
-              </div>
-            )}
+
 
             <div className="max-h-80 overflow-y-auto">
               {/* Loading while searching */}

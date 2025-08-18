@@ -50,3 +50,7 @@ next-env.d.ts
 
 # design philosophy - keep local for development reference
 KOOUK_DESIGN_PHILOSOPHY.md
+
+# serena development tools and memories
+.serena/
+.claude/

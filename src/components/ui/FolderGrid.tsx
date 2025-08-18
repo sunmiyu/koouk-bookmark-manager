@@ -34,7 +34,7 @@ export default function FolderGrid({
   }
 
   return (
-    <div className="p-4">
+    <div className="px-4 sm:px-6 lg:px-8 py-4">
       {/* 헤더 - 통일된 스타일 */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -58,7 +58,7 @@ export default function FolderGrid({
       </div>
 
       {/* 폴더 그리드 */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 auto-rows-fr">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 auto-rows-fr">
         {filteredFolders.map((folder, index) => {
           const itemCount = folder.children.length
           const recentItems = folder.children.slice(0, 3)
@@ -67,7 +67,7 @@ export default function FolderGrid({
             <motion.button
               key={folder.id}
               onClick={() => onFolderSelect(folder)}
-              className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 p-3 sm:p-4 text-left group"
+              className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 p-3 sm:p-4 lg:p-5 text-left group min-h-[120px] sm:min-h-[140px]"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}

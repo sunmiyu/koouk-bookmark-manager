@@ -154,7 +154,7 @@ export function PerformanceMonitor() {
       // Largest Contentful Paint (LCP)
       const lcpObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries()
-        const lastEntry = entries[entries.length - 1] as any
+        const lastEntry = entries[entries.length - 1] as PerformanceEntry
         
         if (lastEntry && window.gtag) {
           window.gtag('event', 'LCP', {
@@ -168,8 +168,8 @@ export function PerformanceMonitor() {
       // First Input Delay (FID)
       const fidObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries()
-        entries.forEach((entry: any) => {
-          if (window.gtag) {
+        entries.forEach((entry: PerformanceEntry & { processingStart?: number }) => {
+          if (window.gtag && entry.processingStart) {
             window.gtag('event', 'FID', {
               event_category: 'Web Vitals',
               value: Math.round(entry.processingStart - entry.startTime),
@@ -183,8 +183,8 @@ export function PerformanceMonitor() {
       let clsValue = 0
       const clsObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries()
-        entries.forEach((entry: any) => {
-          if (!entry.hadRecentInput) {
+        entries.forEach((entry: PerformanceEntry & { hadRecentInput?: boolean; value?: number }) => {
+          if (!entry.hadRecentInput && entry.value) {
             clsValue += entry.value
           }
         })

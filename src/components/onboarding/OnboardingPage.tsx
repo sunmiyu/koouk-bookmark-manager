@@ -1,10 +1,12 @@
 'use client'
 
 import { useAuth } from '@/components/auth/AuthContext'
+import { useOptimizedAuth } from '@/hooks/useOptimizedAuth'
 import { Folder, Bookmark, Store, ArrowRight, Sparkles, Users, Shield } from 'lucide-react'
 
 export default function OnboardingPage() {
   const { signIn } = useAuth()
+  const optimizedAuth = useOptimizedAuth()
 
   const mainFeatures = [
     {
@@ -71,10 +73,10 @@ export default function OnboardingPage() {
             </p>
             
             <button
-              onClick={signIn}
-              className="group inline-flex items-center px-8 py-4 bg-blue-600 text-white rounded-2xl text-lg font-semibold hover:bg-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+              {...optimizedAuth.getLoginButtonProps()}
+              className="group inline-flex items-center px-8 py-4 bg-blue-600 text-white rounded-2xl text-lg font-semibold hover:bg-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              Get Started with Google
+              {optimizedAuth.isOptimistic ? 'Signing in...' : 'Get Started with Google'}
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
             </button>
           </div>
@@ -150,7 +152,7 @@ export default function OnboardingPage() {
               Ready to transform your digital life?
             </h4>
             <p className="text-gray-600 mb-8 text-lg max-w-2xl mx-auto">
-              Start organizing your digital world today. It's free to get started and takes less than 30 seconds.
+              Start organizing your digital world today. It&apos;s free to get started and takes less than 30 seconds.
             </p>
             <button
               onClick={signIn}

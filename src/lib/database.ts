@@ -17,7 +17,7 @@ export class DatabaseService {
    * Supabase 쿼리를 안전하게 실행하는 래퍼 함수
    */
   private static async executeQuery<T>(
-    queryFn: () => Promise<{ data: T | null; error: any }>,
+    queryFn: () => Promise<{ data: any; error: any }>,
     operation: string
   ): Promise<T> {
     try {

@@ -1,0 +1,142 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { extractYouTubeVideoId } from '@/utils/youtube'
+
+// HTML 스크래핑으로 YouTube 제목 추출하는 폴백 함수
+async function scrapeYouTubeTitle(url: string) {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    })
+    
+    if (!response.ok) throw new Error('Failed to fetch')
+    
+    const html = await response.text()
+    
+    // 1. ytInitialPlayerResponse에서 제목 추출 (가장 정확함)
+    const playerResponseMatch = html.match(/ytInitialPlayerResponse\s*=\s*({.+?});/)
+    if (playerResponseMatch) {
+      try {
+        const playerResponse = JSON.parse(playerResponseMatch[1])
+        const title = playerResponse?.videoDetails?.title
+        if (title) {
+          return title
+        }
+      } catch {
+        console.log('Failed to parse ytInitialPlayerResponse')
+      }
+    }
+    
+    // 2. ytInitialData에서 제목 추출
+    const initialDataMatch = html.match(/ytInitialData\s*=\s*({.+?});/)
+    if (initialDataMatch) {
+      try {
+        const initialData = JSON.parse(initialDataMatch[1])
+        const contents = initialData?.contents?.twoColumnWatchNextResults?.results?.results?.contents
+        if (contents && contents[0]) {
+          const title = contents[0]?.videoPrimaryInfoRenderer?.title?.runs?.[0]?.text
+          if (title) {
+            return title
+          }
+        }
+      } catch {
+        console.log('Failed to parse ytInitialData')
+      }
+    }
+    
+    // 3. title 태그에서 추출
+    const titleMatch = html.match(/<title>([^<]+)<\/title>/)
+    if (titleMatch) {
+      let title = titleMatch[1]
+      title = title.replace(/ - YouTube$/, '')
+      // Safely decode HTML entities
+      const tempDiv = { innerHTML: title.replace(/</g, '&lt;').replace(/>/g, '&gt;') }
+      title = title.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").trim()
+      
+      if (title && title !== 'YouTube') {
+        return title
+      }
+    }
+    
+    // 4. og:title 메타 태그에서 추출
+    const ogTitleMatch = html.match(/<meta property="og:title" content="([^"]+)"/)
+    if (ogTitleMatch) {
+      return ogTitleMatch[1]
+    }
+    
+    return null
+  } catch (error) {
+    console.error('YouTube scraping error:', error)
+    return null
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const url = searchParams.get('url')
+    
+    if (!url) {
+      return NextResponse.json({ error: 'URL parameter is required' }, { status: 400 })
+    }
+
+    const videoId = extractYouTubeVideoId(url)
+    if (!videoId) {
+      return NextResponse.json({ error: 'Invalid YouTube URL' }, { status: 400 })
+    }
+
+    let videoInfo = {
+      title: undefined as string | undefined,
+      description: undefined as string | undefined,
+      duration: undefined as string | undefined,
+      channelTitle: undefined as string | undefined,
+      publishedAt: undefined as string | undefined,
+      thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
+    }
+
+    // YouTube API 시도 (API 키가 있을 때만) - 직접 fetch 사용
+    if (process.env.YOUTUBE_API_KEY) {
+      try {
+        const apiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=snippet,contentDetails&key=${process.env.YOUTUBE_API_KEY}`
+        const response = await fetch(apiUrl)
+        
+        if (response.ok) {
+          const data = await response.json()
+          const video = data.items?.[0]
+          
+          if (video) {
+            const snippet = video.snippet
+            const contentDetails = video.contentDetails
+
+            videoInfo = {
+              title: snippet?.title || undefined,
+              description: snippet?.description || undefined,
+              duration: contentDetails?.duration || undefined,
+              channelTitle: snippet?.channelTitle || undefined,
+              publishedAt: snippet?.publishedAt || undefined,
+              thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
+            }
+          }
+        }
+      } catch (apiError) {
+        console.error('YouTube API failed, falling back to scraping:', apiError)
+      }
+    }
+
+    // API가 실패했거나 제목이 없으면 스크래핑으로 폴백
+    if (!videoInfo.title) {
+      const scrapedTitle = await scrapeYouTubeTitle(url)
+      if (scrapedTitle) {
+        videoInfo.title = scrapedTitle
+      } else {
+        videoInfo.title = `YouTube Video ${videoId}`
+      }
+    }
+
+    return NextResponse.json(videoInfo)
+  } catch (error) {
+    console.error('YouTube processing error:', error)
+    return NextResponse.json({ error: 'Failed to fetch video information' }, { status: 500 })
+  }
+}

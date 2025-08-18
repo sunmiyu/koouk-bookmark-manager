@@ -25,7 +25,13 @@ export const getSupabase = (): SupabaseClient<Database> => {
       autoRefreshToken: !isServer,
       persistSession: !isServer,
       detectSessionInUrl: !isServer,
-      flowType: 'pkce'
+      flowType: 'pkce',
+      debug: false
+    },
+    global: {
+      headers: {
+        'X-Client-Info': 'koouk-web-app'
+      }
     }
   })
   

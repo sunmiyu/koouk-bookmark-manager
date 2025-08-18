@@ -84,8 +84,16 @@ const nextConfig: NextConfig = {
     }
   },
   
+  // Exclude backup folder from build
+  pageExtensions: ['ts', 'tsx', 'js', 'jsx'],
+  
   // Bundle optimization for Service Worker efficiency
   webpack: (config, { dev, isServer }) => {
+    // Exclude backup folder from compilation
+    config.module.rules.push({
+      test: /src\/_backup/,
+      loader: 'ignore-loader'
+    });
     // Service Worker optimized bundle splitting
     if (!dev && !isServer) {
       config.optimization.splitChunks = {

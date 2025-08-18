@@ -1,4 +1,4 @@
-import { supabase, getSupabaseAdmin } from './supabase'
+import { supabase } from './supabase'
 import { Database } from '@/types/database'
 import { handleSupabaseError } from '@/utils/errorHandler'
 
@@ -17,11 +17,12 @@ export class DatabaseService {
    * Supabase 쿼리를 안전하게 실행하는 래퍼 함수
    */
   private static async executeQuery<T>(
-    queryFn: () => Promise<{ data: any; error: any }>,
+    queryFn: () => unknown,
     operation: string
   ): Promise<T> {
     try {
-      const { data, error } = await queryFn()
+      const result = await queryFn()
+      const { data, error } = result
       if (error) {
         const message = handleSupabaseError(error, operation)
         throw new Error(message)
@@ -91,7 +92,7 @@ export class DatabaseService {
           .single(),
         'getUserSettings'
       )
-    } catch (error) {
+    } catch {
       // 설정이 없으면 기본값으로 생성
       return this.createUserSettings(userId)
     }

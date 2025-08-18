@@ -30,7 +30,7 @@ function PageLoadingFallback() {
 }
 
 // Minimal error fallback
-function AppErrorFallback({ error, retry }: { error: Error; retry: () => void }) {
+function AppErrorFallback({ retry }: { retry: () => void }) {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-6">
       <div className="max-w-sm w-full text-center">

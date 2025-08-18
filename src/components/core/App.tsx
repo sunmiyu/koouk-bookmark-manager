@@ -20,7 +20,7 @@ type TabType = 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks'
 export default function App() {
   const device = useDevice()
   const router = useRouter()
-  const { user, signIn, signOut, error, status } = useAuthCompat()
+  const { user, signIn, signOut, error, status, loading } = useAuthCompat()
   
   // Main app state
   const [activeTab, setActiveTab] = useState<TabType>('dashboard')
@@ -29,6 +29,7 @@ export default function App() {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
   const [showSignoutModal, setShowSignoutModal] = useState(false)
   const [isInitialized, setIsInitialized] = useState(false)
+  const [loadingTimeout, setLoadingTimeout] = useState(false)
 
   // Swipe gesture state for mobile
   const [touchStart, setTouchStart] = useState<number | null>(null)
@@ -52,15 +53,6 @@ export default function App() {
   }, [user?.id])
 
   // Authentication handlers
-  const handleSignIn = useCallback(async () => {
-    setShowUserMenu(false)
-    try {
-      await signIn()
-    } catch (error) {
-      console.error('Sign in error:', error)
-    }
-  }, [signIn])
-
   const handleSignOut = useCallback(() => {
     setShowSignoutModal(true)
     setShowUserMenu(false)
@@ -107,6 +99,21 @@ export default function App() {
     }
   }, [touchStart, touchEnd, activeTab, device.width, handleTabChange])
 
+  // Loading timeout handler
+  useEffect(() => {
+    if (status === 'loading') {
+      const timeout = setTimeout(() => {
+        console.warn('Loading timeout reached, forcing app initialization')
+        setLoadingTimeout(true)
+        setIsInitialized(true)
+      }, 15000) // 15 seconds timeout
+
+      return () => clearTimeout(timeout)
+    } else {
+      setLoadingTimeout(false)
+    }
+  }, [status])
+
   // App initialization
   useEffect(() => {
     if (isInitialized || status === 'loading') return
@@ -115,6 +122,14 @@ export default function App() {
       try {
         const params = new URLSearchParams(window.location.search)
         const tabParam = params.get('tab')
+        const authError = params.get('auth_error')
+        
+        // Handle authentication errors
+        if (authError) {
+          console.warn('Authentication error detected:', authError)
+          // Clean up URL
+          window.history.replaceState({}, document.title, window.location.pathname)
+        }
         
         // Handle URL tab parameter
         if (tabParam && ['dashboard', 'my-folder', 'marketplace', 'bookmarks'].includes(tabParam)) {
@@ -153,7 +168,7 @@ export default function App() {
   }, [status, user?.id, handleTabChange, isInitialized])
 
   // 🚀 OPTIMIZATION 11: Progressive loading with skeleton UI
-  if (status === 'loading') {
+  if (status === 'loading' && !loadingTimeout) {
     return (
       <div className="min-h-screen bg-gray-50">
         {/* Mobile Header Skeleton */}
@@ -221,8 +236,8 @@ export default function App() {
     )
   }
 
-  // Error state
-  if (status === 'error' && !user) {
+  // Loading timeout or error state
+  if ((status === 'loading' && loadingTimeout) || (status === 'error' && !user)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center border border-gray-200">
@@ -231,14 +246,34 @@ export default function App() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Authentication Error</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 transition-colors font-medium"
-          >
-            Reload Page
-          </button>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            {loadingTimeout ? 'Connection Timeout' : 'Authentication Error'}
+          </h2>
+          <p className="text-gray-600 mb-6">
+            {loadingTimeout 
+              ? 'Loading is taking longer than expected. This might be due to a slow internet connection.'
+              : error || 'Unable to authenticate. Please try again.'
+            }
+          </p>
+          <div className="space-y-3">
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 transition-colors font-medium"
+            >
+              {loadingTimeout ? 'Reload Page' : 'Try Again'}
+            </button>
+            {loadingTimeout && (
+              <button
+                onClick={() => {
+                  localStorage.clear()
+                  window.location.reload()
+                }}
+                className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-xl hover:bg-gray-200 transition-colors font-medium"
+              >
+                Clear Data & Reload
+              </button>
+            )}
+          </div>
         </div>
       </div>
     )
@@ -377,10 +412,10 @@ export default function App() {
 ) : (
                   <button
                     onClick={signIn}
-                    disabled={status === 'loading'}
+                    disabled={loading}
                     className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {status === 'loading' ? 'Signing in...' : 'Sign in with Google'}
+                    {loading ? 'Signing in...' : 'Sign in with Google'}
                   </button>
                 )}
               </div>

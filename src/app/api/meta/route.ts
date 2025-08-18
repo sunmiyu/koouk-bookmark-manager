@@ -18,7 +18,8 @@ export async function POST(request: NextRequest) {
     }
 
     // YouTube URL인 경우 YouTube API로 리다이렉트
-    if (validUrl.hostname.includes('youtube.com') || validUrl.hostname.includes('youtu.be')) {
+    const hostname = validUrl.hostname.toLowerCase()
+    if (hostname === 'youtube.com' || hostname === 'www.youtube.com' || hostname === 'youtu.be') {
       try {
         const youtubeResponse = await fetch(`${request.nextUrl.origin}/api/youtube?url=${encodeURIComponent(url)}`)
         if (youtubeResponse.ok) {
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
       ''
 
     // 네이버 카페 특화 처리
-    if (validUrl.hostname.includes('cafe.naver.com')) {
+    if (hostname === 'cafe.naver.com' || hostname.endsWith('.cafe.naver.com')) {
       // 카페 글 제목 추출
       const cafeTitle = 
         $('.ArticleContentBox .title_text').text() ||
@@ -107,7 +108,7 @@ export async function POST(request: NextRequest) {
       ''
 
     // 네이버 블로그 특화 처리
-    if (!imageUrl && validUrl.hostname.includes('blog.naver.com')) {
+    if (!imageUrl && (hostname === 'blog.naver.com' || hostname.endsWith('.blog.naver.com'))) {
       // 네이버 블로그의 대표 이미지 추출
       const naverImage = 
         $('.se-main-container img').first().attr('src') ||
@@ -146,11 +147,12 @@ export async function POST(request: NextRequest) {
     metadata.title = metadata.title
       .replace(/\s+/g, ' ') // 연속된 공백 제거
       .trim()
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
+      // 안전한 HTML 엔티티 디코딩 (이미 디코딩된 내용 보호)
+      .replace(/&(?!amp;|lt;|gt;|quot;|#39;)amp;/g, '&')
+      .replace(/&(?!lt;|gt;|quot;|#39;|amp;)lt;/g, '<')
+      .replace(/&(?!gt;|quot;|#39;|amp;|lt;)gt;/g, '>')
+      .replace(/&(?!quot;|#39;|amp;|lt;|gt;)quot;/g, '"')
+      .replace(/&(?!#39;|amp;|lt;|gt;|quot;)#39;/g, "'")
       // 깨진 특수문자 처리  
       .replace(/♦+/g, '') // 다이아몬드 문자 제거
       .replace(/[^\x20-\x7E\xA0-\uFFFF]/g, '') // 유효하지 않은 문자 제거
@@ -160,11 +162,12 @@ export async function POST(request: NextRequest) {
     metadata.description = metadata.description
       .replace(/\s+/g, ' ')
       .trim()
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
+      // 안전한 HTML 엔티티 디코딩 (이미 디코딩된 내용 보호)
+      .replace(/&(?!amp;|lt;|gt;|quot;|#39;)amp;/g, '&')
+      .replace(/&(?!lt;|gt;|quot;|#39;|amp;)lt;/g, '<')
+      .replace(/&(?!gt;|quot;|#39;|amp;|lt;)gt;/g, '>')
+      .replace(/&(?!quot;|#39;|amp;|lt;|gt;)quot;/g, '"')
+      .replace(/&(?!#39;|amp;|lt;|gt;|quot;)#39;/g, "'")
 
     // 제목이 너무 길면 자르기
     if (metadata.title.length > 100) {

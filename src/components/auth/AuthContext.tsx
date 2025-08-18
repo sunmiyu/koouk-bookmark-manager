@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null)
   
   // Load user profile and settings
-  const const loadUserProfile = useCallback(async (userId: string): Promise<void> => {
+  const loadUserProfile = useCallback(async (userId: string): Promise<void> => {
     try {
       // 🚀 OPTIMIZATION 1: Parallel database queries to reduce loading time by 200-400ms
       const [profileResult, settingsResult] = await Promise.allSettled([

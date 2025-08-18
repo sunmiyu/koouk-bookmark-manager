@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useAuthCompat } from '../auth/AuthContext'
 import { FolderItem, StorageItem } from '@/types/folder'
 import { DatabaseService } from '@/lib/database'

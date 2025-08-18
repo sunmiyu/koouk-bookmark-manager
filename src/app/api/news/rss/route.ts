@@ -90,14 +90,18 @@ function detectRegionFromIP(request: NextRequest): string {
   return 'international'
 }
 
-// 안전한 HTML 및 엔티티 제거 함수
+// 🔒 SECURITY FIX: 완전한 HTML 및 엔티티 제거 함수 (CodeQL 보안 이슈 해결)
 function sanitizeTitle(title: string): string {
   if (!title) return '';
   
-  // 1. HTML 태그 제거
-  let sanitized = title.replace(/<[^>]*>/g, '');
+  // 1. 모든 HTML 태그 완전 제거 (중첩된 태그도 처리)
+  let sanitized = title.replace(/<[^>]*>?/gm, '');
   
-  // 2. 안전한 HTML 엔티티 디코딩 (명시적 매핑)
+  // 2. 스크립트 관련 위험 문자열 제거
+  sanitized = sanitized.replace(/javascript:/gi, '');
+  sanitized = sanitized.replace(/on\w+\s*=/gi, '');
+  
+  // 3. 안전한 HTML 엔티티 디코딩 (명시적 매핑)
   const entityMap: { [key: string]: string } = {
     '&amp;': '&',
     '&lt;': '<',
@@ -106,18 +110,26 @@ function sanitizeTitle(title: string): string {
     '&#039;': "'",
     '&#39;': "'",
     '&apos;': "'",
-    '&nbsp;': ' '
+    '&nbsp;': ' ',
+    '&#8216;': "'",
+    '&#8217;': "'",
+    '&#8220;': '"',
+    '&#8221;': '"',
+    '&#8230;': '...'
   };
   
-  // 3. 알려진 엔티티만 변환
+  // 4. 알려진 엔티티만 안전하게 변환
   for (const [entity, char] of Object.entries(entityMap)) {
     sanitized = sanitized.replaceAll(entity, char);
   }
   
-  // 4. 남은 HTML 엔티티 제거 (보안상 변환하지 않고 제거)
-  sanitized = sanitized.replace(/&[a-zA-Z0-9#]+;/g, '');
+  // 5. 남은 모든 HTML 엔티티 완전 제거 (보안상 변환하지 않고 제거)
+  sanitized = sanitized.replace(/&[#a-zA-Z0-9]{1,20};/gm, '');
   
-  return sanitized.trim();
+  // 6. 위험한 문자 패턴 제거
+  sanitized = sanitized.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+  
+  return sanitized.trim().substring(0, 200); // 길이 제한
 }
 
 // 네이버 뉴스 API 호출 - 최신 뉴스 Top 10
@@ -170,8 +182,9 @@ async function fetchNaverNews(): Promise<NewsItem[]> {
             allNews.push(...data.items)
           }
         } else {
-          const errorText = await response.text()
-          console.error(`API Error for ${keyword}:`, response.status, errorText)
+          // 🔒 SECURITY FIX: 에러 응답 안전하게 처리 (민감 정보 로깅 방지)
+          const errorStatus = response.status
+          console.error(`API Error for ${keyword}:`, errorStatus, 'Request failed')
         }
         
         // API 호출 간격을 두어 rate limit 방지

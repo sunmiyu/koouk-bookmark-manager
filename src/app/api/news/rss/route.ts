@@ -92,14 +92,19 @@ function detectRegionFromIP(request: NextRequest): string {
 
 // 🔒 SECURITY FIX: 완전한 HTML 및 엔티티 제거 함수 (CodeQL 보안 이슈 해결)
 function sanitizeTitle(title: string): string {
-  if (!title) return '';
+  if (!title || typeof title !== 'string') return '';
   
-  // 1. 모든 HTML 태그 완전 제거 (중첩된 태그도 처리)
-  let sanitized = title.replace(/<[^>]*>?/gm, '');
+  // 1. 모든 HTML 태그 완전 제거 (개선된 정규식으로 모든 태그 완전 제거)
+  let sanitized = title.replace(/<\/?[^>]*\/?>/gi, ''); // 완전한 태그 제거
+  sanitized = sanitized.replace(/<[^>]*$/gi, ''); // 불완전한 태그 제거
+  sanitized = sanitized.replace(/^[^<]*>/gi, ''); // 시작 부분의 불완전한 태그 제거
   
-  // 2. 스크립트 관련 위험 문자열 제거
-  sanitized = sanitized.replace(/javascript:/gi, '');
-  sanitized = sanitized.replace(/on\w+\s*=/gi, '');
+  // 2. 스크립트 관련 위험 문자열 완전 제거 (개선된 패턴)
+  sanitized = sanitized.replace(/javascript\s*:/gi, ''); // 공백 포함
+  sanitized = sanitized.replace(/vbscript\s*:/gi, ''); // VBScript도 제거
+  sanitized = sanitized.replace(/data\s*:/gi, ''); // Data URL 제거
+  sanitized = sanitized.replace(/on\w+\s*=\s*['"]*[^'">\s]*/gi, ''); // 완전한 이벤트 핸들러 제거
+  sanitized = sanitized.replace(/on[a-z]+\s*=/gi, ''); // 모든 on* 이벤트
   
   // 3. 안전한 HTML 엔티티 디코딩 (명시적 매핑)
   const entityMap: { [key: string]: string } = {
@@ -126,10 +131,20 @@ function sanitizeTitle(title: string): string {
   // 5. 남은 모든 HTML 엔티티 완전 제거 (보안상 변환하지 않고 제거)
   sanitized = sanitized.replace(/&[#a-zA-Z0-9]{1,20};/gm, '');
   
-  // 6. 위험한 문자 패턴 제거
-  sanitized = sanitized.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+  // 6. 위험한 문자 패턴 완전 제거 (개선된 패턴)
+  sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, ''); // 모든 제어 문자
+  sanitized = sanitized.replace(/[\uFEFF\uFFFE\uFFFF]/g, ''); // BOM 및 특수 유니코드
   
-  return sanitized.trim().substring(0, 200); // 길이 제한
+  // 7. SQL Injection 방지 패턴
+  sanitized = sanitized.replace(/['";\\]/g, ''); // 인용부호와 백슬래시 제거
+  
+  // 8. 길이 제한 및 최종 정리
+  sanitized = sanitized.trim();
+  if (sanitized.length > 200) {
+    sanitized = sanitized.substring(0, 200).trim();
+  }
+  
+  return sanitized;
 }
 
 // 네이버 뉴스 API 호출 - 최신 뉴스 Top 10
@@ -170,16 +185,47 @@ async function fetchNaverNews(): Promise<NewsItem[]> {
         console.log(`Response status for ${keyword}:`, response.status)
         
         if (response.ok) {
-          const data = await response.json()
-          console.log(`Data received for ${keyword}:`, {
-            total: data.total || 0,
-            start: data.start || 0,
-            display: data.display || 0,
-            itemsCount: data.items ? data.items.length : 0
-          })
-          
-          if (data.items && data.items.length > 0) {
-            allNews.push(...data.items)
+          // 🔒 SECURITY FIX: Safe JSON parsing with validation
+          try {
+            const responseText = await response.text()
+            if (!responseText || responseText.trim().length === 0) {
+              console.warn(`Empty response for keyword: ${keyword}`)
+              continue
+            }
+            
+            // Validate response is valid JSON and not too large
+            if (responseText.length > 1024 * 1024) { // 1MB limit
+              console.warn(`Response too large for keyword: ${keyword}`)
+              continue
+            }
+            
+            const data = JSON.parse(responseText)
+            
+            // Validate response structure
+            if (!data || typeof data !== 'object') {
+              console.warn(`Invalid data structure for keyword: ${keyword}`)
+              continue
+            }
+            
+            console.log(`Data received for ${keyword}:`, {
+              total: data.total || 0,
+              start: data.start || 0,
+              display: data.display || 0,
+              itemsCount: Array.isArray(data.items) ? data.items.length : 0
+            })
+            
+            if (Array.isArray(data.items) && data.items.length > 0) {
+              // Additional validation for items
+              const validItems = data.items.filter(item => 
+                item && typeof item === 'object' && 
+                typeof item.title === 'string' &&
+                (typeof item.originallink === 'string' || typeof item.link === 'string')
+              )
+              allNews.push(...validItems)
+            }
+          } catch (jsonError) {
+            console.error(`JSON parsing error for keyword ${keyword}:`, jsonError)
+            continue
           }
         } else {
           // 🔒 SECURITY FIX: 에러 응답 안전하게 처리 (민감 정보 로깅 방지)

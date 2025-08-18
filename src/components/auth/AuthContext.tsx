@@ -247,43 +247,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setStatus('loading')
       setError(null)
       
-      // 🚀 OPTIMIZATION 21: Check if popup auth is available (faster)
-      const { useFastAuth } = await import('@/lib/fastAuth')
-      const { signInWithPopup, isPopupSupported } = useFastAuth()
+      console.log('🚀 Starting Google OAuth authentication')
       
-      if (isPopupSupported) {
-        // 🚀 FAST PATH: Popup-based authentication (400-800ms)
-        console.log('🚀 Using fast popup authentication')
-        
-        const result = await signInWithPopup('google')
-        
-        if (result.success && result.user) {
-          setUser(result.user)
-          await loadUserProfile(result.user.id)
-          setStatus('authenticated')
-          analytics.login('google')
-          return
-        } else {
-          throw new Error(result.error || 'Popup authentication failed')
-        }
-      } else {
-        // 🔄 FALLBACK: Traditional redirect flow for popup blockers
-        console.log('🔄 Popup blocked, using redirect authentication')
-        
-        const { error } = await supabase.auth.signInWithOAuth({
-          provider: 'google',
-          options: {
-            redirectTo: `${window.location.origin}/auth/callback`,
-            queryParams: {
-              access_type: 'offline',
-              prompt: 'select_account',
-            }
+      // Use reliable redirect flow
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'select_account',
           }
-        })
-        
-        if (error) throw error
-        analytics.login('google')
+        }
+      })
+      
+      if (error) {
+        console.error('OAuth error:', error)
+        throw error
       }
+      
+      analytics.login('google')
       
     } catch (error) {
       console.error('Sign in error:', error)

@@ -1,12 +1,10 @@
 'use client'
 
 import { useAuth } from '@/components/auth/AuthContext'
-import { useOptimizedAuth } from '@/hooks/useOptimizedAuth'
 import { Folder, Bookmark, Store, ArrowRight, Sparkles, Users, Shield } from 'lucide-react'
 
 export default function OnboardingPage() {
   const { signIn } = useAuth()
-  const optimizedAuth = useOptimizedAuth()
 
   const mainFeatures = [
     {
@@ -73,10 +71,10 @@ export default function OnboardingPage() {
             </p>
             
             <button
-              {...optimizedAuth.getLoginButtonProps()}
+              onClick={signIn}
               className="w-full inline-flex items-center justify-center px-4 py-2 bg-black text-white rounded-md text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {optimizedAuth.isOptimistic ? 'Signing in...' : 'Get Started with Google'}
+              Get Started with Google
               <ArrowRight className="ml-2 w-3 h-3" />
             </button>
           </div>

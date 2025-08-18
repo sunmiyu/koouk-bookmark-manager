@@ -91,6 +91,7 @@ export class FastAuth {
    */
   private static async buildAuthUrl(provider: 'google'): Promise<string> {
     const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    // 🚀 FAST LOGIN: Use dedicated popup callback for maximum speed
     const redirectTo = `${window.location.origin}/auth/popup-callback`
     
     // Build optimized OAuth URL with minimal parameters

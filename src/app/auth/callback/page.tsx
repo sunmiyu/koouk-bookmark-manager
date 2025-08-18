@@ -15,6 +15,9 @@ export default function AuthCallback() {
         // 🚀 OPTIMIZATION 6: Faster callback processing with immediate session handling
         const startTime = performance.now()
         
+        // 🔧 FIX: Check if this is a popup callback
+        const isPopup = window.opener && window.opener !== window
+        
         const { data, error } = await supabase.auth.getSession()
         
         if (error) {
@@ -22,8 +25,16 @@ export default function AuthCallback() {
           setStatus('error')
           setMessage('Authentication failed. Please try again.')
           
-          // 🚀 OPTIMIZATION 7: Faster error redirect (reduced delay)
-          setTimeout(() => router.push('/'), 1000)
+          // 🔧 FIX: Handle popup error
+          if (isPopup) {
+            window.opener?.postMessage({
+              type: 'OAUTH_ERROR',
+              error: error.message
+            }, window.location.origin)
+            window.close()
+          } else {
+            setTimeout(() => router.push('/'), 1000)
+          }
           return
         }
 
@@ -40,14 +51,24 @@ export default function AuthCallback() {
           setStatus('success')
           setMessage('Authentication successful! Redirecting...')
           
-          // 🚀 OPTIMIZATION 9: Immediate redirect with optimistic UI
-          const processingTime = performance.now() - startTime
-          const minDisplayTime = 800 // Minimum time to show success message
-          const remainingTime = Math.max(0, minDisplayTime - processingTime)
-          
-          setTimeout(() => {
-            router.push('/?tab=my-folder')
-          }, remainingTime)
+          // 🔧 FIX: Handle popup vs normal callback differently
+          if (isPopup) {
+            // For popup: Send message to parent and close
+            window.opener?.postMessage({
+              type: 'OAUTH_SUCCESS',
+              session: data.session
+            }, window.location.origin)
+            window.close()
+          } else {
+            // For normal redirect: Navigate as usual
+            const processingTime = performance.now() - startTime
+            const minDisplayTime = 800
+            const remainingTime = Math.max(0, minDisplayTime - processingTime)
+            
+            setTimeout(() => {
+              router.push('/?tab=my-folder')
+            }, remainingTime)
+          }
           
         } else {
           setStatus('error')

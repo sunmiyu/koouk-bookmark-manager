@@ -62,7 +62,7 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
             title: 'Created "Design Resources" folder',
             timestamp: '2 hours ago',
             icon: <Folder className="w-4 h-4" />,
-            color: 'text-blue-600'
+            color: 'text-gray-600'
           },
           {
             id: '2', 
@@ -70,7 +70,7 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
             title: 'Bookmarked "React Best Practices"',
             timestamp: '5 hours ago',
             icon: <Bookmark className="w-4 h-4" />,
-            color: 'text-green-600'
+            color: 'text-gray-600'
           },
           {
             id: '3',
@@ -78,7 +78,7 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
             title: 'Shared folder with community',
             timestamp: '1 day ago',
             icon: <Share className="w-4 h-4" />,
-            color: 'text-purple-600'
+            color: 'text-gray-600'
           }
         ])
       } catch (error) {
@@ -95,9 +95,9 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
       count: stats.myFolders,
       icon: <Folder className="w-8 h-8" />,
       description: "Personal collections",
-      color: "bg-blue-50 border-blue-200 hover:bg-blue-100 text-blue-600",
+      color: "bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-600",
       trend: "+12% this week",
-      trendIcon: <TrendingUp className="w-4 h-4 text-green-500" />,
+      trendIcon: <TrendingUp className="w-4 h-4 text-gray-500" />,
       onClick: () => onNavigate('my-folder')
     },
     {
@@ -105,9 +105,9 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
       count: stats.bookmarks,
       icon: <Bookmark className="w-8 h-8" />,
       description: "Saved websites",
-      color: "bg-green-50 border-green-200 hover:bg-green-100 text-green-600",
+      color: "bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-600",
       trend: "+8% this week",
-      trendIcon: <TrendingUp className="w-4 h-4 text-green-500" />,
+      trendIcon: <TrendingUp className="w-4 h-4 text-gray-500" />,
       onClick: () => onNavigate('bookmarks')
     },
     {
@@ -115,9 +115,9 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
       count: stats.sharedFolders,
       icon: <Share className="w-8 h-8" />,
       description: "Folders you shared",
-      color: "bg-purple-50 border-purple-200 hover:bg-purple-100 text-purple-600",
+      color: "bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-600",
       trend: "+23% this week",
-      trendIcon: <TrendingUp className="w-4 h-4 text-green-500" />,
+      trendIcon: <TrendingUp className="w-4 h-4 text-gray-500" />,
       onClick: () => onNavigate('marketplace')
     },
     {
@@ -127,7 +127,7 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
       description: "From community",
       color: "bg-orange-50 border-orange-200 hover:bg-orange-100 text-orange-600",
       trend: "+15% this week",
-      trendIcon: <TrendingUp className="w-4 h-4 text-green-500" />,
+      trendIcon: <TrendingUp className="w-4 h-4 text-gray-500" />,
       onClick: () => onNavigate('marketplace')
     }
   ]
@@ -136,22 +136,22 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
     {
       title: "Create New Folder",
       description: "Start organizing your content",
-      icon: <Folder className="w-6 h-6 text-blue-600" />,
-      color: "bg-blue-50 border-blue-200 hover:bg-blue-100",
+      icon: <Folder className="w-6 h-6 text-gray-600" />,
+      color: "bg-gray-50 border-gray-200 hover:bg-gray-100",
       action: () => onNavigate('my-folder')
     },
     {
       title: "Add Bookmark",
       description: "Save a website for later",
-      icon: <Bookmark className="w-6 h-6 text-green-600" />,
-      color: "bg-green-50 border-green-200 hover:bg-green-100",
+      icon: <Bookmark className="w-6 h-6 text-gray-600" />,
+      color: "bg-gray-50 border-gray-200 hover:bg-gray-100",
       action: () => onNavigate('bookmarks')
     },
     {
       title: "Explore Market",
       description: "Discover community content",
-      icon: <Store className="w-6 h-6 text-purple-600" />,
-      color: "bg-purple-50 border-purple-200 hover:bg-purple-100",
+      icon: <Store className="w-6 h-6 text-gray-600" />,
+      color: "bg-gray-50 border-gray-200 hover:bg-gray-100",
       action: () => onNavigate('marketplace')
     }
   ]
@@ -208,7 +208,7 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
 
               <div className="flex items-center space-x-1">
                 {card.trendIcon}
-                <span className="text-xs text-green-600 font-medium">
+                <span className="text-xs text-gray-600 font-medium">
                   {card.trend}
                 </span>
               </div>
@@ -272,7 +272,7 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
               ))}
             </div>
 
-            <button className="w-full mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium">
+            <button className="w-full mt-4 text-sm text-gray-600 hover:text-gray-700 font-medium">
               View all activity
             </button>
           </div>

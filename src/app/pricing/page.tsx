@@ -53,9 +53,9 @@ export default function PricingPage() {
         "출근길", "환율현황", "24시간 주변약국"
       ],
       buttonText: "업그레이드",
-      buttonStyle: "bg-blue-600 hover:bg-blue-700 text-white",
+      buttonStyle: "bg-black hover:bg-gray-800 text-white",
       popular: true,
-      cardStyle: "border-blue-500 shadow-xl shadow-blue-500/20"
+      cardStyle: "border-gray-400 shadow-lg"
     },
     {
       id: 'unlimited',
@@ -79,41 +79,41 @@ export default function PricingPage() {
         "모든 Pro 플랜 기능", "맛집 추천", "고급 분석", "무제한 저장"
       ],
       buttonText: "문의하기",
-      buttonStyle: "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white",
+      buttonStyle: "bg-gray-800 hover:bg-gray-900 text-white",
       popular: false,
-      cardStyle: "border-purple-500"
+      cardStyle: "border-gray-300"
     }
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 sm:px-6 py-8 max-w-7xl">
         {/* Professional Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-600/10 rounded-xl flex items-center justify-center border border-blue-200/50">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-8 h-8 bg-gray-100 rounded-md flex items-center justify-center border border-gray-200">
+              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
               </svg>
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-1">Subscription Plans</h1>
-              <p className="text-gray-600">Choose the perfect plan for your lifestyle management needs</p>
+              <h1 className="text-base font-medium text-gray-900 mb-1">Subscription Plans</h1>
+              <p className="text-sm text-gray-600">Choose the perfect plan for your needs</p>
             </div>
           </div>
         </div>
 
         {/* Plan Selection Cards */}
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mb-12">
+        <div className="max-w-sm mx-auto space-y-4 mb-8">
           {plans.map((plan) => (
             <div 
               key={plan.id}
-              className={`relative bg-white/70 backdrop-blur-sm rounded-xl border-2 transition-all duration-300 hover:scale-105 hover:shadow-xl p-8 ${plan.cardStyle}`}
+              className={`relative bg-gray-50 rounded-md border transition-all duration-200 hover:shadow-sm p-4 ${plan.cardStyle}`}
             >
               {/* Popular Badge */}
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full text-sm font-semibold shadow-lg">
+                  <span className="bg-black text-white px-3 py-1 rounded-md text-xs font-medium">
                     🔥 Most Popular
                   </span>
                 </div>
@@ -121,8 +121,8 @@ export default function PricingPage() {
 
               {/* Plan Header */}
               <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-8 h-8 bg-gray-200 rounded-md flex items-center justify-center mx-auto mb-2">
+                  <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     {plan.id === 'free' && (
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     )}
@@ -134,12 +134,12 @@ export default function PricingPage() {
                     )}
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                <h3 className="text-sm font-medium text-gray-900 mb-1">{plan.name}</h3>
                 <div className="flex items-baseline justify-center gap-1 mb-2">
-                  <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
-                  <span className="text-gray-600 text-lg">{plan.priceUnit}</span>
+                  <span className="text-base font-medium text-gray-900">{plan.price}</span>
+                  <span className="text-gray-600 text-sm">{plan.priceUnit}</span>
                 </div>
-                <p className="text-gray-600 text-sm">{plan.description}</p>
+                <p className="text-gray-600 text-xs">{plan.description}</p>
               </div>
 
               {/* Mini Functions Preview */}
@@ -190,34 +190,34 @@ export default function PricingPage() {
         </div>
 
         {/* Feature Comparison Section */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-lg p-8 mb-12">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">Plan Comparison</h2>
-            <p className="text-gray-600">Compare features across all subscription plans</p>
+        <div className="bg-gray-50 rounded-md border border-gray-200 p-4 mb-6">
+          <div className="text-center mb-4">
+            <h2 className="text-sm font-medium text-gray-900 mb-1">Plan Comparison</h2>
+            <p className="text-xs text-gray-600">Compare features across all plans</p>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-xs">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900">Features</th>
-                  <th className="text-center py-4 px-6 font-semibold text-gray-900">Free</th>
-                  <th className="text-center py-4 px-6 font-semibold text-blue-600">Pro</th>
-                  <th className="text-center py-4 px-6 font-semibold text-purple-600">Premium</th>
+                  <th className="text-left py-2 px-3 font-medium text-gray-900">Features</th>
+                  <th className="text-center py-2 px-3 font-medium text-gray-900">Free</th>
+                  <th className="text-center py-2 px-3 font-medium text-gray-900">Pro</th>
+                  <th className="text-center py-2 px-3 font-medium text-gray-900">Premium</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 <tr>
-                  <td className="py-4 px-6 font-medium text-gray-900">Mini Functions</td>
-                  <td className="py-4 px-6 text-center text-gray-600">12 Basic</td>
-                  <td className="py-4 px-6 text-center text-blue-600 font-semibold">All + 2 API</td>
-                  <td className="py-4 px-6 text-center text-purple-600 font-semibold">All + 4 API</td>
+                  <td className="py-2 px-3 font-medium text-gray-900">Mini Functions</td>
+                  <td className="py-2 px-3 text-center text-gray-600">12 Basic</td>
+                  <td className="py-2 px-3 text-center text-gray-900 font-medium">All + 2 API</td>
+                  <td className="py-2 px-3 text-center text-gray-900 font-medium">All + 4 API</td>
                 </tr>
                 <tr>
-                  <td className="py-4 px-6 font-medium text-gray-900">Content Storage</td>
-                  <td className="py-4 px-6 text-center text-gray-600">50 each type</td>
-                  <td className="py-4 px-6 text-center text-blue-600 font-semibold">500 each type</td>
-                  <td className="py-4 px-6 text-center text-purple-600 font-semibold">Unlimited</td>
+                  <td className="py-2 px-3 font-medium text-gray-900">Content Storage</td>
+                  <td className="py-2 px-3 text-center text-gray-600">50 each type</td>
+                  <td className="py-2 px-3 text-center text-gray-900 font-medium">500 each type</td>
+                  <td className="py-2 px-3 text-center text-gray-900 font-medium">Unlimited</td>
                 </tr>
                 <tr>
                   <td className="py-4 px-6 font-medium text-gray-900">API Features</td>
@@ -260,67 +260,20 @@ export default function PricingPage() {
           </div>
         </div>
 
-        {/* FAQ Section */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-lg p-8 mb-12">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">Frequently Asked Questions</h2>
-            <p className="text-gray-600">Everything you need to know about our pricing plans</p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                💾 <span>How does the 50-item limit work in the Free plan?</span>
-              </h3>
-              <p className="text-gray-600 text-sm">
-                You can store up to 50 items per content type (Links, Videos, Images, Notes). When you reach the limit, you&apos;ll need to manually delete existing items before adding new ones. The system never deletes your data automatically.
-              </p>
-            </div>
-
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                💳 <span>When am I charged?</span>
-              </h3>
-              <p className="text-gray-600 text-sm">
-                Pro and Premium plans are billed monthly. You can cancel anytime and continue using the service until the end of your current billing period.
-              </p>
-            </div>
-
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                🔄 <span>Is my data safely backed up?</span>
-              </h3>
-              <p className="text-gray-600 text-sm">
-                All data is securely backed up in real-time to Supabase&apos;s cloud servers. You can access your data from any device by signing in with your Google account.
-              </p>
-            </div>
-
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                ↩️ <span>Can I downgrade to the Free plan?</span>
-              </h3>
-              <p className="text-gray-600 text-sm">
-                Yes, you can downgrade anytime. If you exceed the 50-item limit, you&apos;ll need to manually delete excess items to add new ones. All your data remains safe.
-              </p>
-            </div>
-          </div>
-        </div>
 
         {/* CTA Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-8 text-center text-white shadow-2xl">
-          <div className="max-w-2xl mx-auto">
-            <h2 className="text-3xl font-bold mb-4">Ready to get started?</h2>
-            <p className="text-xl mb-8 opacity-90">
-              Manage all your digital life in one smart, beautiful place
+        <div className="bg-gray-100 rounded-md p-4 text-center border border-gray-200">
+          <div className="max-w-sm mx-auto">
+            <h2 className="text-sm font-medium mb-2">Ready to get started?</h2>
+            <p className="text-xs mb-4 text-gray-600">
+              Manage your digital life in one place
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/"
-                className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-all shadow-lg"
-              >
-                Start Free
-              </Link>
-            </div>
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center w-full bg-black text-white px-4 py-2 rounded-md text-xs font-medium hover:bg-gray-800 transition-colors"
+            >
+              Start Free
+            </Link>
           </div>
         </div>
       </div>

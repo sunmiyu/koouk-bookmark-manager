@@ -113,7 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   // Initialize auth state
-  const const initializeAuth = useCallback(async (): Promise<void> => {
+  const initializeAuth = useCallback(async (): Promise<void> => {
     try {
       setStatus('loading')
       setError(null)
@@ -242,7 +242,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [initializeAuth, loadUserProfile])
 
   // Sign in with Google
-  const const signIn = useCallback(async (): Promise<void> => {
+  const signIn = useCallback(async (): Promise<void> => {
     try {
       setStatus('loading')
       setError(null)
@@ -294,7 +294,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [loadUserProfile])
 
   // Sign out - 즉시 UI 업데이트, 백그라운드 정리
-  const const signOut = useCallback(async (): Promise<void> => {
+  const signOut = useCallback(async (): Promise<void> => {
     // 🚀 OPTIMIZATION 12: Immediate UI state clear for instant response
     setUser(null)
     setUserProfile(null)

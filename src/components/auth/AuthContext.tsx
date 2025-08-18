@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { DatabaseService } from '@/lib/database'
+import { FastAuth } from '@/lib/fastAuth'
 import type { User } from '@supabase/supabase-js'
 import type { Database } from '@/types/database'
 import { analytics, setUserId, setUserProperties } from '@/lib/analytics'
@@ -256,15 +257,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []) // 🔧 FIX: Remove dependencies to prevent infinite loop
 
-  // Sign in with Google
+  // Sign in with Google - Fast popup first, redirect fallback
   const signIn = useCallback(async (): Promise<void> => {
     try {
       setStatus('loading')
       setError(null)
       
-      console.log('🚀 Starting Google OAuth authentication')
+      console.log('🚀 Starting fast popup OAuth authentication')
       
-      // Use reliable redirect flow
+      // 🚀 PRIMARY: Fast popup OAuth (400-800ms target)
+      if (typeof window !== 'undefined' && FastAuth.isPopupSupported()) {
+        try {
+          const result = await FastAuth.signInWithPopup({ provider: 'google' })
+          
+          if (result.success && result.user) {
+            console.log('✅ Fast popup authentication successful')
+            setUser(result.user)
+            await loadUserProfile(result.user.id)
+            setStatus('authenticated')
+            analytics.login('google')
+            return
+          } else {
+            console.warn('Popup auth failed, falling back to redirect:', result.error)
+          }
+        } catch (popupError) {
+          console.warn('Popup authentication failed, falling back to redirect:', popupError)
+        }
+      }
+      
+      // 🔄 FALLBACK: Redirect flow for popup-blocked environments
+      console.log('🔄 Using redirect OAuth fallback')
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {

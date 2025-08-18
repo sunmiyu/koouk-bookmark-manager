@@ -1,15 +1,13 @@
 /**
- * 🚀 OPTIMIZED AUTH HOOK
- * Commercial-grade authentication with predictive loading and instant feedback
- * Implements industry best practices for sub-second login experience
+ * 🚀 SIMPLIFIED OPTIMIZED AUTH HOOK
+ * Reliable authentication with optimistic UI feedback
+ * Uses simple redirect-based OAuth for maximum compatibility
  */
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useAuth } from '@/components/auth/AuthContext'
-import { FastAuth } from '@/lib/fastAuth'
 
 interface OptimizedAuthState {
-  isPreloaded: boolean
   isOptimistic: boolean
   predictedUser: any
 }
@@ -17,57 +15,35 @@ interface OptimizedAuthState {
 export const useOptimizedAuth = () => {
   const auth = useAuth()
   const [authState, setAuthState] = useState<OptimizedAuthState>({
-    isPreloaded: false,
     isOptimistic: false,
     predictedUser: null
   })
 
-  // 🚀 OPTIMIZATION 22: Preload auth resources on component mount
-  useEffect(() => {
-    if (!authState.isPreloaded) {
-      FastAuth.preloadAuthResources()
-      setAuthState(prev => ({ ...prev, isPreloaded: true }))
-    }
-  }, [authState.isPreloaded])
-
   /**
-   * 🚀 OPTIMIZATION 23: Predictive auth preloading on hover/focus
-   * Start auth process before user actually clicks
-   */
-  const preloadAuth = useCallback(() => {
-    FastAuth.preloadAuthResources()
-  }, [])
-
-  /**
-   * 🚀 OPTIMIZATION 24: Optimistic sign-in with instant UI feedback
-   * Show success state immediately, rollback on failure
+   * 🚀 Optimistic sign-in with instant UI feedback
+   * Uses reliable redirect-based authentication
    */
   const optimisticSignIn = useCallback(async () => {
-    const startTime = performance.now()
-    
     try {
-      // 🚀 Step 1: Immediate optimistic UI update
+      // Show immediate loading state
       setAuthState(prev => ({ 
         ...prev, 
         isOptimistic: true,
         predictedUser: { email: 'authenticating...', name: 'Loading...' }
       }))
 
-      // 🚀 Step 2: Perform actual authentication
+      // Use reliable redirect authentication
       await auth.signIn()
       
-      // 🚀 Step 3: Clear optimistic state on success
+      // Clear optimistic state on success (component will unmount on redirect)
       setAuthState(prev => ({ 
         ...prev, 
         isOptimistic: false,
         predictedUser: null 
       }))
-
-      const totalTime = performance.now() - startTime
-      console.log(`🚀 Total optimistic auth time: ${Math.round(totalTime)}ms`)
       
     } catch (error) {
-      // 🚀 Rollback optimistic state on failure
+      // Rollback optimistic state on failure
       setAuthState(prev => ({ 
         ...prev, 
         isOptimistic: false,
@@ -78,8 +54,8 @@ export const useOptimizedAuth = () => {
   }, [auth])
 
   /**
-   * 🚀 OPTIMIZATION 25: Smart button state management
-   * Provides instant feedback and predictive states
+   * 🚀 Smart button state management
+   * Provides instant feedback for loading states
    */
   const getLoginButtonProps = useCallback(() => {
     const isLoading = auth.status === 'loading' || authState.isOptimistic
@@ -87,8 +63,6 @@ export const useOptimizedAuth = () => {
     
     return {
       onClick: optimisticSignIn,
-      onMouseEnter: preloadAuth, // Preload on hover
-      onFocus: preloadAuth, // Preload on focus
       disabled: isLoading || isAuthenticated,
       children: isLoading 
         ? 'Signing in...' 
@@ -98,10 +72,10 @@ export const useOptimizedAuth = () => {
       'data-loading': isLoading,
       'data-optimistic': authState.isOptimistic
     }
-  }, [auth.status, authState.isOptimistic, optimisticSignIn, preloadAuth])
+  }, [auth.status, authState.isOptimistic, optimisticSignIn])
 
   /**
-   * 🚀 OPTIMIZATION 26: Enhanced user state with optimistic updates
+   * Enhanced user state with optimistic updates
    */
   const getDisplayUser = useCallback(() => {
     if (authState.isOptimistic && authState.predictedUser) {
@@ -109,18 +83,6 @@ export const useOptimizedAuth = () => {
     }
     return auth.user
   }, [auth.user, authState.isOptimistic, authState.predictedUser])
-
-  /**
-   * 🚀 OPTIMIZATION 27: Performance metrics tracking
-   */
-  const getPerformanceMetrics = useCallback(() => {
-    return {
-      isPreloaded: authState.isPreloaded,
-      isOptimistic: authState.isOptimistic,
-      supportsPopup: FastAuth.isPopupSupported(),
-      authStatus: auth.status
-    }
-  }, [authState, auth.status])
 
   return {
     // Enhanced auth methods
@@ -135,13 +97,10 @@ export const useOptimizedAuth = () => {
     userSettings: auth.userSettings,
     
     // Performance helpers
-    preloadAuth,
     getLoginButtonProps,
-    getPerformanceMetrics,
     
     // Performance state
     isOptimistic: authState.isOptimistic,
-    isPreloaded: authState.isPreloaded,
     
     // Original auth context (for compatibility)
     originalAuth: auth

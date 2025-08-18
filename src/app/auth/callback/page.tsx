@@ -12,34 +12,38 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // 🚀 OPTIMIZATION 6: Faster callback processing with immediate session handling
-        const startTime = performance.now()
+        console.log('🔄 Processing OAuth callback...')
         
-        // 🔧 FIX: Check if this is a popup callback
-        const isPopup = window.opener && window.opener !== window
+        // Check for error in URL parameters
+        const urlParams = new URLSearchParams(window.location.search)
+        const urlError = urlParams.get('error')
         
+        if (urlError) {
+          console.error('OAuth error from URL:', urlError)
+          setStatus('error')
+          setMessage('Authentication failed. Please try again.')
+          setTimeout(() => router.push('/'), 2000)
+          return
+        }
+        
+        // Wait a moment for Supabase to process the OAuth callback
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        // Check for session after OAuth processing
         const { data, error } = await supabase.auth.getSession()
         
         if (error) {
-          console.error('Auth callback error:', error)
+          console.error('Session error:', error)
           setStatus('error')
-          setMessage('Authentication failed. Please try again.')
-          
-          // 🔧 FIX: Handle popup error
-          if (isPopup) {
-            window.opener?.postMessage({
-              type: 'OAUTH_ERROR',
-              error: error.message
-            }, window.location.origin)
-            window.close()
-          } else {
-            setTimeout(() => router.push('/'), 1000)
-          }
+          setMessage('Session creation failed. Please try again.')
+          setTimeout(() => router.push('/'), 2000)
           return
         }
 
-        if (data.session) {
-          // 🚀 OPTIMIZATION 8: Cache session immediately for faster subsequent loads
+        if (data.session?.user) {
+          console.log('✅ Authentication successful:', data.session.user.email)
+          
+          // Cache session
           if (typeof window !== 'undefined' && data.session.expires_at) {
             const cacheData = {
               user: data.session.user,
@@ -51,35 +55,36 @@ export default function AuthCallback() {
           setStatus('success')
           setMessage('Authentication successful! Redirecting...')
           
-          // 🔧 FIX: Handle popup vs normal callback differently
-          if (isPopup) {
-            // For popup: Send message to parent and close
-            window.opener?.postMessage({
-              type: 'OAUTH_SUCCESS',
-              session: data.session
-            }, window.location.origin)
-            window.close()
-          } else {
-            // For normal redirect: Navigate as usual
-            const processingTime = performance.now() - startTime
-            const minDisplayTime = 800
-            const remainingTime = Math.max(0, minDisplayTime - processingTime)
-            
-            setTimeout(() => {
-              router.push('/?tab=my-folder')
-            }, remainingTime)
-          }
+          // Navigate to dashboard after brief success display
+          setTimeout(() => {
+            router.push('/?tab=my-folder')
+          }, 1000)
           
         } else {
-          setStatus('error')
-          setMessage('No session found. Redirecting...')
-          setTimeout(() => router.push('/'), 1000)
+          // If no session yet, wait a bit longer and try again
+          console.log('⏳ Waiting for session...')
+          await new Promise(resolve => setTimeout(resolve, 1000))
+          
+          const { data: retryData, error: retryError } = await supabase.auth.getSession()
+          
+          if (retryError || !retryData.session?.user) {
+            console.error('No session found after retry')
+            setStatus('error')
+            setMessage('Authentication incomplete. Please try again.')
+            setTimeout(() => router.push('/'), 2000)
+          } else {
+            console.log('✅ Authentication successful on retry:', retryData.session.user.email)
+            setStatus('success')
+            setMessage('Authentication successful! Redirecting...')
+            setTimeout(() => router.push('/?tab=my-folder'), 1000)
+          }
         }
+        
       } catch (error) {
         console.error('Unexpected error in auth callback:', error)
         setStatus('error')
         setMessage('An unexpected error occurred. Redirecting...')
-        setTimeout(() => router.push('/'), 1000)
+        setTimeout(() => router.push('/'), 2000)
       }
     }
 

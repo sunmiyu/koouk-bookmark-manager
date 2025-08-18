@@ -5,7 +5,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Settings, LogOut, MessageCircle } from 'lucide-react'
 import { useAuthCompat } from '../auth/AuthContext'
-import { useOptimizedAuth } from '@/hooks/useOptimizedAuth'
 import OnboardingPage from '../onboarding/OnboardingPage'
 import DashboardPage from '../dashboard/DashboardPage'
 import MyFolderContent from '../workspace/MyFolderContent'
@@ -22,7 +21,6 @@ export default function App() {
   const device = useDevice()
   const router = useRouter()
   const { user, signIn, signOut, error, status } = useAuthCompat()
-  const optimizedAuth = useOptimizedAuth()
   
   // Main app state
   const [activeTab, setActiveTab] = useState<TabType>('dashboard')
@@ -378,9 +376,12 @@ export default function App() {
                   </div>
 ) : (
                   <button
-                    {...optimizedAuth.getLoginButtonProps()}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                  />
+                    onClick={signIn}
+                    disabled={status === 'loading'}
+                    className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {status === 'loading' ? 'Signing in...' : 'Sign in with Google'}
+                  </button>
                 )}
               </div>
             </div>

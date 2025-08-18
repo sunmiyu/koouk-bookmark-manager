@@ -193,18 +193,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Auth state change handler
   useEffect(() => {
-    initializeAuth()
+    let mounted = true
+    
+    const initialize = async () => {
+      if (!mounted) return
+      await initializeAuth()
+    }
+    
+    initialize()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state change:', event)
+        if (!mounted) return
         
+        console.log('Auth state change:', event)
         setError(null)
         
         try {
           switch (event) {
             case 'SIGNED_IN':
-              if (session?.user) {
+              if (session?.user && mounted) {
                 setUser(session.user)
                 await loadUserProfile(session.user.id)
                 setStatus('authenticated')
@@ -212,34 +220,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               break
               
             case 'SIGNED_OUT':
-              setUser(null)
-              setUserProfile(null)
-              setUserSettings(null)
-              setStatus('idle')
+              if (mounted) {
+                setUser(null)
+                setUserProfile(null)
+                setUserSettings(null)
+                setStatus('idle')
+              }
               break
               
             case 'TOKEN_REFRESHED':
-              if (session?.user) {
+              if (session?.user && mounted) {
                 setUser(session.user)
                 setStatus('authenticated')
               }
               break
               
             default:
-              if (!session?.user) {
+              if (!session?.user && mounted) {
                 setStatus('idle')
               }
           }
         } catch (error) {
-          console.error('Auth state change error:', error)
-          setError(error instanceof Error ? error.message : 'Authentication error occurred')
-          setStatus('error')
+          if (mounted) {
+            console.error('Auth state change error:', error)
+            setError(error instanceof Error ? error.message : 'Authentication error occurred')
+            setStatus('error')
+          }
         }
       }
     )
 
-    return () => subscription.unsubscribe()
-  }, [initializeAuth, loadUserProfile])
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
+  }, []) // 🔧 FIX: Remove dependencies to prevent infinite loop
 
   // Sign in with Google
   const signIn = useCallback(async (): Promise<void> => {

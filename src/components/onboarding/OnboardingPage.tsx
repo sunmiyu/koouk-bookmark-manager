@@ -81,9 +81,9 @@ export default function OnboardingPage() {
         </div>
       </div>
 
-      {/* Main Features Grid */}
-      <div className="max-w-sm mx-auto px-6 py-8">
-        <div className="text-center mb-8">
+      {/* Main Features Grid - Horizontal Layout */}
+      <div className="max-w-4xl mx-auto px-6 py-6">
+        <div className="text-center mb-6">
           <h2 className="text-base font-medium text-gray-900 mb-2">
             Everything you need in one place
           </h2>
@@ -92,23 +92,20 @@ export default function OnboardingPage() {
           </p>
         </div>
 
-        <div className="space-y-4 mb-8">
+        {/* Features in horizontal grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {mainFeatures.map((feature, index) => (
             <div 
               key={index}
-              className={`${feature.color} rounded-md p-4 border hover:shadow-sm transition-all duration-200`}
+              className={`${feature.color} rounded-md p-3 border hover:shadow-sm transition-all duration-200`}
             >
-              <div className={`${feature.iconBg} w-8 h-8 rounded-md flex items-center justify-center mb-3`}>
+              <div className={`${feature.iconBg} w-6 h-6 rounded-md flex items-center justify-center mb-2`}>
                 {feature.icon}
               </div>
               
-              <h3 className="text-sm font-medium text-gray-900 mb-1">
+              <h3 className="text-xs font-medium text-gray-900 mb-1">
                 {feature.title}
               </h3>
-              
-              <p className="text-xs text-gray-500 mb-2">
-                {feature.subtitle}
-              </p>
               
               <p className="text-xs text-gray-700">
                 {feature.description}
@@ -117,21 +114,19 @@ export default function OnboardingPage() {
           ))}
         </div>
 
-        {/* Benefits Section */}
-        <div className="bg-gray-50 rounded-md p-6 border border-gray-200">
-          <div className="text-center mb-6">
-            <h3 className="text-sm font-medium text-gray-900 mb-2">
+        {/* Benefits Section - Horizontal */}
+        <div className="bg-gray-50 rounded-md p-4 border border-gray-200 mb-4">
+          <div className="text-center mb-4">
+            <h3 className="text-sm font-medium text-gray-900 mb-1">
               Why choose KOOUK
             </h3>
-            <p className="text-xs text-gray-600">
-              Join a community that values organization and sharing
-            </p>
           </div>
 
-          <div className="space-y-4 mb-6">
+          {/* Benefits in horizontal grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             {benefits.map((benefit, index) => (
               <div key={index} className="text-center">
-                <div className="bg-gray-100 w-8 h-8 rounded-md flex items-center justify-center mx-auto mb-2">
+                <div className="bg-gray-100 w-6 h-6 rounded-md flex items-center justify-center mx-auto mb-1">
                   {benefit.icon}
                 </div>
                 <h4 className="text-xs font-medium text-gray-900 mb-1">
@@ -145,16 +140,16 @@ export default function OnboardingPage() {
           </div>
 
           {/* Final CTA */}
-          <div className="text-center bg-gray-100 rounded-md p-4">
-            <h4 className="text-sm font-medium text-gray-900 mb-2">
+          <div className="text-center bg-gray-100 rounded-md p-3">
+            <h4 className="text-sm font-medium text-gray-900 mb-1">
               Ready to get started?
             </h4>
-            <p className="text-xs text-gray-600 mb-4">
+            <p className="text-xs text-gray-600 mb-3">
               Start organizing your digital world today
             </p>
             <button
               onClick={signIn}
-              className="w-full inline-flex items-center justify-center px-4 py-2 bg-black text-white rounded-md text-xs font-medium hover:bg-gray-800 transition-colors"
+              className="inline-flex items-center justify-center px-6 py-2 bg-black text-white rounded-md text-xs font-medium hover:bg-gray-800 transition-colors"
             >
               Sign up with Google
               <ArrowRight className="ml-1 w-3 h-3" />

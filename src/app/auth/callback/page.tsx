@@ -10,85 +10,103 @@ export default function AuthCallback() {
   const [message, setMessage] = useState('Processing authentication...')
 
   useEffect(() => {
-    const handleAuthCallback = async () => {
+    let mounted = true
+    let timeoutId: NodeJS.Timeout
+    
+    const handleCallback = async () => {
+      if (!mounted) return
+      
       try {
-        console.log('🔄 Processing OAuth callback...')
+        console.log('🔄 Processing OAuth callback')
         
-        // Check for error in URL parameters
+        // Check for error in URL
         const urlParams = new URLSearchParams(window.location.search)
         const urlError = urlParams.get('error')
         
         if (urlError) {
-          console.error('OAuth error from URL:', urlError)
-          setStatus('error')
-          setMessage('Authentication failed. Please try again.')
-          setTimeout(() => router.push('/'), 2000)
-          return
-        }
-        
-        // Wait a moment for Supabase to process the OAuth callback
-        await new Promise(resolve => setTimeout(resolve, 500))
-        
-        // Check for session after OAuth processing
-        const { data, error } = await supabase.auth.getSession()
-        
-        if (error) {
-          console.error('Session error:', error)
-          setStatus('error')
-          setMessage('Session creation failed. Please try again.')
-          setTimeout(() => router.push('/'), 2000)
-          return
-        }
-
-        if (data.session?.user) {
-          console.log('✅ Authentication successful:', data.session.user.email)
-          
-          // Cache session
-          if (typeof window !== 'undefined' && data.session.expires_at) {
-            const cacheData = {
-              user: data.session.user,
-              expiresAt: data.session.expires_at * 1000
-            }
-            localStorage.setItem('koouk-session-cache', JSON.stringify(cacheData))
-          }
-          
-          setStatus('success')
-          setMessage('Authentication successful! Redirecting...')
-          
-          // Navigate to dashboard after brief success display
-          setTimeout(() => {
-            router.push('/?tab=my-folder')
-          }, 1000)
-          
-        } else {
-          // If no session yet, wait a bit longer and try again
-          console.log('⏳ Waiting for session...')
-          await new Promise(resolve => setTimeout(resolve, 1000))
-          
-          const { data: retryData, error: retryError } = await supabase.auth.getSession()
-          
-          if (retryError || !retryData.session?.user) {
-            console.error('No session found after retry')
+          console.error('OAuth error:', urlError)
+          if (mounted) {
             setStatus('error')
-            setMessage('Authentication incomplete. Please try again.')
+            setMessage('Authentication failed. Please try again.')
             setTimeout(() => router.push('/'), 2000)
-          } else {
-            console.log('✅ Authentication successful on retry:', retryData.session.user.email)
-            setStatus('success')
-            setMessage('Authentication successful! Redirecting...')
-            setTimeout(() => router.push('/?tab=my-folder'), 1000)
           }
+          return
+        }
+        
+        // Wait for Supabase to process OAuth automatically
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        // Check session multiple times
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          if (!mounted) return
+          
+          console.log(`Checking session attempt ${attempt}/3`)
+          const { data, error } = await supabase.auth.getSession()
+          
+          if (data.session?.user) {
+            console.log('✅ Authentication successful:', data.session.user.email)
+            
+            if (mounted) {
+              // Cache session
+              if (data.session.expires_at) {
+                const cacheData = {
+                  user: data.session.user,
+                  expiresAt: data.session.expires_at * 1000
+                }
+                localStorage.setItem('koouk-session-cache', JSON.stringify(cacheData))
+              }
+              
+              setStatus('success')
+              setMessage('Authentication successful! Redirecting...')
+              
+              setTimeout(() => {
+                router.push('/?tab=my-folder')
+              }, 500)
+            }
+            return
+          }
+          
+          if (error) {
+            console.error('Session error:', error)
+            if (mounted) {
+              setStatus('error')
+              setMessage('Authentication failed. Please try again.')
+              setTimeout(() => router.push('/'), 2000)
+            }
+            return
+          }
+          
+          // Wait before next attempt
+          if (attempt < 3) {
+            await new Promise(resolve => setTimeout(resolve, 1000))
+          }
+        }
+        
+        // If we get here, no session was found
+        if (mounted) {
+          console.error('No session found after 3 attempts')
+          setStatus('error')
+          setMessage('Authentication incomplete. Please try again.')
+          setTimeout(() => router.push('/'), 2000)
         }
         
       } catch (error) {
-        console.error('Unexpected error in auth callback:', error)
-        setStatus('error')
-        setMessage('An unexpected error occurred. Redirecting...')
-        setTimeout(() => router.push('/'), 2000)
+        console.error('Callback error:', error)
+        if (mounted) {
+          setStatus('error')
+          setMessage('An unexpected error occurred. Redirecting...')
+          setTimeout(() => router.push('/'), 2000)
+        }
       }
     }
-
-    handleAuthCallback()
+    
+    // Start processing after small delay
+    timeoutId = setTimeout(handleCallback, 500)
+    
+    return () => {
+      mounted = false
+      clearTimeout(timeoutId)
+    }
   }, [router])
 
   return (

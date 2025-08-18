@@ -1,278 +1,447 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { Settings, LogOut, MessageCircle } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { useAuthCompat } from '../auth/AuthContext'
-import OnboardingPage from '../onboarding/OnboardingPage'
-import DashboardPage from '../dashboard/DashboardPage'
-import MyFolderContent from '../workspace/MyFolderContent'
-import MarketPlace from '../workspace/MarketPlace'
-import Bookmarks from '../workspace/Bookmarks'
+import { FolderItem, StorageItem } from '@/types/folder'
+import { DatabaseService } from '@/lib/database'
+import KooukSidebar from '../layout/KooukSidebar'
+import KooukMainContent from '../layout/KooukMainContent'
+import LandingPage from '../pages/Landing/LandingPage'
 import FeedbackModal from '../modals/FeedbackModal'
-import SignoutModal from '../ui/SignoutModal'
 import { useDevice } from '@/hooks/useDevice'
-import { useRouter } from 'next/navigation'
+import { useToast } from '@/hooks/useToast'
+import Toast from '../ui/Toast'
 
-type TabType = 'dashboard' | 'my-folder' | 'marketplace' | 'bookmarks'
+type TabType = 'storage' | 'bookmarks' | 'marketplace'
 
 export default function App() {
   const device = useDevice()
-  const router = useRouter()
-  const { user, signIn, signOut, error, status, loading } = useAuthCompat()
+  const { user, signIn, signOut, status } = useAuthCompat()
+  const { toast, showSuccess, showError, hideToast } = useToast()
   
-  // Main app state
-  const [activeTab, setActiveTab] = useState<TabType>('dashboard')
-  const [searchQuery] = useState('')
-  const [showUserMenu, setShowUserMenu] = useState(false)
+  const [activeTab, setActiveTab] = useState<TabType>('storage')
+  const [folders, setFolders] = useState<FolderItem[]>([])
+  const [selectedFolderId, setSelectedFolderId] = useState<string>()
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
-  const [showSignoutModal, setShowSignoutModal] = useState(false)
-  const [isInitialized, setIsInitialized] = useState(false)
-  const [loadingTimeout, setLoadingTimeout] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [showCreateFolderModal, setShowCreateFolderModal] = useState(false)
+  const [newFolderName, setNewFolderName] = useState('')
 
-  // Swipe gesture state for mobile
-  const [touchStart, setTouchStart] = useState<number | null>(null)
-  const [touchEnd, setTouchEnd] = useState<number | null>(null)
-  const minSwipeDistance = 50
+  const selectedFolder = folders.find(f => f.id === selectedFolderId)
 
-  // Tab navigation
-  const handleTabChange = useCallback((tab: TabType) => {
-    // Check if user needs to be logged in for protected tabs
-    if (!user?.id && ['my-folder', 'marketplace', 'bookmarks'].includes(tab)) {
-      setShowUserMenu(true)
+  useEffect(() => {
+    if (!user) {
+      setIsLoading(false)
       return
     }
-    
-    setActiveTab(tab)
-    
-    // Save to localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('koouk-last-tab', tab)
+
+    loadUserData()
+  }, [user])
+
+  // Enhancement: Process queued imports when back online
+  useEffect(() => {
+    const processQueuedImports = async () => {
+      if (!user?.id || !navigator.onLine) return
+      
+      try {
+        const queuedImports = JSON.parse(localStorage.getItem('koouk-queued-imports') || '[]')
+        if (queuedImports.length === 0) return
+        
+        console.log(`📤 Processing ${queuedImports.length} queued imports...`)
+        
+        for (const queued of queuedImports) {
+          if (queued.userId === user.id) {
+            await handleImportFolder(queued.sharedFolder)
+          }
+        }
+        
+        // Clear processed imports
+        localStorage.removeItem('koouk-queued-imports')
+        showSuccess(`✅ Processed ${queuedImports.length} queued imports!`)
+        
+      } catch (error) {
+        console.error('Failed to process queued imports:', error)
+      }
     }
-  }, [user?.id])
 
-  // Authentication handlers
-  const handleSignOut = useCallback(() => {
-    setShowSignoutModal(true)
-    setShowUserMenu(false)
-  }, [])
+    // Process when user logs in and is online
+    if (user && navigator.onLine) {
+      processQueuedImports()
+    }
 
-  const handleConfirmSignOut = useCallback(async () => {
-    setShowSignoutModal(false)
+    // Listen for online events
+    const handleOnline = () => {
+      if (user) processQueuedImports()
+    }
+
+    window.addEventListener('online', handleOnline)
+    return () => window.removeEventListener('online', handleOnline)
+  }, [user])
+
+  const loadUserData = async () => {
+    try {
+      setIsLoading(true)
+      const dbFolders = await DatabaseService.getUserFolders(user.id)
+      
+      const convertedFolders: FolderItem[] = dbFolders.map(dbFolder => ({
+        id: dbFolder.id,
+        name: dbFolder.name,
+        type: 'folder' as const,
+        children: (dbFolder.storage_items || []).map(item => ({
+          id: item.id,
+          name: item.name,
+          type: item.type as StorageItem['type'],
+          content: item.content,
+          url: item.url || undefined,
+          thumbnail: item.thumbnail || undefined,
+          tags: item.tags,
+          description: item.description || undefined,
+          folderId: item.folder_id,
+          createdAt: item.created_at,
+          updatedAt: item.updated_at,
+          wordCount: item.word_count || undefined,
+          metadata: item.metadata as StorageItem['metadata']
+        })),
+        createdAt: dbFolder.created_at,
+        updatedAt: dbFolder.updated_at,
+        color: dbFolder.color,
+        icon: dbFolder.icon
+      }))
+
+      setFolders(convertedFolders)
+    } catch (error) {
+      console.error('Failed to load folders:', error)
+      showError('Failed to load your folders')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleCreateFolder = async () => {
+    if (!user?.id) return
+    
+    const folderName = newFolderName.trim() || 'New Folder'
     
     try {
-      await signOut()
-    } catch (error) {
-      console.error('Sign out error:', error)
-    } finally {
-      router.push('/goodbye')
-    }
-  }, [signOut, router])
+      const dbFolder = await DatabaseService.createFolder(user.id, {
+        name: folderName,
+        color: '#3B82F6',
+        icon: '',
+        sort_order: 0
+      })
 
-  // Touch/swipe handlers for mobile
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null)
-    setTouchStart(e.targetTouches[0].clientX)
-  }
-
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX)
-  }
-
-  const onTouchEnd = useCallback(() => {
-    if (!touchStart || !touchEnd) return
-    
-    const distance = touchStart - touchEnd
-    const isLeftSwipe = distance > minSwipeDistance
-    const isRightSwipe = distance < -minSwipeDistance
-    
-    if ((isLeftSwipe || isRightSwipe) && activeTab !== 'dashboard' && device.width < 768) {
-      const tabs: TabType[] = ['my-folder', 'bookmarks', 'marketplace']
-      const currentIndex = tabs.indexOf(activeTab as TabType)
+      const newFolder: FolderItem = {
+        id: dbFolder.id,
+        name: dbFolder.name,
+        type: 'folder',
+        children: [],
+        createdAt: dbFolder.created_at,
+        updatedAt: dbFolder.updated_at,
+        color: dbFolder.color,
+        icon: dbFolder.icon
+      }
       
-      if (isLeftSwipe && currentIndex < tabs.length - 1) {
-        handleTabChange(tabs[currentIndex + 1])
-      } else if (isRightSwipe && currentIndex > 0) {
-        handleTabChange(tabs[currentIndex - 1])
+      setFolders([newFolder, ...folders])
+      setSelectedFolderId(newFolder.id)
+      setShowCreateFolderModal(false)
+      setNewFolderName('')
+      showSuccess(`Folder "${folderName}" created!`)
+    } catch (error) {
+      console.error('Failed to create folder:', error)
+      showError('Failed to create folder')
+    }
+  }
+
+  const handleAddItem = async (item: StorageItem, folderId: string) => {
+    if (!user?.id) return
+    
+    try {
+      const dbItem = await DatabaseService.createStorageItem(user.id, {
+        folder_id: folderId,
+        name: item.name,
+        type: item.type,
+        content: item.content,
+        url: item.url,
+        thumbnail: item.thumbnail,
+        tags: item.tags,
+        description: item.description,
+        word_count: item.wordCount,
+        metadata: (item.metadata as any) || {},
+        sort_order: 0
+      })
+
+      const updatedFolders = folders.map(folder => {
+        if (folder.id === folderId) {
+          const newStorageItem: StorageItem = {
+            id: dbItem.id,
+            name: dbItem.name,
+            type: dbItem.type as StorageItem['type'],
+            content: dbItem.content,
+            url: dbItem.url || undefined,
+            thumbnail: dbItem.thumbnail || undefined,
+            tags: dbItem.tags,
+            description: dbItem.description || undefined,
+            folderId: dbItem.folder_id,
+            createdAt: dbItem.created_at,
+            updatedAt: dbItem.updated_at,
+            wordCount: dbItem.word_count || undefined,
+            metadata: dbItem.metadata as StorageItem['metadata']
+          }
+          
+          return {
+            ...folder,
+            children: [newStorageItem, ...folder.children],
+            updatedAt: new Date().toISOString()
+          }
+        }
+        return folder
+      })
+      
+      setFolders(updatedFolders)
+      showSuccess('Item added successfully!')
+    } catch (error) {
+      console.error('Failed to add item:', error)
+      showError('Failed to add item')
+    }
+  }
+
+  // Enhancement: Batch import multiple folders at once
+  const handleBatchImport = async (sharedFolders: any[]) => {
+    if (!user?.id) {
+      showError('Please sign in to import folders')
+      return
+    }
+
+    if (sharedFolders.length === 0) return
+
+    try {
+      showSuccess(`Importing ${sharedFolders.length} folders...`)
+      
+      const importResults = await Promise.allSettled(
+        sharedFolders.map(folder => handleImportFolder(folder))
+      )
+      
+      const successful = importResults.filter(result => result.status === 'fulfilled').length
+      const failed = importResults.length - successful
+      
+      if (failed === 0) {
+        showSuccess(`✅ Successfully imported all ${successful} folders!`)
+      } else {
+        showSuccess(`✅ Imported ${successful} folders, ${failed} failed`)
       }
+    } catch (error) {
+      console.error('Batch import error:', error)
+      showError('Batch import failed. Please try again.')
     }
-  }, [touchStart, touchEnd, activeTab, device.width, handleTabChange])
+  }
 
-  // Loading timeout handler
-  useEffect(() => {
-    if (status === 'loading') {
-      const timeout = setTimeout(() => {
-        console.warn('Loading timeout reached, forcing app initialization')
-        setLoadingTimeout(true)
-        setIsInitialized(true)
-      }, 15000) // 15 seconds timeout
-
-      return () => clearTimeout(timeout)
-    } else {
-      setLoadingTimeout(false)
+  // Fix 1: Add missing import folder handler with optimistic UI + offline sync
+  const handleImportFolder = async (sharedFolder: any) => {
+    if (!user?.id) {
+      showError('Please sign in to import folders')
+      return
     }
-  }, [status])
 
-  // App initialization
-  useEffect(() => {
-    if (isInitialized || status === 'loading') return
-
-    const initializeApp = () => {
+    // Enhancement: Check if offline and queue for later
+    if (!navigator.onLine) {
       try {
-        const params = new URLSearchParams(window.location.search)
-        const tabParam = params.get('tab')
-        const authError = params.get('auth_error')
-        
-        // Handle authentication errors
-        if (authError) {
-          console.warn('Authentication error detected:', authError)
-          // Clean up URL
-          window.history.replaceState({}, document.title, window.location.pathname)
-        }
-        
-        // Handle URL tab parameter
-        if (tabParam && ['dashboard', 'my-folder', 'marketplace', 'bookmarks'].includes(tabParam)) {
-          const isProtectedTab = ['my-folder', 'marketplace', 'bookmarks'].includes(tabParam)
-          
-          if (isProtectedTab && !user?.id) {
-            handleTabChange('dashboard')
-          } else {
-            handleTabChange(tabParam as TabType)
-          }
-          
-          // Clean up URL
-          window.history.replaceState({}, document.title, window.location.pathname)
-        } else if (user?.id) {
-          // Restore from localStorage for logged in users
-          const savedTab = localStorage.getItem('koouk-last-tab')
-          if (savedTab && ['dashboard', 'my-folder', 'marketplace', 'bookmarks'].includes(savedTab)) {
-            handleTabChange(savedTab as TabType)
-          }
-        } else {
-          // Default to dashboard for non-logged in users
-          handleTabChange('dashboard')
-        }
-        
-        setIsInitialized(true)
-      } catch (error) {
-        console.error('App initialization error:', error)
-        handleTabChange('dashboard')
-        setIsInitialized(true)
+        const queuedImports = JSON.parse(localStorage.getItem('koouk-queued-imports') || '[]')
+        queuedImports.push({
+          sharedFolder,
+          userId: user.id,
+          timestamp: Date.now()
+        })
+        localStorage.setItem('koouk-queued-imports', JSON.stringify(queuedImports))
+        showSuccess(`"${sharedFolder.title}" queued for import when online`)
+        return
+      } catch {
+        showError('Failed to queue import for offline sync')
+        return
       }
     }
 
-    if (status === 'idle' || status === 'authenticated' || status === 'error') {
-      initializeApp()
+    try {
+      // Optimistic UI: Show success immediately
+      showSuccess(`"${sharedFolder.title}" imported successfully!`)
+      
+      // Create new folder with conflict resolution
+      const baseName = sharedFolder.title
+      let folderName = baseName
+      let counter = 1
+      
+      // Check for naming conflicts
+      while (folders.some(f => f.name === folderName)) {
+        folderName = `${baseName} (${counter})`
+        counter++
+      }
+
+      // Create folder in database
+      const dbFolder = await DatabaseService.createFolder(user.id, {
+        name: folderName,
+        color: '#3B82F6',
+        icon: sharedFolder.folder?.icon || '📁',
+        sort_order: 0
+      })
+
+      // Copy all storage items from shared folder
+      const folderContent = sharedFolder.folder?.children || []
+      const copiedItems: StorageItem[] = []
+      
+      for (const item of folderContent) {
+        try {
+          const dbItem = await DatabaseService.createStorageItem(user.id, {
+            folder_id: dbFolder.id,
+            name: item.name,
+            type: item.type,
+            content: item.content,
+            url: item.url,
+            thumbnail: item.thumbnail,
+            tags: item.tags || [],
+            description: item.description,
+            word_count: item.wordCount,
+            metadata: (item.metadata as any) || {},
+            sort_order: 0
+          })
+
+          copiedItems.push({
+            id: dbItem.id,
+            name: dbItem.name,
+            type: dbItem.type as StorageItem['type'],
+            content: dbItem.content,
+            url: dbItem.url || undefined,
+            thumbnail: dbItem.thumbnail || undefined,
+            tags: dbItem.tags,
+            description: dbItem.description || undefined,
+            folderId: dbItem.folder_id,
+            createdAt: dbItem.created_at,
+            updatedAt: dbItem.updated_at,
+            wordCount: dbItem.word_count || undefined,
+            metadata: dbItem.metadata as StorageItem['metadata']
+          })
+        } catch (itemError) {
+          console.warn('Failed to copy item:', item.name, itemError)
+        }
+      }
+
+      // Create new folder object
+      const newFolder: FolderItem = {
+        id: dbFolder.id,
+        name: dbFolder.name,
+        type: 'folder',
+        children: copiedItems,
+        createdAt: dbFolder.created_at,
+        updatedAt: dbFolder.updated_at,
+        color: dbFolder.color,
+        icon: dbFolder.icon
+      }
+      
+      // Add to local state
+      setFolders([newFolder, ...folders])
+      
+      // Auto-select the imported folder
+      setSelectedFolderId(newFolder.id)
+      
+      console.log(`✅ Imported "${folderName}" with ${copiedItems.length} items`)
+      
+    } catch (error) {
+      console.error('Failed to import folder:', error)
+      showError(`Failed to import "${sharedFolder.title}". Please try again.`)
     }
-  }, [status, user?.id, handleTabChange, isInitialized])
+  }
 
-  // 🚀 OPTIMIZATION 11: Progressive loading with skeleton UI
-  if (status === 'loading' && !loadingTimeout) {
+  // 🚀 OPTIMIZATION 4: Enhanced loading with suspense boundaries
+  if (status === 'loading' || isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        {/* Mobile Header Skeleton */}
-        <div className="md:hidden bg-white border-b border-gray-200 px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-full animate-pulse"></div>
-              <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-24 animate-pulse"></div>
+      <Suspense fallback={
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-48 mx-auto"></div>
+            <div className="h-4 bg-gray-200 rounded w-32 mx-auto"></div>
+          </div>
+        </div>
+      }>
+        <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-red-400 rounded-2xl flex items-center justify-center text-white font-bold text-2xl mb-4 animate-pulse">
+              K
             </div>
-            <div className="w-8 h-8 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse"></div>
+            <div className="text-orange-600 font-semibold">Loading your library...</div>
           </div>
         </div>
-
-        {/* Main Content Skeleton */}
-        <div className="flex-1 p-4">
-          <div className="max-w-4xl mx-auto space-y-6">
-            {/* Dashboard Cards Skeleton */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white rounded-xl p-6 border border-gray-100">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-xl animate-pulse"></div>
-                    <div className="flex-1">
-                      <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-24 animate-pulse mb-2"></div>
-                      <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-32 animate-pulse"></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Content Grid Skeleton */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                <div key={i} className="bg-white rounded-xl p-4 border border-gray-100">
-                  <div className="aspect-square bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-lg animate-pulse mb-3"></div>
-                  <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse mb-2"></div>
-                  <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-3/4 animate-pulse"></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Navigation Skeleton */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
-          <div className="flex justify-around">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="flex flex-col items-center gap-1">
-                <div className="w-6 h-6 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse"></div>
-                <div className="h-2 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-8 animate-pulse"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Loading indicator */}
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
-          <div className="bg-white rounded-full px-4 py-2 shadow-lg border border-gray-200 flex items-center gap-2">
-            <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-sm text-gray-600">Loading your workspace...</span>
-          </div>
-        </div>
-      </div>
+      </Suspense>
     )
   }
 
-  // Loading timeout or error state
-  if ((status === 'loading' && loadingTimeout) || (status === 'error' && !user)) {
+  if (!user) {
+    return <LandingPage />
+  }
+
+  if (device.width < 768) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center border border-gray-200">
-          <div className="rounded-full h-12 w-12 bg-red-100 flex items-center justify-center mx-auto mb-4">
-            <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
+        {isMobileMenuOpen && (
+          <div className="fixed inset-0 z-50">
+            <div className="fixed inset-0 bg-black bg-opacity-25" onClick={() => setIsMobileMenuOpen(false)} />
+            <div className="fixed left-0 top-0 bottom-0 w-80 bg-white shadow-xl">
+              <KooukSidebar
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                folders={folders}
+                selectedFolderId={selectedFolderId}
+                onFolderSelect={setSelectedFolderId}
+                onCreateFolder={() => setShowCreateFolderModal(true)}
+              />
+            </div>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            {loadingTimeout ? 'Connection Timeout' : 'Authentication Error'}
-          </h2>
-          <p className="text-gray-600 mb-6">
-            {loadingTimeout 
-              ? 'Loading is taking longer than expected. This might be due to a slow internet connection.'
-              : error || 'Unable to authenticate. Please try again.'
-            }
-          </p>
-          <div className="space-y-3">
-            <button
-              onClick={() => window.location.reload()}
-              className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 transition-colors font-medium"
+        )}
+
+        <div className="flex flex-col h-screen">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="p-2 text-gray-600 hover:text-gray-900"
             >
-              {loadingTimeout ? 'Reload Page' : 'Try Again'}
+              ☰
             </button>
-            {loadingTimeout && (
-              <button
-                onClick={() => {
-                  localStorage.clear()
-                  window.location.reload()
-                }}
-                className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-xl hover:bg-gray-200 transition-colors font-medium"
+            
+            <h1 className="font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+              KOOUK
+            </h1>
+            
+            <button 
+              onClick={() => setShowFeedbackModal(true)}
+              className="p-2 text-gray-600 hover:text-gray-900"
+            >
+              💬
+            </button>
+          </div>
+
+          <KooukMainContent
+            activeTab={activeTab}
+            selectedFolder={selectedFolder}
+            folders={folders}
+            onAddItem={handleAddItem}
+            onImportFolder={handleImportFolder}
+          />
+
+          <div className="flex bg-white border-t border-gray-200">
+            {(['storage', 'bookmarks', 'marketplace'] as TabType[]).map(tab => (
+              <button 
+                key={tab} 
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 flex flex-col items-center py-3 ${
+                  activeTab === tab ? 'text-blue-600' : 'text-gray-600'
+                }`}
               >
-                Clear Data & Reload
+                <span className="text-lg mb-1">
+                  {tab === 'storage' && ''}
+                  {tab === 'bookmarks' && ''}
+                  {tab === 'marketplace' && ''}
+                </span>
+                <span className="text-xs capitalize">{tab}</span>
               </button>
-            )}
+            ))}
           </div>
         </div>
       </div>
@@ -280,237 +449,70 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen-safe bg-gray-50">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto">
-            <div className="flex items-center justify-between h-16">
-              {/* Logo */}
-              <button 
-                onClick={() => handleTabChange('dashboard')}
-                className="hover:opacity-80 transition-opacity"
-              >
-                <Image 
-                  src="/koouk-logo.svg" 
-                  alt="KOOUK" 
-                  width={100}
-                  height={24}
-                  className="h-6 w-auto"
-                />
-              </button>
+    <div className="flex h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
+      <KooukSidebar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        folders={folders}
+        selectedFolderId={selectedFolderId}
+        onFolderSelect={setSelectedFolderId}
+        onCreateFolder={() => setShowCreateFolderModal(true)}
+      />
 
-              {/* Desktop Navigation */}
-              {device.width >= 768 && (
-                <div className="flex-1 flex justify-center mx-8">
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={() => handleTabChange('my-folder')}
-                      disabled={!user}
-                      className={`px-6 py-2.5 min-h-[44px] rounded-full text-sm font-medium transition-all duration-200 flex items-center justify-center ${
-                        activeTab === 'my-folder'
-                          ? 'bg-black text-white shadow-lg'
-                          : user 
-                            ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
-                            : 'text-gray-400 cursor-not-allowed'
-                      }`}
-                    >
-                      My Folder
-                    </button>
-                    <button
-                      onClick={() => handleTabChange('bookmarks')}
-                      disabled={!user}
-                      className={`px-6 py-2.5 min-h-[44px] rounded-full text-sm font-medium transition-all duration-200 flex items-center justify-center ${
-                        activeTab === 'bookmarks'
-                          ? 'bg-black text-white shadow-lg'
-                          : user 
-                            ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
-                            : 'text-gray-400 cursor-not-allowed'
-                      }`}
-                    >
-                      Bookmarks
-                    </button>
-                    <button
-                      onClick={() => handleTabChange('marketplace')}
-                      disabled={!user}
-                      className={`px-6 py-2.5 min-h-[44px] rounded-full text-sm font-medium transition-all duration-200 flex items-center justify-center ${
-                        activeTab === 'marketplace'
-                          ? 'bg-black text-white shadow-lg'
-                          : user 
-                            ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
-                            : 'text-gray-400 cursor-not-allowed'
-                      }`}
-                    >
-                      Market Place
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Right Side Actions */}
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={() => setShowFeedbackModal(true)}
-                  className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
-                  title="Send feedback"
-                >
-                  <MessageCircle size={20} />
-                </button>
-
-                {user ? (
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowUserMenu(!showUserMenu)}
-                      className="flex items-center space-x-3 p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                    >
-                      {user.user_metadata?.avatar_url ? (
-                        <Image 
-                          src={user.user_metadata.avatar_url} 
-                          alt="Profile" 
-                          width={32}
-                          height={32}
-                          className="w-8 h-8 rounded-full"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
-                          <span className="text-white text-sm font-medium">
-                            {user.email?.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                      )}
-                      <span className="text-sm font-medium truncate max-w-24 hidden sm:block">
-                        {user.user_metadata?.name || user.email?.split('@')[0]}
-                      </span>
-                    </button>
-
-                    {/* User Menu Dropdown */}
-                    {showUserMenu && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg z-50 border border-gray-200">
-                        <div className="py-1">
-                          <div className="px-4 py-2 text-xs text-gray-500 border-b border-gray-100">
-                            {user.email}
-                          </div>
-                          <Link
-                            href="/settings"
-                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                            onClick={() => setShowUserMenu(false)}
-                          >
-                            <Settings size={16} className="mr-3" />
-                            Settings
-                          </Link>
-                          <button
-                            onClick={handleSignOut}
-                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                          >
-                            <LogOut size={16} className="mr-3" />
-                            Sign out
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-) : (
-                  <button
-                    onClick={signIn}
-                    disabled={loading}
-                    className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {loading ? 'Signing in...' : 'Sign in with Google'}
-                  </button>
-                )}
-              </div>
+      <Suspense fallback={
+        <div className="flex-1 p-6 overflow-auto">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="h-32 bg-gray-200 rounded"></div>
+              ))}
             </div>
           </div>
         </div>
-      </header>
-
-      {/* Click outside to close user menu */}
-      {showUserMenu && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setShowUserMenu(false)}
+      }>
+        <KooukMainContent
+          activeTab={activeTab}
+          selectedFolder={selectedFolder}
+          folders={folders}
+          onAddItem={handleAddItem}
+          onImportFolder={handleImportFolder}
         />
-      )}
+      </Suspense>
 
-      {/* Main Content */}
-      <main 
-        className="pb-safe"
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-      >
-        {activeTab === 'dashboard' ? (
-          user ? (
-            <DashboardPage onNavigate={(tab: string) => handleTabChange(tab as TabType)} />
-          ) : (
-            <OnboardingPage />
-          )
-        ) : activeTab === 'my-folder' ? (
-          <MyFolderContent searchQuery={searchQuery} />
-        ) : activeTab === 'bookmarks' ? (
-          <Bookmarks searchQuery={searchQuery} />
-        ) : activeTab === 'marketplace' ? (
-          <MarketPlace searchQuery={searchQuery} />
-        ) : null}
-      </main>
-
-      {/* Mobile Navigation */}
-      {device.width < 768 && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
-          <div className="flex">
-            <button
-              onClick={() => handleTabChange('my-folder')}
-              disabled={!user}
-              className={`flex-1 flex flex-col items-center justify-center py-3 text-xs font-medium transition-colors ${
-                activeTab === 'my-folder'
-                  ? 'text-blue-600'
-                  : user
-                    ? 'text-gray-600 hover:text-blue-600'
-                    : 'text-gray-400'
-              }`}
-            >
-              <div className={`w-6 h-6 mb-1 flex items-center justify-center ${!user ? 'opacity-50' : ''}`}>
-                📁
-              </div>
-              My Folder
-            </button>
-            <button
-              onClick={() => handleTabChange('bookmarks')}
-              disabled={!user}
-              className={`flex-1 flex flex-col items-center justify-center py-3 text-xs font-medium transition-colors ${
-                activeTab === 'bookmarks'
-                  ? 'text-blue-600'
-                  : user
-                    ? 'text-gray-600 hover:text-blue-600'
-                    : 'text-gray-400'
-              }`}
-            >
-              <div className={`w-6 h-6 mb-1 flex items-center justify-center ${!user ? 'opacity-50' : ''}`}>
-                🔖
-              </div>
-              Bookmarks
-            </button>
-            <button
-              onClick={() => handleTabChange('marketplace')}
-              disabled={!user}
-              className={`flex-1 flex flex-col items-center justify-center py-3 text-xs font-medium transition-colors ${
-                activeTab === 'marketplace'
-                  ? 'text-blue-600'
-                  : user
-                    ? 'text-gray-600 hover:text-blue-600'
-                    : 'text-gray-400'
-              }`}
-            >
-              <div className={`w-6 h-6 mb-1 flex items-center justify-center ${!user ? 'opacity-50' : ''}`}>
-                🛍️
-              </div>
-              Market Place
-            </button>
+      {showCreateFolderModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Create New Folder</h3>
+            
+            <input
+              type="text"
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              placeholder="Enter folder name..."
+              className="w-full px-4 py-3 border border-orange-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 mb-6"
+              autoFocus
+              onKeyPress={(e) => e.key === 'Enter' && handleCreateFolder()}
+            />
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowCreateFolderModal(false)}
+                className="flex-1 py-3 px-4 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateFolder}
+                className="flex-1 py-3 px-4 bg-gradient-to-r from-orange-400 to-red-400 text-white rounded-xl hover:from-orange-500 hover:to-red-500 transition-all"
+              >
+                Create
+              </button>
+            </div>
           </div>
-        </nav>
+        </div>
       )}
 
-      {/* Modals */}
       {showFeedbackModal && (
         <FeedbackModal 
           isOpen={showFeedbackModal}
@@ -518,13 +520,12 @@ export default function App() {
         />
       )}
 
-      {showSignoutModal && (
-        <SignoutModal 
-          isOpen={showSignoutModal}
-          onConfirm={handleConfirmSignOut}
-          onClose={() => setShowSignoutModal(false)}
-        />
-      )}
+      <Toast
+        show={toast.show}
+        message={toast.message}
+        type={toast.type}
+        onClose={hideToast}
+      />
     </div>
   )
 }

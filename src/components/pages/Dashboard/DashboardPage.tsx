@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/components/auth/AuthContext'
-import { Folder, Bookmark, Share, Download, TrendingUp, Clock, Star, Users, Store } from 'lucide-react'
+import ContentCard, { ContentGrid } from '@/components/ui/ContentCard'
+import SearchHeader from '@/components/ui/SearchHeader'
+import { motion } from 'framer-motion'
 
 interface DashboardStats {
   myFolders: number
@@ -16,7 +18,6 @@ interface RecentActivity {
   type: 'folder' | 'bookmark' | 'share'
   title: string
   timestamp: string
-  icon: React.ReactNode
   color: string
 }
 
@@ -61,7 +62,6 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
             type: 'folder',
             title: 'Created "Design Resources" folder',
             timestamp: '2 hours ago',
-            icon: <Folder className="w-4 h-4" />,
             color: 'text-gray-600'
           },
           {
@@ -69,7 +69,6 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
             type: 'bookmark',
             title: 'Bookmarked "React Best Practices"',
             timestamp: '5 hours ago',
-            icon: <Bookmark className="w-4 h-4" />,
             color: 'text-gray-600'
           },
           {
@@ -77,7 +76,6 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
             type: 'share',
             title: 'Shared folder with community',
             timestamp: '1 day ago',
-            icon: <Share className="w-4 h-4" />,
             color: 'text-gray-600'
           }
         ])
@@ -93,42 +91,38 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
     {
       title: "My Folders",
       count: stats.myFolders,
-      icon: <Folder className="w-8 h-8" />,
       description: "Personal collections",
-      color: "bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-600",
+      color: "bg-blue-50 border-blue-200 hover:bg-blue-100 text-blue-700",
       trend: "+12% this week",
-      trendIcon: <TrendingUp className="w-4 h-4 text-gray-500" />,
-      onClick: () => onNavigate('my-folder')
+      onClick: () => onNavigate('my-folder'),
+      icon: "📁"
     },
     {
       title: "Bookmarks", 
       count: stats.bookmarks,
-      icon: <Bookmark className="w-8 h-8" />,
       description: "Saved websites",
-      color: "bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-600",
+      color: "bg-green-50 border-green-200 hover:bg-green-100 text-green-700",
       trend: "+8% this week",
-      trendIcon: <TrendingUp className="w-4 h-4 text-gray-500" />,
-      onClick: () => onNavigate('bookmarks')
+      onClick: () => onNavigate('bookmarks'),
+      icon: "🔖"
     },
     {
       title: "Shared",
       count: stats.sharedFolders,
-      icon: <Share className="w-8 h-8" />,
       description: "Folders you shared",
-      color: "bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-600",
+      color: "bg-purple-50 border-purple-200 hover:bg-purple-100 text-purple-700",
       trend: "+23% this week",
-      trendIcon: <TrendingUp className="w-4 h-4 text-gray-500" />,
-      onClick: () => onNavigate('marketplace')
+      onClick: () => onNavigate('marketplace'),
+      icon: "🚀"
     },
     {
       title: "Received",
       count: stats.receivedFolders,
-      icon: <Download className="w-8 h-8" />,
       description: "From community",
-      color: "bg-orange-50 border-orange-200 hover:bg-orange-100 text-orange-600",
+      color: "bg-orange-50 border-orange-200 hover:bg-orange-100 text-orange-700",
       trend: "+15% this week",
-      trendIcon: <TrendingUp className="w-4 h-4 text-gray-500" />,
-      onClick: () => onNavigate('marketplace')
+      onClick: () => onNavigate('marketplace'),
+      icon: "🎁"
     }
   ]
 
@@ -136,129 +130,167 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
     {
       title: "Create New Folder",
       description: "Start organizing your content",
-      icon: <Folder className="w-6 h-6 text-gray-600" />,
-      color: "bg-gray-50 border-gray-200 hover:bg-gray-100",
-      action: () => onNavigate('my-folder')
+      color: "bg-blue-50 border-blue-200 hover:bg-blue-100",
+      action: () => onNavigate('my-folder'),
+      icon: "➕"
     },
     {
       title: "Add Bookmark",
       description: "Save a website for later",
-      icon: <Bookmark className="w-6 h-6 text-gray-600" />,
-      color: "bg-gray-50 border-gray-200 hover:bg-gray-100",
-      action: () => onNavigate('bookmarks')
+      color: "bg-green-50 border-green-200 hover:bg-green-100",
+      action: () => onNavigate('bookmarks'),
+      icon: "🔗"
     },
     {
       title: "Explore Market",
       description: "Discover community content",
-      icon: <Store className="w-6 h-6 text-gray-600" />,
-      color: "bg-gray-50 border-gray-200 hover:bg-gray-100",
-      action: () => onNavigate('marketplace')
+      color: "bg-purple-50 border-purple-200 hover:bg-purple-100",
+      action: () => onNavigate('marketplace'),
+      icon: "🌆"
     }
   ]
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-gray-50">
+      {/* 🎨 PERFECTION: Enhanced header with proper hierarchy */}
+      <SearchHeader 
+        title="Dashboard"
+        searchPlaceholder="Search your content..."
+        showViewToggle={false}
+        actionButton={{
+          label: "Quick Add",
+          onClick: () => onNavigate('my-folder'),
+          icon: "➕"
+        }}
+      />
+      
       <div className="max-w-6xl mx-auto px-6 py-8">
         {/* Welcome Header */}
-        <div className="mb-8">
+        <motion.div 
+          className="mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 border border-blue-200">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">
                   Welcome back, {userProfile?.name || user?.email?.split('@')[0]}! 👋
                 </h1>
-                <p className="text-lg text-gray-600">
-                  Here&apos;s what&apos;s happening with your digital organization
+                <p className="text-base text-gray-600">
+                  Here's what's happening with your digital organization
                 </p>
               </div>
               <div className="hidden md:flex items-center space-x-2 bg-white rounded-full px-4 py-2">
-                <Star className="w-5 h-5 text-yellow-500 fill-current" />
                 <span className="text-sm font-medium text-gray-700">
                   {userProfile?.user_plan?.toUpperCase() || 'FREE'} Plan
                 </span>
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {statsCards.map((card, index) => (
-            <div
-              key={index}
-              onClick={card.onClick}
-              className={`${card.color.split(' ').slice(0, 3).join(' ')} rounded-2xl p-6 border-2 cursor-pointer hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200 group`}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className={`${card.color.split(' ')[3]} group-hover:scale-110 transition-transform duration-200`}>
-                  {card.icon}
+        {/* 🎨 PERFECTION: Enhanced stats cards with proper content design */}
+        <motion.div 
+          className="mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <ContentGrid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+            {statsCards.map((card, index) => (
+              <motion.div
+                key={index}
+                onClick={card.onClick}
+                className={`${card.color.replace('text-', 'text-')} rounded-2xl p-6 border-2 cursor-pointer hover:shadow-xl transition-all duration-300 group bg-white`}
+                whileHover={{ y: -4, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-xl">
+                    {card.icon}
+                  </div>
+                  <span className="text-2xl font-bold text-gray-900">
+                    {card.count}
+                  </span>
                 </div>
-                <span className="text-3xl font-bold text-gray-900">
-                  {card.count}
-                </span>
-              </div>
-              
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                {card.title}
-              </h3>
-              
-              <p className="text-gray-600 text-sm mb-3">
-                {card.description}
-              </p>
+                
+                <h3 className="text-base font-semibold text-gray-900 mb-1">
+                  {card.title}
+                </h3>
+                
+                <p className="text-gray-600 text-sm mb-3">
+                  {card.description}
+                </p>
 
-              <div className="flex items-center space-x-1">
-                {card.trendIcon}
-                <span className="text-xs text-gray-600 font-medium">
-                  {card.trend}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
+                <div className="flex items-center space-x-1">
+                  <span className="text-xs text-gray-500 font-medium">
+                    {card.trend}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </ContentGrid>
+        </motion.div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Quick Actions */}
+        <motion.div 
+          className="grid lg:grid-cols-3 gap-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          {/* 🎨 PERFECTION: Enhanced Quick Actions */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Quick Actions</h2>
-                <Users className="w-6 h-6 text-gray-400" />
+                <h2 className="text-xl font-bold text-gray-900">Quick Actions</h2>
               </div>
 
               <div className="grid md:grid-cols-3 gap-4">
                 {quickActions.map((action, index) => (
-                  <button
+                  <motion.button
                     key={index}
                     onClick={action.action}
-                    className={`${action.color} rounded-xl p-4 border-2 text-left hover:shadow-md transform hover:-translate-y-1 transition-all duration-200 group`}
+                    className={`${action.color} rounded-xl p-6 border-2 text-left hover:shadow-lg transition-all duration-300 group`}
+                    whileHover={{ y: -2, scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    <div className="mb-3 group-hover:scale-110 transition-transform duration-200">
+                    <div className="mb-4 w-12 h-12 rounded-xl bg-white/50 flex items-center justify-center text-2xl">
                       {action.icon}
                     </div>
-                    <h3 className="font-semibold text-gray-900 mb-1">
+                    <h3 className="text-base font-semibold text-gray-900 mb-2">
                       {action.title}
                     </h3>
                     <p className="text-sm text-gray-600">
                       {action.description}
                     </p>
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* Recent Activity */}
+          {/* 🎨 PERFECTION: Enhanced Recent Activity */}
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Recent Activity</h2>
-              <Clock className="w-5 h-5 text-gray-400" />
+              <h2 className="text-lg font-bold text-gray-900">Recent Activity</h2>
+              <span className="text-2xl">🕒</span>
             </div>
 
-            <div className="space-y-4">
-              {recentActivity.map((activity) => (
-                <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-xl hover:bg-gray-50 transition-colors duration-200">
-                  <div className={`${activity.color} p-2 rounded-full bg-opacity-10`}>
-                    {activity.icon}
+            <div className="space-y-3">
+              {recentActivity.map((activity, index) => (
+                <motion.div 
+                  key={activity.id} 
+                  className="flex items-start space-x-3 p-3 rounded-xl hover:bg-gray-50 transition-colors duration-200"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                >
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center text-sm flex-shrink-0">
+                    {activity.type === 'folder' && '📁'}
+                    {activity.type === 'bookmark' && '🔖'}
+                    {activity.type === 'share' && '🚀'}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">
@@ -268,7 +300,7 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
                       {activity.timestamp}
                     </p>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
 

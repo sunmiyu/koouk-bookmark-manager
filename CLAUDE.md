@@ -1,5 +1,16 @@
 # 📁 KOOUK Project - Claude Working Manual
 
+## 📋 **ESSENTIAL DOCUMENTATION**
+
+### 📊 **Complete User Flow & System Connections**
+**👉 READ FIRST**: [`CLAUDE-USERFLOW.md`](./CLAUDE-USERFLOW.md) - Comprehensive user flow report covering:
+- 🔐 Authentication flow (login/logout with all connection pages)
+- 🧭 Navigation & tab functions (Dashboard, My Folder, Marketplace, Bookmarks)
+- 📁 Content management flows and data conversions
+- 🔄 Folder sharing system (My Folder ↔ Marketplace)
+- 📊 Content card type conversions and database schema connections
+- 🛠️ Available tools in `_backup` folder (check here first!)
+
 ## 🚨 **CURRENT STATUS & URGENT PLAN**
 
 ### 📊 **현재 상황 (2025-08-18)**

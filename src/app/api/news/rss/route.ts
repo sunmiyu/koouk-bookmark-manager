@@ -90,6 +90,36 @@ function detectRegionFromIP(request: NextRequest): string {
   return 'international'
 }
 
+// 안전한 HTML 및 엔티티 제거 함수
+function sanitizeTitle(title: string): string {
+  if (!title) return '';
+  
+  // 1. HTML 태그 제거
+  let sanitized = title.replace(/<[^>]*>/g, '');
+  
+  // 2. 안전한 HTML 엔티티 디코딩 (명시적 매핑)
+  const entityMap: { [key: string]: string } = {
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#039;': "'",
+    '&#39;': "'",
+    '&apos;': "'",
+    '&nbsp;': ' '
+  };
+  
+  // 3. 알려진 엔티티만 변환
+  for (const [entity, char] of Object.entries(entityMap)) {
+    sanitized = sanitized.replaceAll(entity, char);
+  }
+  
+  // 4. 남은 HTML 엔티티 제거 (보안상 변환하지 않고 제거)
+  sanitized = sanitized.replace(/&[a-zA-Z0-9#]+;/g, '');
+  
+  return sanitized.trim();
+}
+
 // 네이버 뉴스 API 호출 - 최신 뉴스 Top 10
 async function fetchNaverNews(): Promise<NewsItem[]> {
   const clientId = process.env.NAVER_CLIENT_ID
@@ -170,7 +200,7 @@ async function fetchNaverNews(): Promise<NewsItem[]> {
 
     // NewsItem 형식으로 변환
     return sortedNews.map((item: NaverNewsItem): NewsItem => ({
-      title: item.title.replace(/<[^>]*?>/g, '').replace(/&[a-zA-Z0-9#]+;/g, ''), // HTML 태그 및 엔티티 제거
+      title: sanitizeTitle(item.title), // 안전한 HTML 및 엔티티 제거
       url: item.originallink || item.link,
       source: extractSource(item.originallink || item.link) || '네이버뉴스',
       publishedAt: new Date(item.pubDate).toISOString()

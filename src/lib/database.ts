@@ -14,25 +14,52 @@ type Tables = Database['public']['Tables']
  */
 export class DatabaseService {
   /**
+   * Validate user authentication and ownership
+   */
+  private static async validateUserAccess(userId?: string): Promise<string> {
+    const { data: { user }, error } = await supabase.auth.getUser()
+    if (error || !user) {
+      throw new Error('Authentication required - please sign in to continue')
+    }
+    
+    if (userId && user.id !== userId) {
+      throw new Error('Access denied - you can only access your own data')
+    }
+    
+    return user.id
+  }
+
+  /**
    * Supabase 쿼리를 안전하게 실행하는 래퍼 함수
    */
   private static async executeQuery<T>(
     queryFn: () => unknown,
-    operation: string
+    operation: string,
+    requiresAuth: boolean = true
   ): Promise<T> {
     try {
+      // Check authentication for protected operations
+      if (requiresAuth) {
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        if (authError || !user) {
+          throw new Error('Authentication required - please sign in to continue')
+        }
+      }
+
       const result = await queryFn()
       const { data, error } = result
       if (error) {
         const message = handleSupabaseError(error, operation)
         throw new Error(message)
       }
-      if (data === null) {
+      if (data === null && requiresAuth) {
         throw new Error('데이터를 찾을 수 없습니다.')
       }
       return data
     } catch (error) {
-      if (error instanceof Error && error.message.includes('로그인이 필요합니다')) {
+      if (error instanceof Error && 
+          (error.message.includes('로그인이 필요합니다') || 
+           error.message.includes('Authentication required'))) {
         throw error
       }
       const message = handleSupabaseError(error, operation)
@@ -153,19 +180,9 @@ export class DatabaseService {
     console.log('🗂️ Creating folder for user:', userId, 'with data:', folderData)
     
     try {
-      // 사용자 인증 상태 확인
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      console.log('🔐 Current auth user:', user?.id)
-      
-      if (authError) {
-        console.error('❌ Auth error:', authError)
-        throw new Error('Authentication failed')
-      }
-      
-      if (!user || user.id !== userId) {
-        console.error('❌ User mismatch - requested:', userId, 'actual:', user?.id)
-        throw new Error('User authentication mismatch')
-      }
+      // Validate user authentication and ownership
+      const validatedUserId = await this.validateUserAccess(userId)
+      console.log('🔐 User validated:', validatedUserId)
 
       // 일반 supabase client 사용 (RLS 정책 적용)
       const { data, error } = await supabase
@@ -232,23 +249,31 @@ export class DatabaseService {
   static async createStorageItem(userId: string, itemData: Omit<Tables['storage_items']['Insert'], 'user_id'>) {
     console.log('📝 Creating storage item for user:', userId, 'with data:', itemData)
     
-    // 일반 supabase client 사용 (RLS 정책 적용)
-    const { data, error } = await supabase
-      .from('storage_items')
-      .insert({
-        user_id: userId,
-        ...itemData
-      })
-      .select()
-      .single()
-    
-    if (error) {
-      console.error('❌ Storage item creation error:', error)
+    try {
+      // Validate user authentication and ownership
+      const validatedUserId = await this.validateUserAccess(userId)
+      
+      // 일반 supabase client 사용 (RLS 정책 적용)
+      const { data, error } = await supabase
+        .from('storage_items')
+        .insert({
+          user_id: validatedUserId,
+          ...itemData
+        })
+        .select()
+        .single()
+      
+      if (error) {
+        console.error('❌ Storage item creation error:', error)
+        throw error
+      }
+      
+      console.log('✅ Storage item created successfully:', data)
+      return data
+    } catch (error) {
+      console.error('❌ Storage item creation failed:', error)
       throw error
     }
-    
-    console.log('✅ Storage item created successfully:', data)
-    return data
   }
 
   static async updateStorageItem(itemId: string, updates: Tables['storage_items']['Update']) {
@@ -322,17 +347,18 @@ export class DatabaseService {
 
   // === 공유 폴더 관련 ===
   static async getPublicSharedFolders() {
-    const { data, error } = await supabase
-      .from('shared_folders')
-      .select(`
-        *,
-        users!user_id (name, avatar_url, is_verified)
-      `)
-      .eq('is_public', true)
-      .order('created_at', { ascending: false })
-    
-    if (error) throw error
-    return data
+    return this.executeQuery(
+      () => supabase
+        .from('shared_folders')
+        .select(`
+          *,
+          users!user_id (name, avatar_url, is_verified)
+        `)
+        .eq('is_public', true)
+        .order('created_at', { ascending: false }),
+      'getPublicSharedFolders',
+      false // Public data doesn't require authentication
+    )
   }
 
   static async getUserSharedFolders(userId: string) {

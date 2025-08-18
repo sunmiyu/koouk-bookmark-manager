@@ -4,13 +4,17 @@ import { useState, useEffect } from 'react'
 import { SharedFolder } from '@/types/share'
 import { createFolder } from '@/types/folder'
 import { useToast } from '@/hooks/useToast'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from '@/components/auth/AuthContext'
 import { DatabaseService } from '@/lib/database'
-import Toast from '../ui/Toast'
-import CategoryFilter from '../ui/CategoryFilter'
-import SortOptions from '../ui/SortOptions'
-import SharedFolderCard from '../ui/SharedFolderCard'
-import EditSharedFolderModal from '../ui/EditSharedFolderModal'
+import Toast from '@/components/ui/Toast'
+import CategoryFilter from '@/components/ui/CategoryFilter'
+import SortOptions from '@/components/ui/SortOptions'
+import SharedFolderCard from '@/components/ui/SharedFolderCard'
+import EditSharedFolderModal from '@/components/ui/EditSharedFolderModal'
+// 🎨 PERFECTION: Import new components
+import ContentCard, { ContentGrid } from '@/components/ui/ContentCard'
+import SearchHeader, { FilterPills } from '@/components/ui/SearchHeader'
+import { motion } from 'framer-motion'
 
 interface MarketPlaceProps {
   searchQuery?: string
@@ -29,20 +33,24 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [editingFolder, setEditingFolder] = useState<SharedFolder | null>(null)
 
-  // 카테고리 옵션들
+  // 🎨 PERFECTION: Enhanced categories with proper icons and counts
   const categories = [
-    { value: 'all', label: 'All Categories', emoji: '📂' },
-    { value: 'tech', label: 'Technology', emoji: '💻' },
-    { value: 'lifestyle', label: 'Lifestyle', emoji: '✨' },
-    { value: 'food', label: 'Food & Recipe', emoji: '🍳' },
-    { value: 'travel', label: 'Travel', emoji: '🌍' },
-    { value: 'study', label: 'Study & Learning', emoji: '📚' },
-    { value: 'work', label: 'Work & Business', emoji: '💼' },
-    { value: 'entertainment', label: 'Entertainment', emoji: '🎬' },
-    { value: 'health', label: 'Health & Fitness', emoji: '💪' },
-    { value: 'investment', label: 'Investment', emoji: '📈' },
-    { value: 'parenting', label: 'Parenting', emoji: '👶' }
+    { id: 'all', label: 'All Categories', count: sharedFolders.length },
+    { id: 'tech', label: 'Technology', count: sharedFolders.filter(f => f.category === 'tech').length },
+    { id: 'lifestyle', label: 'Lifestyle', count: sharedFolders.filter(f => f.category === 'lifestyle').length },
+    { id: 'food', label: 'Food & Recipe', count: sharedFolders.filter(f => f.category === 'food').length },
+    { id: 'travel', label: 'Travel', count: sharedFolders.filter(f => f.category === 'travel').length },
+    { id: 'study', label: 'Study & Learning', count: sharedFolders.filter(f => f.category === 'study').length },
+    { id: 'work', label: 'Work & Business', count: sharedFolders.filter(f => f.category === 'work').length },
+    { id: 'entertainment', label: 'Entertainment', count: sharedFolders.filter(f => f.category === 'entertainment').length },
+    { id: 'health', label: 'Health & Fitness', count: sharedFolders.filter(f => f.category === 'health').length },
+    { id: 'investment', label: 'Investment', count: sharedFolders.filter(f => f.category === 'investment').length },
+    { id: 'parenting', label: 'Parenting', count: sharedFolders.filter(f => f.category === 'parenting').length }
   ]
+  
+  // 🎨 PERFECTION: Enhanced state
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [localSearchQuery, setLocalSearchQuery] = useState('')
 
   // Sort options
   const sortOptions = [
@@ -57,7 +65,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
       id: '1',
       title: 'Seoul Travel Guide',
       description: 'Complete guide for visiting Seoul with hidden gems and local recommendations',
-      author: { id: 'user1', name: 'TravelExpert', avatar: '🌏', verified: true },
+      author: { id: 'user1', name: 'TravelExpert', avatar: '', verified: true },
       category: 'travel',
       createdAt: '2024-01-15T10:00:00Z',
       updatedAt: '2024-01-15T10:00:00Z',
@@ -78,7 +86,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
       id: '2',
       title: 'React 개발자 필수 가이드',
       description: 'React 18+ 최신 기능부터 실전 프로젝트까지 완벽 가이드',
-      author: { id: 'user2', name: 'ReactDev', avatar: '⚛️', verified: true },
+      author: { id: 'user2', name: 'ReactDev', avatar: '', verified: true },
       category: 'tech',
       createdAt: '2024-01-20T08:00:00Z',
       updatedAt: '2024-01-20T08:00:00Z',
@@ -99,7 +107,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
       id: '3',
       title: 'Minimalist Morning Routine',
       description: 'Simple and effective morning routine for productivity and wellness',
-      author: { id: 'user3', name: 'LifestyleMaven', avatar: '✨', verified: false },
+      author: { id: 'user3', name: 'LifestyleMaven', avatar: '', verified: false },
       category: 'lifestyle',
       createdAt: '2024-01-10T08:00:00Z',
       updatedAt: '2024-01-10T08:00:00Z',
@@ -120,7 +128,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
       id: '4',
       title: 'Korean Recipes Collection',
       description: 'Authentic Korean recipes from traditional to modern fusion dishes',
-      author: { id: 'user4', name: 'ChefKim', avatar: '👨‍🍳', verified: true },
+      author: { id: 'user4', name: 'ChefKim', avatar: '', verified: true },
       category: 'food',
       createdAt: '2024-01-08T14:00:00Z',
       updatedAt: '2024-01-08T14:00:00Z',
@@ -140,7 +148,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
       id: '5',
       title: 'UI/UX 디자인 시스템',
       description: '일관성 있는 디자인 시스템 구축을 위한 완벽 가이드',
-      author: { id: 'user5', name: 'DesignPro', avatar: '🎨', verified: true },
+      author: { id: 'user5', name: 'DesignPro', avatar: '', verified: true },
       category: 'tech',
       createdAt: '2024-01-22T09:00:00Z',
       updatedAt: '2024-01-22T09:00:00Z',
@@ -160,7 +168,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
       id: '6',
       title: '투자 초보자 가이드',
       description: '안전하고 효율적인 투자를 위한 기초 지식과 실전 전략',
-      author: { id: 'user6', name: 'InvestorK', avatar: '📊', verified: false },
+      author: { id: 'user6', name: 'InvestorK', avatar: '', verified: false },
       category: 'investment',
       createdAt: '2024-01-18T16:00:00Z',
       updatedAt: '2024-01-18T16:00:00Z',
@@ -185,14 +193,14 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
     const loadData = async () => {
       try {
         setIsLoading(true)
-        console.log('🏪 Loading marketplace data...')
+        console.log('Loading marketplace data...')
         
         let convertedFolders: SharedFolder[] = []
         let userSharedFolders: SharedFolder[] = []
 
         try {
           // ✅ 퍼블릭 데이터 로드 (인증 불필요)
-          console.log('📂 Loading public shared folders...')
+          console.log('Loading public shared folders...')
           const dbSharedFolders = await DatabaseService.getPublicSharedFolders()
           
           // 데이터베이스 형식을 기존 SharedFolder 형식으로 변환
@@ -206,7 +214,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
               } : {
                 id: 'unknown',
                 name: 'Anonymous',
-                avatar: '👤',
+                avatar: '',
                 verified: false
               }
 
@@ -252,7 +260,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
               author: {
                 id: user.id,
                 name: 'You',
-                avatar: '👤',
+                avatar: '',
                 verified: false
               },
               category: dbFolder.category as SharedFolder['category'],
@@ -352,10 +360,10 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
     if (confirm(`Add "${sharedFolder.title}" to My Folder?`)) {
       if (onImportFolder) {
         onImportFolder(sharedFolder)
-        showSuccess(`📁 "${sharedFolder.title}" added to My Folder!`)
+        showSuccess(`"${sharedFolder.title}" added to My Folder!`)
       } else {
         console.log('Importing folder:', sharedFolder.title)
-        showSuccess(`📁 "${sharedFolder.title}" added to My Folder!`)
+        showSuccess(`"${sharedFolder.title}" added to My Folder!`)
       }
     }
   }
@@ -383,7 +391,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
       )
       setSharedFolders(updatedFolders)
 
-      showSuccess(`📁 "${updatedFolder.title}" updated successfully!`)
+      showSuccess(`"${updatedFolder.title}" updated successfully!`)
     } catch (error) {
       console.error('Error updating folder:', error)
       showSuccess('Failed to update folder. Please try again.')
@@ -427,119 +435,145 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
   }
 
   return (
-    <div className="flex-1 px-2 py-3 sm:px-4 lg:p-4">
-      {/* 탭 네비게이션 */}
-      <div className="mb-6">
-        <div className="grid grid-cols-2 gap-1 mb-4 border-b border-gray-200">
-          <button
+    <div className="flex-1">
+      {/* 🎨 PERFECTION: Enhanced header */}
+      <SearchHeader 
+        title={currentView === 'marketplace' ? 'Marketplace' : 'My Shared'}
+        searchPlaceholder="Search shared folders..."
+        onSearch={setLocalSearchQuery}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        actionButton={{
+          label: currentView === 'marketplace' ? 'Share Folder' : 'New Share',
+          onClick: () => {/* handle share */},
+          icon: "🚀"
+        }}
+      />
+      
+      {/* 🎨 PERFECTION: Tab navigation */}
+      <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
+        <div className="flex items-center bg-white rounded-lg p-1 w-fit">
+          <motion.button
             onClick={() => setCurrentView('marketplace')}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-150 text-center active:scale-95 select-none ${
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
               currentView === 'marketplace'
-                ? 'bg-white text-gray-900 border-b-2 border-blue-500'
+                ? 'bg-blue-100 text-blue-700'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
-            style={{
-              WebkitTapHighlightColor: 'transparent',
-              touchAction: 'manipulation'
-            }}
+            whileTap={{ scale: 0.95 }}
           >
-            Browse Market Place
-          </button>
-          <button
+            🎆 Browse Market
+          </motion.button>
+          <motion.button
             onClick={() => setCurrentView('my-shared')}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-150 text-center active:scale-95 select-none ${
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
               currentView === 'my-shared'
-                ? 'bg-white text-gray-900 border-b-2 border-blue-500'
+                ? 'bg-purple-100 text-purple-700'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
-            style={{
-              WebkitTapHighlightColor: 'transparent',
-              touchAction: 'manipulation'
-            }}
+            whileTap={{ scale: 0.95 }}
           >
-            My Shared Folders
-          </button>
-        </div>
-
-        <div className="mb-4">
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex-1 min-w-0">
-              <h2 className="text-base font-semibold text-gray-900">
-                {currentView === 'marketplace' 
-                  ? `${filteredFolders.length} ${filteredFolders.length === 1 ? 'shared folder' : 'shared folders'}`
-                  : `${filteredFolders.filter(f => f.author.id === user?.id).length} folders shared by you`
-                }
-              </h2>
-              <p className="text-sm text-gray-500 mt-1">
-                {currentView === 'marketplace' ? 'Browse and discover amazing collections' : 'Manage your shared folders'}
-              </p>
-            </div>
-          </div>
-          
-          {/* 필터 섹션 - Market Place에서만 표시 */}
-          {currentView === 'marketplace' && (
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="flex sm:hidden gap-2">
-                <div className="flex-1">
-                  <CategoryFilter
-                    categories={categories}
-                    selectedCategory={selectedCategory}
-                    onCategoryChange={setSelectedCategory}
-                    showDropdownOnMobile={true}
-                  />
-                </div>
-                <div className="flex-1">
-                  <SortOptions
-                    options={sortOptions}
-                    selectedSort={sortOrder}
-                    onSortChange={(sort) => setSortOrder(sort as 'popular' | 'recent' | 'helpful')}
-                  />
-                </div>
-              </div>
-              
-              <div className="hidden sm:flex items-center justify-between w-full">
-                <div className="flex-1">
-                  <CategoryFilter
-                    categories={categories}
-                    selectedCategory={selectedCategory}
-                    onCategoryChange={setSelectedCategory}
-                    showDropdownOnMobile={false}
-                  />
-                </div>
-                <div className="ml-3 flex-shrink-0">
-                  <SortOptions
-                    options={sortOptions}
-                    selectedSort={sortOrder}
-                    onSortChange={(sort) => setSortOrder(sort as 'popular' | 'recent' | 'helpful')}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
+            🚀 My Shared
+          </motion.button>
         </div>
       </div>
+      
+      {/* 🎨 PERFECTION: Filter pills */}
+      <FilterPills 
+        filters={categories}
+        activeFilter={selectedCategory}
+        onFilterChange={setSelectedCategory}
+      />
+      
+      <div className="px-6 py-4">
 
-      {/* 폴더 그리드 */}
-      {filteredFolders.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="text-4xl mb-4">📂</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No results found</h3>
-          <p className="text-sm text-gray-500">Try different keywords</p>
+        {/* 🎨 PERFECTION: Stats and description */}
+        <div className="mb-6">
+          <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  {currentView === 'marketplace' 
+                    ? `${filteredFolders.length} ${filteredFolders.length === 1 ? 'shared folder' : 'shared folders'}`
+                    : `${filteredFolders.filter(f => f.author.id === user?.id).length} folders shared by you`
+                  }
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  {currentView === 'marketplace' ? 'Browse and discover amazing collections' : 'Manage your shared folders'}
+                </p>
+              </div>
+              <div className="text-3xl">
+                {currentView === 'marketplace' ? '🎆' : '🚀'}
+              </div>
+            </div>
+          </div>
         </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 sm:gap-4">
-          {filteredFolders.map((sharedFolder) => (
-            <SharedFolderCard
-              key={sharedFolder.id}
-              sharedFolder={sharedFolder}
-              onImportFolder={currentView === 'marketplace' ? handleImportFolder : undefined}
-              onEditFolder={currentView === 'my-shared' ? handleEditFolder : undefined}
-              categories={categories}
-              isOwnFolder={currentView === 'my-shared' && sharedFolder.author.id === user?.id}
-            />
-          ))}
-        </div>
-      )}
+        {/* 🎨 PERFECTION: Sort options for marketplace */}
+        {currentView === 'marketplace' && (
+          <div className="mb-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Sort by:</span>
+              <select 
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value as 'popular' | 'recent' | 'helpful')}
+                className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="popular">🔥 Popular</option>
+                <option value="recent">🕰️ Recent</option>
+                <option value="helpful">⭐ Helpful</option>
+              </select>
+            </div>
+          </div>
+        )}
+
+        {/* 🎨 PERFECTION: Enhanced content grid */}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        ) : filteredFolders.length === 0 ? (
+          <motion.div 
+            className="text-center py-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className="text-6xl mb-4">🎆</div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No folders found</h3>
+            <p className="text-gray-600 mb-6">
+              {selectedCategory === 'all' 
+                ? 'No shared folders available yet'
+                : 'Try selecting a different category or search term'
+              }
+            </p>
+          </motion.div>
+        ) : (
+          <ContentGrid>
+            {filteredFolders.map((sharedFolder, index) => (
+              <motion.div
+                key={sharedFolder.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+              >
+                <ContentCard
+                  type="folder"
+                  title={sharedFolder.title}
+                  description={sharedFolder.description}
+                  thumbnail={sharedFolder.thumbnail}
+                  metadata={{
+                    domain: sharedFolder.author.name,
+                    tags: [sharedFolder.category],
+                    fileSize: `${sharedFolder.stats.likes} ♥ ${sharedFolder.stats.downloads} ⬇`
+                  }}
+                  onClick={() => currentView === 'marketplace' ? handleImportFolder(sharedFolder) : handleEditFolder?.(sharedFolder)}
+                  size={viewMode === 'list' ? 'small' : 'medium'}
+                  layout={viewMode}
+                />
+              </motion.div>
+            ))}
+          </ContentGrid>
+        )}
+      </div>
 
       {/* Edit Shared Folder Modal */}
       {editingFolder && (

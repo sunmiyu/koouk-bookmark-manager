@@ -3,10 +3,8 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { DatabaseService } from '@/lib/database'
-import { FastAuth } from '@/lib/fastAuth'
 import type { User } from '@supabase/supabase-js'
 import type { Database } from '@/types/database'
-import { analytics, setUserId, setUserProperties } from '@/lib/analytics'
 
 type UserProfile = Database['public']['Tables']['users']['Row']
 type UserSettings = Database['public']['Tables']['user_settings']['Row']
@@ -81,12 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUserProfile(profile)
       
       if (profile) {
-        setUserId(userId)
-        setUserProperties({
-          user_type: 'registered',
-          provider: 'google',
-          created_at: profile.created_at
-        })
+        // Analytics 제거됨 - 단순화
       }
 
       // Handle settings result (non-blocking)
@@ -307,27 +300,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       console.log('🚀 Starting fast popup OAuth authentication')
       
-      // 🚀 PRIMARY: Fast popup OAuth (400-800ms target)
-      if (typeof window !== 'undefined' && FastAuth.isPopupSupported()) {
-        try {
-          const result = await FastAuth.signInWithPopup({ provider: 'google' })
-          
-          if (result.success && result.user) {
-            console.log('✅ Fast popup authentication successful')
-            setUser(result.user)
-            await loadUserProfile(result.user.id)
-            setStatus('authenticated')
-            analytics.login('google')
-            return
-          } else {
-            console.warn('Popup auth failed, falling back to redirect:', result.error)
-          }
-        } catch (popupError) {
-          console.warn('Popup authentication failed, falling back to redirect:', popupError)
-        }
-      }
-      
-      // 🔄 FALLBACK: Redirect flow for popup-blocked environments
+      // 🔄 단순화된 OAuth: Redirect flow만 사용
       console.log('🔄 Using redirect OAuth fallback')
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -345,7 +318,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw error
       }
       
-      analytics.login('google')
+      // analytics.login('google') // Analytics 제거됨
       
     } catch (error) {
       console.error('Sign in error:', error)
@@ -379,7 +352,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Background cleanup (non-blocking)
       await supabase.auth.signOut()
-      analytics.logout()
+      // analytics.logout() // Analytics 제거됨
       
     } catch (error) {
       console.error('Sign out cleanup error:', error)

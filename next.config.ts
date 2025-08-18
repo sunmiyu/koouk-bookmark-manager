@@ -1,11 +1,5 @@
 import type { NextConfig } from "next";
 
-// Bundle Analyzer configuration
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
-  openAnalyzer: true,
-});
-
 // Security Headers
 const securityHeaders = [
   {
@@ -66,79 +60,20 @@ const nextConfig: NextConfig = {
     // Faster development mode
     ...(process.env.NODE_ENV === 'development' && {
       optimizeCss: false,
-      turbo: {
-        rules: {
-          '*.svg': ['@svgr/webpack']
-        }
-      }
     })
-  },
-  
-  // Turbopack configuration (moved from experimental)
-  turbopack: {
-    rules: {
-      '*.svg': {
-        loaders: ['@svgr/webpack'],
-        as: '*.js'
-      }
-    }
   },
   
   // Exclude backup folder from build
   pageExtensions: ['ts', 'tsx', 'js', 'jsx'],
   
-  // Bundle optimization for Service Worker efficiency
-  webpack: (config, { dev, isServer }) => {
+  // Simplified webpack configuration
+  webpack: (config) => {
     // Exclude backup folder from compilation
     config.module.rules.push({
       test: /src\/_backup/,
       loader: 'ignore-loader'
     });
-    // Service Worker optimized bundle splitting
-    if (!dev && !isServer) {
-      config.optimization.splitChunks = {
-        ...config.optimization.splitChunks,
-        chunks: 'all',
-        cacheGroups: {
-          ...config.optimization.splitChunks?.cacheGroups,
-          // Critical UI components - loaded first by Service Worker
-          critical: {
-            test: /[\\/]src[\\/](components[\\/](core|auth|ui)|lib[\\/](supabase|database|analytics))[\\/]/,
-            name: 'critical',
-            chunks: 'all',
-            priority: 15,
-            enforce: true,
-          },
-          // Third-party vendors
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-            priority: 10,
-          },
-          // Shared components
-          common: {
-            name: 'common',
-            minChunks: 2,
-            chunks: 'all',
-            priority: 5,
-            reuseExistingChunk: true,
-          },
-          // Analytics & non-critical features
-          analytics: {
-            test: /[\\/]src[\\/](lib[\\/]analytics|components[\\/]analytics)[\\/]/,
-            name: 'analytics',
-            chunks: 'all',
-            priority: 3,
-          },
-        },
-      }
-      
-      // Service Worker friendly module naming
-      config.optimization.moduleIds = 'named'
-      config.optimization.chunkIds = 'named'
-    }
-    return config
+    return config;
   },
   
   // Build performance optimization (swcMinify is deprecated in Next.js 15)
@@ -173,4 +108,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withBundleAnalyzer(nextConfig);
+export default nextConfig;

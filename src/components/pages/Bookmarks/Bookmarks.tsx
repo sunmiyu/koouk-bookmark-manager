@@ -1,14 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { 
-  Search, 
-  Plus
-} from 'lucide-react'
-import BookmarkCard, { Bookmark } from '../ui/BookmarkCard'
-import CategoryFilter from '../ui/CategoryFilter'
-import { useAuth } from '../auth/AuthContext'
+import BookmarkCard, { Bookmark } from '@/components/ui/BookmarkCard'
+import CategoryFilter from '@/components/ui/CategoryFilter'
+import { useAuth } from '@/components/auth/AuthContext'
 import { DatabaseService } from '@/lib/database'
+// 🎨 PERFECTION: Import new components
+import ContentCard, { ContentGrid } from '@/components/ui/ContentCard'
+import SearchHeader, { FilterPills } from '@/components/ui/SearchHeader'
+import { motion } from 'framer-motion'
 
 export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }) {
   const { user } = useAuth() // loading 의존성 제거
@@ -16,26 +16,29 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
   const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('most-used')
   const [isLoading, setIsLoading] = useState(true)
+  // 🎨 PERFECTION: Enhanced state
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [localSearchQuery, setLocalSearchQuery] = useState('')
 
-  // 카테고리 옵션들
+  // 🎨 PERFECTION: Enhanced categories with counts
   const categories = [
-    { value: 'most-used', label: 'Most Used' },
-    { value: 'all', label: 'All Bookmarks' },
-    { value: 'work', label: 'Work' },
-    { value: 'personal', label: 'Personal' },
-    { value: 'entertainment', label: 'Entertainment' },
-    { value: 'news', label: 'News' },
-    { value: 'social', label: 'Social' },
-    { value: 'shopping', label: 'Shopping' },
-    { value: 'education', label: 'Education' },
-    { value: 'tech', label: 'Technology' }
+    { id: 'all', label: 'All Bookmarks', count: bookmarks.length },
+    { id: 'most-used', label: 'Most Used', count: bookmarks.filter(b => b.category === 'most-used').length },
+    { id: 'work', label: 'Work', count: bookmarks.filter(b => b.category === 'work').length },
+    { id: 'personal', label: 'Personal', count: bookmarks.filter(b => b.category === 'personal').length },
+    { id: 'entertainment', label: 'Entertainment', count: bookmarks.filter(b => b.category === 'entertainment').length },
+    { id: 'news', label: 'News', count: bookmarks.filter(b => b.category === 'news').length },
+    { id: 'social', label: 'Social', count: bookmarks.filter(b => b.category === 'social').length },
+    { id: 'shopping', label: 'Shopping', count: bookmarks.filter(b => b.category === 'shopping').length },
+    { id: 'education', label: 'Education', count: bookmarks.filter(b => b.category === 'education').length },
+    { id: 'tech', label: 'Technology', count: bookmarks.filter(b => b.category === 'tech').length }
   ]
 
   // 데이터베이스에서 북마크 로드 - 개선된 버전
   useEffect(() => {
     // 🔒 핵심: 사용자 인증 및 로딩 상태 체크
     if (!user) {
-      console.log('👤 No user found, skipping bookmarks load')
+      console.log('No user found, skipping bookmarks load')
       setIsLoading(false)
       setBookmarks([])
       return
@@ -46,7 +49,7 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
     const loadBookmarks = async () => {
       try {
         setIsLoading(true)
-        console.log('📚 Loading bookmarks for user:', user.email)
+        console.log('Loading bookmarks for user:', user.email)
         
         // ✅ 안전한 데이터베이스 호출
         const dbBookmarks = await DatabaseService.getUserBookmarks(user.id)
@@ -68,16 +71,16 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
         }))
 
         setBookmarks(convertedBookmarks)
-        console.log('✅ Bookmarks loaded successfully:', convertedBookmarks.length)
+        console.log('Bookmarks loaded successfully:', convertedBookmarks.length)
         
       } catch (error) {
-        console.error('❌ Failed to load bookmarks:', error)
+        console.error('Failed to load bookmarks:', error)
         
         // 🚨 토큰 에러 구체적 처리
         if ((error as Error)?.message?.includes('No authorization token') || 
             (error as Error)?.message?.includes('JWT') || 
             (error as Error)?.message?.includes('authorization')) {
-          console.error('🚨 Authorization token missing - user may need to re-login')
+          console.error('Authorization token missing - user may need to re-login')
           // 선택적: 사용자에게 재로그인 안내
           // alert('Please sign in again to access your bookmarks.')
         }
@@ -181,7 +184,7 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
           ) : (
             <div className="text-gray-500">
               <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Search className="w-6 h-6 text-gray-400" />
+                <span className="text-2xl">&nbsp;</span>
               </div>
               <h3 className="text-sm font-medium text-gray-900 mb-1">Please sign in</h3>
               <p className="text-xs text-gray-500">Sign in to access your bookmarks</p>
@@ -225,80 +228,17 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
   }
 
   return (
-    <div className="flex-1 px-2 py-3 sm:px-4 lg:p-4">
-      {/* 모바일: 헤더 + 드롭다운 + 버튼 */}
-      <div className="block sm:hidden mb-4">
-        {/* 모바일 헤더 - 통일된 스타일 */}
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-base font-semibold text-gray-900">
-              {filteredBookmarks.length} {filteredBookmarks.length === 1 ? 'bookmark' : 'bookmarks'}
-            </h2>
-            <p className="text-sm text-gray-500 mt-1">
-              {selectedCategory === 'all' ? 'All Categories' : categories.find(cat => cat.value === selectedCategory)?.label}
-            </p>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          {/* 카테고리 필터 컴포넌트 사용 */}
-          <div className="flex-1">
-            <CategoryFilter
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onCategoryChange={setSelectedCategory}
-              showDropdownOnMobile={true}
-            />
-          </div>
-          
-          {/* + 버튼 - 투명 배경 */}
-          <button
-            onClick={() => {
-              const url = prompt('Enter URL to bookmark:')
-              if (url) {
-                const title = prompt('Enter title:', url) || url
-                const newBookmark: Bookmark = {
-                  id: Date.now().toString(),
-                  title,
-                  url,
-                  description: '',
-                  tags: [],
-                  createdAt: new Date().toISOString(),
-                  updatedAt: new Date().toISOString(),
-                  category: 'personal',
-                  isFavorite: false,
-                  usageCount: 0,
-                  lastUsedAt: new Date().toISOString()
-                }
-                setBookmarks(prev => [newBookmark, ...prev])
-              }
-            }}
-            className="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-150 active:scale-95 select-none"
-            title="Add Bookmark"
-            style={{
-              WebkitTapHighlightColor: 'transparent',
-              touchAction: 'manipulation'
-            }}
-          >
-            <Plus className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-      
-      {/* 헤더 - 통일된 스타일 */}
-      <div className="hidden sm:flex sm:items-center sm:justify-between gap-3 mb-6">
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900">
-            {filteredBookmarks.length} {filteredBookmarks.length === 1 ? 'bookmark' : 'bookmarks'}
-          </h2>
-          <p className="text-sm text-gray-500 mt-1">
-            {selectedCategory === 'all' ? 'All Categories' : categories.find(cat => cat.value === selectedCategory)?.label}
-          </p>
-        </div>
-        
-        {/* Add Bookmark Button - Desktop */}
-        <button
-          onClick={() => {
+    <div className="flex-1">
+      {/* 🎨 PERFECTION: Enhanced header */}
+      <SearchHeader 
+        title="Bookmarks"
+        searchPlaceholder="Search bookmarks..."
+        onSearch={setLocalSearchQuery}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        actionButton={{
+          label: "Add Bookmark",
+          onClick: () => {
             const url = prompt('Enter URL to bookmark:')
             if (url) {
               const title = prompt('Enter title:', url) || url
@@ -317,52 +257,88 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
               }
               setBookmarks(prev => [newBookmark, ...prev])
             }
-          }}
-          className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-150 flex items-center gap-2 active:scale-95 select-none"
-          title="Add Bookmark"
-          style={{
-            WebkitTapHighlightColor: 'transparent',
-            touchAction: 'manipulation'
-          }}
-        >
-          <Plus className="w-4 h-4" />
-          <span className="text-xs font-medium">Add Bookmark</span>
-        </button>
-      </div>
-
-      {/* Category Filter - 데스크톱용만 */}
-      <CategoryFilter
-        categories={categories}
-        selectedCategory={selectedCategory}
-        onCategoryChange={setSelectedCategory}
-        showDropdownOnMobile={false}
+          },
+          icon: "🔖"
+        }}
       />
-
-      {/* Bookmarks List - Unified Compact Design for Mobile and PC */}
-      <div className="space-y-0">
-        {filteredBookmarks.map((bookmark) => (
-          <BookmarkCard
-            key={bookmark.id}
-            bookmark={bookmark}
-            onOpenBookmark={handleOpenBookmark}
-            onToggleFavorite={handleToggleFavorite}
-            onDeleteBookmark={handleDeleteBookmark}
-          />
-        ))}
-      </div>
-
-      {/* Empty State */}
-      {filteredBookmarks.length === 0 && (
-        <div className="text-center py-12">
-          <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Search className="w-6 h-6 text-gray-400" />
+      
+      {/* 🎨 PERFECTION: Filter pills */}
+      <FilterPills 
+        filters={categories}
+        activeFilter={selectedCategory}
+        onFilterChange={setSelectedCategory}
+      />
+      
+      <div className="px-6 py-4">
+        {/* 🎨 PERFECTION: Stats */}
+        <div className="mb-6">
+          <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  {filteredBookmarks.length} {filteredBookmarks.length === 1 ? 'bookmark' : 'bookmarks'}
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  {selectedCategory === 'all' ? 'All saved websites' : `${categories.find(cat => cat.id === selectedCategory)?.label} bookmarks`}
+                </p>
+              </div>
+              <div className="text-3xl">
+                🔖
+              </div>
+            </div>
           </div>
-          <h3 className="text-sm font-medium text-gray-900 mb-1">No bookmarks found</h3>
-          <p className="text-xs text-gray-500 max-w-sm mx-auto">
-            {searchQuery ? 'Try adjusting your search terms.' : 'Start adding bookmarks to see them here.'}
-          </p>
         </div>
-      )}
+
+        {/* 🎨 PERFECTION: Enhanced content grid */}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        ) : filteredBookmarks.length === 0 ? (
+          <motion.div 
+            className="text-center py-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className="text-6xl mb-4">🔖</div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              {bookmarks.length === 0 ? 'No bookmarks yet' : 'No bookmarks match your criteria'}
+            </h3>
+            <p className="text-gray-600 mb-6">
+              {bookmarks.length === 0 
+                ? 'Start saving your favorite websites'
+                : 'Try adjusting your search or filter'
+              }
+            </p>
+          </motion.div>
+        ) : (
+          <ContentGrid>
+            {filteredBookmarks.map((bookmark, index) => (
+              <motion.div
+                key={bookmark.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+              >
+                <ContentCard
+                  type="url"
+                  title={bookmark.title}
+                  description={bookmark.description}
+                  thumbnail={bookmark.url}
+                  metadata={{
+                    domain: new URL(bookmark.url).hostname,
+                    tags: bookmark.tags,
+                    fileSize: bookmark.isFavorite ? '⭐ Favorite' : `Used ${bookmark.usageCount} times`
+                  }}
+                  onClick={() => window.open(bookmark.url, '_blank')}
+                  size={viewMode === 'list' ? 'small' : 'medium'}
+                  layout={viewMode}
+                />
+              </motion.div>
+            ))}
+          </ContentGrid>
+        )}
+      </div>
     </div>
   )
 }

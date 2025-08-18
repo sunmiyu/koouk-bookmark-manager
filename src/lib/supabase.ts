@@ -1,10 +1,24 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { Database } from '@/types/database'
 
-// Environment variables with fallbacks
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
+// Environment variables with proper validation
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+// Validate required environment variables
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(
+    '❌ Missing required Supabase environment variables:\n' +
+    `NEXT_PUBLIC_SUPABASE_URL: ${supabaseUrl ? '✅' : '❌'}\n` +
+    `NEXT_PUBLIC_SUPABASE_ANON_KEY: ${supabaseAnonKey ? '✅' : '❌'}\n` +
+    'Please check your .env.local file'
+  )
+}
+
+if (!serviceRoleKey && process.env.NODE_ENV === 'production') {
+  console.warn('⚠️ SUPABASE_SERVICE_ROLE_KEY not found - admin functions will not work')
+}
 
 // ULTRA SINGLETON: Lazy initialization to prevent ANY multiple instance creation
 let supabaseInstance: SupabaseClient<Database> | null = null
@@ -43,6 +57,13 @@ export const getSupabase = (): SupabaseClient<Database> => {
 export const getSupabaseAdmin = (): SupabaseClient<Database> => {
   if (supabaseAdminInstance) {
     return supabaseAdminInstance
+  }
+
+  if (!serviceRoleKey) {
+    throw new Error(
+      '❌ SUPABASE_SERVICE_ROLE_KEY is required for admin operations.\n' +
+      'Please add it to your .env.local file'
+    )
   }
 
   supabaseAdminInstance = createClient<Database>(supabaseUrl, serviceRoleKey, {

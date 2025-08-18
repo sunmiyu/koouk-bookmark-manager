@@ -13,6 +13,27 @@ export default function AuthCallback() {
       try {
         console.log('Processing OAuth callback...')
         
+        // Get URL parameters and hash for debugging
+        const url = new URL(window.location.href)
+        const urlParams = url.searchParams
+        const fragment = url.hash
+        
+        console.log('Callback URL params:', Object.fromEntries(urlParams))
+        console.log('Callback URL fragment:', fragment)
+        
+        // Check for OAuth errors in URL parameters
+        const oauthError = urlParams.get('error')
+        const oauthErrorDescription = urlParams.get('error_description')
+        
+        if (oauthError) {
+          console.error('OAuth URL error:', oauthError, oauthErrorDescription)
+          setError(`Authentication failed: ${oauthErrorDescription || oauthError}`)
+          setTimeout(() => {
+            router.push('/?auth_error=oauth_failed')
+          }, 3000)
+          return
+        }
+        
         // Handle the auth callback from URL hash/query params
         const { data, error } = await supabase.auth.getSession()
         
@@ -22,7 +43,7 @@ export default function AuthCallback() {
           // Redirect to home with error
           setTimeout(() => {
             router.push('/?auth_error=callback_failed')
-          }, 2000)
+          }, 3000)
           return
         }
         

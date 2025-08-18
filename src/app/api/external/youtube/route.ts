@@ -1,6 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { extractYouTubeVideoId } from '@/utils/youtube'
 
+// 안전한 HTML 엔티티 디코딩 함수 (이중 이스케이핑 방지)
+function decodeHTMLEntities(text: string): string {
+  if (!text) return '';
+  
+  // 명시적 엔티티 매핑으로 이중 이스케이핑 방지
+  const entityMap: { [key: string]: string } = {
+    '&amp;': '&',
+    '&lt;': '<', 
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#039;': "'",
+    '&#39;': "'",
+    '&apos;': "'",
+    '&nbsp;': ' '
+  };
+  
+  let decoded = text;
+  
+  // 알려진 엔티티만 한 번 변환
+  for (const [entity, char] of Object.entries(entityMap)) {
+    decoded = decoded.replaceAll(entity, char);
+  }
+  
+  return decoded.trim();
+}
+
 // HTML 스크래핑으로 YouTube 제목 추출하는 폴백 함수
 async function scrapeYouTubeTitle(url: string) {
   try {
@@ -50,9 +76,8 @@ async function scrapeYouTubeTitle(url: string) {
     if (titleMatch) {
       let title = titleMatch[1]
       title = title.replace(/ - YouTube$/, '')
-      // Safely decode HTML entities
-      const tempDiv = { innerHTML: title.replace(/</g, '&lt;').replace(/>/g, '&gt;') }
-      title = title.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").trim()
+      // 안전한 HTML 엔티티 디코딩 (이중 이스케이핑 방지)
+      title = decodeHTMLEntities(title)
       
       if (title && title !== 'YouTube') {
         return title

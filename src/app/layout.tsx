@@ -4,6 +4,9 @@ import './globals.css'
 import { AuthProvider } from '@/components/auth/AuthContext'
 import ServiceWorkerRegistration from '@/components/pwa/ServiceWorkerRegistration'
 import GoogleAnalytics, { ConsentBanner, PerformanceMonitor } from '@/components/analytics/GoogleAnalytics'
+import dynamic from 'next/dynamic'
+
+// 🚀 OPTIMIZATION 3: Dynamic imports will be used in client components
 
 // Optimized font loading
 const inter = Inter({ 
@@ -154,15 +157,21 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <meta name="msapplication-TileColor" content="#ffffff" />
         <meta name="msapplication-tap-highlight" content="no" />
         
-        {/* Preconnect to external domains for performance */}
+        {/* 🚀 OPTIMIZATION 3: Preconnect to external domains for performance */}
+        <link rel="preconnect" href="https://bpbfmitcwvqadtefgmek.supabase.co" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://www.google-analytics.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         
         {/* DNS prefetch for better performance */}
+        <link rel="dns-prefetch" href="//bpbfmitcwvqadtefgmek.supabase.co" />
         <link rel="dns-prefetch" href="//www.googletagmanager.com" />
         <link rel="dns-prefetch" href="//www.google-analytics.com" />
+        
+        {/* 🚀 OPTIMIZATION 3: Preload critical resources */}
+        <link rel="preload" href="/api/auth" as="fetch" crossOrigin="anonymous" />
+        <link rel="modulepreload" href="/_next/static/chunks/app/page.js" />
       </head>
       
       <body 

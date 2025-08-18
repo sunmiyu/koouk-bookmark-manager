@@ -17,6 +17,10 @@ import InstallPrompt from '@/components/pwa/InstallPrompt'
 import SharedContentHandler from '@/components/pwa/SharedContentHandler'
 import type { Database } from '@/types/database'
 import { analytics } from '@/lib/analytics'
+// 🎨 PERFECTION: Import new components
+import ContentCard, { ContentGrid } from '@/components/ui/ContentCard'
+import SearchHeader, { FilterPills } from '@/components/ui/SearchHeader'
+import { motion } from 'framer-motion'
 
 type Json = Database['public']['Tables']['storage_items']['Row']['metadata']
 type DbStorageItem = Database['public']['Tables']['storage_items']['Row']
@@ -25,11 +29,18 @@ interface MyFolderContentProps {
   searchQuery?: string
 }
 
+// 🎨 PERFECTION: View mode state
+type ViewMode = 'grid' | 'list'
+
 export default function MyFolderContent({ searchQuery = '' }: MyFolderContentProps) {
   const { user, userSettings, updateUserSettings } = useAuth() // loading 의존성 제거
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
   const [currentView, setCurrentView] = useState<'grid' | 'detail'>('grid')
+  // 🎨 PERFECTION: Enhanced state management
+  const [viewMode, setViewMode] = useState<ViewMode>('grid')
+  const [activeFilter, setActiveFilter] = useState('all')
+  const [localSearchQuery, setLocalSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [showCreateFolderModal, setShowCreateFolderModal] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
@@ -39,6 +50,40 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
 
   // 선택된 폴더
   const selectedFolder = folders.find(f => f.id === selectedFolderId)
+  
+  // 🎨 PERFECTION: Filter data
+  const filterOptions = [
+    { id: 'all', label: 'All Folders', count: folders.length },
+    { id: 'recent', label: 'Recent', count: folders.filter(f => {
+      const created = new Date(f.created_at || Date.now())
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+      return created > weekAgo
+    }).length },
+    { id: 'shared', label: 'Shared', count: folders.filter(f => f.is_shared).length },
+    { id: 'large', label: 'Large', count: folders.filter(f => f.children.length >= 5).length }
+  ]
+  
+  // 🎨 PERFECTION: Filtered folders
+  const filteredFolders = folders.filter(folder => {
+    // Text search
+    const matchesSearch = !localSearchQuery || 
+      folder.name.toLowerCase().includes(localSearchQuery.toLowerCase()) ||
+      folder.description?.toLowerCase().includes(localSearchQuery.toLowerCase())
+    
+    // Filter criteria
+    let matchesFilter = true
+    if (activeFilter === 'recent') {
+      const created = new Date(folder.created_at || Date.now())
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+      matchesFilter = created > weekAgo
+    } else if (activeFilter === 'shared') {
+      matchesFilter = folder.is_shared
+    } else if (activeFilter === 'large') {
+      matchesFilter = folder.children.length >= 5
+    }
+    
+    return matchesSearch && matchesFilter
+  })
 
   // 데이터베이스에서 데이터 로드 - 개선된 버전
   useEffect(() => {
@@ -48,13 +93,18 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
       setIsLoading(false)
       return
     }
+    
+    // 🎨 PERFECTION: Set search from props
+    if (searchQuery) {
+      setLocalSearchQuery(searchQuery)
+    }
 
     // loading 상태 체크 제거 - user 상태만으로 충분
 
     const loadData = async () => {
       try {
         setIsLoading(true)
-        console.log('📁 Loading folders for user:', user.email)
+        console.log('Loading folders for user:', user.email)
         
         // ✅ 안전한 데이터베이스 호출
         const dbFolders = await DatabaseService.getUserFolders(user.id) as Array<{
@@ -186,13 +236,13 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
     const folderName = newFolderName.trim() || 'New Folder'
     
     try {
-      console.log('📁 Creating folder for user:', user.email)
+      console.log('Creating folder for user:', user.email)
       
       // ✅ 안전한 데이터베이스 호출
       const dbFolder = await DatabaseService.createFolder(user.id, {
         name: folderName,
         color: '#3B82F6',
-        icon: '📁',
+        icon: '',
         sort_order: 0
       })
 
@@ -249,7 +299,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
     }
     
     try {
-      console.log('📝 Adding item for user:', user.email)
+      console.log('Adding item for user:', user.email)
       
       // ✅ 안전한 데이터베이스 호출
       const dbItem = await DatabaseService.createStorageItem(user.id, {
@@ -444,7 +494,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
     const type = content.length > 500 ? 'document' : 'memo'
     const noteItem = createStorageItem(title, type, content, folderId)
     handleAddItem(noteItem, folderId)
-    showSuccess(`📝 "${title}" saved successfully!`)
+    showSuccess(`"${title}" saved successfully!`)
   }
 
   // 🔒 인증되지 않은 사용자 처리
@@ -471,7 +521,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
           ) : (
             <div className="text-gray-500">
               <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-2xl">📁</span>
+                <span className="text-2xl">&nbsp;</span>
               </div>
               <h3 className="text-sm font-medium text-gray-900 mb-1">Please sign in</h3>
               <p className="text-xs text-gray-500">Sign in to access your folders</p>
@@ -518,22 +568,94 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
 
   return (
     <div className="flex flex-col min-h-screen">
+      {/* 🎨 PERFECTION: Enhanced header */}
+      <SearchHeader 
+        title="My Folders"
+        searchPlaceholder="Search folders and content..."
+        onSearch={setLocalSearchQuery}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        actionButton={{
+          label: "New Folder",
+          onClick: () => setShowCreateFolderModal(true),
+          icon: "📁"
+        }}
+      />
+      
+      {/* 🎨 PERFECTION: Filter pills */}
+      <FilterPills 
+        filters={filterOptions}
+        activeFilter={activeFilter}
+        onFilterChange={setActiveFilter}
+      />
+      
       {/* 메인 콘텐츠 */}
-      <div className="flex-1 pb-32">
+      <div className="flex-1 pb-32 bg-gray-50">
         {currentView === 'grid' ? (
-          <FolderGrid
-            folders={folders}
-            onFolderSelect={handleFolderSelectFromGrid}
-            onCreateFolder={handleCreateFolder}
-            searchQuery={searchQuery}
-          />
+          <div className="p-6">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            ) : filteredFolders.length === 0 ? (
+              <motion.div 
+                className="text-center py-12"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <div className="text-6xl mb-4">📁</div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {folders.length === 0 ? 'No folders yet' : 'No folders match your search'}
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  {folders.length === 0 
+                    ? 'Create your first folder to start organizing'
+                    : 'Try adjusting your search or filter criteria'
+                  }
+                </p>
+                {folders.length === 0 && (
+                  <button
+                    onClick={() => setShowCreateFolderModal(true)}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+                  >
+                    <span>📁</span>
+                    <span>Create First Folder</span>
+                  </button>
+                )}
+              </motion.div>
+            ) : (
+              <ContentGrid>
+                {filteredFolders.map((folder, index) => (
+                  <motion.div
+                    key={folder.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                  >
+                    <ContentCard
+                      type="folder"
+                      title={folder.name}
+                      description={folder.description || `${folder.children.length} items`}
+                      metadata={{
+                        tags: folder.tags,
+                        fileSize: folder.is_shared ? 'Shared' : 'Private'
+                      }}
+                      onClick={() => handleFolderSelectFromGrid(folder.id)}
+                      size={viewMode === 'list' ? 'small' : 'medium'}
+                      layout={viewMode}
+                    />
+                  </motion.div>
+                ))}
+              </ContentGrid>
+            )}
+          </div>
         ) : selectedFolder ? (
           <FolderDetail
             folder={selectedFolder}
             onBack={handleBack}
             onItemDelete={handleItemDelete}
             onShareFolder={handleShareFolder}
-            searchQuery={searchQuery}
+            searchQuery={localSearchQuery}
           />
         ) : null}
       </div>

@@ -170,8 +170,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <link rel="dns-prefetch" href="//www.google-analytics.com" />
         
         {/* 🚀 OPTIMIZATION 3: Preload critical resources */}
-        <link rel="preload" href="/koouk-logo.svg" as="image" type="image/svg+xml" crossOrigin="anonymous" />
-        <link rel="modulepreload" href="/_next/static/chunks/app/page.js" />
       </head>
       
       <body 

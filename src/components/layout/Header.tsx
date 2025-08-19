@@ -3,10 +3,10 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Settings, LogOut, MessageCircle } from 'lucide-react'
-import { useAuthCompat } from '../auth/AuthProvider'
+import { useAuth } from '../auth/AuthProvider'
 
 export default function Header() {
-  const { user, signOut } = useAuthCompat()
+  const { user, signOut } = useAuth()
 
   return (
     <header className="border-b border-gray-200 bg-white sticky top-0 z-50">

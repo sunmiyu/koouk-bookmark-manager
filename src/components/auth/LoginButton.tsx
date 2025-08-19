@@ -1,9 +1,9 @@
 'use client'
 
-import { useAuthCompat } from './AuthProvider'
+import { useAuth } from './AuthProvider'
 
 export default function LoginButton() {
-  const { signIn, loading } = useAuthCompat()
+  const { signIn, loading } = useAuth()
 
   return (
     <button

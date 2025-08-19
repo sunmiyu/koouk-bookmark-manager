@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react'
+import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
 
@@ -17,99 +17,107 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   
-  // 🚀 React Strict Mode 대응 중복 실행 방지
-  const initializingRef = useRef(false)
-  const mountedRef = useRef(false)
+  // 🚀 FIX: Simplified refs for memory safety
+  const mountedRef = useRef(true)
+  const inititalizedRef = useRef(false)
+
+  // 🚀 FIX: Stable callbacks to prevent re-renders
+  const handleSetUser = useCallback((newUser: User | null) => {
+    if (!mountedRef.current) return
+    setUser(newUser)
+  }, [])
+
+  const handleSetLoading = useCallback((loadingState: boolean) => {
+    if (!mountedRef.current) return
+    setLoading(loadingState)
+  }, [])
 
   useEffect(() => {
-    // 이미 초기화 중이거나 mount되었으면 스킵
-    if (initializingRef.current) return
-    
-    initializingRef.current = true
-    mountedRef.current = true
+    // 🚀 FIX: Prevent double initialization
+    if (inititalizedRef.current) return
+    inititalizedRef.current = true
 
-    console.log('🔄 Simple Auth 초기화 시작...')
+    console.log('🔄 Auth initialization started...')
 
-    // 현재 세션 확인
-    const initSession = async () => {
+    // 🚀 FIX: Initialize session with proper error handling
+    const initializeAuth = async () => {
       try {
-        // unmount 체크
-        if (!mountedRef.current) return
-        
         const { data: { session }, error } = await supabase.auth.getSession()
         
         if (error) {
-          console.warn('세션 확인 에러 (무시):', error)
+          console.warn('Session check error (ignoring):', error)
         }
         
-        console.log('초기 세션:', session ? '✅ 로그인됨' : '❌ 로그인 안됨')
+        console.log('Initial session:', session ? '✅ Logged in' : '❌ Not logged in')
         
-        // unmount된 후면 상태 업데이트 하지 않음
-        if (mountedRef.current) {
-          setUser(session?.user ?? null)
-        }
+        handleSetUser(session?.user ?? null)
         
       } catch (error) {
-        console.warn('세션 초기화 실패:', error)
-        if (mountedRef.current) {
-          setUser(null)
-        }
+        console.warn('Auth initialization failed:', error)
+        handleSetUser(null)
       } finally {
-        if (mountedRef.current) {
-          setLoading(false)
-        }
-        initializingRef.current = false
+        handleSetLoading(false)
       }
     }
 
-    initSession()
-
-    // Auth 상태 변화 감지
+    // 🚀 FIX: Set up auth state listener with proper cleanup
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('🔄 Simple Auth state changed:', event)
-        
-        // unmount된 후면 상태 업데이트 하지 않음
         if (!mountedRef.current) return
         
-        // 특정 이벤트만 처리
+        console.log('🔄 Auth state changed:', event)
+        
         switch (event) {
           case 'SIGNED_IN':
-            setUser(session?.user ?? null)
-            setLoading(false)
-            console.log('✅ 로그인 완료')
+            handleSetUser(session?.user ?? null)
+            handleSetLoading(false)
+            console.log('✅ Sign in completed')
             break
             
           case 'SIGNED_OUT':
-            setUser(null)
-            setLoading(false)
-            console.log('✅ 로그아웃 완료')
+            handleSetUser(null)
+            handleSetLoading(false)
+            console.log('✅ Sign out completed')
             break
             
           case 'TOKEN_REFRESHED':
-            setUser(session?.user ?? null)
-            console.log('🔄 토큰 갱신 완료')
+            handleSetUser(session?.user ?? null)
+            console.log('🔄 Token refreshed')
+            break
+            
+          case 'INITIAL_SESSION':
+            // Handle initial session (avoid double setting)
+            if (!inititalizedRef.current) {
+              handleSetUser(session?.user ?? null)
+              handleSetLoading(false)
+            }
             break
             
           default:
-            // 다른 이벤트는 무시
+            // Ignore other events to prevent unnecessary re-renders
+            console.log('🔄 Ignored auth event:', event)
             break
         }
       }
     )
 
+    // Initialize after setting up listener
+    initializeAuth()
+
+    // 🚀 FIX: Proper cleanup
     return () => {
       mountedRef.current = false
       subscription.unsubscribe()
     }
-  }, [])
+  }, [handleSetUser, handleSetLoading]) // 🚀 FIX: Include stable callbacks in deps
 
-  // 로그인 - 단순화된 버전
-  const signIn = async () => {
+  // 🚀 FIX: Simplified signIn with better error handling
+  const signIn = useCallback(async () => {
     try {
-      setLoading(true)
-      console.log('🚀 Simple OAuth 로그인 시작...')
+      handleSetLoading(true)
+      console.log('🚀 OAuth login started...')
       
+      // 🚀 FIX: Correct callback URL for Next.js App Router
       const callbackUrl = process.env.NODE_ENV === 'development' 
         ? `${window.location.origin}/auth/callback`
         : process.env.NEXT_PUBLIC_SITE_URL 
@@ -122,53 +130,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           redirectTo: callbackUrl,
           queryParams: {
             access_type: 'offline',
-            prompt: 'select_account',
+            prompt: 'consent', // 🚀 FIX: Use 'consent' instead of 'select_account' for more reliable auth
           }
         }
       })
       
       if (error) {
-        console.error('OAuth 에러:', error)
+        console.error('OAuth error:', error)
+        handleSetLoading(false)
         throw error
       }
       
-      console.log('🔄 OAuth redirect 시작됨')
+      console.log('🔄 OAuth redirect initiated')
       
     } catch (error) {
-      console.error('로그인 실패:', error)
-      setLoading(false)
+      console.error('Sign in failed:', error)
+      handleSetLoading(false)
       throw error
     }
-  }
+  }, [handleSetLoading])
 
-  // 로그아웃 - 단순화된 버전
-  const signOut = async () => {
+  // 🚀 FIX: Simplified signOut with immediate UI update
+  const signOut = useCallback(async () => {
     try {
-      console.log('🚀 Simple 로그아웃 시작...')
+      console.log('🚀 Sign out started...')
       
-      // 즉시 UI 업데이트
-      setUser(null)
-      setLoading(false)
+      // 🚀 FIX: Immediate UI update for better UX
+      handleSetUser(null)
+      handleSetLoading(false)
       
-      // 백그라운드에서 실제 로그아웃
+      // Background cleanup
       await supabase.auth.signOut()
       
-      // 캐시 정리
+      // 🚀 FIX: Clean localStorage more selectively
       if (typeof window !== 'undefined') {
-        Object.keys(localStorage).forEach(key => {
-          if (key.includes('supabase') || key.includes('koouk')) {
-            localStorage.removeItem(key)
-          }
-        })
+        const keysToRemove = Object.keys(localStorage).filter(key => 
+          key.startsWith('supabase.') || 
+          key.includes('koouk') ||
+          key.includes('auth')
+        )
+        keysToRemove.forEach(key => localStorage.removeItem(key))
       }
       
-      console.log('✅ 로그아웃 완료')
+      console.log('✅ Sign out completed')
       
     } catch (error) {
-      console.error('로그아웃 에러:', error)
-      // 에러가 있어도 UI는 이미 업데이트됨
+      console.error('Sign out error:', error)
+      // UI is already updated, so this is just cleanup
     }
-  }
+  }, [handleSetUser, handleSetLoading])
 
   return (
     <AuthContext.Provider value={{ user, loading, signIn, signOut }}>

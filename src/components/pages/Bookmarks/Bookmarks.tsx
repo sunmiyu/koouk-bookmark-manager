@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import BookmarkCard, { Bookmark } from '@/components/ui/BookmarkCard'
 import CategoryFilter from '@/components/ui/CategoryFilter'
-import { useAuth } from '@/components/auth/AuthContext'
+import { useAuth } from '@/components/auth/AuthProvider'
 import { DatabaseService } from '@/lib/database'
 // 🎨 PERFECTION: Import new components
 import ContentCard, { ContentGrid } from '@/components/ui/ContentCard'

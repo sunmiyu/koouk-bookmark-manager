@@ -1,11 +1,28 @@
 'use client'
 
-import { useAuth } from '@/components/auth/AuthContext'
+import { useAuth } from '@/components/auth/AuthProvider'
 import Image from 'next/image'
 import { Folder, Bookmark, Store, ArrowRight, Sparkles, Users, Shield, Zap } from 'lucide-react'
+import { useState } from 'react'
 
 export default function LandingPage() {
   const { signIn } = useAuth()
+  const [isSigningIn, setIsSigningIn] = useState(false)
+
+  // 🚀 FIX 1: 로딩 상태가 있는 로그인 함수
+  const handleSignIn = async () => {
+    if (isSigningIn) return // 중복 클릭 방지
+    
+    try {
+      setIsSigningIn(true)
+      await signIn()
+    } catch (error) {
+      console.error('로그인 실패:', error)
+      // 에러 처리는 AuthContext에서 담당
+    } finally {
+      setIsSigningIn(false)
+    }
+  }
 
   const mainFeatures = [
     {
@@ -58,10 +75,11 @@ export default function LandingPage() {
           <div className="mb-8">
             <Image 
               src="/koouk-logo.svg" 
-              alt="KOOUK" 
+              alt="KOOUK - Your Personal Lifestyle Hub" 
               width={120}
               height={30}
               className="h-8 w-auto mx-auto"
+              priority // 🚀 FIX 2: 로고 우선 로딩
             />
           </div>
 
@@ -91,11 +109,26 @@ export default function LandingPage() {
 
           {/* CTA Button */}
           <button
-            onClick={signIn}
-            className="w-full bg-black text-white py-4 px-6 rounded-2xl font-medium text-base hover:bg-gray-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center space-x-2"
+            onClick={handleSignIn}
+            disabled={isSigningIn} // 🚀 FIX 3: 로딩 중 비활성화
+            className={`w-full py-4 px-6 rounded-2xl font-medium text-base transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center space-x-2 ${
+              isSigningIn 
+                ? 'bg-gray-400 text-gray-200 cursor-not-allowed' // 로딩 중 스타일
+                : 'bg-black text-white hover:bg-gray-800' // 기본 스타일
+            }`}
           >
-            <span>Sign in with Google</span>
-            <ArrowRight className="w-4 h-4" />
+            {isSigningIn ? (
+              <>
+                {/* 🚀 FIX 4: 로딩 스피너 */}
+                <div className="w-4 h-4 border-2 border-gray-300 border-t-white rounded-full animate-spin" />
+                <span>Signing in...</span>
+              </>
+            ) : (
+              <>
+                <span>Sign in with Google</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </button>
           
           <p className="text-xs text-gray-500 mt-3">
@@ -121,13 +154,15 @@ export default function LandingPage() {
               <div 
                 key={index}
                 className={`border-2 rounded-2xl p-4 transition-all duration-200 ${feature.color}`}
+                role="article" // 🚀 FIX 5: 접근성 개선
+                aria-labelledby={`feature-${index}`}
               >
                 <div className="flex items-start space-x-3">
-                  <div className={`${feature.iconBg} p-2 rounded-xl`}>
+                  <div className={`${feature.iconBg} p-2 rounded-xl`} aria-hidden="true">
                     {feature.icon}
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 text-sm mb-1">
+                    <h3 id={`feature-${index}`} className="font-semibold text-gray-900 text-sm mb-1">
                       {feature.title}
                     </h3>
                     <p className="text-gray-600 text-xs mb-1">
@@ -148,11 +183,11 @@ export default function LandingPage() {
       <div className="px-6 pb-8">
         <div className="max-w-md mx-auto text-center">
           <div className="flex items-center justify-center space-x-1 text-gray-500 text-xs">
-            <Sparkles className="w-3 h-3" />
+            <Sparkles className="w-3 h-3" aria-hidden="true" />
             <span>Mobile-First Design</span>
-            <span>•</span>
+            <span aria-hidden="true">•</span>
             <span>감성적 UI</span>
-            <span>•</span>
+            <span aria-hidden="true">•</span>
             <span>즉시 사용 가능</span>
           </div>
         </div>

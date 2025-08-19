@@ -1,311 +1,125 @@
 'use client'
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
-import { DatabaseService } from '@/lib/database'
 import type { User } from '@supabase/supabase-js'
-import type { Database } from '@/types/database'
-
-type UserProfile = Database['public']['Tables']['users']['Row']
-type UserSettings = Database['public']['Tables']['user_settings']['Row']
 
 interface AuthContextType {
   user: User | null
-  userProfile: UserProfile | null
-  userSettings: UserSettings | null
-  status: 'idle' | 'loading' | 'authenticated' | 'error'
-  error: string | null
+  loading: boolean
   signIn: () => Promise<void>
   signOut: () => Promise<void>
-  updateUserSettings: (updates: Partial<UserSettings>) => Promise<void>
-  refreshUserData: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
-  const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
-  const [status, setStatus] = useState<'idle' | 'loading' | 'authenticated' | 'error'>('loading')
-  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
   
-  // Load user profile and settings
-  const loadUserProfile = useCallback(async (userId: string): Promise<void> => {
-    try {
-      // 🚀 OPTIMIZATION 1: Parallel database queries to reduce loading time by 200-400ms
-      const [profileResult, settingsResult] = await Promise.allSettled([
-        DatabaseService.getUserProfile(userId),
-        DatabaseService.getUserSettings(userId)
-      ])
-      
-      let profile: UserProfile | null = null
-      
-      // Handle profile result
-      if (profileResult.status === 'fulfilled') {
-        profile = profileResult.value as UserProfile | null
-      } else {
-        console.warn('Failed to load user profile:', profileResult.reason)
-      }
-      
-      // If profile doesn't exist, create it
-      if (!profile) {
-        const { data: { user: authUser } } = await supabase.auth.getUser()
-        
-        if (authUser) {
-          const { data, error } = await supabase
-            .from('users')
-            .upsert({
-              id: authUser.id,
-              email: authUser.email!,
-              name: authUser.user_metadata?.name || authUser.email?.split('@')[0],
-              avatar_url: authUser.user_metadata?.avatar_url,
-              is_verified: !!authUser.email_confirmed_at,
-              user_plan: 'free' as const,
-              plan_expires_at: null,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            })
-            .select()
-            .single()
-          
-          if (!error && data) {
-            profile = data as UserProfile
-          }
-        }
-      }
-      
-      // 🚀 OPTIMIZATION 2: Set profile immediately for faster UI response
-      setUserProfile(profile)
-      
-      if (profile) {
-        // Analytics 제거됨 - 단순화
-      }
+  // 🚀 React Strict Mode 대응 중복 실행 방지
+  const initializingRef = useRef(false)
+  const mountedRef = useRef(false)
 
-      // Handle settings result (non-blocking)
-      if (settingsResult.status === 'fulfilled') {
-        setUserSettings(settingsResult.value)
-      } else {
-        console.warn('Could not load user settings (non-critical):', settingsResult.reason)
-        // Set default settings to prevent loading state
-        setUserSettings({
-          id: userId,
-          user_id: userId,
-          last_active_tab: 'dashboard',
-          selected_folder_id: null,
-          view_mode: 'grid',
-          sort_by: 'recent',
-          theme: 'light',
-          language: 'en',
-          pwa_install_dismissed_at: null,
-          visit_count: 0,
-          cross_platform_state: {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-      }
-      
-    } catch (error) {
-      console.error('Error loading user profile:', error)
-      throw error
-    }
-  }, [])
-
-  // Initialize auth state
-  const initializeAuth = useCallback(async (): Promise<void> => {
-    try {
-      setStatus('loading')
-      setError(null)
-      
-      console.log('🔄 Initializing auth state...')
-      
-      // Clear any stale cache first
-      if (typeof window !== 'undefined') {
-        const cachedSession = localStorage.getItem('koouk-session-cache')
-        if (cachedSession) {
-          try {
-            const { expiresAt } = JSON.parse(cachedSession)
-            if (expiresAt < Date.now()) {
-              console.log('🗑️ Clearing expired session cache')
-              localStorage.removeItem('koouk-session-cache')
-            }
-          } catch {
-            localStorage.removeItem('koouk-session-cache')
-          }
-        }
-      }
-      
-      // Get current session with timeout
-      console.log('🔍 Checking current session...')
-      const sessionPromise = supabase.auth.getSession()
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Session check timeout')), 10000)
-      )
-      
-      const { data: { session }, error: sessionError } = await Promise.race([
-        sessionPromise,
-        timeoutPromise
-      ]) as any
-      
-      if (sessionError) {
-        console.error('Auth session error:', sessionError)
-        
-        // Handle specific error cases
-        if (sessionError.message.includes('refresh_token') || 
-            sessionError.message.includes('invalid_grant') ||
-            sessionError.message.includes('token') ||
-            sessionError.message.includes('authorization')) {
-          console.log('🧹 Clearing invalid session...')
-          await supabase.auth.signOut()
-          localStorage.removeItem('koouk-session-cache')
-          setStatus('idle')
-          return
-        }
-        
-        throw sessionError
-      }
-      
-      if (session?.user) {
-        console.log('✅ Valid session found, loading user data...')
-        setUser(session.user)
-        
-        try {
-          await loadUserProfile(session.user.id)
-          setStatus('authenticated')
-          
-          // Cache valid session
-          if (typeof window !== 'undefined' && session.expires_at) {
-            const cacheData = {
-              user: session.user,
-              expiresAt: session.expires_at * 1000
-            }
-            localStorage.setItem('koouk-session-cache', JSON.stringify(cacheData))
-          }
-          
-          console.log('✅ Authentication initialization complete')
-        } catch (profileError) {
-          console.error('Failed to load user profile:', profileError)
-          // Continue with authentication even if profile loading fails
-          setStatus('authenticated')
-        }
-      } else {
-        console.log('ℹ️ No active session found')
-        setStatus('idle')
-      }
-    } catch (error) {
-      console.error('Auth initialization error:', error)
-      
-      // Clear any stored session data on error
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('koouk-session-cache')
-      }
-      
-      // More specific error handling
-      if (error instanceof Error) {
-        if (error.message.includes('timeout')) {
-          setError('Connection timeout. Please check your internet connection.')
-        } else if (error.message.includes('authorization') || error.message.includes('token')) {
-          setError('Session expired. Please sign in again.')
-          setStatus('idle')
-          return
-        } else {
-          setError(error.message)
-        }
-      } else {
-        setError('Failed to initialize authentication')
-      }
-      
-      setStatus('error')
-      
-      // Auto-recover from error after 3 seconds
-      setTimeout(() => {
-        if (typeof window !== 'undefined') {
-          setStatus('idle')
-          setError(null)
-        }
-      }, 3000)
-    }
-  }, [loadUserProfile])
-
-  // Auth state change handler
   useEffect(() => {
-    let mounted = true
+    // 이미 초기화 중이거나 mount되었으면 스킵
+    if (initializingRef.current) return
     
-    const initialize = async () => {
-      if (!mounted) return
-      await initializeAuth()
-    }
-    
-    initialize()
+    initializingRef.current = true
+    mountedRef.current = true
 
+    console.log('🔄 Simple Auth 초기화 시작...')
+
+    // 현재 세션 확인
+    const initSession = async () => {
+      try {
+        // unmount 체크
+        if (!mountedRef.current) return
+        
+        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        if (error) {
+          console.warn('세션 확인 에러 (무시):', error)
+        }
+        
+        console.log('초기 세션:', session ? '✅ 로그인됨' : '❌ 로그인 안됨')
+        
+        // unmount된 후면 상태 업데이트 하지 않음
+        if (mountedRef.current) {
+          setUser(session?.user ?? null)
+        }
+        
+      } catch (error) {
+        console.warn('세션 초기화 실패:', error)
+        if (mountedRef.current) {
+          setUser(null)
+        }
+      } finally {
+        if (mountedRef.current) {
+          setLoading(false)
+        }
+        initializingRef.current = false
+      }
+    }
+
+    initSession()
+
+    // Auth 상태 변화 감지
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return
+      (event, session) => {
+        console.log('🔄 Simple Auth state changed:', event)
         
-        console.log('Auth state change:', event)
-        setError(null)
+        // unmount된 후면 상태 업데이트 하지 않음
+        if (!mountedRef.current) return
         
-        try {
-          switch (event) {
-            case 'SIGNED_IN':
-              if (session?.user && mounted) {
-                setUser(session.user)
-                await loadUserProfile(session.user.id)
-                setStatus('authenticated')
-              }
-              break
-              
-            case 'SIGNED_OUT':
-              if (mounted) {
-                setUser(null)
-                setUserProfile(null)
-                setUserSettings(null)
-                setStatus('idle')
-              }
-              break
-              
-            case 'TOKEN_REFRESHED':
-              if (session?.user && mounted) {
-                setUser(session.user)
-                setStatus('authenticated')
-              }
-              break
-              
-            default:
-              if (!session?.user && mounted) {
-                setStatus('idle')
-              }
-          }
-        } catch (error) {
-          if (mounted) {
-            console.error('Auth state change error:', error)
-            setError(error instanceof Error ? error.message : 'Authentication error occurred')
-            setStatus('error')
-          }
+        // 특정 이벤트만 처리
+        switch (event) {
+          case 'SIGNED_IN':
+            setUser(session?.user ?? null)
+            setLoading(false)
+            console.log('✅ 로그인 완료')
+            break
+            
+          case 'SIGNED_OUT':
+            setUser(null)
+            setLoading(false)
+            console.log('✅ 로그아웃 완료')
+            break
+            
+          case 'TOKEN_REFRESHED':
+            setUser(session?.user ?? null)
+            console.log('🔄 토큰 갱신 완료')
+            break
+            
+          default:
+            // 다른 이벤트는 무시
+            break
         }
       }
     )
 
     return () => {
-      mounted = false
+      mountedRef.current = false
       subscription.unsubscribe()
     }
-  }, [initializeAuth, loadUserProfile])
+  }, [])
 
-  // Sign in with Google - Fast popup first, redirect fallback
-  const signIn = useCallback(async (): Promise<void> => {
+  // 로그인 - 단순화된 버전
+  const signIn = async () => {
     try {
-      setStatus('loading')
-      setError(null)
+      setLoading(true)
+      console.log('🚀 Simple OAuth 로그인 시작...')
       
-      console.log('🚀 Starting fast popup OAuth authentication')
-      
-      // 🔄 단순화된 OAuth: Redirect flow만 사용
-      console.log('🔄 Using redirect OAuth fallback')
+      const callbackUrl = process.env.NODE_ENV === 'development' 
+        ? `${window.location.origin}/auth/callback`
+        : process.env.NEXT_PUBLIC_SITE_URL 
+          ? `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
+          : `${window.location.origin}/auth/callback`
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: callbackUrl,
           queryParams: {
             access_type: 'offline',
             prompt: 'select_account',
@@ -314,109 +128,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
       
       if (error) {
-        console.error('OAuth error:', error)
+        console.error('OAuth 에러:', error)
         throw error
       }
       
-      // analytics.login('google') // Analytics 제거됨
+      console.log('🔄 OAuth redirect 시작됨')
       
     } catch (error) {
-      console.error('Sign in error:', error)
-      setError('Sign in failed. Please try again.')
-      setStatus('error')
+      console.error('로그인 실패:', error)
+      setLoading(false)
       throw error
     }
-  }, [loadUserProfile])
+  }
 
-  // Sign out - 즉시 UI 업데이트, 백그라운드 정리
-  const signOut = useCallback(async (): Promise<void> => {
-    // 🚀 OPTIMIZATION 12: Immediate UI state clear for instant response
-    setUser(null)
-    setUserProfile(null)
-    setUserSettings(null)
-    setStatus('idle')
-    setError(null)
-    
+  // 로그아웃 - 단순화된 버전
+  const signOut = async () => {
     try {
-      // 🚀 OPTIMIZATION 13: Clear session cache immediately
+      console.log('🚀 Simple 로그아웃 시작...')
+      
+      // 즉시 UI 업데이트
+      setUser(null)
+      setLoading(false)
+      
+      // 백그라운드에서 실제 로그아웃
+      await supabase.auth.signOut()
+      
+      // 캐시 정리
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('koouk-session-cache')
-        
-        // Clear all auth-related storage
         Object.keys(localStorage).forEach(key => {
-          if (key.includes('supabase') || key.includes('koouk-auth')) {
+          if (key.includes('supabase') || key.includes('koouk')) {
             localStorage.removeItem(key)
           }
         })
       }
       
-      // Background cleanup (non-blocking)
-      await supabase.auth.signOut()
-      // analytics.logout() // Analytics 제거됨
+      console.log('✅ 로그아웃 완료')
       
     } catch (error) {
-      console.error('Sign out cleanup error:', error)
-      // Error doesn't affect UI since state is already cleared
+      console.error('로그아웃 에러:', error)
+      // 에러가 있어도 UI는 이미 업데이트됨
     }
-  }, [])
-
-  // Update user settings
-  const updateUserSettings = useCallback(async (updates: Partial<UserSettings>): Promise<void> => {
-    if (!user || !userSettings) return
-    
-    try {
-      const updatedSettings = await DatabaseService.updateUserSettings(user.id, updates)
-      setUserSettings(updatedSettings)
-    } catch (error) {
-      console.error('Failed to update user settings:', error)
-      throw error
-    }
-  }, [user, userSettings])
-
-  // Refresh user data
-  const refreshUserData = useCallback(async (): Promise<void> => {
-    if (!user) return
-    
-    try {
-      await loadUserProfile(user.id)
-    } catch (error) {
-      console.error('Failed to refresh user data:', error)
-      throw error
-    }
-  }, [user, loadUserProfile])
+  }
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      userProfile, 
-      userSettings, 
-      status,
-      error,
-      signIn, 
-      signOut, 
-      updateUserSettings, 
-      refreshUserData 
-    }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   )
 }
 
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext)
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    throw new Error('useAuth must be used within AuthProvider')
   }
   return context
 }
-
-// Legacy loading 호환성
-export function useAuthCompat(): AuthContextType & { loading: boolean } {
-  const auth = useAuth()
-  return {
-    ...auth,
-    loading: auth.status === 'loading'
-  }
-}
-
-export type { UserProfile, UserSettings }

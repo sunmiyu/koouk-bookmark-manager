@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/components/auth/AuthContext'
+import { useAuth } from '@/components/auth/AuthProvider'
 import { Folder, Bookmark, Store, ArrowRight, Sparkles, Users, Shield } from 'lucide-react'
 
 export default function OnboardingPage() {

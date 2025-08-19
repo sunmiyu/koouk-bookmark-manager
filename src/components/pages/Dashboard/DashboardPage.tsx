@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth } from '@/components/auth/AuthContext'
+import { useAuth } from '@/components/auth/AuthProvider'
 import ContentCard, { ContentGrid } from '@/components/ui/ContentCard'
 import SearchHeader from '@/components/ui/SearchHeader'
 import { motion } from 'framer-motion'

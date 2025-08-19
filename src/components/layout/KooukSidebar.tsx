@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { FolderItem } from '@/types/folder'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from '@/components/auth/AuthProvider'
 
 interface KooukSidebarProps {
   activeTab: 'storage' | 'bookmarks' | 'marketplace'

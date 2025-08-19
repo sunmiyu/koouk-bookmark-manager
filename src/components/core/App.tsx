@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
-import { useAuthCompat } from '../auth/AuthContext'
+import { useAuth } from '@/components/auth/AuthProvider'
 import { FolderItem, StorageItem } from '@/types/folder'
 import { DatabaseService } from '@/lib/database'
 import KooukSidebar from '../layout/KooukSidebar'
@@ -16,7 +16,8 @@ type TabType = 'storage' | 'bookmarks' | 'marketplace'
 
 export default function App() {
   const device = useDevice()
-  const { user, signIn, signOut, status } = useAuthCompat()
+  const { user, loading, signIn, signOut } = useAuth()
+  const status = loading ? 'loading' : (user ? 'authenticated' : 'idle')
   const { toast, showSuccess, showError, hideToast } = useToast()
   
   const [activeTab, setActiveTab] = useState<TabType>('storage')

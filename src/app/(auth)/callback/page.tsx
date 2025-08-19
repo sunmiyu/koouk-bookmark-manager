@@ -1,92 +1,174 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 export default function AuthCallback() {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
+  
+  // 🚀 FIX 1: React Strict Mode + Hook 방식 대응
+  const processingRef = useRef(false)
+  const mountedRef = useRef(false)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
+    // 🚀 FIX 2: 이미 처리 중이면 무시
+    if (processingRef.current) return
+    
+    processingRef.current = true
+    mountedRef.current = true
+    
     const handleAuthCallback = async () => {
       try {
-        console.log('Processing OAuth callback...')
+        console.log('🔄 OAuth callback 처리 시작...')
         
-        // Get URL parameters and hash for debugging
+        // 🚀 FIX 3: unmount 체크
+        if (!mountedRef.current) return
+        
+        // URL 파라미터 확인
         const url = new URL(window.location.href)
         const urlParams = url.searchParams
-        const fragment = url.hash
         
         console.log('Callback URL params:', Object.fromEntries(urlParams))
-        console.log('Callback URL fragment:', fragment)
         
-        // Check for OAuth errors in URL parameters
+        // OAuth 에러 체크
         const oauthError = urlParams.get('error')
         const oauthErrorDescription = urlParams.get('error_description')
         
         if (oauthError) {
           console.error('OAuth URL error:', oauthError, oauthErrorDescription)
-          setError(`Authentication failed: ${oauthErrorDescription || oauthError}`)
-          setTimeout(() => {
-            router.push('/?auth_error=oauth_failed')
-          }, 3000)
-          return
-        }
-        
-        // Handle the auth callback from URL hash/query params
-        const { data, error } = await supabase.auth.getSession()
-        
-        if (error) {
-          console.error('OAuth callback error:', error)
-          setError(error.message)
-          // Redirect to home with error
-          setTimeout(() => {
-            router.push('/?auth_error=callback_failed')
-          }, 3000)
-          return
-        }
-        
-        if (data.session) {
-          console.log('✅ Authentication successful, redirecting...')
-          // Success - redirect to home
-          router.push('/')
-        } else {
-          console.log('No session found, checking for auth code in URL...')
-          // Check if we need to exchange auth code
-          const url = new URL(window.location.href)
-          const authCode = url.searchParams.get('code')
           
-          if (authCode) {
-            console.log('Auth code found, exchanging for session...')
-            const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(authCode)
-            
-            if (exchangeError) {
-              console.error('Code exchange error:', exchangeError)
-              setError('Failed to complete authentication')
-              setTimeout(() => {
-                router.push('/?auth_error=exchange_failed')
-              }, 2000)
-            } else {
-              console.log('✅ Code exchange successful, redirecting...')
-              router.push('/')
-            }
-          } else {
-            console.log('No auth code found, redirecting to home...')
-            router.push('/')
+          if (mountedRef.current) {
+            setError(`Authentication failed: ${oauthErrorDescription || oauthError}`)
           }
+          
+          // 🚀 FIX 4: 타임아웃 관리 (메모리 누수 방지)
+          timeoutRef.current = setTimeout(() => {
+            if (mountedRef.current) {
+              router.replace('/?auth_error=oauth_failed')
+            }
+          }, 3000)
+          return
         }
+        
+        // Auth code 확인
+        const authCode = urlParams.get('code')
+        
+        if (!authCode) {
+          console.log('❌ Auth code 없음, 홈으로 리다이렉트...')
+          
+          if (mountedRef.current) {
+            timeoutRef.current = setTimeout(() => {
+              if (mountedRef.current) {
+                router.replace('/?auth_error=no_code')
+              }
+            }, 1000)
+          }
+          return
+        }
+        
+        console.log('✅ Auth code 발견, 세션 교환 중...')
+        
+        // 🚀 FIX 5: 타임아웃이 있는 세션 교환 (느린 네트워크 대응)
+        const exchangePromise = supabase.auth.exchangeCodeForSession(authCode)
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Exchange timeout')), 10000)
+        )
+        
+        let exchangeResult
+        try {
+          exchangeResult = await Promise.race([exchangePromise, timeoutPromise]) as any
+        } catch (timeoutError) {
+          console.error('세션 교환 타임아웃:', timeoutError)
+          
+          if (mountedRef.current) {
+            setError('Authentication timeout. Please try again.')
+            timeoutRef.current = setTimeout(() => {
+              if (mountedRef.current) {
+                router.replace('/?auth_error=timeout')
+              }
+            }, 3000)
+          }
+          return
+        }
+        
+        const { data, error: exchangeError } = exchangeResult
+        
+        // unmount 체크
+        if (!mountedRef.current) return
+        
+        if (exchangeError) {
+          console.error('Code exchange error:', exchangeError)
+          
+          // 🚀 FIX 6: 구체적인 에러 메시지
+          let errorMessage = 'Failed to complete authentication'
+          if (exchangeError.message?.includes('invalid_grant')) {
+            errorMessage = 'Authentication code expired. Please try again.'
+          } else if (exchangeError.message?.includes('network')) {
+            errorMessage = 'Network error. Please check your connection.'
+          }
+          
+          setError(errorMessage)
+          
+          timeoutRef.current = setTimeout(() => {
+            if (mountedRef.current) {
+              router.replace('/?auth_error=exchange_failed')
+            }
+          }, 3000)
+          return
+        }
+        
+        if (data?.session) {
+          console.log('✅ 인증 성공! 홈으로 리다이렉트...')
+          
+          // 🚀 FIX 7: Hook 방식에서는 즉시 리다이렉트 (AuthContext가 상태 관리)
+          if (mountedRef.current) {
+            router.replace('/')
+          }
+          return
+        }
+        
+        // 세션이 없는 경우 (예상치 못한 상황)
+        console.warn('⚠️ 코드 교환 성공했지만 세션 없음')
+        if (mountedRef.current) {
+          setError('Authentication completed but session not found')
+          
+          timeoutRef.current = setTimeout(() => {
+            if (mountedRef.current) {
+              router.replace('/?auth_error=no_session')
+            }
+          }, 3000)
+        }
+        
       } catch (err) {
         console.error('Callback processing error:', err)
-        setError('Authentication failed')
-        setTimeout(() => {
-          router.push('/?auth_error=processing_failed')
-        }, 2000)
+        
+        if (mountedRef.current) {
+          setError('Authentication failed')
+          
+          timeoutRef.current = setTimeout(() => {
+            if (mountedRef.current) {
+              router.replace('/?auth_error=processing_failed')
+            }
+          }, 3000)
+        }
+      } finally {
+        processingRef.current = false
       }
     }
 
     handleAuthCallback()
-  }, [router])
+
+    // 🚀 FIX 8: cleanup 함수
+    return () => {
+      mountedRef.current = false
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, []) // 🚨 빈 dependency array - router 의존성 제거
 
   if (error) {
     return (

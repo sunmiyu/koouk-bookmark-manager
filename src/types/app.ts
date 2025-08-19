@@ -66,7 +66,6 @@ export const defaultFolderTemplates = {
     { name: '건강', icon: 'Activity', color: '#EF4444' },
     { name: '카페', icon: 'Coffee', color: '#F97316' },
     { name: '취미', icon: 'Gamepad2', color: '#8B5CF6' },
-    { name: '뉴스', icon: 'Newspaper', color: '#6B7280' }
   ],
   student: [
     { name: '스타일', icon: 'Palette', color: '#EC4899' },

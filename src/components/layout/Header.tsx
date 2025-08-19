@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Settings, LogOut, MessageCircle } from 'lucide-react'
+import { MessageCircle } from 'lucide-react'
 import { useAuth } from '../auth/AuthProvider'
 
 export default function Header() {

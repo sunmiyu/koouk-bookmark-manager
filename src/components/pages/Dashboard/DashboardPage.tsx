@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/components/auth/AuthProvider'
+import { useUserProfile } from '@/hooks/useUserProfile'
 import ContentCard, { ContentGrid } from '@/components/ui/ContentCard'
 import SearchHeader from '@/components/ui/SearchHeader'
 import { motion } from 'framer-motion'
@@ -22,7 +23,8 @@ interface RecentActivity {
 }
 
 export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string) => void }) {
-  const { user, userProfile } = useAuth()
+  const { user } = useAuth() // 인증만
+  const { profile: userProfile } = useUserProfile(user?.id) // 프로필 분리
   const [stats, setStats] = useState<DashboardStats>({
     myFolders: 0,
     bookmarks: 0,

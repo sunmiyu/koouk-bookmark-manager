@@ -27,7 +27,6 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
     { id: 'work', label: 'Work', count: bookmarks.filter(b => b.category === 'work').length },
     { id: 'personal', label: 'Personal', count: bookmarks.filter(b => b.category === 'personal').length },
     { id: 'entertainment', label: 'Entertainment', count: bookmarks.filter(b => b.category === 'entertainment').length },
-    { id: 'news', label: 'News', count: bookmarks.filter(b => b.category === 'news').length },
     { id: 'social', label: 'Social', count: bookmarks.filter(b => b.category === 'social').length },
     { id: 'shopping', label: 'Shopping', count: bookmarks.filter(b => b.category === 'shopping').length },
     { id: 'education', label: 'Education', count: bookmarks.filter(b => b.category === 'education').length },

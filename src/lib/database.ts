@@ -17,16 +17,25 @@ export class DatabaseService {
    * Validate user authentication and ownership
    */
   private static async validateUserAccess(userId?: string): Promise<string> {
-    const { data: { user }, error } = await supabase.auth.getUser()
-    if (error || !user) {
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser()
+      if (error || !user) {
+        throw new Error('Authentication required - please sign in to continue')
+      }
+      
+      if (userId && user.id !== userId) {
+        throw new Error('Access denied - you can only access your own data')
+      }
+      
+      return user.id
+    } catch (error) {
+      // Handle network/connection errors gracefully
+      if (error instanceof Error && error.message.includes('Authentication required')) {
+        throw error
+      }
+      console.warn('Auth validation failed, treating as unauthenticated:', error)
       throw new Error('Authentication required - please sign in to continue')
     }
-    
-    if (userId && user.id !== userId) {
-      throw new Error('Access denied - you can only access your own data')
-    }
-    
-    return user.id
   }
 
   /**
@@ -40,8 +49,13 @@ export class DatabaseService {
     try {
       // Check authentication for protected operations
       if (requiresAuth) {
-        const { data: { user }, error: authError } = await supabase.auth.getUser()
-        if (authError || !user) {
+        try {
+          const { data: { user }, error: authError } = await supabase.auth.getUser()
+          if (authError || !user) {
+            throw new Error('Authentication required - please sign in to continue')
+          }
+        } catch (authError) {
+          console.warn('Auth check failed in executeQuery:', authError)
           throw new Error('Authentication required - please sign in to continue')
         }
       }

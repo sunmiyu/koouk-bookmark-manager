@@ -268,17 +268,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
       
-      // Get current session with increased timeout for slow connections
+      // Get current session with graceful timeout and retry
       console.log('🔍 Checking current session...')
-      const sessionPromise = supabase.auth.getSession()
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Session check timeout - please check your internet connection')), 20000)
-      )
+      let session = null
+      let sessionError = null
       
-      const { data: { session }, error: sessionError } = await Promise.race([
-        sessionPromise,
-        timeoutPromise
-      ]) as any
+      try {
+        const sessionPromise = supabase.auth.getSession()
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Session check timeout - using cached session if available')), 5000)
+        )
+        
+        const result = await Promise.race([sessionPromise, timeoutPromise]) as any
+        session = result.data?.session
+        sessionError = result.error
+      } catch (timeoutError) {
+        console.warn('Session check timed out, trying cached fallback...')
+        
+        // Try to use cached session as fallback
+        try {
+          const cachedSession = localStorage.getItem('koouk-session-cache')
+          if (cachedSession) {
+            const { user: cachedUser, expiresAt } = JSON.parse(cachedSession)
+            if (expiresAt > Date.now()) {
+              console.log('✅ Using cached session due to timeout')
+              setUser(cachedUser)
+              setStatus('authenticated')
+              return
+            }
+          }
+        } catch {}
+        
+        // If no cached session, continue without auth but don't error
+        console.log('⚠️ Session timeout - continuing as guest for faster load')
+        setStatus('idle')
+        setError(null) // Clear any timeout errors
+        return
+      }
       
       if (sessionError) {
         console.error('Auth session error:', sessionError)

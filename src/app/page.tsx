@@ -4,11 +4,12 @@ import { Suspense } from 'react'
 import dynamic from 'next/dynamic'
 import AuthErrorBoundary from '@/components/auth/AuthErrorBoundary'
 
-// Dynamic import with loading optimization
+// Restore dynamic import for better performance
 const App = dynamic(() => import('@/components/core/App'), {
   ssr: false,
   loading: () => <PageLoadingFallback />
 })
+
 
 // Minimal loading fallback
 function PageLoadingFallback() {
@@ -113,9 +114,6 @@ export default function HomePage() {
         </Suspense>
       </AuthErrorBoundary>
       
-      {/* Preload critical resources */}
-      <link rel="prefetch" href="/koouk-logo.svg" />
-      <link rel="preload" href="/koouk-logo.svg" as="image" />
     </>
   )
 }

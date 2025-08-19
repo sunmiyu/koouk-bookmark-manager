@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import BookmarkCard, { Bookmark } from '@/components/ui/BookmarkCard'
+import { Bookmark } from '@/components/ui/BookmarkCard'
 import CategoryFilter from '@/components/ui/CategoryFilter'
 import { useAuth } from '@/components/auth/AuthProvider'
 import { DatabaseService } from '@/lib/database'
-// 🎨 PERFECTION: Import new components
-import ContentCard, { ContentGrid } from '@/components/ui/ContentCard'
+// 🎯 UNIFIED: Use single card component
+import EnhancedContentCard, { ContentGrid } from '@/components/ui/EnhancedContentCard'
 import SearchHeader, { FilterPills } from '@/components/ui/SearchHeader'
 import { motion } from 'framer-motion'
 
@@ -319,11 +319,12 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
               >
-                <ContentCard
+                <EnhancedContentCard
                   type="url"
                   title={bookmark.title}
                   description={bookmark.description}
-                  thumbnail={bookmark.url}
+                  thumbnail={bookmark.thumbnail}
+                  url={bookmark.url}
                   metadata={{
                     domain: new URL(bookmark.url).hostname,
                     tags: bookmark.tags,

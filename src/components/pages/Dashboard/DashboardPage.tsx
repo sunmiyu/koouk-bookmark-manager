@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/components/auth/AuthProvider'
 import { useUserProfile } from '@/hooks/useUserProfile'
-import ContentCard, { ContentGrid } from '@/components/ui/ContentCard'
+import EnhancedContentCard, { ContentGrid } from '@/components/ui/EnhancedContentCard'
 import SearchHeader from '@/components/ui/SearchHeader'
 import { motion } from 'framer-motion'
 

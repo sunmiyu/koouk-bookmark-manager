@@ -6,7 +6,7 @@ import { FolderItem, StorageItem } from '@/types/folder'
 import { DatabaseService } from '@/lib/database'
 import KooukSidebar from '../layout/KooukSidebar'
 import KooukMainContent from '../layout/KooukMainContent'
-import LandingPage from '../pages/Landing/LandingPage'
+import LoginModal from '../auth/LoginModal'
 import FeedbackModal from '../modals/FeedbackModal'
 import { useDevice } from '@/hooks/useDevice'
 import { useToast } from '@/hooks/useToast'
@@ -28,6 +28,7 @@ export default function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [showCreateFolderModal, setShowCreateFolderModal] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
+  const [showLoginModal, setShowLoginModal] = useState(false)
 
   const selectedFolder = folders.find(f => f.id === selectedFolderId)
 
@@ -374,8 +375,13 @@ export default function App() {
     )
   }
 
-  if (!user) {
-    return <LandingPage />
+  // SUNO-style: Always show the same interface, prompt login when needed
+  const handleLoginRequired = () => {
+    if (!user) {
+      setShowLoginModal(true)
+      return true
+    }
+    return false
   }
 
   if (device.width < 768) {
@@ -478,6 +484,8 @@ export default function App() {
           folders={folders}
           onAddItem={handleAddItem}
           onImportFolder={handleImportFolder}
+          onLoginRequired={handleLoginRequired}
+          user={user}
         />
       </Suspense>
 
@@ -520,6 +528,12 @@ export default function App() {
           onClose={() => setShowFeedbackModal(false)} 
         />
       )}
+
+      {/* SUNO-style Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
 
       <Toast
         show={toast.show}

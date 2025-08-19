@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { FolderItem, StorageItem, createStorageItem } from '@/types/folder'
-import { searchEngine } from '@/lib/search-engine'
+// import { searchEngine } from '@/lib/search-engine'
 import FolderGrid from '@/components/ui/FolderGrid'
 import FolderDetail from '@/components/ui/FolderDetail'
 import FolderSelector from '@/components/ui/FolderSelector'
@@ -14,8 +14,8 @@ import { useUserSettings } from '@/hooks/useUserSettings'
 import { DatabaseService } from '@/lib/database'
 import Toast from '@/components/ui/Toast'
 import BigNoteModal from '@/components/ui/BigNoteModal'
-import InstallPrompt from '@/components/pwa/InstallPrompt'
-import SharedContentHandler from '@/components/pwa/SharedContentHandler'
+// import InstallPrompt from '@/components/pwa/InstallPrompt'
+// import SharedContentHandler from '@/components/pwa/SharedContentHandler'
 import type { Database } from '@/types/database'
 import { analytics } from '@/lib/analytics'
 import EnhancedContentCard, { ContentGrid } from '@/components/ui/EnhancedContentCard'
@@ -119,7 +119,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
   const handleFoldersChange = useCallback((newFolders: FolderItem[]) => {
     if (!mountedRef.current) return
     setFolders(newFolders)
-    searchEngine.updateIndex(newFolders)
+    // searchEngine.updateIndex(newFolders)
   }, [])
 
   const saveSelectedFolder = useCallback(async (folderId: string) => {
@@ -295,7 +295,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
           }
         }
 
-        searchEngine.updateIndex(convertedFolders)
+        // searchEngine.updateIndex(convertedFolders)
         
       } catch (error) {
         console.error('❌ Failed to load folders:', error)
@@ -673,6 +673,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
         selectedFolderId={selectedFolderId}
       />
 
+      {/* Disabled for SUNO-style approach
       {showInstallPrompt && (
         <InstallPrompt onDismiss={() => setShowInstallPrompt(false)} />
       )}
@@ -682,6 +683,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
         folders={folders}
         selectedFolderId={selectedFolderId}
       />
+      */}
 
       <Toast
         show={toast.show}

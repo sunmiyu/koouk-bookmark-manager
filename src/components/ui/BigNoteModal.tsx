@@ -66,7 +66,7 @@ export default function BigNoteModal({
   }
 
   // Auto-detect variant based on screen size if not explicitly set
-  const shouldUseDrawer = variant === 'drawer' || (!device.isMobile && !device.isTablet && typeof window !== 'undefined' && window.innerWidth >= 1280)
+  const shouldUseDrawer = variant === 'drawer' || (!device.isMobile && !device.isTablet)
   const isDrawerMode = shouldUseDrawer && variant !== 'modal'
 
   if (!isOpen) return null

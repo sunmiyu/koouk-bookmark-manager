@@ -12,9 +12,18 @@ interface ContentCardProps {
   url?: string
   metadata?: {
     domain?: string
-    fileSize?: string
+    fileSize?: string | number // Combined type to handle both
     duration?: string
     tags?: string[]
+    children?: any[] // For folder contents
+    items?: any[] // Alternative folder contents structure
+    thumbnail?: string // Add thumbnail to metadata
+    title?: string
+    description?: string
+    platform?: string
+    channelTitle?: string
+    fileName?: string
+    fileType?: string
   }
   onClick?: () => void
   size?: 'small' | 'medium' | 'large'
@@ -162,6 +171,9 @@ export default function EnhancedContentCard({
   const domainInfo = getDomainInfo(url || metadata?.domain)
   const platformInfo = getPlatformInfo(url, metadata)
   const folderRepImage = getFolderRepresentativeImage()
+  
+  // 🔍 ENHANCED: Smart thumbnail detection - check multiple sources
+  const effectiveThumbnail = thumbnail || metadata?.thumbnail || null
 
   // 🎯 SMART PREVIEW AREA - The core of unified design
   const renderPreviewArea = () => {
@@ -171,6 +183,16 @@ export default function EnhancedContentCard({
       medium: "h-32", 
       large: "h-40"
     }
+
+    // 🔍 COMPREHENSIVE DEBUG - Let's see what's really happening
+    console.log('🎯 Card Debug:', {
+      type,
+      title: title?.substring(0, 30),
+      directThumbnail: thumbnail ? 'YES' : 'NO',
+      metadataThumbnail: metadata?.thumbnail ? 'YES' : 'NO',
+      effectiveThumbnail: effectiveThumbnail ? 'YES' : 'NO',
+      strategy: effectiveThumbnail ? 'THUMBNAIL' : 'FALLBACK'
+    })
 
     // Strategy 1: Folder with representative image
     if (type === 'folder' && folderRepImage && !imageError) {
@@ -193,35 +215,11 @@ export default function EnhancedContentCard({
     }
 
     // Strategy 2: Show actual thumbnail if available
-    if (thumbnail && !imageError && (type === 'image' || type === 'video' || type === 'url')) {
+    if (effectiveThumbnail && !imageError && (type === 'image' || type === 'video' || type === 'url')) {
       return (
         <div className={`${baseClasses} ${heightClasses[size]} relative`}>
           <img 
-            src={thumbnail} 
-            alt={title}
-            className="w-full h-full object-cover"
-            onError={() => setImageError(true)}
-          />
-          {type === 'video' && (
-            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-              <Video className="w-8 h-8 text-white" />
-            </div>
-          )}
-          {type === 'url' && (
-            <div className="absolute top-2 right-2">
-              <ExternalLink className="w-4 h-4 text-white bg-gray-900/50 rounded p-0.5" />
-            </div>
-          )}
-        </div>
-      )
-    }
-
-    // Strategy 2: URL with thumbnail
-    if (type === 'url' && thumbnail && !imageError) {
-      return (
-        <div className={`${baseClasses} ${heightClasses[size]} relative`}>
-          <img 
-            src={thumbnail} 
+            src={effectiveThumbnail} 
             alt={title}
             className="w-full h-full object-cover"
             onError={() => setImageError(true)}
@@ -342,8 +340,8 @@ export default function EnhancedContentCard({
           {/* Compact preview */}
           <div className="w-16 h-16 flex-shrink-0">
             <div className="w-full h-full bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">
-              {thumbnail && !imageError ? (
-                <img src={thumbnail} alt={title} className="w-full h-full object-cover" onError={() => setImageError(true)} />
+              {effectiveThumbnail && !imageError ? (
+                <img src={effectiveThumbnail} alt={title} className="w-full h-full object-cover" onError={() => setImageError(true)} />
               ) : platformInfo ? (
                 <div className={`w-full h-full ${platformInfo.color} text-white flex items-center justify-center`}>
                   <span className="text-lg font-bold">{platformInfo.icon}</span>

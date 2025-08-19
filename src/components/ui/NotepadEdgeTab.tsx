@@ -17,8 +17,8 @@ export default function NotepadEdgeTab({ folders, selectedFolderId, onSave }: No
   const [isNotepadOpen, setIsNotepadOpen] = useState(false)
   const device = useDevice()
 
-  // Only show edge tab on wide screens (xl and above)
-  const showEdgeTab = !device.isMobile && !device.isTablet && typeof window !== 'undefined' && window.innerWidth >= 1280
+  // Only show edge tab on wide screens (lg and above)
+  const showEdgeTab = !device.isMobile && !device.isTablet
 
   if (!showEdgeTab) return null
 

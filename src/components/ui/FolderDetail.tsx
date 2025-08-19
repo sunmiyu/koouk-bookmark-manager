@@ -183,7 +183,7 @@ export default function FolderDetail({
                 <EnhancedContentCard
                   type={item.type}
                   title={item.name}
-                  description={item.description || item.content}
+                  description={item.description || (item.type === 'memo' || item.type === 'document' ? item.content?.substring(0, 100) + '...' : item.content)}
                   thumbnail={item.thumbnail || (item.metadata as ItemMetadata)?.thumbnail as string}
                   url={item.url || (item.type === 'url' ? item.content : undefined)}
                   metadata={{
@@ -195,7 +195,9 @@ export default function FolderDetail({
                       }
                     })() : undefined,
                     fileSize: item.type,
-                    tags: item.tags
+                    tags: item.tags,
+                    // Add full metadata for better thumbnail extraction
+                    ...(item.metadata as ItemMetadata || {})
                   }}
                   onClick={() => handleItemClick(item)}
                   size="medium"

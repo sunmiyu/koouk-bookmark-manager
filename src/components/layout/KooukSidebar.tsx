@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Settings } from 'lucide-react'
+import { Settings, Plus, Search } from 'lucide-react'
 import { FolderItem } from '@/types/folder'
 import { useAuth } from '@/components/auth/AuthProvider'
 

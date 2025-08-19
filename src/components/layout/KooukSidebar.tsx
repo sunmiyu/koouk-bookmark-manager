@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Settings, Plus, Search } from 'lucide-react'
+import { Settings, Plus, Search, LogOut } from 'lucide-react'
 import { FolderItem } from '@/types/folder'
 import { useAuth } from '@/components/auth/AuthProvider'
 
@@ -23,7 +23,8 @@ export default function KooukSidebar({
   onFolderSelect,
   onCreateFolder
 }: KooukSidebarProps) {
-  const { user } = useAuth()
+  const { user, signOut } = useAuth()
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
 
   // 🎨 PERFECTION FIX: Add proper icons for visual clarity
   const getTabIcon = (tab: string) => {
@@ -75,12 +76,11 @@ export default function KooukSidebar({
               activeTab === 'storage' ? 'z-10' : ''
             }`}
           >
-            <div className={`rounded-t-lg px-2 py-2 text-xs font-semibold transition-all duration-200 flex items-center gap-1 justify-center ${
+            <div className={`rounded-t-lg px-3 py-2.5 text-xs font-semibold transition-all duration-200 flex items-center justify-center ${
               activeTab === 'storage'
                 ? 'bg-gray-900 text-white'
                 : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
             }`}>
-              <span className="text-sm">{getTabIcon('storage')}</span>
               <span className="truncate">My Folder</span>
             </div>
             {activeTab === 'storage' && (
@@ -90,25 +90,23 @@ export default function KooukSidebar({
           
           <button 
             onClick={() => onTabChange('bookmarks')}
-            className={`flex-1 rounded-t-lg px-2 py-2 text-xs font-medium transition-colors flex items-center justify-center gap-1 min-w-0 ${
+            className={`flex-1 rounded-t-lg px-3 py-2.5 text-xs font-medium transition-colors flex items-center justify-center min-w-0 ${
               activeTab === 'bookmarks'
                 ? 'bg-gray-900 text-white'
                 : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
             }`}
           >
-            <span className="text-sm">{getTabIcon('bookmarks')}</span>
             <span className="truncate">Bookmarks</span>
           </button>
           
           <button 
             onClick={() => onTabChange('marketplace')}
-            className={`flex-1 rounded-t-lg px-2 py-2 text-xs font-medium transition-colors flex items-center justify-center gap-1 min-w-0 ${
+            className={`flex-1 rounded-t-lg px-3 py-2.5 text-xs font-medium transition-colors flex items-center justify-center min-w-0 ${
               activeTab === 'marketplace'
                 ? 'bg-gray-900 text-white'
                 : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
             }`}
           >
-            <span className="text-sm">{getTabIcon('marketplace')}</span>
             <span className="truncate">Market Place</span>
           </button>
         </div>
@@ -336,15 +334,15 @@ export default function KooukSidebar({
                 Personal Library
               </div>
             </div>
-            <button 
-              onClick={() => {
-                console.log('Settings clicked')
-                // Add settings functionality here
-              }}
-              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
-            >
-              <Settings className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={() => setShowLogoutConfirm(true)}
+                className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                title="Sign out"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         ) : (
           <div className="text-center text-gray-500">
@@ -353,6 +351,41 @@ export default function KooukSidebar({
           </div>
         )}
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-80 mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Sign out?
+            </h3>
+            <p className="text-sm text-gray-600 mb-6">
+              You'll need to sign in again to access your folders.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="flex-1 py-2.5 px-4 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await signOut()
+                    setShowLogoutConfirm(false)
+                  } catch (error) {
+                    console.error('Sign out failed:', error)
+                  }
+                }}
+                className="flex-1 py-2.5 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Sign out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -99,18 +99,42 @@ export default function ContentInput({
         console.error('Failed to fetch YouTube metadata:', error)
       }
     } else if (type === 'url' && isValidUrl(content)) {
-      // 일반 웹페이지 Meta 정보 추출
+      // Enhanced metadata extraction using our comprehensive API
       try {
-        const webMetadata = await extractWebMetadata(content)
-        if (webMetadata) {
-          metadata.title = webMetadata.title
-          metadata.description = webMetadata.description
-          metadata.thumbnail = webMetadata.image
-          metadata.domain = webMetadata.domain
-          metadata.platform = 'web'
+        const response = await fetch('/api/meta', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ url: content })
+        })
+        
+        if (response.ok) {
+          const webMetadata = await response.json()
+          if (webMetadata) {
+            metadata.title = webMetadata.title
+            metadata.description = webMetadata.description
+            metadata.thumbnail = webMetadata.image
+            metadata.domain = webMetadata.domain
+            metadata.platform = 'web'
+            metadata.url = webMetadata.url
+          }
         }
       } catch (error) {
-        console.error('Failed to fetch web metadata:', error)
+        console.error('Failed to fetch enhanced metadata:', error)
+        // Fallback to basic extraction
+        try {
+          const webMetadata = await extractWebMetadata(content)
+          if (webMetadata) {
+            metadata.title = webMetadata.title
+            metadata.description = webMetadata.description
+            metadata.thumbnail = webMetadata.image
+            metadata.domain = webMetadata.domain
+            metadata.platform = 'web'
+          }
+        } catch (fallbackError) {
+          console.error('Fallback metadata extraction also failed:', fallbackError)
+        }
       }
     }
 
@@ -193,6 +217,11 @@ export default function ContentInput({
           selectedFolderId
         )
 
+        // Ensure thumbnail is properly set
+        if (metadata.thumbnail) {
+          item.thumbnail = metadata.thumbnail as string
+        }
+        
         item.metadata = metadata
         onAddItem(item, selectedFolderId)
       }
@@ -312,7 +341,7 @@ export default function ContentInput({
 
       {/* 메인 입력 바 */}
       <motion.div
-        className="relative rounded-xl shadow-lg bg-white border border-gray-200"
+        className="relative rounded-xl shadow-sm bg-white"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >

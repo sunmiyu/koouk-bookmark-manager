@@ -20,6 +20,7 @@ import type { Database } from '@/types/database'
 import { analytics } from '@/lib/analytics'
 import EnhancedContentCard, { ContentGrid } from '@/components/ui/EnhancedContentCard'
 import SearchHeader, { FilterPills } from '@/components/ui/SearchHeader'
+import NotepadEdgeTab from '@/components/ui/NotepadEdgeTab'
 import { motion } from 'framer-motion'
 
 type Json = Database['public']['Tables']['storage_items']['Row']['metadata']
@@ -500,29 +501,60 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
                 )}
               </motion.div>
             ) : (
-              <ContentGrid>
-                {filteredFolders.map((folder, index) => (
-                  <motion.div
-                    key={folder.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.1 }}
-                  >
-                    <EnhancedContentCard
-                      type="folder"
-                      title={folder.name}
-                      description={folder.description || `${folder.children.length} items`}
-                      metadata={{
-                        tags: folder.tags,
-                        fileSize: folder.is_shared ? 'Shared' : 'Private'
-                      }}
-                      onClick={() => handleFolderSelect(folder.id)}
-                      size={viewMode === 'list' ? 'small' : 'medium'}
-                      layout={viewMode}
-                    />
-                  </motion.div>
-                ))}
-              </ContentGrid>
+              <div className={viewMode === 'grid' ? '' : 'space-y-2 p-6'}>
+                {viewMode === 'grid' ? (
+                  <ContentGrid>
+                    {filteredFolders.map((folder, index) => (
+                      <motion.div
+                        key={folder.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                      >
+                        <EnhancedContentCard
+                          type="folder"
+                          title={folder.name}
+                          description={folder.description || `${folder.children.length} items`}
+                          metadata={{
+                            tags: folder.tags,
+                            fileSize: folder.is_shared ? 'Shared' : 'Private',
+                            children: folder.children // Pass folder children for automatic thumbnail generation
+                          }}
+                          onClick={() => handleFolderSelect(folder.id)}
+                          size="medium"
+                          layout="grid"
+                        />
+                      </motion.div>
+                    ))}
+                  </ContentGrid>
+                ) : (
+                  // List view
+                  <div className="space-y-2">
+                    {filteredFolders.map((folder, index) => (
+                      <motion.div
+                        key={folder.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                      >
+                        <EnhancedContentCard
+                          type="folder"
+                          title={folder.name}
+                          description={folder.description || `${folder.children.length} items`}
+                          metadata={{
+                            tags: folder.tags,
+                            fileSize: folder.is_shared ? 'Shared' : 'Private',
+                            children: folder.children // Pass folder children for automatic thumbnail generation
+                          }}
+                          onClick={() => handleFolderSelect(folder.id)}
+                          size="small"
+                          layout="list"
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
           </div>
         ) : selectedFolder ? (
@@ -572,7 +604,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
       </div>
 
       {/* Input System */}
-      <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white shadow-lg z-40">
+      <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg z-40">
         <div className="px-3 pt-1.5 pb-2.5 max-w-screen-xl mx-auto">
           {folders.length > 0 && (
             <>
@@ -656,6 +688,13 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
         message={toast.message}
         type={toast.type}
         onClose={hideToast}
+      />
+
+      {/* Notepad Edge Tab - Only shows on wide screens */}
+      <NotepadEdgeTab
+        folders={folders}
+        selectedFolderId={selectedFolderId}
+        onSave={handleSaveNote}
       />
     </div>
   )

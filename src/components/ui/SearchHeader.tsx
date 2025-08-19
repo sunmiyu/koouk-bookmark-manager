@@ -96,8 +96,11 @@ export default function SearchHeader({
           {/* Action Button */}
           {actionButton && (
             <motion.button
-              onClick={actionButton.onClick}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+              onClick={() => {
+                console.log('Action button clicked:', actionButton.label)
+                actionButton.onClick()
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-black text-white text-sm font-medium rounded-xl hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >

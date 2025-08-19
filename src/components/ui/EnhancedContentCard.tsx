@@ -61,19 +61,139 @@ export default function EnhancedContentCard({
     return colors[hash % colors.length]
   }
 
+  // 🎯 KakaoTalk-style platform detection and styling
+  const getPlatformInfo = (url?: string, metadata?: any) => {
+    if (!url) return null
+    
+    try {
+      const domain = new URL(url).hostname.toLowerCase()
+      
+      // YouTube - Red background with play icon
+      if (domain.includes('youtube.com') || domain.includes('youtu.be')) {
+        return {
+          type: 'youtube',
+          name: 'YouTube',
+          color: 'bg-red-500',
+          icon: '▶️',
+          logo: '🎬'
+        }
+      }
+      
+      // Reddit - Orange background with Reddit logo
+      if (domain.includes('reddit.com')) {
+        return {
+          type: 'reddit',
+          name: 'Reddit',
+          color: 'bg-orange-500',
+          icon: '🅡',
+          logo: '📱'
+        }
+      }
+      
+      // Naver - Green background
+      if (domain.includes('naver.com')) {
+        return {
+          type: 'naver',
+          name: 'Naver',
+          color: 'bg-green-500',
+          icon: 'N',
+          logo: '📰'
+        }
+      }
+      
+      // News sites - Blue background
+      if (domain.includes('news') || domain.includes('뉴스') || 
+          ['yna.co.kr', 'chosun.com', 'joins.com', 'hankyung.com'].some(news => domain.includes(news))) {
+        return {
+          type: 'news',
+          name: 'News',
+          color: 'bg-blue-600',
+          icon: '📰',
+          logo: '📺'
+        }
+      }
+      
+      // Blog - Purple background
+      if (domain.includes('blog') || domain.includes('tistory')) {
+        return {
+          type: 'blog',
+          name: 'Blog',
+          color: 'bg-purple-500',
+          icon: '✍️',
+          logo: '📝'
+        }
+      }
+      
+      // Community/Forums - Indigo background
+      if (domain.includes('cafe') || domain.includes('forum') || domain.includes('community')) {
+        return {
+          type: 'community',
+          name: 'Community',
+          color: 'bg-indigo-500',
+          icon: '👥',
+          logo: '💬'
+        }
+      }
+      
+      return null
+    } catch {
+      return null
+    }
+  }
+
+  // 🎯 Generate automatic folder representative image
+  const getFolderRepresentativeImage = () => {
+    if (type !== 'folder') return null
+    
+    // For folders, check if we have children data in metadata
+    const folderChildren = metadata?.children || metadata?.items || []
+    
+    // Find the first item with a thumbnail/image
+    for (const child of folderChildren) {
+      if (child.thumbnail) return child.thumbnail
+      if (child.type === 'image' && child.content) return child.content
+      if (child.type === 'video' && child.metadata?.thumbnail) return child.metadata.thumbnail
+      if (child.type === 'url' && child.metadata?.thumbnail) return child.metadata.thumbnail
+    }
+    
+    return null
+  }
+
   const domainInfo = getDomainInfo(url || metadata?.domain)
+  const platformInfo = getPlatformInfo(url, metadata)
+  const folderRepImage = getFolderRepresentativeImage()
 
   // 🎯 SMART PREVIEW AREA - The core of unified design
   const renderPreviewArea = () => {
-    const baseClasses = "w-full bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden"
+    const baseClasses = "w-full bg-gray-50 rounded-t-lg flex items-center justify-center overflow-hidden"
     const heightClasses = {
       small: "h-24",
       medium: "h-32", 
       large: "h-40"
     }
 
-    // Strategy 1: Show actual thumbnail if available
-    if (thumbnail && !imageError && (type === 'image' || type === 'video')) {
+    // Strategy 1: Folder with representative image
+    if (type === 'folder' && folderRepImage && !imageError) {
+      return (
+        <div className={`${baseClasses} ${heightClasses[size]} relative`}>
+          <img 
+            src={folderRepImage} 
+            alt={title}
+            className="w-full h-full object-cover"
+            onError={() => setImageError(true)}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+          <div className="absolute top-2 left-2">
+            <div className="bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-medium text-gray-800">
+              📁 {metadata?.fileSize || 'Folder'}
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Strategy 2: Show actual thumbnail if available
+    if (thumbnail && !imageError && (type === 'image' || type === 'video' || type === 'url')) {
       return (
         <div className={`${baseClasses} ${heightClasses[size]} relative`}>
           <img 
@@ -85,6 +205,11 @@ export default function EnhancedContentCard({
           {type === 'video' && (
             <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
               <Video className="w-8 h-8 text-white" />
+            </div>
+          )}
+          {type === 'url' && (
+            <div className="absolute top-2 right-2">
+              <ExternalLink className="w-4 h-4 text-white bg-gray-900/50 rounded p-0.5" />
             </div>
           )}
         </div>
@@ -108,19 +233,38 @@ export default function EnhancedContentCard({
       )
     }
 
-    // Strategy 3: URL without thumbnail - Domain-based fallback
-    if (type === 'url' && domainInfo) {
-      return (
-        <div className={`${baseClasses} ${heightClasses[size]} ${domainInfo.domainColor} text-white relative`}>
-          <div className="text-center">
-            <div className="text-2xl font-bold mb-1">{domainInfo.domainInitial}</div>
-            <div className="text-xs font-medium opacity-90">{domainInfo.domain}</div>
+    // Strategy 3: URL without thumbnail - Platform-specific or domain-based fallback
+    if (type === 'url') {
+      // KakaoTalk-style platform-specific preview
+      if (platformInfo) {
+        return (
+          <div className={`${baseClasses} ${heightClasses[size]} ${platformInfo.color} text-white relative`}>
+            <div className="text-center">
+              <div className="text-3xl font-bold mb-2">{platformInfo.icon}</div>
+              <div className="text-sm font-semibold">{platformInfo.name}</div>
+              <div className="text-xs opacity-75 mt-1">{domainInfo?.domain || 'Web Link'}</div>
+            </div>
+            <div className="absolute top-2 right-2">
+              <Link className="w-4 h-4 opacity-70" />
+            </div>
           </div>
-          <div className="absolute top-2 right-2">
-            <Link className="w-4 h-4 opacity-70" />
+        )
+      }
+      
+      // Default domain-based fallback
+      if (domainInfo) {
+        return (
+          <div className={`${baseClasses} ${heightClasses[size]} ${domainInfo.domainColor} text-white relative`}>
+            <div className="text-center">
+              <div className="text-2xl font-bold mb-1">{domainInfo.domainInitial}</div>
+              <div className="text-xs font-medium opacity-90">{domainInfo.domain}</div>
+            </div>
+            <div className="absolute top-2 right-2">
+              <Link className="w-4 h-4 opacity-70" />
+            </div>
           </div>
-        </div>
-      )
+        )
+      }
     }
 
     // Strategy 4: Document preview
@@ -174,11 +318,11 @@ export default function EnhancedContentCard({
     }
   }
 
-  // Card size configuration
+  // Card size configuration - Remove padding from cards
   const cardSizeClasses = {
-    small: "p-3",
-    medium: "p-4", 
-    large: "p-5"
+    small: "",
+    medium: "", 
+    large: ""
   }
 
   const cardWidthClasses = layout === 'list' 
@@ -200,6 +344,10 @@ export default function EnhancedContentCard({
             <div className="w-full h-full bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">
               {thumbnail && !imageError ? (
                 <img src={thumbnail} alt={title} className="w-full h-full object-cover" onError={() => setImageError(true)} />
+              ) : platformInfo ? (
+                <div className={`w-full h-full ${platformInfo.color} text-white flex items-center justify-center`}>
+                  <span className="text-lg font-bold">{platformInfo.icon}</span>
+                </div>
               ) : domainInfo ? (
                 <div className={`w-full h-full ${domainInfo.domainColor} text-white flex items-center justify-center`}>
                   <span className="text-sm font-bold">{domainInfo.domainInitial}</span>
@@ -221,7 +369,14 @@ export default function EnhancedContentCard({
               </p>
             )}
             <div className="flex items-center gap-2 text-xs text-gray-500">
-              {metadata?.domain && <span>{metadata.domain}</span>}
+              {platformInfo ? (
+                <span className="flex items-center gap-1">
+                  <span>{platformInfo.logo}</span>
+                  <span>{platformInfo.name}</span>
+                </span>
+              ) : metadata?.domain ? (
+                <span>{metadata.domain}</span>
+              ) : null}
               {metadata?.fileSize && <span>{metadata.fileSize}</span>}
               {metadata?.duration && <span>{metadata.duration}</span>}
             </div>
@@ -243,7 +398,7 @@ export default function EnhancedContentCard({
       {renderPreviewArea()}
       
       {/* 📝 CONTENT AREA */}
-      <div className="mt-3">
+      <div className="p-3">
         <h3 className="text-sm font-medium text-gray-900 line-clamp-2 mb-1">
           {title}
         </h3>
@@ -258,8 +413,16 @@ export default function EnhancedContentCard({
         <div className="flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center gap-1">
             <span className="text-xs">{getTypeIcon(type)}</span>
-            {metadata?.domain && <span>{metadata.domain}</span>}
-            {metadata?.fileSize && <span>{metadata.fileSize}</span>}
+            {platformInfo ? (
+              <span className="flex items-center gap-1">
+                <span>{platformInfo.logo}</span>
+                <span>{platformInfo.name}</span>
+              </span>
+            ) : metadata?.domain ? (
+              <span>{metadata.domain}</span>
+            ) : metadata?.fileSize ? (
+              <span>{metadata.fileSize}</span>
+            ) : null}
           </div>
           {metadata?.duration && <span>{metadata.duration}</span>}
         </div>
@@ -271,7 +434,7 @@ export default function EnhancedContentCard({
 // Content Grid component for consistent spacing
 export function ContentGrid({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 p-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 p-4">
       {children}
     </div>
   )

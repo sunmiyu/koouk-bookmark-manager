@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import Image from 'next/image'
-import { ArrowLeft, MoreVertical, ExternalLink, Trash2, Grid, List, Share2 } from 'lucide-react'
+import { ArrowLeft, Grid, List, Share2 } from 'lucide-react'
 import { FolderItem, StorageItem } from '@/types/folder'
 
 // 메타데이터 타입 정의
@@ -16,9 +15,9 @@ interface ItemMetadata {
   platform?: string
   [key: string]: unknown
 }
-import { isYouTubeUrl, getYouTubeThumbnail } from '@/utils/youtube'
 import DocumentModal from './DocumentModal'
 import ShareFolderModal, { SharedFolderData } from './ShareFolderModal'
+import EnhancedContentCard, { ContentGrid } from './EnhancedContentCard'
 
 interface FolderDetailProps {
   folder: FolderItem
@@ -51,59 +50,6 @@ export default function FolderDetail({
     return false
   })
 
-  // 썸네일 생성 함수
-  const getThumbnail = (item: StorageItem): string | null => {
-    if (item.type === 'video') {
-      if (item.metadata?.thumbnail) return String(item.metadata.thumbnail)
-      if (isYouTubeUrl(item.content)) {
-        return getYouTubeThumbnail(item.content)
-      }
-      return null
-    }
-    if (item.type === 'image') {
-      return item.content
-    }
-    if (item.type === 'url') {
-      if (item.metadata?.thumbnail) return String(item.metadata.thumbnail)
-      if (isYouTubeUrl(item.content)) {
-        return getYouTubeThumbnail(item.content)
-      }
-      try {
-        const domain = new URL(item.content).hostname
-        return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`
-      } catch {
-        return null
-      }
-    }
-    return null
-  }
-
-  // 텍스트 미리보기 함수
-  const getTextPreview = (item: StorageItem): string | null => {
-    if (item.type === 'document' || item.type === 'memo') {
-      return item.content.substring(0, 120) + (item.content.length > 120 ? '...' : '')
-    }
-    return null
-  }
-
-
-  // 아이템 타입별 아이콘 (썸네일이 없을 때 사용)
-  const getItemIcon = (item: StorageItem): string => {
-    switch (item.type) {
-      case 'url':
-        return '🔗'
-      case 'video':
-        return '🎥'
-      case 'image':
-        return '🖼️'
-      case 'document':
-        return '📄'
-      case 'memo':
-        return '📝'
-      default:
-        return '📎'
-    }
-  }
 
   // Share 폴더 핸들러
   const handleShareFolder = (sharedFolderData: SharedFolderData) => {
@@ -226,259 +172,38 @@ export default function FolderDetail({
             </p>
           </div>
         ) : (
-          <div className={
-            viewMode === 'grid' 
-              ? 'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3'
-              : 'space-y-2'
-          }>
+          <ContentGrid>
             {filteredItems.map((item, index) => (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className={
-                  viewMode === 'grid'
-                    ? 'group cursor-pointer'
-                    : 'bg-white rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-100 p-3 flex items-center gap-3 group cursor-pointer'
-                }
-                onClick={() => handleItemClick(item)}
               >
-                {viewMode === 'grid' ? (
-                  // 그리드 뷰 - 모바일 이미지 스타일
-                  <div className="relative overflow-hidden rounded-2xl bg-white shadow-sm border border-gray-100 group-hover:shadow-lg transition-all duration-300">
-                    {/* 썸네일/미리보기 영역 */}
-                    <div className="relative bg-gray-50 aspect-[4/3] overflow-hidden">
-                      {getThumbnail(item) ? (
-                        <Image 
-                          src={getThumbnail(item)!} 
-                          alt={(item.metadata as ItemMetadata)?.title || item.name}
-                          fill
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement
-                            target.style.display = 'none'
-                            const fallback = target.nextElementSibling as HTMLElement
-                            if (fallback) fallback.style.display = 'flex'
-                          }}
-                        />
-                      ) : null}
-                      
-                      {/* 텍스트 미리보기 */}
-                      {!getThumbnail(item) && getTextPreview(item) && (
-                        <div className="absolute inset-0 p-4 flex flex-col justify-start bg-gradient-to-br from-blue-50 to-indigo-50">
-                          <div className="text-sm text-gray-700 leading-relaxed line-clamp-4 font-medium">
-                            {getTextPreview(item)}
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* 아이콘 폴백 */}
-                      <div 
-                        className="w-full h-full absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100" 
-                        style={{ display: (getThumbnail(item) || getTextPreview(item)) ? 'none' : 'flex' }}
-                      >
-                        <div className="w-16 h-16 rounded-2xl bg-white shadow-md flex items-center justify-center text-gray-400 group-hover:scale-110 transition-all duration-300">
-                          <span className="text-2xl">{getItemIcon(item)}</span>
-                        </div>
-                      </div>
-
-                      {/* 더보기 버튼 */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setSelectedItem(selectedItem === item.id ? null : item.id)
-                        }}
-                        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-150 p-2 hover:bg-black/20 rounded-full bg-black/20 backdrop-blur-sm active:scale-95 select-none"
-                        style={{
-                          WebkitTapHighlightColor: 'transparent',
-                          touchAction: 'manipulation'
-                        }}
-                      >
-                        <MoreVertical size={16} className="text-white" />
-                      </button>
-
-                      {/* 비디오 지속시간 */}
-                      {item.type === 'video' && item.metadata?.duration && (
-                        <div className="absolute bottom-3 right-3 bg-black/80 text-white px-2.5 py-1 rounded-md text-xs font-medium">
-                          {Math.floor(Number(item.metadata.duration) / 60)}:{(Number(item.metadata.duration) % 60).toString().padStart(2, '0')}
-                        </div>
-                      )}
-
-                      {/* 타입 뱃지 */}
-                      <div className="absolute top-3 left-3">
-                        {item.type === 'video' && (
-                          <div className="bg-red-500 text-white px-2 py-1 rounded-md text-xs font-medium">
-                            Video
-                          </div>
-                        )}
-                        {item.type === 'url' && (
-                          <div className="bg-blue-500 text-white px-2 py-1 rounded-md text-xs font-medium">
-                            Link
-                          </div>
-                        )}
-                        {item.type === 'image' && (
-                          <div className="bg-green-500 text-white px-2 py-1 rounded-md text-xs font-medium">
-                            Image
-                          </div>
-                        )}
-                        {item.type === 'document' && (
-                          <div className="bg-orange-500 text-white px-2 py-1 rounded-md text-xs font-medium">
-                            Doc
-                          </div>
-                        )}
-                        {item.type === 'memo' && (
-                          <div className="bg-yellow-500 text-white px-2 py-1 rounded-md text-xs font-medium">
-                            Memo
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {/* 콘텐츠 정보 영역 */}
-                    <div className="p-3">
-                      <h3 className="font-semibold text-gray-900 text-sm mb-1 line-clamp-2 leading-tight">
-                        {(item.metadata as ItemMetadata)?.title || item.name}
-                      </h3>
-                      
-                      {(item.metadata as ItemMetadata)?.description && (
-                        <p className="text-xs text-gray-500 line-clamp-1 mb-1 leading-relaxed">
-                          {String((item.metadata as ItemMetadata).description)}
-                        </p>
-                      )}
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center text-xs text-gray-400">
-                          {(item.metadata as ItemMetadata)?.domain ? (
-                            <span className="truncate max-w-24">{String((item.metadata as ItemMetadata).domain)}</span>
-                          ) : (
-                            <span>
-                              {new Date(item.createdAt).toLocaleDateString('en-US', {
-                                month: 'short',
-                                day: 'numeric'
-                              })}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  // 리스트 뷰
-                  <>
-                    {/* 썸네일 또는 아이콘 */}
-                    <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 relative">
-                      {getThumbnail(item) ? (
-                        <Image 
-                          src={getThumbnail(item)!} 
-                          alt={(item.metadata as ItemMetadata)?.title || item.name}
-                          fill
-                          className={`w-full h-full ${
-                            item.type === 'url' ? 'object-contain p-1' : 'object-cover'
-                          }`}
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement
-                            target.style.display = 'none'
-                            const fallback = target.nextElementSibling as HTMLElement
-                            if (fallback) fallback.style.display = 'flex'
-                          }}
-                        />
-                      ) : null}
-                      
-                      {/* 아이콘 폴백 */}
-                      <div 
-                        className="w-full h-full absolute inset-0 flex items-center justify-center" 
-                        style={{ display: getThumbnail(item) ? 'none' : 'flex' }}
-                      >
-                        <span className="text-lg">{getItemIcon(item)}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-gray-900 text-sm truncate">
-                        {(item.metadata as ItemMetadata)?.title || item.name}
-                      </h3>
-                      {getTextPreview(item) ? (
-                        <p className="text-xs text-gray-500 truncate">
-                          {getTextPreview(item)}
-                        </p>
-                      ) : item.type === 'url' && (
-                        <p className="text-xs text-gray-500 truncate">
-                          {item.content}
-                        </p>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center gap-2 text-xs text-gray-400">
-                      <span className="capitalize">{item.type}</span>
-                      <span>•</span>
-                      <span>
-                        {new Date(item.createdAt).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric'
-                        })}
-                      </span>
-                    </div>
-                    
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setSelectedItem(selectedItem === item.id ? null : item.id)
-                      }}
-                      className="opacity-0 group-hover:opacity-100 transition-all duration-150 p-1 hover:bg-gray-100 rounded active:scale-95 select-none"
-                      style={{
-                        WebkitTapHighlightColor: 'transparent',
-                        touchAction: 'manipulation'
-                      }}
-                    >
-                      <MoreVertical size={14} />
-                    </button>
-                  </>
-                )}
-
-                {/* 아이템 메뉴 */}
-                {selectedItem === item.id && (
-                  <div className="absolute right-2 top-12 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
-                    {(item.type === 'url' || item.type === 'video') && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          if ('content' in item) window.open(item.content, '_blank')
-                          setSelectedItem(null)
-                        }}
-                        className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 w-full text-left transition-all duration-150 active:scale-95 select-none"
-                        style={{
-                          WebkitTapHighlightColor: 'transparent',
-                          touchAction: 'manipulation'
-                        }}
-                      >
-                        <ExternalLink size={14} />
-                        Open
-                      </button>
-                    )}
-                    
-                    {onItemDelete && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleDeleteItem(item.id)
-                          setSelectedItem(null)
-                        }}
-                        className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 w-full text-left text-red-600 transition-all duration-150 active:scale-95 select-none"
-                        style={{
-                          WebkitTapHighlightColor: 'transparent',
-                          touchAction: 'manipulation'
-                        }}
-                      >
-                        <Trash2 size={14} />
-                        Delete
-                      </button>
-                    )}
-                  </div>
-                )}
+                <EnhancedContentCard
+                  type={item.type}
+                  title={item.name}
+                  description={item.description || item.content}
+                  thumbnail={item.thumbnail || (item.metadata as ItemMetadata)?.thumbnail as string}
+                  url={item.url || (item.type === 'url' ? item.content : undefined)}
+                  metadata={{
+                    domain: item.type === 'url' ? (() => {
+                      try {
+                        return new URL(item.content).hostname;
+                      } catch {
+                        return undefined;
+                      }
+                    })() : undefined,
+                    fileSize: item.type,
+                    tags: item.tags
+                  }}
+                  onClick={() => handleItemClick(item)}
+                  size="medium"
+                  layout={viewMode}
+                />
               </motion.div>
             ))}
-          </div>
+          </ContentGrid>
         )}
       </div>
 

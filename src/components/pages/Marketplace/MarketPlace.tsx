@@ -445,7 +445,10 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
         onViewModeChange={setViewMode}
         actionButton={{
           label: currentView === 'marketplace' ? 'Share Folder' : 'New Share',
-          onClick: () => {/* handle share */},
+          onClick: () => {
+            console.log('Share button clicked')
+            showSuccess('Share functionality coming soon!')
+          },
           icon: "🚀"
         }}
       />

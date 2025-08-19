@@ -41,7 +41,7 @@ export default function KooukMainContent({
       case 'image': return 'bg-green-100 text-green-700'
       case 'video': return 'bg-red-100 text-red-700'
       case 'document': return 'bg-purple-100 text-purple-700'
-      case 'memo': return 'bg-yellow-100 text-yellow-700'
+      case 'memo': return 'bg-gray-100 text-gray-700'
       default: return 'bg-gray-100 text-gray-700'
     }
   }
@@ -50,19 +50,19 @@ export default function KooukMainContent({
     <div className="flex-1 flex flex-col">
       
       {/* 📖 상단 현재 열린 "책" 헤더 */}
-      <div className="flex-shrink-0 px-8 py-6 bg-white/60 backdrop-blur-sm border-b border-orange-200/50">
+      <div className="flex-shrink-0 px-8 py-6 bg-white border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             {/* 현재 폴더 아이콘 */}
-            <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-amber-100 rounded-2xl flex items-center justify-center text-3xl shadow-sm">
+            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-sm shadow-sm">
               {selectedFolder?.icon || ''}
             </div>
             
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-base font-bold text-gray-900">
                 {selectedFolder?.name || 'Choose Your Collection'}
               </h1>
-              <p className="text-orange-600 font-medium mt-1">
+              <p className="text-gray-600 font-medium mt-1">
                 {selectedFolder 
                   ? `${selectedFolder.children.length} treasures inside` 
                   : 'Select a folder from your library'
@@ -73,11 +73,11 @@ export default function KooukMainContent({
           
           {/* 액션 버튼들 */}
           <div className="flex items-center gap-2">
-            <div className="flex bg-white/80 rounded-xl p-1 shadow-sm border border-orange-200/50">
-              <button className="p-2 rounded-lg bg-white text-orange-600 shadow-sm border border-orange-200">
+            <div className="flex bg-gray-50 rounded-lg p-1">
+              <button className="p-2 rounded-lg bg-white text-gray-600 shadow-sm border border-orange-200">
                 <span className="text-sm">⊞</span>
               </button>
-              <button className="p-2 rounded-lg text-orange-600 hover:bg-white transition-colors">
+              <button className="p-2 rounded-lg text-gray-600 hover:bg-white transition-colors">
                 <span className="text-sm">☰</span>
               </button>
             </div>
@@ -85,7 +85,7 @@ export default function KooukMainContent({
             {selectedFolder && (
               <button 
                 onClick={() => onShareFolder?.(selectedFolder)}
-                className="p-3 bg-gradient-to-r from-orange-400 to-red-400 hover:from-orange-500 hover:to-red-500 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
+                className="p-3 bg-gray-900 hover:bg-gray-800 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
               >
                 <span className="text-sm">↗</span>
               </button>
@@ -101,12 +101,12 @@ export default function KooukMainContent({
             {selectedFolder.children.map(item => (
               <motion.div
                 key={item.id}
-                className="group bg-white/80 backdrop-blur-sm rounded-2xl p-5 shadow-sm hover:shadow-xl border border-orange-100 hover:border-orange-200 transition-all duration-200 cursor-pointer"
+                className="group bg-white/80 backdrop-blur-sm rounded-lg p-5 shadow-sm hover:shadow-xl border border-orange-100 hover:border-orange-200 transition-all duration-200 cursor-pointer"
                 whileHover={{ y: -4, scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 {/* 아이템 아이콘/썸네일 */}
-                <div className="w-full h-32 bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl flex items-center justify-center text-4xl mb-4 group-hover:from-orange-100 group-hover:to-amber-100 transition-colors">
+                <div className="w-full h-32 bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl flex items-center justify-center text-lg mb-4 group-hover:from-orange-100 group-hover:to-amber-100 transition-colors">
                   {item.thumbnail ? (
                     <img 
                       src={item.thumbnail} 
@@ -114,7 +114,7 @@ export default function KooukMainContent({
                       className="w-full h-full object-cover rounded-xl"
                     />
                   ) : (
-                    <span className="text-2xl">&nbsp;</span>
+                    <span className="text-base">&nbsp;</span>
                   )}
                 </div>
                 
@@ -132,7 +132,7 @@ export default function KooukMainContent({
                     <span className={`px-2 py-1 rounded-full font-medium ${getItemTypeColor(item.type)}`}>
                       {item.type}
                     </span>
-                    <span className="text-orange-600">
+                    <span className="text-gray-600">
                       {new Date(item.createdAt).toLocaleDateString('ko')}
                     </span>
                   </div>
@@ -156,10 +156,10 @@ export default function KooukMainContent({
         ) : (
           /* 빈 상태 - "빈 책장" */
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <div className="w-32 h-32 bg-gradient-to-br from-orange-100 to-amber-100 rounded-3xl flex items-center justify-center text-6xl mb-6">
+            <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center text-2xl mb-6">
               <span>&nbsp;</span>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">
+            <h2 className="text-base font-bold text-gray-900 mb-3">
               Your Collection Awaits
             </h2>
             <p className="text-gray-600 text-lg max-w-md">
@@ -175,7 +175,7 @@ export default function KooukMainContent({
       {/* ✏️ 하단 "메모 작성대" 입력바 */}
       {selectedFolder && (
         <div className="flex-shrink-0 px-8 py-4 bg-white/60 backdrop-blur-sm border-t border-orange-200/50">
-          <div className="bg-white/80 rounded-2xl shadow-lg border border-orange-200/50 p-4">
+          <div className="bg-white/80 rounded-lg shadow-lg border border-orange-200/50 p-4">
             <ContentInput 
               selectedFolderId={selectedFolder.id}
               folders={folders}
@@ -192,14 +192,14 @@ export default function KooukMainContent({
     <div className="flex-1 flex flex-col">
       
       {/* 헤더 */}
-      <div className="flex-shrink-0 px-8 py-6 bg-white/60 backdrop-blur-sm border-b border-orange-200/50">
+      <div className="flex-shrink-0 px-8 py-6 bg-white border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl flex items-center justify-center text-3xl shadow-sm">
+            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-sm shadow-sm">
               <span>&nbsp;</span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-base font-bold text-gray-900">
                 Saved Bookmarks
               </h1>
               <p className="text-green-600 font-medium mt-1">
@@ -209,7 +209,7 @@ export default function KooukMainContent({
           </div>
           
           <div className="flex items-center gap-2">
-            <div className="flex bg-white/80 rounded-xl p-1 shadow-sm border border-orange-200/50">
+            <div className="flex bg-gray-50 rounded-lg p-1">
               <button className="p-2 rounded-lg bg-white text-green-600 shadow-sm border border-green-200">
                 <span className="text-sm">⊞</span>
               </button>
@@ -227,11 +227,11 @@ export default function KooukMainContent({
           {[1, 2, 3, 4, 5].map((_, index) => (
             <motion.div
               key={index}
-              className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-sm hover:shadow-md border border-green-100 hover:border-green-200 transition-all duration-200"
+              className="bg-white/80 backdrop-blur-sm rounded-lg p-4 shadow-sm hover:shadow-md border border-green-100 hover:border-green-200 transition-all duration-200"
               whileHover={{ x: 4 }}
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
                   <span>&nbsp;</span>
                 </div>
                 <div className="flex-1 min-w-0">
@@ -262,14 +262,14 @@ export default function KooukMainContent({
     <div className="flex-1 flex flex-col">
       
       {/* 헤더 */}
-      <div className="flex-shrink-0 px-8 py-6 bg-white/60 backdrop-blur-sm border-b border-orange-200/50">
+      <div className="flex-shrink-0 px-8 py-6 bg-white border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center text-3xl shadow-sm">
+            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-sm shadow-sm">
               <span>&nbsp;</span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-base font-bold text-gray-900">
                 Market Place
               </h1>
               <p className="text-purple-600 font-medium mt-1">
@@ -279,7 +279,7 @@ export default function KooukMainContent({
           </div>
           
           <div className="flex items-center gap-2">
-            <div className="flex bg-white/80 rounded-xl p-1 shadow-sm border border-orange-200/50">
+            <div className="flex bg-gray-50 rounded-lg p-1">
               <button className="p-2 rounded-lg bg-white text-purple-600 shadow-sm border border-purple-200">
                 <span className="text-sm">⊞</span>
               </button>
@@ -297,12 +297,12 @@ export default function KooukMainContent({
           {[1, 2, 3, 4, 5, 6].map((_, index) => (
             <motion.div
               key={index}
-              className="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm hover:shadow-xl border border-purple-100 hover:border-purple-200 transition-all duration-200 cursor-pointer overflow-hidden"
+              className="group bg-white/80 backdrop-blur-sm rounded-lg shadow-sm hover:shadow-xl border border-purple-100 hover:border-purple-200 transition-all duration-200 cursor-pointer overflow-hidden"
               whileHover={{ y: -4, scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
               {/* 커버 이미지 */}
-              <div className="w-full h-32 bg-gradient-to-br from-purple-50 to-purple-100 flex items-center justify-center text-3xl">
+              <div className="w-full h-32 bg-gradient-to-br from-purple-50 to-purple-100 flex items-center justify-center text-sm">
                 <span>&nbsp;</span>
               </div>
               

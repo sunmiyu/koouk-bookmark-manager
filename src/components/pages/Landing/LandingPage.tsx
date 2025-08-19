@@ -53,7 +53,7 @@ export default function LandingPage() {
 
   const benefits = [
     {
-      icon: <Zap className="w-4 h-4 text-yellow-600" />,
+      icon: <Zap className="w-4 h-4 text-gray-600" />,
       text: "Easy Easy Super Easy"
     },
     {
@@ -67,7 +67,7 @@ export default function LandingPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+    <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <div className="pt-16 pb-12 px-6">
         <div className="max-w-md mx-auto text-center">
@@ -84,9 +84,9 @@ export default function LandingPage() {
           </div>
 
           {/* Hero Text */}
-          <h1 className="text-2xl font-bold text-gray-900 mb-3">
+          <h1 className="text-lg font-semibold text-gray-900 mb-3">
             Your Personal
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+            <span className="block text-gray-900">
               Lifestyle Hub
             </span>
           </h1>

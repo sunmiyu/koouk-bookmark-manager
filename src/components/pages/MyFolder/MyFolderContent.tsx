@@ -18,7 +18,7 @@ import InstallPrompt from '@/components/pwa/InstallPrompt'
 import SharedContentHandler from '@/components/pwa/SharedContentHandler'
 import type { Database } from '@/types/database'
 import { analytics } from '@/lib/analytics'
-import ContentCard, { ContentGrid } from '@/components/ui/ContentCard'
+import EnhancedContentCard, { ContentGrid } from '@/components/ui/EnhancedContentCard'
 import SearchHeader, { FilterPills } from '@/components/ui/SearchHeader'
 import { motion } from 'framer-motion'
 
@@ -508,7 +508,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: index * 0.1 }}
                   >
-                    <ContentCard
+                    <EnhancedContentCard
                       type="folder"
                       title={folder.name}
                       description={folder.description || `${folder.children.length} items`}

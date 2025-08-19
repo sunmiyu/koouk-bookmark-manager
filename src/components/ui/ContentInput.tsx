@@ -372,7 +372,7 @@ export default function ContentInput({
               className={`relative overflow-hidden transition-all duration-300 ease-out rounded-2xl p-3 ${
                 (!input.trim() && attachedFiles.length === 0 && pastedImages.length === 0) || isProcessing || !selectedFolderId
                   ? 'opacity-50 cursor-not-allowed bg-gray-200' 
-                  : 'shadow-lg hover:shadow-xl bg-gradient-to-r from-amber-500 to-orange-500'
+                  : 'shadow-sm hover:shadow-md bg-gray-900 hover:bg-gray-800'
               }`}
               whileTap={{ scale: 0.95 }}
               whileHover={{ 

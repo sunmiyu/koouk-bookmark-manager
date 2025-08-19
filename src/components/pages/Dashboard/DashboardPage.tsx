@@ -121,7 +121,7 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
       title: "Received",
       count: stats.receivedFolders,
       description: "From community",
-      color: "bg-orange-50 border-orange-200 hover:bg-orange-100 text-orange-700",
+      color: "bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-700",
       trend: "+15% this week",
       onClick: () => onNavigate('marketplace'),
       icon: "🎁"
@@ -174,10 +174,10 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 border border-blue-200">
+          <div className="bg-white rounded-xl p-8 border border-gray-200 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                <h1 className="text-base font-semibold text-gray-900 mb-2">
                   Welcome back, {userProfile?.name || user?.email?.split('@')[0]}! 👋
                 </h1>
                 <p className="text-base text-gray-600">
@@ -210,10 +210,10 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
                 whileTap={{ scale: 0.98 }}
               >
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-xl">
+                  <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-sm">
                     {card.icon}
                   </div>
-                  <span className="text-2xl font-bold text-gray-900">
+                  <span className="text-lg font-bold text-gray-900">
                     {card.count}
                   </span>
                 </div>
@@ -246,7 +246,7 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900">Quick Actions</h2>
+                <h2 className="text-base font-semibold text-gray-900">Quick Actions</h2>
               </div>
 
               <div className="grid md:grid-cols-3 gap-4">
@@ -258,7 +258,7 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
                     whileHover={{ y: -2, scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <div className="mb-4 w-12 h-12 rounded-xl bg-white/50 flex items-center justify-center text-2xl">
+                    <div className="mb-3 w-8 h-8 rounded-lg bg-white/50 flex items-center justify-center text-sm">
                       {action.icon}
                     </div>
                     <h3 className="text-base font-semibold text-gray-900 mb-2">
@@ -277,7 +277,7 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold text-gray-900">Recent Activity</h2>
-              <span className="text-2xl">🕒</span>
+              <span className="text-sm">🕒</span>
             </div>
 
             <div className="space-y-3">
@@ -289,7 +289,7 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (tab: string
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
                 >
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center text-sm flex-shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-sm flex-shrink-0">
                     {activity.type === 'folder' && '📁'}
                     {activity.type === 'bookmark' && '🔖'}
                     {activity.type === 'share' && '🚀'}

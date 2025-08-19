@@ -403,7 +403,7 @@ git checkout -b feature/koouk-v2-clean
 
 ## 🎨 **Design Philosophy**
 
-### Core Principle: "직관적 단순함" with Designer Mindset
+### Core Principle: "Professional Minimalism" - GitHub Copilot Inspired
 
 #### 핵심 철학
 - **Notion은 어렵다** → **Koouk은 직관적이어서 배울 필요 없다**
@@ -416,27 +416,35 @@ git checkout -b feature/koouk-v2-clean
 - **사용자 경험** 중심의 자유로운 개선
 - **언제든 바꿀 수 있다**는 마음으로 과감하게!
 
-### 감성적 디자인 가이드라인
+### Professional Grayscale Design System
 
-#### 기본 색상 팔레트
+#### 기본 색상 팔레트 (GitHub Copilot Inspired)
 - **주요 배경**: 순수한 흰색 (#FFFFFF) - 깔끔하고 직관적
-- **보조 배경**: 밝은 회색 (#F9FAFB, #F3F4F6) - 구분감 제공
-- **테두리**: 연한 회색 (#E5E7EB, #D1D5DB) - 미묘한 경계선
-- **텍스트 기본**: 진한 검정 (#000000) - 선택된 상태, 중요한 제목
-- **텍스트 보조**: 부드러운 회색 (#374151, #6B7280) - 일반 텍스트
+- **보조 배경**: 아주 연한 회색 (#F6F8FA) - 사이드바, 섹션 구분
+- **테두리**: 연한 회색 (#D1D5DB) - 미묘한 경계선
+- **텍스트 기본**: 거의 검정 (#24292F) - 주요 콘텐츠
+- **텍스트 보조**: 중간 회색 (#656D76) - 보조 정보
+- **텍스트 약함**: 연한 회색 (#8B949E) - 메타데이터, 플레이스홀더
 
 #### 인터랙티브 요소
-- **선택/활성 상태**: 검정색 배경 + 흰색 텍스트 (`bg-black text-white`)
-- **호버 상태**: 연한 회색 배경 (`hover:bg-gray-50`, `hover:bg-gray-100`)
-- **카드**: 흰색 배경 + 미묘한 테두리 (`bg-white border border-gray-200`)
+- **선택/활성 상태**: 진한 회색 배경 + 흰색 텍스트 (`bg-gray-900 text-white`)
+- **호버 상태**: 아주 연한 회색 배경 (`hover:bg-gray-50`)
+- **액센트 컬러**: GitHub 블루 (#0969DA) - 주요 액션용
+- **카드**: 흰색 배경 + 연한 테두리 (`bg-white border border-gray-200`)
 
-#### 시각적 부드러움
-- 모든 모서리: border-radius 12px 이상 (둥글고 부드럽게)
-- 그림자: 부드럽고 자연스러운 box-shadow
-- 그라디언트: 미묘한 그라디언트 배경 적용
-- 넉넉한 패딩과 마진 (여유로운 공간감)
+#### 타이포그래피 (Modern & Clean)
+- **제목**: 작고 정확한 폰트 사이즈 (text-sm, text-base) - 트렌디한 작은 글꼴
+- **본문**: text-xs, text-sm 중심 - 현대적이고 깔끔한 느낌
+- **코드/데이터**: monospace 폰트 사용
+- **행간**: 적절한 leading으로 가독성 확보
 
-**목표: 차분하고 따뜻하며 편안한 느낌의 "감성있는" UI**
+#### 시각적 정제함
+- 모든 모서리: border-radius 8px (sharp but clean)
+- 그림자: 매우 미묘한 shadow-sm 위주
+- 그라디언트: 제거, 단색 위주
+- 여백: 아껴서 사용하되 필요한 곳에만
+
+**목표: GitHub Copilot처럼 전문적이고 깔끔한 "Professional" UI**
 
 ---
 

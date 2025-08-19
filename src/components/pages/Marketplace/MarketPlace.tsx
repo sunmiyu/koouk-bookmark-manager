@@ -12,7 +12,7 @@ import SortOptions from '@/components/ui/SortOptions'
 import SharedFolderCard from '@/components/ui/SharedFolderCard'
 import EditSharedFolderModal from '@/components/ui/EditSharedFolderModal'
 // 🎨 PERFECTION: Import new components
-import ContentCard, { ContentGrid } from '@/components/ui/ContentCard'
+import EnhancedContentCard, { ContentGrid } from '@/components/ui/EnhancedContentCard'
 import SearchHeader, { FilterPills } from '@/components/ui/SearchHeader'
 import { motion } from 'framer-motion'
 
@@ -313,7 +313,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
     }
 
     loadData()
-  }, [user?.id, user?.email, mockSharedFolders]) // 🔧 loading 제거하여 무한루프 방지
+  }, [user?.id, user?.email]) // 🔧 mockSharedFolders 제거하여 무한루프 방지
 
   // 검색, 필터링, 정렬
   useEffect(() => {
@@ -555,7 +555,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
               >
-                <ContentCard
+                <EnhancedContentCard
                   type="folder"
                   title={sharedFolder.title}
                   description={sharedFolder.description}

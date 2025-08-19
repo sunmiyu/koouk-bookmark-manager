@@ -13,15 +13,26 @@ import SharedFolderCard from '@/components/ui/SharedFolderCard'
 import EditSharedFolderModal from '@/components/ui/EditSharedFolderModal'
 // 🎨 PERFECTION: Import new components
 import EnhancedContentCard, { ContentGrid } from '@/components/ui/EnhancedContentCard'
-import SearchHeader, { FilterPills } from '@/components/ui/SearchHeader'
+// 📱 MOBILE-FIRST: Import mobile components
+import BottomSheet from '@/components/ui/BottomSheet'
+import FolderImportPreview from '@/components/ui/FolderImportPreview'
+import SuccessOverlay from '@/components/ui/SuccessOverlay'
+// FilterPills removed
 import { motion } from 'framer-motion'
 
 interface MarketPlaceProps {
   searchQuery?: string
   onImportFolder?: (sharedFolder: SharedFolder) => void
+  marketplaceView?: 'marketplace' | 'my-shared'
+  onMarketplaceViewChange?: (view: 'marketplace' | 'my-shared') => void
 }
 
-export default function MarketPlace({ searchQuery = '', onImportFolder }: MarketPlaceProps) {
+export default function MarketPlace({ 
+  searchQuery = '', 
+  onImportFolder, 
+  marketplaceView: propMarketplaceView = 'marketplace', 
+  onMarketplaceViewChange 
+}: MarketPlaceProps) {
   const { user } = useAuth() // loading 의존성 제거
   const { toast, showSuccess, hideToast } = useToast()
   const [sharedFolders, setSharedFolders] = useState<SharedFolder[]>([])
@@ -29,9 +40,15 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [sortOrder, setSortOrder] = useState<'popular' | 'recent' | 'helpful'>('popular')
   const [isLoading, setIsLoading] = useState(true)
-  const [currentView, setCurrentView] = useState<'marketplace' | 'my-shared'>('marketplace')
+  // Use currentView from props instead of local state
+  const currentView = propMarketplaceView
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [editingFolder, setEditingFolder] = useState<SharedFolder | null>(null)
+  const [showImportModal, setShowImportModal] = useState(false)
+  const [selectedFolderForImport, setSelectedFolderForImport] = useState<SharedFolder | null>(null)
+  // 📱 MOBILE-FIRST: Enhanced success feedback
+  const [showSuccessOverlay, setShowSuccessOverlay] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
 
   // 🎨 PERFECTION: Enhanced categories with proper icons and counts
   const categories = [
@@ -49,8 +66,15 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
   ]
   
   // 🎨 PERFECTION: Enhanced state
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  // 🎨 MOBILE-FIRST: Default to list view on mobile, grid on desktop
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768 ? 'list' : 'grid'
+    }
+    return 'grid'
+  })
   const [localSearchQuery, setLocalSearchQuery] = useState('')
+  const [showMobileSearch, setShowMobileSearch] = useState(false)
 
   // Sort options
   const sortOptions = [
@@ -329,9 +353,10 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
       filtered = filtered.filter(folder => folder.category === selectedCategory)
     }
 
-    // 검색 필터
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase()
+    // 검색 필터 (props searchQuery 또는 localSearchQuery 사용)
+    const effectiveSearchQuery = localSearchQuery || searchQuery
+    if (effectiveSearchQuery.trim()) {
+      const query = effectiveSearchQuery.toLowerCase()
       filtered = filtered.filter(folder =>
         folder.title.toLowerCase().includes(query) ||
         folder.description.toLowerCase().includes(query) ||
@@ -354,17 +379,34 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
     })
 
     setFilteredFolders(filtered)
-  }, [sharedFolders, selectedCategory, searchQuery, sortOrder, currentView, user])
+  }, [sharedFolders, selectedCategory, searchQuery, localSearchQuery, sortOrder, currentView, user])
 
-  const handleImportFolder = (sharedFolder: SharedFolder) => {
-    if (confirm(`Add "${sharedFolder.title}" to My Folder?`)) {
-      if (onImportFolder) {
-        onImportFolder(sharedFolder)
-        showSuccess(`"${sharedFolder.title}" added to My Folder!`)
-      } else {
-        console.log('Importing folder:', sharedFolder.title)
-        showSuccess(`"${sharedFolder.title}" added to My Folder!`)
-      }
+  const handleCardClick = (sharedFolder: SharedFolder) => {
+    if (currentView === 'marketplace') {
+      setSelectedFolderForImport(sharedFolder)
+      setShowImportModal(true)
+    } else {
+      handleEditFolder(sharedFolder)
+    }
+  }
+
+  const handleConfirmImport = async () => {
+    if (selectedFolderForImport && onImportFolder) {
+      // Close modal first for smoother UX
+      setShowImportModal(false)
+      
+      // Show success animation
+      setSuccessMessage(`"${selectedFolderForImport.title}" added to My Folder!`)
+      setShowSuccessOverlay(true)
+      
+      // Import the folder
+      onImportFolder(selectedFolderForImport)
+      
+      // Auto-hide success overlay after animation
+      setTimeout(() => {
+        setShowSuccessOverlay(false)
+        setSelectedFolderForImport(null)
+      }, 2500)
     }
   }
 
@@ -435,58 +477,82 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
   }
 
   return (
-    <div className="flex-1">
-      {/* 🎨 PERFECTION: Enhanced header */}
-      <SearchHeader 
-        title={currentView === 'marketplace' ? 'Marketplace' : 'My Shared'}
-        searchPlaceholder="Search shared folders..."
-        onSearch={setLocalSearchQuery}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        actionButton={{
-          label: currentView === 'marketplace' ? 'Share Folder' : 'New Share',
-          onClick: () => {
-            console.log('Share button clicked')
-            showSuccess('Share functionality coming soon!')
-          },
-          icon: "🚀"
-        }}
-      />
-      
-      {/* 🎨 PERFECTION: Tab navigation */}
-      <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
-        <div className="flex items-center bg-white rounded-lg p-1 w-fit">
-          <motion.button
-            onClick={() => setCurrentView('marketplace')}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-              currentView === 'marketplace'
-                ? 'bg-blue-100 text-blue-700'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-            whileTap={{ scale: 0.95 }}
-          >
-            🎆 Browse Market
-          </motion.button>
-          <motion.button
-            onClick={() => setCurrentView('my-shared')}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-              currentView === 'my-shared'
-                ? 'bg-purple-100 text-purple-700'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-            whileTap={{ scale: 0.95 }}
-          >
-            🚀 My Shared
-          </motion.button>
+    <div className="flex flex-col min-h-screen pb-4">
+      {/* 📱 MOBILE-OPTIMIZED Header with search */}
+      <div className="bg-white border-b border-gray-200 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <h1 className="text-base font-semibold text-gray-900">
+              {currentView === 'marketplace' ? 'Marketplace' : 'My Shared'}
+            </h1>
+            
+            {/* 📱 Mobile search toggle */}
+            <button
+              onClick={() => setShowMobileSearch(!showMobileSearch)}
+              className="md:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+          </div>
+          
+          {/* View mode toggle - smaller on mobile */}
+          <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-1.5 rounded-md transition-colors ${
+                viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
+              }`}
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-1.5 rounded-md transition-colors ${
+                viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
+              }`}
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 12a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 16a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" />
+              </svg>
+            </button>
+          </div>
         </div>
+        
+        {/* 📱 Mobile search bar - shows when active */}
+        {showMobileSearch && (
+          <div className="mt-3 md:hidden">
+            <div className="relative">
+              <input
+                type="text"
+                value={localSearchQuery}
+                onChange={(e) => setLocalSearchQuery(e.target.value)}
+                placeholder={`Search ${currentView === 'marketplace' ? 'collections' : 'my shared folders'}...`}
+                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                autoFocus
+              />
+              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <button
+                onClick={() => {
+                  setLocalSearchQuery('')
+                  setShowMobileSearch(false)
+                }}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
       
-      {/* 🎨 PERFECTION: Filter pills */}
-      <FilterPills 
-        filters={categories}
-        activeFilter={selectedCategory}
-        onFilterChange={setSelectedCategory}
-      />
       
       <div className="px-6 py-4">
 
@@ -495,7 +561,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
           <div className="bg-white rounded-xl p-4 border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-base font-semibold text-gray-900">
                   {currentView === 'marketplace' 
                     ? `${filteredFolders.length} ${filteredFolders.length === 1 ? 'shared folder' : 'shared folders'}`
                     : `${filteredFolders.filter(f => f.author.id === user?.id).length} folders shared by you`
@@ -505,7 +571,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
                   {currentView === 'marketplace' ? 'Browse and discover amazing collections' : 'Manage your shared folders'}
                 </p>
               </div>
-              <div className="text-3xl">
+              <div className="text-lg md:text-xl">
                 {currentView === 'marketplace' ? '🎆' : '🚀'}
               </div>
             </div>
@@ -540,8 +606,8 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="text-6xl mb-4">🎆</div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No folders found</h3>
+            <div className="text-2xl md:text-3xl mb-4">🎆</div>
+            <h3 className="text-base font-semibold text-gray-900 mb-2">No folders found</h3>
             <p className="text-gray-600 mb-6">
               {selectedCategory === 'all' 
                 ? 'No shared folders available yet'
@@ -550,7 +616,7 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
             </p>
           </motion.div>
         ) : (
-          <ContentGrid>
+          <ContentGrid layout={viewMode}>
             {filteredFolders.map((sharedFolder, index) => (
               <motion.div
                 key={sharedFolder.id}
@@ -562,13 +628,14 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
                   type="folder"
                   title={sharedFolder.title}
                   description={sharedFolder.description}
-                  thumbnail={sharedFolder.thumbnail}
+                  thumbnail={sharedFolder.coverImage}
                   metadata={{
-                    domain: sharedFolder.author.name,
+                    domain: `by ${sharedFolder.author.name}`,
                     tags: [sharedFolder.category],
-                    fileSize: `${sharedFolder.stats.likes} ♥ ${sharedFolder.stats.downloads} ⬇`
+                    fileSize: `${sharedFolder.stats.likes} ♥ ${sharedFolder.stats.downloads} ⬇`,
+                    platform: sharedFolder.category
                   }}
-                  onClick={() => currentView === 'marketplace' ? handleImportFolder(sharedFolder) : handleEditFolder?.(sharedFolder)}
+                  onClick={() => handleCardClick(sharedFolder)}
                   size={viewMode === 'list' ? 'small' : 'medium'}
                   layout={viewMode}
                 />
@@ -591,12 +658,40 @@ export default function MarketPlace({ searchQuery = '', onImportFolder }: Market
         />
       )}
 
+      {/* 📱 MOBILE-FIRST: Bottom Sheet Import Preview */}
+      <BottomSheet
+        isOpen={showImportModal}
+        onClose={() => {
+          setShowImportModal(false)
+          setSelectedFolderForImport(null)
+        }}
+        height="auto"
+      >
+        {selectedFolderForImport && (
+          <FolderImportPreview
+            folder={selectedFolderForImport}
+            onImport={handleConfirmImport}
+            onCancel={() => {
+              setShowImportModal(false)
+              setSelectedFolderForImport(null)
+            }}
+          />
+        )}
+      </BottomSheet>
+
       {/* Toast Notification */}
       <Toast
         show={toast.show}
         message={toast.message}
         type={toast.type}
         onClose={hideToast}
+      />
+
+      {/* 📱 MOBILE-FIRST: Success Overlay */}
+      <SuccessOverlay
+        show={showSuccessOverlay}
+        message={successMessage}
+        onComplete={() => setShowSuccessOverlay(false)}
       />
     </div>
   )

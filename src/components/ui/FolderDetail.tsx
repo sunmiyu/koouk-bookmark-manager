@@ -159,7 +159,7 @@ export default function FolderDetail({
         {filteredItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center mb-4">
-              <span className="text-2xl">📂</span>
+              <span className="text-lg md:text-xl">📂</span>
             </div>
             <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
               {searchQuery ? 'No items found' : 'Folder is empty'}

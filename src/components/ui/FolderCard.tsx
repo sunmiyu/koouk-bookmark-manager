@@ -140,7 +140,7 @@ export default function FolderGrid({
       {filteredFolders.length === 0 && !searchQuery && (
         <div className="text-center py-12">
           <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <span className="text-2xl">📁</span>
+            <span className="text-lg md:text-xl">📁</span>
           </div>
           
           <h3 className="text-lg font-medium text-gray-900 mb-2">

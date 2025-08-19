@@ -19,7 +19,7 @@ import BigNoteModal from '@/components/ui/BigNoteModal'
 import type { Database } from '@/types/database'
 import { analytics } from '@/lib/analytics'
 import EnhancedContentCard, { ContentGrid } from '@/components/ui/EnhancedContentCard'
-import SearchHeader, { FilterPills } from '@/components/ui/SearchHeader'
+// SearchHeader and FilterPills removed
 import NotepadEdgeTab from '@/components/ui/NotepadEdgeTab'
 import { motion } from 'framer-motion'
 
@@ -42,11 +42,18 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
   // View 관련 state
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
   const [currentView, setCurrentView] = useState<'grid' | 'detail'>('grid')
-  const [viewMode, setViewMode] = useState<ViewMode>('grid')
+  // 🎨 MOBILE-FIRST: Default to list view on mobile, grid on desktop
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768 ? 'list' : 'grid'
+    }
+    return 'grid'
+  })
   
   // Search & Filter 관련 state
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery)
   const [activeFilter, setActiveFilter] = useState('all')
+  const [showMobileSearch, setShowMobileSearch] = useState(false)
   
   // Modal 관련 state
   const [showCreateFolderModal, setShowCreateFolderModal] = useState(false)
@@ -418,7 +425,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
       <div className="h-96 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <span className="text-2xl">👤</span>
+            <span className="text-lg md:text-xl">👤</span>
           </div>
           <h3 className="text-sm font-medium text-gray-900 mb-1">Please sign in</h3>
           <p className="text-xs text-gray-500">Sign in to access your folders</p>
@@ -452,26 +459,92 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
 
   return (
     <div className="flex flex-col min-h-screen">
-      <SearchHeader 
-        title="My Folders"
-        searchPlaceholder="Search folders and content..."
-        onSearch={setLocalSearchQuery}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        actionButton={{
-          label: "New Folder",
-          onClick: () => setShowCreateFolderModal(true),
-          icon: "📁"
-        }}
-      />
+      {/* 📱 MOBILE-OPTIMIZED Header with search */}
+      <div className="bg-white border-b border-gray-200 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <h1 className="text-base font-semibold text-gray-900">My Folders</h1>
+            
+            {/* 📱 Mobile search toggle */}
+            <button
+              onClick={() => setShowMobileSearch(!showMobileSearch)}
+              className="md:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+            
+            {/* 📱 Mobile memo button */}
+            <button
+              onClick={() => setShowBigNoteModal(true)}
+              className="md:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              disabled={folders.length === 0}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </button>
+          </div>
+          
+          {/* View mode toggle - smaller on mobile */}
+          <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-1.5 rounded-md transition-colors ${
+                viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
+              }`}
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-1.5 rounded-md transition-colors ${
+                viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
+              }`}
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 8a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 12a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 16a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        {/* 📱 Mobile search bar - shows when active */}
+        {showMobileSearch && (
+          <div className="mt-3 md:hidden">
+            <div className="relative">
+              <input
+                type="text"
+                value={localSearchQuery}
+                onChange={(e) => setLocalSearchQuery(e.target.value)}
+                placeholder="Search folders..."
+                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                autoFocus
+              />
+              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <button
+                onClick={() => {
+                  setLocalSearchQuery('')
+                  setShowMobileSearch(false)
+                }}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
       
-      <FilterPills 
-        filters={filterOptions}
-        activeFilter={activeFilter}
-        onFilterChange={setActiveFilter}
-      />
       
-      <div className="flex-1 pb-32 bg-gray-50">
+      <div className="flex-1 pb-20 bg-gray-50">
         {currentView === 'grid' ? (
           <div className="p-6">
             {filteredFolders.length === 0 ? (
@@ -480,8 +553,8 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <div className="text-6xl mb-4">📁</div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <div className="text-2xl md:text-3xl mb-4">📁</div>
+                <h3 className="text-base font-semibold text-gray-900 mb-2">
                   {folders.length === 0 ? 'No folders yet' : 'No folders match your search'}
                 </h3>
                 <p className="text-gray-600 mb-6">
@@ -501,60 +574,30 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
                 )}
               </motion.div>
             ) : (
-              <div className={viewMode === 'grid' ? '' : 'space-y-2 p-6'}>
-                {viewMode === 'grid' ? (
-                  <ContentGrid>
-                    {filteredFolders.map((folder, index) => (
-                      <motion.div
-                        key={folder.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                      >
-                        <EnhancedContentCard
-                          type="folder"
-                          title={folder.name}
-                          description={folder.description || `${folder.children.length} items`}
-                          metadata={{
-                            tags: folder.tags,
-                            fileSize: folder.is_shared ? 'Shared' : 'Private',
-                            children: folder.children // Pass folder children for automatic thumbnail generation
-                          }}
-                          onClick={() => handleFolderSelect(folder.id)}
-                          size="medium"
-                          layout="grid"
-                        />
-                      </motion.div>
-                    ))}
-                  </ContentGrid>
-                ) : (
-                  // List view
-                  <div className="space-y-2">
-                    {filteredFolders.map((folder, index) => (
-                      <motion.div
-                        key={folder.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                      >
-                        <EnhancedContentCard
-                          type="folder"
-                          title={folder.name}
-                          description={folder.description || `${folder.children.length} items`}
-                          metadata={{
-                            tags: folder.tags,
-                            fileSize: folder.is_shared ? 'Shared' : 'Private',
-                            children: folder.children // Pass folder children for automatic thumbnail generation
-                          }}
-                          onClick={() => handleFolderSelect(folder.id)}
-                          size="small"
-                          layout="list"
-                        />
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <ContentGrid layout={viewMode}>
+                {filteredFolders.map((folder, index) => (
+                  <motion.div
+                    key={folder.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                  >
+                    <EnhancedContentCard
+                      type="folder"
+                      title={folder.name}
+                      description={folder.description || `${folder.children.length} items`}
+                      metadata={{
+                        tags: folder.tags,
+                        fileSize: folder.is_shared ? 'Shared' : 'Private',
+                        children: folder.children // Pass folder children for automatic thumbnail generation
+                      }}
+                      onClick={() => handleFolderSelect(folder.id)}
+                      size={viewMode === 'list' ? 'small' : 'medium'}
+                      layout={viewMode}
+                    />
+                  </motion.div>
+                ))}
+              </ContentGrid>
             )}
           </div>
         ) : selectedFolder ? (
@@ -603,26 +646,52 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
         ) : null}
       </div>
 
-      {/* Input System */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg z-40">
-        <div className="px-3 pt-1.5 pb-2.5 max-w-screen-xl mx-auto">
-          {folders.length > 0 && (
-            <>
-              <FolderSelector
-                folders={folders}
-                selectedFolderId={selectedFolderId}
-                onFolderSelect={handleFolderSelect}
-                onCreateFolder={() => setShowCreateFolderModal(true)}
-                onOpenBigNote={() => setShowBigNoteModal(true)}
-                className="mb-1"
-              />
+      {/* 📱 MOBILE-OPTIMIZED Input System - Compact bottom bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
+        <div className="px-4 py-3 max-w-screen-xl mx-auto">
+          {folders.length > 0 ? (
+            <div className="flex items-center gap-3">
+              {/* Selected folder indicator */}
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-6 h-6 bg-gray-900 rounded flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                  {selectedFolder ? selectedFolder.name.charAt(0).toUpperCase() : '+'}
+                </div>
+                <span className="text-sm font-medium text-gray-900 truncate">
+                  {selectedFolder ? selectedFolder.name : 'Select folder'}
+                </span>
+              </div>
               
-              <ContentInput
-                folders={folders}
-                selectedFolderId={selectedFolderId}
-                onAddItem={handleAddItem}
-              />
-            </>
+              {/* Quick actions */}
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {/* Add content button */}
+                <button 
+                  onClick={() => setShowBigNoteModal(true)}
+                  className="flex items-center gap-1 px-3 py-1.5 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+                  disabled={!selectedFolderId}
+                >
+                  <span className="text-xs">+</span>
+                  <span className="hidden sm:inline">Add</span>
+                </button>
+                
+                {/* New folder button */}
+                <button 
+                  onClick={() => setShowCreateFolderModal(true)}
+                  className="flex items-center justify-center w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                >
+                  <span className="text-sm">📁</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-2">
+              <button 
+                onClick={() => setShowCreateFolderModal(true)}
+                className="flex items-center gap-2 mx-auto px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+              >
+                <span>📁</span>
+                <span>Create First Folder</span>
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -632,7 +701,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-sm">
             <div className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <h3 className="text-base font-semibold text-gray-900 mb-4">
                 Create New Folder
               </h3>
               
@@ -692,12 +761,14 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
         onClose={hideToast}
       />
 
-      {/* Notepad Edge Tab - Only shows on wide screens */}
-      <NotepadEdgeTab
-        folders={folders}
-        selectedFolderId={selectedFolderId}
-        onSave={handleSaveNote}
-      />
+      {/* Notepad Edge Tab - Only shows on wide screens (desktop only) */}
+      <div className="hidden xl:block">
+        <NotepadEdgeTab
+          folders={folders}
+          selectedFolderId={selectedFolderId}
+          onSave={handleSaveNote}
+        />
+      </div>
     </div>
   )
 }

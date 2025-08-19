@@ -34,7 +34,7 @@ export default function SharedFolderCard({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <span className="text-2xl">{currentCategory?.emoji || '📁'}</span>
+            <span className="text-lg md:text-xl">{currentCategory?.emoji || '📁'}</span>
           </div>
         )}
         

@@ -215,7 +215,7 @@ export default function EnhancedContentCard({
     }
 
     // Strategy 2: Show actual thumbnail if available
-    if (effectiveThumbnail && !imageError && (type === 'image' || type === 'video' || type === 'url')) {
+    if (effectiveThumbnail && !imageError && (type === 'image' || type === 'video' || type === 'url' || type === 'folder')) {
       return (
         <div className={`${baseClasses} ${heightClasses[size]} relative`}>
           <img 
@@ -225,7 +225,13 @@ export default function EnhancedContentCard({
             onError={() => setImageError(true)}
           />
           <div className="absolute top-2 right-2">
-            <ExternalLink className="w-4 h-4 text-white bg-gray-900/50 rounded p-0.5" />
+            {type === 'folder' ? (
+              <div className="w-4 h-4 text-white bg-gray-900/50 rounded p-0.5 flex items-center justify-center">
+                📁
+              </div>
+            ) : (
+              <ExternalLink className="w-4 h-4 text-white bg-gray-900/50 rounded p-0.5" />
+            )}
           </div>
         </div>
       )
@@ -238,7 +244,7 @@ export default function EnhancedContentCard({
         return (
           <div className={`${baseClasses} ${heightClasses[size]} ${platformInfo.color} text-white relative`}>
             <div className="text-center">
-              <div className="text-3xl font-bold mb-2">{platformInfo.icon}</div>
+              <div className="text-xl md:text-2xl font-bold mb-2">{platformInfo.icon}</div>
               <div className="text-sm font-semibold">{platformInfo.name}</div>
               <div className="text-xs opacity-75 mt-1">{domainInfo?.domain || 'Web Link'}</div>
             </div>
@@ -254,7 +260,7 @@ export default function EnhancedContentCard({
         return (
           <div className={`${baseClasses} ${heightClasses[size]} ${domainInfo.domainColor} text-white relative`}>
             <div className="text-center">
-              <div className="text-2xl font-bold mb-1">{domainInfo.domainInitial}</div>
+              <div className="text-lg md:text-xl font-bold mb-1">{domainInfo.domainInitial}</div>
               <div className="text-xs font-medium opacity-90">{domainInfo.domain}</div>
             </div>
             <div className="absolute top-2 right-2">
@@ -265,14 +271,17 @@ export default function EnhancedContentCard({
       }
     }
 
-    // Strategy 4: Document preview
+    // Strategy 4: Document preview with content preview
     if (type === 'document') {
       return (
-        <div className={`${baseClasses} ${heightClasses[size]} border-2 border-dashed border-gray-300`}>
-          <div className="text-center">
-            <FileText className="w-8 h-8 text-gray-400 mb-2" />
-            <div className="text-xs text-gray-500">
-              {metadata?.fileSize || 'Document'}
+        <div className={`${baseClasses} ${heightClasses[size]} bg-white border border-gray-200 p-3`}>
+          <div className="text-left h-full flex flex-col">
+            <div className="flex items-center gap-2 mb-2">
+              <FileText className="w-4 h-4 text-blue-600 flex-shrink-0" />
+              <div className="text-xs text-gray-500 truncate">Document</div>
+            </div>
+            <div className="text-xs text-gray-700 line-clamp-6 flex-1 leading-relaxed">
+              {description || title || 'No content preview available'}
             </div>
           </div>
         </div>
@@ -297,7 +306,7 @@ export default function EnhancedContentCard({
     return (
       <div className={`${baseClasses} ${heightClasses[size]} border-2 border-dashed border-gray-300`}>
         <div className="text-center">
-          <div className="text-2xl mb-1">{getTypeIcon(type)}</div>
+          <div className="text-lg md:text-xl mb-1">{getTypeIcon(type)}</div>
           <div className="text-xs text-gray-500 capitalize">{type}</div>
         </div>
       </div>
@@ -327,57 +336,101 @@ export default function EnhancedContentCard({
     ? "w-full" 
     : "w-full"
 
-  // 🎨 MAIN CARD COMPONENT
+  // 🎨 MOBILE-OPTIMIZED LIST LAYOUT (like music streaming apps)
   if (layout === 'list') {
     return (
       <motion.div
-        className={`${cardWidthClasses} bg-white rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200 cursor-pointer group overflow-hidden`}
+        className={`${cardWidthClasses} bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer group`}
         onClick={onClick}
-        whileHover={{ y: -1 }}
+        whileHover={{ y: 0 }}
         whileTap={{ scale: 0.98 }}
       >
-        <div className="flex gap-4 p-4">
-          {/* Compact preview */}
-          <div className="w-16 h-16 flex-shrink-0">
-            <div className="w-full h-full bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">
-              {effectiveThumbnail && !imageError ? (
-                <img src={effectiveThumbnail} alt={title} className="w-full h-full object-cover" onError={() => setImageError(true)} />
-              ) : platformInfo ? (
-                <div className={`w-full h-full ${platformInfo.color} text-white flex items-center justify-center`}>
-                  <span className="text-lg font-bold">{platformInfo.icon}</span>
-                </div>
-              ) : domainInfo ? (
-                <div className={`w-full h-full ${domainInfo.domainColor} text-white flex items-center justify-center`}>
-                  <span className="text-sm font-bold">{domainInfo.domainInitial}</span>
-                </div>
-              ) : (
-                <span className="text-lg">{getTypeIcon(type)}</span>
+        <div className="flex items-center gap-3 p-3">
+          {/* 🖼️ LEFT: Thumbnail (48x48 - perfect touch target) */}
+          <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
+            {effectiveThumbnail && !imageError ? (
+              <img 
+                src={effectiveThumbnail} 
+                alt={title} 
+                className="w-full h-full object-cover" 
+                onError={() => setImageError(true)} 
+              />
+            ) : folderRepImage && !imageError ? (
+              <img 
+                src={folderRepImage} 
+                alt={title}
+                className="w-full h-full object-cover"
+                onError={() => setImageError(true)}
+              />
+            ) : platformInfo ? (
+              <div className={`w-full h-full ${platformInfo.color} text-white flex items-center justify-center`}>
+                <span className="text-base md:text-lg font-bold">{platformInfo.icon}</span>
+              </div>
+            ) : domainInfo ? (
+              <div className={`w-full h-full ${domainInfo.domainColor} text-white flex items-center justify-center`}>
+                <span className="text-sm font-bold">{domainInfo.domainInitial}</span>
+              </div>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-400">
+                <span className="text-base md:text-lg">{getTypeIcon(type)}</span>
+              </div>
+            )}
+          </div>
+          
+          {/* 📝 CENTER: Content Info */}
+          <div className="flex-1 min-w-0">
+            <h3 className="text-sm font-medium text-gray-900 line-clamp-1 mb-0.5">
+              {title}
+            </h3>
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              {/* Platform/Domain info */}
+              {metadata?.domain && (
+                <span className="truncate">{metadata.domain}</span>
+              )}
+              {type !== 'folder' && metadata?.domain && (
+                <span>•</span>
+              )}
+              {type === 'folder' && (
+                <span>{metadata?.fileSize || 'Folder'}</span>
+              )}
+              {(type === 'url' || type === 'video') && metadata?.platform && (
+                <span className="truncate">{metadata.platform}</span>
               )}
             </div>
           </div>
           
-          {/* Content */}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-medium text-gray-900 line-clamp-1 mb-1">
-              {title}
-            </h3>
-            {description && (
-              <p className="text-xs text-gray-600 line-clamp-2 mb-2">
-                {description}
-              </p>
+          {/* 📊 RIGHT: Stats/Actions */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Show engagement stats for marketplace */}
+            {metadata?.fileSize && typeof metadata.fileSize === 'string' && metadata.fileSize.includes('♥') ? (
+              <div className="text-xs text-gray-600 text-right">
+                <div className="flex items-center gap-1">
+                  {metadata.fileSize.split(' ').map((stat, i) => (
+                    <span key={i} className="flex items-center gap-0.5">
+                      {stat}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : metadata?.fileSize && metadata.fileSize.includes('⭐') ? (
+              // Bookmark favorite indicator
+              <div className="text-sm">
+                ⭐
+              </div>
+            ) : type === 'folder' ? (
+              // Folder item count
+              <div className="text-xs text-gray-500 text-right">
+                <div>{(metadata?.children?.length || 0)}</div>
+                <div>items</div>
+              </div>
+            ) : (
+              // Default chevron for navigation
+              <div className="text-gray-400">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
             )}
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              {platformInfo ? (
-                <span className="flex items-center gap-1">
-                  <span>{platformInfo.logo}</span>
-                  <span>{platformInfo.name}</span>
-                </span>
-              ) : metadata?.domain ? (
-                <span>{metadata.domain}</span>
-              ) : null}
-              {metadata?.fileSize && <span>{metadata.fileSize}</span>}
-              {metadata?.duration && <span>{metadata.duration}</span>}
-            </div>
           </div>
         </div>
       </motion.div>
@@ -407,30 +460,26 @@ export default function EnhancedContentCard({
           </p>
         )}
         
-        {/* 📊 METADATA */}
-        <div className="flex items-center justify-between text-xs text-gray-500">
-          <div className="flex items-center gap-1">
-            <span className="text-xs">{getTypeIcon(type)}</span>
-            {platformInfo ? (
-              <span className="flex items-center gap-1">
-                <span>{platformInfo.logo}</span>
-                <span>{platformInfo.name}</span>
-              </span>
-            ) : metadata?.domain ? (
-              <span>{metadata.domain}</span>
-            ) : metadata?.fileSize ? (
-              <span>{metadata.fileSize}</span>
-            ) : null}
-          </div>
-          {metadata?.duration && <span>{metadata.duration}</span>}
+        {/* 📊 METADATA - Only show file name */}
+        <div className="flex items-center text-xs text-gray-500">
+          <span className="text-xs mr-1">{getTypeIcon(type)}</span>
+          <span className="truncate">{title}</span>
         </div>
       </div>
     </motion.div>
   )
 }
 
-// Content Grid component for consistent spacing
-export function ContentGrid({ children }: { children: React.ReactNode }) {
+// Content Grid component for consistent spacing - responsive to layout mode
+export function ContentGrid({ children, layout = 'grid' }: { children: React.ReactNode; layout?: 'grid' | 'list' }) {
+  if (layout === 'list') {
+    return (
+      <div className="divide-y divide-gray-100">
+        {children}
+      </div>
+    )
+  }
+  
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 p-4">
       {children}

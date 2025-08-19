@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Settings, Plus, Search, LogOut } from 'lucide-react'
 import { FolderItem } from '@/types/folder'
 import { useAuth } from '@/components/auth/AuthProvider'
+import { DatabaseService } from '@/lib/database'
 
 interface KooukSidebarProps {
   activeTab: 'storage' | 'bookmarks' | 'marketplace'
@@ -13,6 +14,9 @@ interface KooukSidebarProps {
   selectedFolderId?: string
   onFolderSelect?: (folderId: string) => void
   onCreateFolder?: () => void
+  // Marketplace view state
+  marketplaceView?: 'marketplace' | 'my-shared'
+  onMarketplaceViewChange?: (view: 'marketplace' | 'my-shared') => void
 }
 
 export default function KooukSidebar({
@@ -21,10 +25,54 @@ export default function KooukSidebar({
   folders = [],
   selectedFolderId,
   onFolderSelect,
-  onCreateFolder
+  onCreateFolder,
+  marketplaceView,
+  onMarketplaceViewChange
 }: KooukSidebarProps) {
   const { user, signOut } = useAuth()
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+  const [showAddBookmarkModal, setShowAddBookmarkModal] = useState(false)
+  const [newBookmarkUrl, setNewBookmarkUrl] = useState('')
+  const [newBookmarkTitle, setNewBookmarkTitle] = useState('')
+
+  // Add bookmark handler
+  const handleAddBookmark = async () => {
+    if (!user?.id) return
+    
+    const bookmarkUrl = newBookmarkUrl.trim()
+    const bookmarkTitle = newBookmarkTitle.trim()
+    
+    if (!bookmarkUrl) {
+      alert('Please enter a URL')
+      return
+    }
+    
+    try {
+      // Create bookmark in database
+      await DatabaseService.createBookmark(user.id, {
+        url: bookmarkUrl,
+        title: bookmarkTitle || 'Untitled Bookmark',
+        description: '',
+        category: 'work',
+        tags: [],
+        is_favorite: false
+      })
+      
+      // Reset form and close modal
+      setNewBookmarkUrl('')
+      setNewBookmarkTitle('')
+      setShowAddBookmarkModal(false)
+      
+      // Trigger bookmark refresh event
+      window.dispatchEvent(new CustomEvent('bookmarkAdded'))
+      
+      // Show success toast instead of console.log
+      alert('Bookmark added successfully!')
+    } catch (error) {
+      console.error('Failed to add bookmark:', error)
+      alert('Failed to add bookmark. Please try again.')
+    }
+  }
 
   // 🎨 PERFECTION FIX: Add proper icons for visual clarity
   const getTabIcon = (tab: string) => {
@@ -53,14 +101,17 @@ export default function KooukSidebar({
       {/* 상단 브랜드 헤더 */}
       <div className="px-6 py-5 border-b border-gray-200 bg-white">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <button 
+            onClick={() => onTabChange('storage')}
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          >
             <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center text-white font-bold text-sm">
               K
             </div>
             <h1 className="text-sm font-semibold text-gray-900">
               KOOUK
             </h1>
-          </div>
+          </button>
           <div className="text-xs text-gray-500">
             Personal Hub
           </div>
@@ -208,6 +259,20 @@ export default function KooukSidebar({
               />
             </div>
             
+            {/* Add Bookmark - same position as New Folder */}
+            <button 
+              onClick={() => setShowAddBookmarkModal(true)}
+              className="group w-full flex items-center gap-3 p-4 bg-white hover:bg-gray-50 border-2 border-dashed border-gray-300 hover:border-gray-400 rounded-lg transition-all duration-200"
+            >
+              <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform text-white font-bold text-sm">
+                +
+              </div>
+              <div className="text-left">
+                <div className="text-xs font-medium text-gray-900">Add Bookmark</div>
+                <div className="text-xs text-gray-600">Save your favorite links</div>
+              </div>
+            </button>
+            
             {/* 즐겨찾기 */}
             <button className="w-full flex items-center gap-3 p-3 text-sm text-gray-700 hover:bg-white hover:shadow-sm rounded-lg transition-all duration-200">
               <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center font-bold text-gray-800">
@@ -224,6 +289,7 @@ export default function KooukSidebar({
               </div>
               
               {[
+                { emoji: '📋', label: 'All Categories', count: 97 },
                 { emoji: '💼', label: 'Work', count: 24 },
                 { emoji: '🎨', label: 'Design', count: 18 },
                 { emoji: '💻', label: 'Development', count: 32 },
@@ -244,14 +310,6 @@ export default function KooukSidebar({
                 </button>
               ))}
             </div>
-
-            {/* 빠른 추가 */}
-            <button className="w-full flex items-center gap-3 p-3 text-sm text-gray-600 hover:text-gray-900 hover:bg-white hover:shadow-sm rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-400 transition-all duration-200">
-              <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Plus className="w-4 h-4 text-gray-600" />
-              </div>
-              <span className="font-medium">Add Bookmark</span>
-            </button>
           </div>
         )}
 
@@ -268,12 +326,26 @@ export default function KooukSidebar({
               />
             </div>
 
-            {/* 탭 선택 */}
+            {/* Browse/My Shared Toggle */}
             <div className="flex rounded-xl bg-gray-100 p-1">
-              <button className="flex-1 text-xs py-2 rounded-lg bg-white text-gray-900 shadow-sm font-medium">
+              <button 
+                onClick={() => onMarketplaceViewChange?.('marketplace')}
+                className={`flex-1 text-xs py-2 rounded-lg font-medium transition-colors ${
+                  marketplaceView === 'marketplace' 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
                 Browse
               </button>
-              <button className="flex-1 text-xs py-2 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
+              <button 
+                onClick={() => onMarketplaceViewChange?.('my-shared')}
+                className={`flex-1 text-xs py-2 rounded-lg font-medium transition-colors ${
+                  marketplaceView === 'my-shared' 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
                 My Shared
               </button>
             </div>
@@ -285,6 +357,7 @@ export default function KooukSidebar({
               </div>
               
               {[
+                { emoji: '📋', label: 'All Categories', count: 714 },
                 { emoji: '💼', label: 'Business', count: 145 },
                 { emoji: '🎨', label: 'Creative', count: 89 },
                 { emoji: '💻', label: 'Tech', count: 201 },
@@ -305,15 +378,6 @@ export default function KooukSidebar({
                   </span>
                 </button>
               ))}
-            </div>
-
-            {/* 정렬 옵션 */}
-            <div className="border-t border-gray-100 pt-3">
-              <select className="w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-colors">
-                <option>Most Popular</option>
-                <option>Most Recent</option>
-                <option>Most Helpful</option>
-              </select>
             </div>
           </div>
         )}
@@ -352,11 +416,63 @@ export default function KooukSidebar({
         )}
       </div>
 
+      {/* Add Bookmark Modal */}
+      {showAddBookmarkModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm">
+            <div className="p-6">
+              <h3 className="text-base font-semibold text-gray-900 mb-4">
+                Add New Bookmark
+              </h3>
+              
+              <div className="space-y-4">
+                <input
+                  type="url"
+                  value={newBookmarkUrl}
+                  onChange={(e) => setNewBookmarkUrl(e.target.value)}
+                  placeholder="Enter URL (e.g., https://example.com)"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  autoFocus
+                />
+                
+                <input
+                  type="text"
+                  value={newBookmarkTitle}
+                  onChange={(e) => setNewBookmarkTitle(e.target.value)}
+                  placeholder="Title (optional)"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  onKeyPress={(e) => e.key === 'Enter' && handleAddBookmark()}
+                />
+              </div>
+              
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowAddBookmarkModal(false)
+                    setNewBookmarkUrl('')
+                    setNewBookmarkTitle('')
+                  }}
+                  className="flex-1 py-2.5 px-4 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddBookmark}
+                  className="flex-1 py-2.5 px-4 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Logout Confirmation Modal */}
       {showLogoutConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-80 mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-base font-semibold text-gray-900 mb-2">
               Sign out?
             </h3>
             <p className="text-sm text-gray-600 mb-6">

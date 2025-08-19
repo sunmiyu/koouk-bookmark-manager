@@ -14,6 +14,8 @@ interface KooukMainContentProps {
   onImportFolder?: (sharedFolder: any) => void
   onLoginRequired?: () => boolean
   user?: any
+  marketplaceView?: 'marketplace' | 'my-shared'
+  onMarketplaceViewChange?: (view: 'marketplace' | 'my-shared') => void
 }
 
 export default function KooukMainContent({
@@ -24,7 +26,9 @@ export default function KooukMainContent({
   onShareFolder,
   onImportFolder,
   onLoginRequired,
-  user
+  user,
+  marketplaceView,
+  onMarketplaceViewChange
 }: KooukMainContentProps) {
 
   // Handle tab content with login checks  
@@ -41,6 +45,8 @@ export default function KooukMainContent({
       return (
         <MarketPlace 
           onImportFolder={onImportFolder}
+          marketplaceView={marketplaceView}
+          onMarketplaceViewChange={onMarketplaceViewChange}
         />
       )
     }

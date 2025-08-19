@@ -40,28 +40,7 @@ export default function FolderSelector({
         </button>
       ))}
       
-      {/* Action buttons - 모바일 최적화 */}
-      <div className="flex gap-1">
-        {/* +New 폴더 생성 버튼 */}
-        <button
-          onClick={onCreateFolder}
-          className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors"
-        >
-          <Plus size={10} />
-          +New
-        </button>
-        
-        {/* +Memo 버튼 */}
-        {onOpenBigNote && (
-          <button
-            onClick={onOpenBigNote}
-            className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs font-medium text-pink-600 bg-pink-50 hover:bg-pink-100 transition-colors"
-          >
-            📄
-            +Memo
-          </button>
-        )}
-      </div>
+      {/* Action buttons removed - New Folder is in sidebar, Memo uses notepad edge tab */}
     </div>
   )
 }

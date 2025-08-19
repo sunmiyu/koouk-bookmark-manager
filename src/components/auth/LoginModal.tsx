@@ -54,9 +54,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               {/* Header */}
               <div className="text-center mb-6">
                 <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-white text-2xl font-bold">K</span>
+                  <span className="text-white text-lg md:text-xl font-bold">K</span>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
                   Welcome to KOOUK
                 </h2>
                 <p className="text-gray-600 text-sm">

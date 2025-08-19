@@ -29,6 +29,7 @@ export default function App() {
   const [showCreateFolderModal, setShowCreateFolderModal] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
   const [showLoginModal, setShowLoginModal] = useState(false)
+  const [marketplaceView, setMarketplaceView] = useState<'marketplace' | 'my-shared'>('marketplace')
 
   const selectedFolder = folders.find(f => f.id === selectedFolderId)
 
@@ -398,6 +399,8 @@ export default function App() {
                 selectedFolderId={selectedFolderId}
                 onFolderSelect={setSelectedFolderId}
                 onCreateFolder={() => setShowCreateFolderModal(true)}
+                marketplaceView={marketplaceView}
+                onMarketplaceViewChange={setMarketplaceView}
               />
             </div>
           </div>
@@ -430,6 +433,8 @@ export default function App() {
             folders={folders}
             onAddItem={handleAddItem}
             onImportFolder={handleImportFolder}
+            marketplaceView={marketplaceView}
+            onMarketplaceViewChange={setMarketplaceView}
           />
 
           <div className="flex bg-white border-t border-gray-200">
@@ -464,6 +469,8 @@ export default function App() {
         selectedFolderId={selectedFolderId}
         onFolderSelect={setSelectedFolderId}
         onCreateFolder={() => setShowCreateFolderModal(true)}
+        marketplaceView={marketplaceView}
+        onMarketplaceViewChange={setMarketplaceView}
       />
 
       <Suspense fallback={
@@ -486,6 +493,8 @@ export default function App() {
           onImportFolder={handleImportFolder}
           onLoginRequired={handleLoginRequired}
           user={user}
+          marketplaceView={marketplaceView}
+          onMarketplaceViewChange={setMarketplaceView}
         />
       </Suspense>
 

@@ -4,8 +4,8 @@ import { useState, useEffect, Suspense } from 'react'
 import { useAuth } from '@/components/auth/AuthProvider'
 import { FolderItem, StorageItem } from '@/types/folder'
 import { DatabaseService } from '@/lib/database'
-import KooukSidebar from '../layout/KooukSidebar'
-import KooukMainContent from '../layout/KooukMainContent'
+import Sidebar from '../layout/Sidebar'
+import MainContent from '../layout/MainContent'
 import LoginModal from '../auth/LoginModal'
 import FeedbackModal from '../modals/FeedbackModal'
 import { useDevice } from '@/hooks/useDevice'
@@ -23,6 +23,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('storage')
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
+  const [currentView, setCurrentView] = useState<'grid' | 'detail'>('grid')
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -32,6 +33,23 @@ export default function App() {
   const [marketplaceView, setMarketplaceView] = useState<'marketplace' | 'my-shared'>('marketplace')
 
   const selectedFolder = folders.find(f => f.id === selectedFolderId)
+
+  // 🎯 사이드바 폴더 선택 핸들러 - 뷰 전환 포함
+  const handleFolderSelect = (folderId: string) => {
+    setSelectedFolderId(folderId)
+    // My Folder 탭에서만 detail 뷰로 전환
+    if (activeTab === 'storage') {
+      setCurrentView('detail')
+    }
+  }
+
+  // 🎯 뷰 변경 핸들러
+  const handleViewChange = (view: 'grid' | 'detail') => {
+    setCurrentView(view)
+    if (view === 'grid') {
+      setSelectedFolderId(undefined)
+    }
+  }
 
   useEffect(() => {
     if (!user) {
@@ -392,12 +410,12 @@ export default function App() {
           <div className="fixed inset-0 z-50">
             <div className="fixed inset-0 bg-black bg-opacity-25" onClick={() => setIsMobileMenuOpen(false)} />
             <div className="fixed left-0 top-0 bottom-0 w-80 bg-white shadow-xl">
-              <KooukSidebar
+              <Sidebar
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
                 folders={folders}
                 selectedFolderId={selectedFolderId}
-                onFolderSelect={setSelectedFolderId}
+                onFolderSelect={handleFolderSelect}
                 onCreateFolder={() => setShowCreateFolderModal(true)}
                 marketplaceView={marketplaceView}
                 onMarketplaceViewChange={setMarketplaceView}
@@ -407,7 +425,8 @@ export default function App() {
         )}
 
         <div className="flex flex-col h-screen">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
+          {/* 🎯 모바일 헤더 - 독립적인 영역 */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white flex-shrink-0">
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
               className="p-2 text-gray-600 hover:text-gray-900"
@@ -427,17 +446,25 @@ export default function App() {
             </button>
           </div>
 
-          <KooukMainContent
-            activeTab={activeTab}
-            selectedFolder={selectedFolder}
-            folders={folders}
-            onAddItem={handleAddItem}
-            onImportFolder={handleImportFolder}
-            marketplaceView={marketplaceView}
-            onMarketplaceViewChange={setMarketplaceView}
-          />
+          {/* 🎯 모바일 메인 컨텐츠 - 입력바 포함 */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <MainContent
+              activeTab={activeTab}
+              selectedFolder={selectedFolder}
+              folders={folders}
+              selectedFolderId={selectedFolderId}
+              currentView={currentView}
+              onAddItem={handleAddItem}
+              onImportFolder={handleImportFolder}
+              marketplaceView={marketplaceView}
+              onMarketplaceViewChange={setMarketplaceView}
+              onFolderSelect={handleFolderSelect}
+              onViewChange={handleViewChange}
+            />
+          </div>
 
-          <div className="flex bg-white border-t border-gray-200">
+          {/* 🎯 모바일 하단 탭 네비게이션 */}
+          <div className="flex bg-white border-t border-gray-200 flex-shrink-0">
             {(['storage', 'bookmarks', 'marketplace'] as TabType[]).map(tab => (
               <button 
                 key={tab} 
@@ -462,41 +489,51 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <KooukSidebar
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        folders={folders}
-        selectedFolderId={selectedFolderId}
-        onFolderSelect={setSelectedFolderId}
-        onCreateFolder={() => setShowCreateFolderModal(true)}
-        marketplaceView={marketplaceView}
-        onMarketplaceViewChange={setMarketplaceView}
-      />
-
-      <Suspense fallback={
-        <div className="flex-1 p-6 overflow-auto">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-32 bg-gray-200 rounded"></div>
-              ))}
-            </div>
-          </div>
-        </div>
-      }>
-        <KooukMainContent
+      {/* 🎯 완전 분리된 사이드바 - 독립적인 영역 */}
+      <div className="w-80 flex-shrink-0">
+        <Sidebar
           activeTab={activeTab}
-          selectedFolder={selectedFolder}
+          onTabChange={setActiveTab}
           folders={folders}
-          onAddItem={handleAddItem}
-          onImportFolder={handleImportFolder}
-          onLoginRequired={handleLoginRequired}
-          user={user}
+          selectedFolderId={selectedFolderId}
+          onFolderSelect={handleFolderSelect}
+          onCreateFolder={() => setShowCreateFolderModal(true)}
           marketplaceView={marketplaceView}
           onMarketplaceViewChange={setMarketplaceView}
         />
-      </Suspense>
+      </div>
+
+      {/* 🎯 완전 분리된 메인 컨텐츠 영역 - 입력바 포함 */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Suspense fallback={
+          <div className="flex-1 p-6 overflow-auto">
+            <div className="animate-pulse space-y-4">
+              <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="h-32 bg-gray-200 rounded"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        }>
+          <MainContent
+            activeTab={activeTab}
+            selectedFolder={selectedFolder}
+            folders={folders}
+            selectedFolderId={selectedFolderId}
+            currentView={currentView}
+            onAddItem={handleAddItem}
+            onImportFolder={handleImportFolder}
+            onLoginRequired={handleLoginRequired}
+            user={user}
+            marketplaceView={marketplaceView}
+            onMarketplaceViewChange={setMarketplaceView}
+            onFolderSelect={handleFolderSelect}
+            onViewChange={handleViewChange}
+          />
+        </Suspense>
+      </div>
 
       {showCreateFolderModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">

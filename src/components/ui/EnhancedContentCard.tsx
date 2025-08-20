@@ -24,6 +24,7 @@ interface ContentCardProps {
     channelTitle?: string
     fileName?: string
     fileType?: string
+    isShared?: boolean // 공유 상태
   }
   onClick?: () => void
   size?: 'small' | 'medium' | 'large'
@@ -325,6 +326,39 @@ export default function EnhancedContentCard({
     }
   }
 
+  // 표시할 제목 정리 함수
+  const getDisplayTitle = () => {
+    // YouTube 영상의 경우 실제 제목 우선
+    if (type === 'video' && metadata?.title) {
+      return metadata.title
+    }
+    
+    // 제목이 암호화된 ID 같은 경우 (YouTube ID 패턴)
+    if (title && /^[A-Za-z0-9_-]{8,15}$/.test(title)) {
+      if (metadata?.title) {
+        return metadata.title
+      }
+      return 'Untitled'
+    }
+    
+    // 제목이 없거나 의미없는 경우
+    if (!title || title.trim() === '' || title === 'undefined' || title === 'null') {
+      return 'Untitled'
+    }
+    
+    // Document에서 제목이 애매한 경우
+    if (type === 'document' && (title.length < 3 || /^[0-9-]+$/.test(title))) {
+      return 'Untitled'
+    }
+    
+    // Image에서 제목이 없는 경우
+    if (type === 'image' && (title.includes('blob:') || title.includes('data:') || title.startsWith('Pasted Image'))) {
+      return 'Untitled'
+    }
+    
+    return title
+  }
+
   // Card size configuration - Remove padding from cards
   const cardSizeClasses = {
     small: "",
@@ -438,9 +472,15 @@ export default function EnhancedContentCard({
   }
 
   // Grid layout
+  const isSharedFolder = type === 'folder' && metadata?.isShared
+  
   return (
     <motion.div
-      className={`${cardWidthClasses} ${cardSizeClasses[size]} bg-white rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-lg transition-all duration-200 cursor-pointer group overflow-hidden`}
+      className={`${cardWidthClasses} ${cardSizeClasses[size]} ${
+        isSharedFolder 
+          ? 'bg-green-50 border-green-200 hover:border-green-300' 
+          : 'bg-white border-gray-200 hover:border-gray-300'
+      } rounded-lg hover:shadow-lg transition-all duration-200 cursor-pointer group overflow-hidden`}
       onClick={onClick}
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
@@ -448,22 +488,18 @@ export default function EnhancedContentCard({
       {/* 🎯 UNIFIED PREVIEW AREA */}
       {renderPreviewArea()}
       
-      {/* 📝 CONTENT AREA */}
+      {/* 📝 CONTENT AREA - 단순화 */}
       <div className="p-3">
-        <h3 className="text-sm font-medium text-gray-900 line-clamp-2 mb-1">
-          {title}
-        </h3>
-        
-        {description && (
-          <p className="text-xs text-gray-600 line-clamp-2 mb-2">
-            {description}
-          </p>
-        )}
-        
-        {/* 📊 METADATA - Only show file name */}
-        <div className="flex items-center text-xs text-gray-500">
-          <span className="text-xs mr-1">{getTypeIcon(type)}</span>
-          <span className="truncate">{title}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-sm">{getTypeIcon(type)}</span>
+          <h3 className="text-sm font-medium text-gray-900 line-clamp-1 flex-1">
+            {getDisplayTitle()}
+          </h3>
+          {isSharedFolder && (
+            <span className="text-xs text-green-600" title="This folder is shared">
+              🌐
+            </span>
+          )}
         </div>
       </div>
     </motion.div>

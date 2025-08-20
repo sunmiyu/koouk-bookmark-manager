@@ -27,21 +27,44 @@ type Json = Database['public']['Tables']['storage_items']['Row']['metadata']
 type DbStorageItem = Database['public']['Tables']['storage_items']['Row']
 type ViewMode = 'grid' | 'list'
 
-interface MyFolderContentProps {
+interface FolderViewProps {
   searchQuery?: string
+  folders?: FolderItem[]
+  selectedFolderId?: string
+  currentView?: 'grid' | 'detail'
+  onAddItem?: (item: StorageItem, folderId: string) => void
+  onFolderSelect?: (folderId: string) => void
+  onViewChange?: (view: 'grid' | 'detail') => void
 }
 
-export default function MyFolderContent({ searchQuery = '' }: MyFolderContentProps) {
+export default function FolderView({ 
+  searchQuery = '', 
+  folders: propFolders,
+  selectedFolderId: propSelectedFolderId,
+  currentView: propCurrentView,
+  onAddItem: propOnAddItem,
+  onFolderSelect: propOnFolderSelect,
+  onViewChange: propOnViewChange
+}: FolderViewProps) {
   const { user, loading: authLoading } = useAuth()
   const { settings: userSettings, updateSettings: updateUserSettings } = useUserSettings(user?.id)
   
-  // State 그룹화
-  const [folders, setFolders] = useState<FolderItem[]>([])
+  // State 그룹화 - prop이 있으면 prop 사용, 없으면 내부 state 사용
+  const [internalFolders, setInternalFolders] = useState<FolderItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [sharedFolderIds, setSharedFolderIds] = useState<Set<string>>(new Set())
   
   // View 관련 state
-  const [selectedFolderId, setSelectedFolderId] = useState<string>()
-  const [currentView, setCurrentView] = useState<'grid' | 'detail'>('grid')
+  const [internalSelectedFolderId, setInternalSelectedFolderId] = useState<string>()
+  const [internalCurrentView, setInternalCurrentView] = useState<'grid' | 'detail'>('grid')
+  
+  // Props vs Internal state 결정
+  const folders = propFolders ?? internalFolders
+  const selectedFolderId = propSelectedFolderId ?? internalSelectedFolderId
+  const currentView = propCurrentView ?? internalCurrentView
+  const setFolders = propFolders ? (() => {}) : setInternalFolders // prop으로 관리되면 내부 setState 비활성화
+  const setSelectedFolderId = propOnFolderSelect ?? setInternalSelectedFolderId
+  const setCurrentView = propOnViewChange ?? setInternalCurrentView
   // 🎨 MOBILE-FIRST: Default to list view on mobile, grid on desktop
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     if (typeof window !== 'undefined') {
@@ -49,11 +72,6 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
     }
     return 'grid'
   })
-  
-  // Search & Filter 관련 state
-  const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery)
-  const [activeFilter, setActiveFilter] = useState('all')
-  const [showMobileSearch, setShowMobileSearch] = useState(false)
   
   // Modal 관련 state
   const [showCreateFolderModal, setShowCreateFolderModal] = useState(false)
@@ -80,47 +98,6 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
     folders.find(f => f.id === selectedFolderId), 
     [folders, selectedFolderId]
   )
-  
-  const filterOptions = useMemo(() => {
-    const now = Date.now()
-    const weekAgo = now - 7 * 24 * 60 * 60 * 1000
-    
-    return [
-      { id: 'all', label: 'All Folders', count: folders.length },
-      { 
-        id: 'recent', 
-        label: 'Recent', 
-        count: folders.filter(f => new Date(f.createdAt || now).getTime() > weekAgo).length 
-      },
-      { id: 'shared', label: 'Shared', count: folders.filter(f => f.is_shared).length },
-      { id: 'large', label: 'Large', count: folders.filter(f => f.children.length >= 5).length }
-    ]
-  }, [folders])
-  
-  const filteredFolders = useMemo(() => {
-    return folders.filter(folder => {
-      // Text search
-      if (localSearchQuery) {
-        const query = localSearchQuery.toLowerCase()
-        const matchesName = folder.name.toLowerCase().includes(query)
-        const matchesDescription = folder.description?.toLowerCase().includes(query)
-        if (!matchesName && !matchesDescription) return false
-      }
-      
-      // Filter criteria
-      if (activeFilter === 'recent') {
-        const created = new Date(folder.createdAt || Date.now()).getTime()
-        const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
-        return created > weekAgo
-      } else if (activeFilter === 'shared') {
-        return folder.is_shared
-      } else if (activeFilter === 'large') {
-        return folder.children.length >= 5
-      }
-      
-      return true
-    })
-  }, [folders, localSearchQuery, activeFilter])
 
   // 🚀 FIX 4: 공통 함수들 - DRY 원칙 적용
   const handleFoldersChange = useCallback((newFolders: FolderItem[]) => {
@@ -144,10 +121,15 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
     setSelectedFolderId(folderId)
     setCurrentView('detail')
     saveSelectedFolder(folderId)
-  }, [saveSelectedFolder])
+  }, [setSelectedFolderId, setCurrentView, saveSelectedFolder])
 
-  // 🚀 FIX 5: 공통 아이템 추가 함수 (중복 제거)
+  // 🚀 FIX 5: 공통 아이템 추가 함수 (중복 제거) - prop 함수 우선 사용
   const handleAddItem = useCallback(async (item: StorageItem, folderId: string) => {
+    // prop으로 받은 함수가 있으면 그것을 사용
+    if (propOnAddItem) {
+      propOnAddItem(item, folderId)
+      return
+    }
     if (!user?.id || !mountedRef.current) {
       showSuccess('Please sign in to add items')
       return
@@ -234,6 +216,18 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
     }
   }, [selectedFolderId, user?.id, folders, handleFoldersChange, showSuccess])
 
+  // 공유된 폴더 ID들을 로드하는 함수
+  const loadSharedFolderIds = useCallback(async () => {
+    if (!user?.id) return
+    
+    try {
+      const sharedIds = await DatabaseService.getUserSharedFolderIds(user.id)
+      setSharedFolderIds(new Set(sharedIds))
+    } catch (error) {
+      console.error('Failed to load shared folder IDs:', error)
+    }
+  }, [user?.id])
+
   // 데이터 로딩
   useEffect(() => {
     if (!user || loadingRef.current) {
@@ -242,25 +236,24 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
     }
     
     loadingRef.current = true
-    
-    // props에서 받은 searchQuery 설정
-    if (searchQuery !== localSearchQuery && mountedRef.current) {
-      setLocalSearchQuery(searchQuery)
-    }
 
     const loadData = async () => {
       try {
         if (mountedRef.current) setIsLoading(true)
         
-        const dbFolders = await DatabaseService.getUserFolders(user.id) as Array<{
-          id: string
-          name: string
-          created_at: string
-          updated_at: string
-          color: string
-          icon: string
-          storage_items?: DbStorageItem[]
-        }>
+        // 폴더 데이터와 공유 정보를 병렬로 로드
+        const [dbFolders] = await Promise.all([
+          DatabaseService.getUserFolders(user.id) as Promise<Array<{
+            id: string
+            name: string
+            created_at: string
+            updated_at: string
+            color: string
+            icon: string
+            storage_items?: DbStorageItem[]
+          }>>,
+          loadSharedFolderIds()
+        ])
         
         if (!mountedRef.current) return // async 작업 후 mount 체크
         
@@ -323,7 +316,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
     }
 
     loadData()
-  }, [user?.id, userSettings?.selected_folder_id, searchQuery])
+  }, [user?.id, userSettings?.selected_folder_id])
 
   // 폴더 생성
   const handleConfirmCreateFolder = useCallback(async () => {
@@ -385,7 +378,7 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
     if (user?.id && updateUserSettings) {
       updateUserSettings({ selected_folder_id: null }).catch(console.error)
     }
-  }, [user?.id, updateUserSettings])
+  }, [setCurrentView, setSelectedFolderId, user?.id, updateUserSettings])
 
   // 🚀 FIX 8: 노트 저장 핸들러 최적화
   const handleSaveNote = useCallback((title: string, content: string, folderId: string) => {
@@ -458,129 +451,133 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* 📱 MOBILE-OPTIMIZED Header with search */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3">
+    <div className="flex flex-col h-full">
+      {/* 🎯 모바일 최적화 헤더 */}
+      <div className="bg-white border-b border-gray-200 px-3 py-2 flex-shrink-0">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <h1 className="text-base font-semibold text-gray-900">My Folders</h1>
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {currentView === 'detail' && (
+              <button 
+                onClick={handleBack}
+                className="p-1 text-gray-600 hover:text-gray-900 transition-colors flex-shrink-0"
+              >
+                ←
+              </button>
+            )}
             
-            {/* 📱 Mobile search toggle */}
-            <button
-              onClick={() => setShowMobileSearch(!showMobileSearch)}
-              className="md:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
-            
-            {/* 📱 Mobile memo button */}
-            <button
-              onClick={() => setShowBigNoteModal(true)}
-              className="md:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-              disabled={folders.length === 0}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-            </button>
+            {/* 🎯 폴더 목록일 때: 드롭다운 */}
+            {currentView === 'grid' ? (
+              <select 
+                value={selectedFolderId || ''}
+                onChange={(e) => e.target.value && handleFolderSelect(e.target.value)}
+                className="flex-1 text-sm font-medium bg-transparent border-none focus:outline-none text-gray-900 min-w-0"
+              >
+                <option value="">All Folders ({folders.length})</option>
+                {folders.map(folder => (
+                  <option key={folder.id} value={folder.id}>
+                    {folder.name} ({folder.children.length})
+                  </option>
+                ))}
+              </select>
+            ) : (
+              /* 🎯 폴더 상세일 때: 폴더명 */
+              <div className="flex-1 min-w-0">
+                <h1 className="text-sm font-medium text-gray-900 truncate">
+                  {selectedFolder?.name}
+                </h1>
+                {selectedFolder && (
+                  <span className="text-xs text-gray-500">
+                    {selectedFolder.children.length} items
+                  </span>
+                )}
+              </div>
+            )}
           </div>
           
-          {/* View mode toggle - smaller on mobile */}
-          <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded-md transition-colors ${
-                viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
-              }`}
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-              </svg>
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`p-1.5 rounded-md transition-colors ${
-                viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
-              }`}
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 8a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 12a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 16a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" />
-              </svg>
-            </button>
+          {/* 🎯 액션 버튼들 - 더 compact */}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {currentView === 'grid' && (
+              /* 폴더 목록에서: 새 폴더 버튼만 */
+              <button
+                onClick={() => setShowCreateFolderModal(true)}
+                className="p-1.5 text-gray-600 hover:text-gray-900 transition-colors"
+                title="New folder"
+              >
+                ➕
+              </button>
+            )}
+            
+            {currentView === 'detail' && selectedFolder && (
+              <>
+                {/* 뷰 토글 - 더 작게 */}
+                <div className="flex items-center bg-gray-100 rounded p-0.5">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-1 text-xs rounded transition-colors ${
+                      viewMode === 'grid' 
+                        ? 'bg-white text-gray-900 shadow-sm' 
+                        : 'text-gray-600'
+                    }`}
+                  >
+                    ⊞
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-1 text-xs rounded transition-colors ${
+                      viewMode === 'list' 
+                        ? 'bg-white text-gray-900 shadow-sm' 
+                        : 'text-gray-600'
+                    }`}
+                  >
+                    ≡
+                  </button>
+                </div>
+                
+                {/* Share 버튼 */}
+                <button
+                  onClick={() => {/* TODO: share 기능 */}}
+                  className="p-1.5 text-gray-600 hover:text-gray-900 transition-colors"
+                  title="Share"
+                >
+                  📤
+                </button>
+              </>
+            )}
           </div>
         </div>
-        
-        {/* 📱 Mobile search bar - shows when active */}
-        {showMobileSearch && (
-          <div className="mt-3 md:hidden">
-            <div className="relative">
-              <input
-                type="text"
-                value={localSearchQuery}
-                onChange={(e) => setLocalSearchQuery(e.target.value)}
-                placeholder="Search folders..."
-                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                autoFocus
-              />
-              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <button
-                onClick={() => {
-                  setLocalSearchQuery('')
-                  setShowMobileSearch(false)
-                }}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        )}
       </div>
       
-      
-      <div className="flex-1 pb-20 bg-gray-50">
+      {/* 🎯 메인 컨텐츠 영역 - 타이트한 레이아웃 */}
+      <div className="flex-1 overflow-auto">
         {currentView === 'grid' ? (
-          <div className="p-6">
-            {filteredFolders.length === 0 ? (
+          <div className="p-2">
+            {folders.length === 0 ? (
               <motion.div 
-                className="text-center py-12"
+                className="text-center py-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <div className="text-2xl md:text-3xl mb-4">📁</div>
-                <h3 className="text-base font-semibold text-gray-900 mb-2">
-                  {folders.length === 0 ? 'No folders yet' : 'No folders match your search'}
+                <div className="text-xl mb-3">📁</div>
+                <h3 className="text-sm font-medium text-gray-900 mb-2">
+                  No folders yet
                 </h3>
-                <p className="text-gray-600 mb-6">
-                  {folders.length === 0 
-                    ? 'Create your first folder to start organizing'
-                    : 'Try adjusting your search or filter criteria'
-                  }
-                </p>
-                {folders.length === 0 && (
-                  <button
-                    onClick={() => setShowCreateFolderModal(true)}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
-                  >
-                    <span>📁</span>
-                    <span>Create First Folder</span>
-                  </button>
-                )}
+                <button
+                  onClick={() => setShowCreateFolderModal(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                >
+                  <span>📁</span>
+                  <span>Create First Folder</span>
+                </button>
               </motion.div>
             ) : (
+              /* 🎯 바로 콘텐츠 카드들만 표시 - 중복 제목 제거 */
               <ContentGrid layout={viewMode}>
-                {filteredFolders.map((folder, index) => (
+                {folders.map((folder, index) => (
                   <motion.div
                     key={folder.id}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                    transition={{ duration: 0.2, delay: index * 0.05 }}
                   >
                     <EnhancedContentCard
                       type="folder"
@@ -588,8 +585,9 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
                       description={folder.description || `${folder.children.length} items`}
                       metadata={{
                         tags: folder.tags,
-                        fileSize: folder.is_shared ? 'Shared' : 'Private',
-                        children: folder.children // Pass folder children for automatic thumbnail generation
+                        fileSize: sharedFolderIds.has(folder.id) ? 'Shared' : 'Private',
+                        children: folder.children,
+                        isShared: sharedFolderIds.has(folder.id)
                       }}
                       onClick={() => handleFolderSelect(folder.id)}
                       size={viewMode === 'list' ? 'small' : 'medium'}
@@ -609,8 +607,12 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
               if (!user?.id || !mountedRef.current) return
               
               try {
-                await DatabaseService.createSharedFolder(user.id, {
-                  folder_id: folder.id,
+                // 🎯 먼저 기존 공유 확인
+                const existingShare = await DatabaseService.getSharedFolderByFolderId(user.id, folder.id)
+                const wasUpdate = existingShare !== null
+                
+                // 공유 또는 업데이트 실행
+                const result = await DatabaseService.shareOrUpdateFolder(user.id, folder.id, {
                   title: sharedFolderData.title,
                   description: sharedFolderData.description,
                   cover_image: sharedFolderData.coverImage,
@@ -631,58 +633,39 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
                     total: sharedFolderData.stats.total
                   }
                 })
+                
                 if (mountedRef.current) {
-                  showSuccess(`📢 "${sharedFolderData.title}" has been shared to Market Place!`)
+                  const message = wasUpdate 
+                    ? `🔄 "${sharedFolderData.title}" updated in Market Place!`
+                    : `📢 "${sharedFolderData.title}" shared to Market Place!`
+                  
+                  showSuccess(message)
+                  
+                  // 공유된 폴더 목록 새로고침
+                  await loadSharedFolderIds()
                 }
               } catch (error) {
-                console.error('Error sharing folder:', error)
+                console.error('Error sharing/updating folder:', error)
                 if (mountedRef.current) {
                   showSuccess('Failed to share folder. Please try again.')
                 }
               }
             }}
-            searchQuery={localSearchQuery}
           />
         ) : null}
       </div>
 
-      {/* 📱 MOBILE-OPTIMIZED Input System - Compact bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
-        <div className="px-4 py-3 max-w-screen-xl mx-auto">
-          {folders.length > 0 ? (
-            <div className="flex items-center gap-3">
-              {/* Selected folder indicator */}
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="w-6 h-6 bg-gray-900 rounded flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                  {selectedFolder ? selectedFolder.name.charAt(0).toUpperCase() : '+'}
-                </div>
-                <span className="text-sm font-medium text-gray-900 truncate">
-                  {selectedFolder ? selectedFolder.name : 'Select folder'}
-                </span>
-              </div>
-              
-              {/* Quick actions */}
-              <div className="flex items-center gap-2 flex-shrink-0">
-                {/* Add content button */}
-                <button 
-                  onClick={() => setShowBigNoteModal(true)}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
-                  disabled={!selectedFolderId}
-                >
-                  <span className="text-xs">+</span>
-                  <span className="hidden sm:inline">Add</span>
-                </button>
-                
-                {/* New folder button */}
-                <button 
-                  onClick={() => setShowCreateFolderModal(true)}
-                  className="flex items-center justify-center w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-                >
-                  <span className="text-sm">📁</span>
-                </button>
-              </div>
-            </div>
-          ) : (
+      {/* 🎯 메인 컨텐츠 영역 하단 입력바 - fixed 제거 */}
+      <div className="bg-white border-t border-gray-200 flex-shrink-0">
+        {folders.length > 0 ? (
+          <ContentInput
+            folders={folders}
+            selectedFolderId={selectedFolderId}
+            onAddItem={handleAddItem}
+            className="border-0 rounded-none"
+          />
+        ) : (
+          <div className="px-4 py-3">
             <div className="text-center py-2">
               <button 
                 onClick={() => setShowCreateFolderModal(true)}
@@ -692,8 +675,8 @@ export default function MyFolderContent({ searchQuery = '' }: MyFolderContentPro
                 <span>Create First Folder</span>
               </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Modals */}

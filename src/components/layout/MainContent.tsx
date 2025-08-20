@@ -1,14 +1,16 @@
 'use client'
 
 import { FolderItem, StorageItem } from '@/types/folder'
-import MyFolderContent from '@/components/pages/MyFolder/MyFolderContent'
+import FolderView from '@/components/pages/MyFolder/FolderView'
 import MarketPlace from '@/components/pages/Marketplace/MarketPlace'
 import Bookmarks from '@/components/pages/Bookmarks/Bookmarks'
 
-interface KooukMainContentProps {
+interface MainContentProps {
   activeTab: 'storage' | 'bookmarks' | 'marketplace'
   selectedFolder?: FolderItem
   folders?: FolderItem[]
+  selectedFolderId?: string
+  currentView?: 'grid' | 'detail'
   onAddItem?: (item: StorageItem, folderId: string) => void
   onShareFolder?: (folder: FolderItem) => void
   onImportFolder?: (sharedFolder: any) => void
@@ -16,27 +18,39 @@ interface KooukMainContentProps {
   user?: any
   marketplaceView?: 'marketplace' | 'my-shared'
   onMarketplaceViewChange?: (view: 'marketplace' | 'my-shared') => void
+  onFolderSelect?: (folderId: string) => void
+  onViewChange?: (view: 'grid' | 'detail') => void
 }
 
-export default function KooukMainContent({
+export default function MainContent({
   activeTab,
   selectedFolder,
   folders = [],
+  selectedFolderId,
+  currentView,
   onAddItem,
   onShareFolder,
   onImportFolder,
   onLoginRequired,
   user,
   marketplaceView,
-  onMarketplaceViewChange
-}: KooukMainContentProps) {
+  onMarketplaceViewChange,
+  onFolderSelect,
+  onViewChange
+}: MainContentProps) {
 
   // Handle tab content with login checks  
   const renderTabContent = () => {
     if (activeTab === 'storage') {
       return (
-        <MyFolderContent 
+        <FolderView 
           searchQuery=""
+          folders={folders}
+          selectedFolderId={selectedFolderId}
+          currentView={currentView}
+          onAddItem={onAddItem}
+          onFolderSelect={onFolderSelect}
+          onViewChange={onViewChange}
         />
       )
     }
@@ -45,8 +59,6 @@ export default function KooukMainContent({
       return (
         <MarketPlace 
           onImportFolder={onImportFolder}
-          marketplaceView={marketplaceView}
-          onMarketplaceViewChange={onMarketplaceViewChange}
         />
       )
     }

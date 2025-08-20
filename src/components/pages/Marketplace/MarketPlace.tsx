@@ -23,15 +23,11 @@ import { motion } from 'framer-motion'
 interface MarketPlaceProps {
   searchQuery?: string
   onImportFolder?: (sharedFolder: SharedFolder) => void
-  marketplaceView?: 'marketplace' | 'my-shared'
-  onMarketplaceViewChange?: (view: 'marketplace' | 'my-shared') => void
 }
 
 export default function MarketPlace({ 
   searchQuery = '', 
-  onImportFolder, 
-  marketplaceView: propMarketplaceView = 'marketplace', 
-  onMarketplaceViewChange 
+  onImportFolder
 }: MarketPlaceProps) {
   const { user } = useAuth() // loading 의존성 제거
   const { toast, showSuccess, hideToast } = useToast()
@@ -40,8 +36,8 @@ export default function MarketPlace({
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [sortOrder, setSortOrder] = useState<'popular' | 'recent' | 'helpful'>('popular')
   const [isLoading, setIsLoading] = useState(true)
-  // Use currentView from props instead of local state
-  const currentView = propMarketplaceView
+  // Browse 모드로 고정
+  const currentView = 'marketplace'
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [editingFolder, setEditingFolder] = useState<SharedFolder | null>(null)
   const [showImportModal, setShowImportModal] = useState(false)
@@ -66,15 +62,29 @@ export default function MarketPlace({
   ]
   
   // 🎨 PERFECTION: Enhanced state
-  // 🎨 MOBILE-FIRST: Default to list view on mobile, grid on desktop
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth < 768 ? 'list' : 'grid'
-    }
-    return 'grid'
-  })
+  // 📱 Mobile vs PC 감지 및 뷰 모드 설정
+  const [isMobile, setIsMobile] = useState(false)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [localSearchQuery, setLocalSearchQuery] = useState('')
   const [showMobileSearch, setShowMobileSearch] = useState(false)
+  
+  // 📱 Pagination state for PC
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 12 // PC에서 한 페이지당 표시할 카드 수
+  
+  // 🖥️ Mobile/PC 감지
+  useEffect(() => {
+    const checkDevice = () => {
+      const width = window.innerWidth
+      const mobile = width < 768 // md breakpoint
+      setIsMobile(mobile)
+      setViewMode(mobile ? 'list' : 'grid')
+    }
+    
+    checkDevice()
+    window.addEventListener('resize', checkDevice)
+    return () => window.removeEventListener('resize', checkDevice)
+  }, [])
 
   // Sort options
   const sortOptions = [
@@ -343,11 +353,6 @@ export default function MarketPlace({
   useEffect(() => {
     let filtered = sharedFolders
 
-    // 뷰 필터 (Market Place vs My Shared)
-    if (currentView === 'my-shared') {
-      filtered = filtered.filter(folder => user && folder.author.id === user.id)
-    }
-
     // 카테고리 필터
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(folder => folder.category === selectedCategory)
@@ -379,7 +384,47 @@ export default function MarketPlace({
     })
 
     setFilteredFolders(filtered)
+    // 검색이나 필터 변경 시 첫 페이지로 이동
+    setCurrentPage(1)
   }, [sharedFolders, selectedCategory, searchQuery, localSearchQuery, sortOrder, currentView, user])
+  
+  // 📱 Pagination logic for PC
+  const totalPages = Math.ceil(filteredFolders.length / itemsPerPage)
+  const currentItems = isMobile ? filteredFolders : filteredFolders.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  )
+  
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    // 페이지 변경 시 스크롤을 맨 위로
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // 🎯 상대적 시간 표시 함수
+  const getRelativeTime = (dateString: string) => {
+    const now = new Date()
+    const date = new Date(dateString)
+    const diffInMs = now.getTime() - date.getTime()
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60))
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24))
+    const diffInWeeks = Math.floor(diffInDays / 7)
+    const diffInMonths = Math.floor(diffInDays / 30)
+    
+    if (diffInHours < 1) {
+      return 'just now'
+    } else if (diffInHours < 24) {
+      return `${diffInHours}h ago`
+    } else if (diffInDays < 7) {
+      return `${diffInDays}d ago`
+    } else if (diffInWeeks < 4) {
+      return `${diffInWeeks}w ago`
+    } else if (diffInMonths < 12) {
+      return `${diffInMonths}mo ago`
+    } else {
+      return date.toLocaleDateString()
+    }
+  }
 
   const handleCardClick = (sharedFolder: SharedFolder) => {
     if (currentView === 'marketplace') {
@@ -443,27 +488,63 @@ export default function MarketPlace({
   // 🔒 데이터 로딩 상태 처리
   if (isLoading) {
     return (
-      <div className="h-96 flex items-center justify-center">
-        <div className="text-center">
-          {/* Market Place skeleton loading */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto">
+      <div className="flex flex-col min-h-screen pb-4">
+        <div className="bg-white border-b border-gray-200 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <h1 className="text-base font-semibold text-gray-900">Marketplace</h1>
+            </div>
+          </div>
+        </div>
+        
+        <div className="px-6 py-4">
+          <div className="mb-6">
+            <div className="bg-white rounded-xl p-4 border border-gray-200">
+              <div className="h-6 bg-gray-200 rounded w-48 animate-pulse mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-64 animate-pulse"></div>
+            </div>
+          </div>
+          
+          {/* 🖥️ PC Skeleton */}
+          <div className="hidden md:block">
+            <div className="flex flex-wrap gap-6 justify-start">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                <div key={i} className="flex-shrink-0 w-[280px]">
+                  <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                    <div className="aspect-[4/3] bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse"></div>
+                    <div className="p-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-gray-200 rounded-full animate-pulse"></div>
+                        <div className="h-3 bg-gray-200 rounded w-24 animate-pulse"></div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                        <div className="h-3 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                      </div>
+                      <div className="h-8 bg-gray-200 rounded animate-pulse mt-4"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* 📱 Mobile Skeleton */}
+          <div className="block md:hidden space-y-2">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-                <div className="aspect-[4/3] sm:aspect-[5/4] bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse"></div>
-                <div className="p-2 sm:p-3 lg:p-4 space-y-2 sm:space-y-3">
-                  <div className="hidden sm:flex items-center gap-2">
-                    <div className="w-6 h-6 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-full animate-pulse"></div>
-                    <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-24 animate-pulse"></div>
+              <div key={i} className="bg-white rounded-lg border border-gray-100 p-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gray-200 rounded-lg animate-pulse flex-shrink-0"></div>
+                  <div className="flex-1 min-w-0">
+                    <div className="h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-2/3 animate-pulse"></div>
                   </div>
-                  <div className="space-y-1 sm:space-y-2">
-                    <div className="h-3 sm:h-4 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse"></div>
-                    <div className="h-2 sm:h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded w-3/4 animate-pulse"></div>
-                  </div>
-                  <div className="h-6 sm:h-8 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded animate-pulse mt-2 sm:mt-4"></div>
+                  <div className="w-8 h-6 bg-gray-200 rounded animate-pulse"></div>
                 </div>
               </div>
             ))}
           </div>
+          
           <div className="mt-8 flex justify-center">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
@@ -478,124 +559,81 @@ export default function MarketPlace({
 
   return (
     <div className="flex flex-col min-h-screen pb-4">
-      {/* 📱 MOBILE-OPTIMIZED Header with search */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3">
+      {/* 🎯 모바일 최적화 헤더 */}
+      <div className="bg-white border-b border-gray-200 px-3 py-2 flex-shrink-0">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <h1 className="text-base font-semibold text-gray-900">
-              {currentView === 'marketplace' ? 'Marketplace' : 'My Shared'}
-            </h1>
-            
-            {/* 📱 Mobile search toggle */}
-            <button
-              onClick={() => setShowMobileSearch(!showMobileSearch)}
-              className="md:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {/* 🎯 카테고리 드롭다운 */}
+            <select 
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="flex-1 text-sm font-medium bg-transparent border-none focus:outline-none text-gray-900 min-w-0"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
+              {categories.map(category => (
+                <option key={category.id} value={category.id}>
+                  {category.label} ({category.count})
+                </option>
+              ))}
+            </select>
           </div>
           
-          {/* View mode toggle - smaller on mobile */}
-          <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded-md transition-colors ${
-                viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
-              }`}
+          {/* 🎯 액션 버튼들 - 더 compact */}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {/* 정렬 드롭다운 */}
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as 'popular' | 'recent' | 'helpful')}
+              className="text-xs text-gray-600 bg-transparent border-none focus:outline-none"
+              title="Sort by"
             >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-              </svg>
-            </button>
+              {sortOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            
+            {/* 검색 버튼 */}
             <button
-              onClick={() => setViewMode('list')}
-              className={`p-1.5 rounded-md transition-colors ${
-                viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
-              }`}
+              onClick={() => setShowMobileSearch(!showMobileSearch)}
+              className="p-1.5 text-gray-600 hover:text-gray-900 transition-colors"
+              title="Search"
             >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 12a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 16a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" />
-              </svg>
+              🔍
             </button>
           </div>
         </div>
         
-        {/* 📱 Mobile search bar - shows when active */}
+        {/* 🎯 검색바 (토글) */}
         {showMobileSearch && (
-          <div className="mt-3 md:hidden">
+          <div className="mt-2">
             <div className="relative">
               <input
                 type="text"
                 value={localSearchQuery}
                 onChange={(e) => setLocalSearchQuery(e.target.value)}
-                placeholder={`Search ${currentView === 'marketplace' ? 'collections' : 'my shared folders'}...`}
-                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Search collections..."
+                className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                 autoFocus
               />
-              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
               <button
                 onClick={() => {
                   setLocalSearchQuery('')
                   setShowMobileSearch(false)
                 }}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-0.5 text-gray-400 hover:text-gray-600"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                ✕
               </button>
             </div>
           </div>
         )}
       </div>
       
-      
-      <div className="px-6 py-4">
-
-        {/* 🎨 PERFECTION: Stats and description */}
-        <div className="mb-6">
-          <div className="bg-white rounded-xl p-4 border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-base font-semibold text-gray-900">
-                  {currentView === 'marketplace' 
-                    ? `${filteredFolders.length} ${filteredFolders.length === 1 ? 'shared folder' : 'shared folders'}`
-                    : `${filteredFolders.filter(f => f.author.id === user?.id).length} folders shared by you`
-                  }
-                </h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  {currentView === 'marketplace' ? 'Browse and discover amazing collections' : 'Manage your shared folders'}
-                </p>
-              </div>
-              <div className="text-lg md:text-xl">
-                {currentView === 'marketplace' ? '🎆' : '🚀'}
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* 🎨 PERFECTION: Sort options for marketplace */}
-        {currentView === 'marketplace' && (
-          <div className="mb-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Sort by:</span>
-              <select 
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value as 'popular' | 'recent' | 'helpful')}
-                className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="popular">🔥 Popular</option>
-                <option value="recent">🕰️ Recent</option>
-                <option value="helpful">⭐ Helpful</option>
-              </select>
-            </div>
-          </div>
-        )}
-
-        {/* 🎨 PERFECTION: Enhanced content grid */}
+      {/* 🎯 메인 컨텐츠 영역 - 타이트한 레이아웃 */}
+      <div className="flex-1 overflow-auto">
+        <div className="p-2">
+          {/* 🎯 바로 콘텐츠 카드들만 표시 - 중복 제목/설명 제거 */}
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -616,33 +654,115 @@ export default function MarketPlace({
             </p>
           </motion.div>
         ) : (
-          <ContentGrid layout={viewMode}>
-            {filteredFolders.map((sharedFolder, index) => (
-              <motion.div
-                key={sharedFolder.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-              >
-                <EnhancedContentCard
-                  type="folder"
-                  title={sharedFolder.title}
-                  description={sharedFolder.description}
-                  thumbnail={sharedFolder.coverImage}
-                  metadata={{
-                    domain: `by ${sharedFolder.author.name}`,
-                    tags: [sharedFolder.category],
-                    fileSize: `${sharedFolder.stats.likes} ♥ ${sharedFolder.stats.downloads} ⬇`,
-                    platform: sharedFolder.category
-                  }}
-                  onClick={() => handleCardClick(sharedFolder)}
-                  size={viewMode === 'list' ? 'small' : 'medium'}
-                  layout={viewMode}
-                />
-              </motion.div>
-            ))}
-          </ContentGrid>
+          <>
+            {/* 🖥️ PC Grid Layout - Fixed card size based on 1750px screen */}
+            {!isMobile ? (
+              <div className="flex flex-wrap gap-6 justify-start">
+                {currentItems.map((sharedFolder, index) => (
+                  <motion.div
+                    key={sharedFolder.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    className="flex-shrink-0"
+                  >
+                    <div className="w-[280px] h-auto"> {/* Fixed card width for 1750px screen */}
+                      <EnhancedContentCard
+                        type="folder"
+                        title={sharedFolder.title}
+                        description={sharedFolder.description}
+                        thumbnail={sharedFolder.coverImage}
+                        metadata={{
+                          domain: `by ${sharedFolder.author.name}`,
+                          tags: [sharedFolder.category],
+                          fileSize: `${sharedFolder.stats.likes} ♥ ${sharedFolder.stats.downloads} ⬇ • Updated ${getRelativeTime(sharedFolder.updatedAt)}`,
+                          platform: sharedFolder.category
+                        }}
+                        onClick={() => handleCardClick(sharedFolder)}
+                        size="medium"
+                        layout="grid"
+                      />
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              /* 📱 Mobile List Layout */
+              <div className="space-y-2">
+                {currentItems.map((sharedFolder, index) => (
+                  <motion.div
+                    key={sharedFolder.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                  >
+                    <EnhancedContentCard
+                      type="folder"
+                      title={sharedFolder.title}
+                      description={sharedFolder.description}
+                      thumbnail={sharedFolder.coverImage}
+                      metadata={{
+                        domain: `by ${sharedFolder.author.name}`,
+                        tags: [sharedFolder.category],
+                        fileSize: `${sharedFolder.stats.likes} ♥ ${sharedFolder.stats.downloads} ⬇ • Updated ${getRelativeTime(sharedFolder.updatedAt)}`,
+                        platform: sharedFolder.category
+                      }}
+                      onClick={() => handleCardClick(sharedFolder)}
+                      size="small"
+                      layout="list"
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            )}
+            
+            {/* 🖥️ PC Pagination */}
+            {!isMobile && totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 mt-8 pt-6 border-t border-gray-200">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    currentPage === 1
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  ← Previous
+                </button>
+                
+                <div className="flex gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        currentPage === page
+                          ? 'bg-gray-900 text-white'
+                          : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+                
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    currentPage === totalPages
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  Next →
+                </button>
+              </div>
+            )}
+          </>
         )}
+        </div>
       </div>
 
       {/* Edit Shared Folder Modal */}

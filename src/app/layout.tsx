@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/components/auth/AuthProvider'
 import ServiceWorkerRegistration from '@/components/pwa/ServiceWorkerRegistration'
+import PWAInstallPrompt from '@/components/pwa/PWAInstallPrompt'
 import GoogleAnalytics, { ConsentBanner, PerformanceMonitor } from '@/components/analytics/GoogleAnalytics'
 import dynamic from 'next/dynamic'
 
@@ -185,6 +186,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
 
         {/* PWA Service Worker */}
         <ServiceWorkerRegistration />
+        
+        {/* PWA Install Prompt */}
+        <PWAInstallPrompt />
         
         {/* Analytics - loaded after main content */}
         <GoogleAnalytics />

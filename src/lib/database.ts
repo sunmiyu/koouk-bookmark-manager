@@ -359,6 +359,18 @@ export class DatabaseService {
     if (error) throw error
   }
 
+  // 사용자가 공유한 폴더의 ID 목록을 가져오는 함수
+  static async getUserSharedFolderIds(userId: string): Promise<string[]> {
+    const { data, error } = await supabase
+      .from('shared_folders')
+      .select('folder_id')
+      .eq('user_id', userId)
+      .not('folder_id', 'is', null)
+    
+    if (error) throw error
+    return data.map(item => item.folder_id).filter(Boolean) as string[]
+  }
+
   // === 공유 폴더 관련 ===
   static async getPublicSharedFolders() {
     return this.executeQuery(
@@ -410,6 +422,52 @@ export class DatabaseService {
     
     if (error) throw error
     return data
+  }
+
+  // 🎯 folder_id로 기존 공유 폴더 찾기 (업데이트용)
+  static async getSharedFolderByFolderId(userId: string, folderId: string) {
+    const { data, error } = await supabase
+      .from('shared_folders')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('folder_id', folderId)
+      .single()
+    
+    if (error) {
+      // 데이터가 없는 경우는 에러가 아님
+      if (error.code === 'PGRST116') {
+        return null
+      }
+      throw error
+    }
+    return data
+  }
+
+  // 🎯 폴더 공유 또는 업데이트 (통합 함수)
+  static async shareOrUpdateFolder(userId: string, folderId: string, sharedFolderData: Omit<Tables['shared_folders']['Insert'], 'user_id' | 'folder_id'>) {
+    try {
+      // 기존 공유 확인
+      const existingShare = await this.getSharedFolderByFolderId(userId, folderId)
+      
+      if (existingShare) {
+        // 기존 공유 업데이트
+        console.log('🔄 Updating existing shared folder:', existingShare.id)
+        return await this.updateSharedFolder(existingShare.id, {
+          ...sharedFolderData,
+          // updated_at은 자동으로 갱신됨
+        })
+      } else {
+        // 새 공유 생성
+        console.log('🆕 Creating new shared folder for:', folderId)
+        return await this.createSharedFolder(userId, {
+          folder_id: folderId,
+          ...sharedFolderData
+        })
+      }
+    } catch (error) {
+      console.error('Error in shareOrUpdateFolder:', error)
+      throw error
+    }
   }
 
   // === 검색 기록 ===

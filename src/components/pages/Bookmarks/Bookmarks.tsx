@@ -17,13 +17,8 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
   const [selectedCategory, setSelectedCategory] = useState<string>('most-used')
   const [isLoading, setIsLoading] = useState(true)
   // 🎨 PERFECTION: Enhanced state
-  // 🎨 MOBILE-FIRST: Default to list view on mobile, grid on desktop  
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth < 768 ? 'list' : 'grid'
-    }
-    return 'grid'
-  })
+  // 기본 그리드 뷰로 고정
+  const viewMode = 'grid'
   const [localSearchQuery, setLocalSearchQuery] = useState('')
   const [showMobileSearch, setShowMobileSearch] = useState(false)
 
@@ -66,7 +61,14 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
           title: dbBookmark.title,
           url: dbBookmark.url,
           description: dbBookmark.description || '',
-          favicon: `${new URL(dbBookmark.url).origin}/favicon.ico`,
+          favicon: (() => {
+            try {
+              const validUrl = new URL(dbBookmark.url.startsWith('http') ? dbBookmark.url : `https://${dbBookmark.url}`)
+              return `${validUrl.origin}/favicon.ico`
+            } catch {
+              return '/favicon-16x16.png' // 기본 파비콘 사용
+            }
+          })(),
           tags: dbBookmark.tags,
           createdAt: dbBookmark.created_at,
           updatedAt: dbBookmark.updated_at,
@@ -113,7 +115,14 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
               title: dbBookmark.title,
               url: dbBookmark.url,
               description: dbBookmark.description || '',
-              favicon: `${new URL(dbBookmark.url).origin}/favicon.ico`,
+              favicon: (() => {
+            try {
+              const validUrl = new URL(dbBookmark.url.startsWith('http') ? dbBookmark.url : `https://${dbBookmark.url}`)
+              return `${validUrl.origin}/favicon.ico`
+            } catch {
+              return '/favicon-16x16.png' // 기본 파비콘 사용
+            }
+          })(),
               tags: dbBookmark.tags,
               createdAt: dbBookmark.created_at,
               updatedAt: dbBookmark.updated_at,
@@ -270,190 +279,202 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
   }
 
   return (
-    <div className="flex flex-col min-h-screen pb-20">
-      {/* 📱 MOBILE-OPTIMIZED Header with search */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3">
+    <div className="flex flex-col h-full">
+      {/* 🎯 모바일 최적화 헤더 */}
+      <div className="bg-white border-b border-gray-200 px-3 py-2 flex-shrink-0">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <h1 className="text-base font-semibold text-gray-900">Bookmarks</h1>
-            
-            {/* 📱 Mobile search toggle */}
-            <button
-              onClick={() => setShowMobileSearch(!showMobileSearch)}
-              className="md:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {/* 🎯 카테고리 드롭다운 */}
+            <select 
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="flex-1 text-sm font-medium bg-transparent border-none focus:outline-none text-gray-900 min-w-0"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
+              {categories.map(category => (
+                <option key={category.id} value={category.id}>
+                  {category.label} ({category.count})
+                </option>
+              ))}
+            </select>
           </div>
           
-          {/* View mode toggle - smaller on mobile */}
-          <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
+          {/* 🎯 액션 버튼들 - 더 compact */}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {/* 검색 버튼 */}
             <button
-              onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded-md transition-colors ${
-                viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
-              }`}
+              onClick={() => setShowMobileSearch(!showMobileSearch)}
+              className="p-1.5 text-gray-600 hover:text-gray-900 transition-colors"
+              title="Search"
             >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-              </svg>
+              🔍
             </button>
+            
+            {/* 새 북마크 버튼 */}
             <button
-              onClick={() => setViewMode('list')}
-              className={`p-1.5 rounded-md transition-colors ${
-                viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
-              }`}
+              onClick={() => {
+                const url = prompt('🔗 Enter URL:')
+                if (url && url.trim()) {
+                  try {
+                    new URL(url.trim())
+                    const title = prompt('🏷️ Enter title (optional):') || 'New Bookmark'
+                    
+                    const newBookmark: Bookmark = {
+                      id: Date.now().toString(),
+                      title: title.trim(),
+                      url: url.trim(),
+                      description: '',
+                      favicon: (() => {
+                        try {
+                          const validUrl = new URL(url.trim().startsWith('http') ? url.trim() : `https://${url.trim()}`)
+                          return `${validUrl.origin}/favicon.ico`
+                        } catch {
+                          return '/favicon-16x16.png'
+                        }
+                      })(),
+                      tags: [],
+                      createdAt: new Date().toISOString(),
+                      updatedAt: new Date().toISOString(),
+                      category: 'work',
+                      isFavorite: false,
+                      usageCount: 0,
+                      lastUsedAt: new Date().toISOString()
+                    }
+                    setBookmarks(prev => [newBookmark, ...prev])
+                  } catch {
+                    alert('⚠️ Please enter a valid URL')
+                  }
+                }
+              }}
+              className="p-1.5 text-gray-600 hover:text-gray-900 transition-colors"
+              title="Add bookmark"
             >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 8a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 12a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 16a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" />
-              </svg>
+              ➕
             </button>
           </div>
         </div>
         
-        {/* 📱 Mobile search bar - shows when active */}
+        {/* 🎯 검색바 (토글) */}
         {showMobileSearch && (
-          <div className="mt-3 md:hidden">
+          <div className="mt-2">
             <div className="relative">
               <input
                 type="text"
                 value={localSearchQuery}
                 onChange={(e) => setLocalSearchQuery(e.target.value)}
                 placeholder="Search bookmarks..."
-                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                 autoFocus
               />
-              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
               <button
                 onClick={() => {
                   setLocalSearchQuery('')
                   setShowMobileSearch(false)
                 }}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-0.5 text-gray-400 hover:text-gray-600"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                ✕
               </button>
             </div>
           </div>
         )}
       </div>
       
-      <div className="px-6 py-4">
-        {/* 🎨 PERFECTION: Stats */}
-        <div className="mb-6">
-          <div className="bg-white rounded-xl p-4 border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-base font-semibold text-gray-900">
-                  {filteredBookmarks.length} {filteredBookmarks.length === 1 ? 'bookmark' : 'bookmarks'}
-                </h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  {selectedCategory === 'all' ? 'All saved websites' : `${categories.find(cat => cat.id === selectedCategory)?.label} bookmarks`}
-                </p>
-              </div>
-              <div className="text-lg md:text-xl">
-                🔖
-              </div>
+      {/* 🎯 메인 컨텐츠 영역 - 타이트한 레이아웃 */}
+      <div className="flex-1 overflow-auto">
+        {/* 🎯 바로 콘텐츠 카드들만 표시 - 중복 제목/설명 제거 */}
+        <div className="p-2">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
             </div>
-          </div>
-        </div>
-
-        {/* 🎨 PERFECTION: Enhanced content grid */}
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          </div>
-        ) : filteredBookmarks.length === 0 ? (
-          <motion.div 
-            className="text-center py-12"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <div className="text-2xl md:text-3xl mb-4">🔖</div>
-            <h3 className="text-base font-semibold text-gray-900 mb-2">
-              {bookmarks.length === 0 ? 'No bookmarks yet' : 'No bookmarks match your criteria'}
-            </h3>
-            <p className="text-gray-600 mb-6">
-              {bookmarks.length === 0 
-                ? 'Start saving your favorite websites'
-                : 'Try adjusting your search or filter'
-              }
-            </p>
-          </motion.div>
-        ) : (
-          <ContentGrid layout={viewMode}>
-            {filteredBookmarks.map((bookmark, index) => (
-              <motion.div
-                key={bookmark.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
+          ) : filteredBookmarks.length === 0 ? (
+            <motion.div 
+              className="text-center py-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <div className="text-xl mb-3">🔖</div>
+              <h3 className="text-sm font-medium text-gray-900 mb-2">
+                No bookmarks yet
+              </h3>
+              <button
+                onClick={() => {
+                  const url = prompt('🔗 Enter URL:')
+                  if (url && url.trim()) {
+                    try {
+                      new URL(url.trim())
+                      const title = prompt('🏷️ Enter title:') || 'New Bookmark'
+                      
+                      const newBookmark: Bookmark = {
+                        id: Date.now().toString(),
+                        title: title.trim(),
+                        url: url.trim(),
+                        description: '',
+                        favicon: (() => {
+                        try {
+                          const validUrl = new URL(url.trim().startsWith('http') ? url.trim() : `https://${url.trim()}`)
+                          return `${validUrl.origin}/favicon.ico`
+                        } catch {
+                          return '/favicon-16x16.png'
+                        }
+                      })(),
+                        tags: [],
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        category: 'work',
+                        isFavorite: false,
+                        usageCount: 0,
+                        lastUsedAt: new Date().toISOString()
+                      }
+                      setBookmarks(prev => [newBookmark, ...prev])
+                    } catch {
+                      alert('⚠️ Please enter a valid URL')
+                    }
+                  }
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
               >
-                <EnhancedContentCard
-                  type="url"
-                  title={bookmark.title}
-                  description={bookmark.description}
-                  thumbnail={bookmark.thumbnail}
-                  url={bookmark.url}
-                  metadata={{
-                    domain: new URL(bookmark.url).hostname.replace('www.', ''),
-                    tags: bookmark.tags,
-                    fileSize: bookmark.isFavorite ? '⭐ Favorite' : `Used ${bookmark.usageCount} times`,
-                    platform: bookmark.category
-                  }}
-                  onClick={() => window.open(bookmark.url, '_blank')}
-                  size={viewMode === 'list' ? 'small' : 'medium'}
-                  layout={viewMode}
-                />
-              </motion.div>
-            ))}
-          </ContentGrid>
-        )}
-      </div>
-      
-      {/* 📱 MOBILE: Floating Add Bookmark Button */}
-      <div className="fixed bottom-4 right-4 md:hidden z-40">
-        <button
-          onClick={() => {
-            // Simple mobile-friendly bookmark input (could be replaced with modal)
-            const url = prompt('🔗 Enter URL (e.g., https://example.com):')
-            if (url && url.trim()) {
-              try {
-                new URL(url.trim()) // Validate URL
-                const title = prompt('🏷️ Enter title (optional):') || 'New Bookmark'
-                
-                const newBookmark: Bookmark = {
-                  id: Date.now().toString(),
-                  title: title.trim(),
-                  url: url.trim(),
-                  description: '',
-                  favicon: `${new URL(url.trim()).origin}/favicon.ico`,
-                  tags: [],
-                  createdAt: new Date().toISOString(),
-                  updatedAt: new Date().toISOString(),
-                  category: 'work',
-                  isFavorite: false,
-                  usageCount: 0,
-                  lastUsedAt: new Date().toISOString()
-                }
-                setBookmarks(prev => [newBookmark, ...prev])
-              } catch {
-                alert('⚠️ Please enter a valid URL (e.g., https://example.com)')
-              }
-            }
-          }}
-          className="w-14 h-14 bg-gray-900 hover:bg-gray-800 text-white rounded-full shadow-xl flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-        </button>
+                <span>🔖</span>
+                <span>Add First Bookmark</span>
+              </button>
+            </motion.div>
+          ) : (
+            /* 🎯 바로 콘텐츠 카드들만 표시 - 중복 제목 제거 */
+            <ContentGrid layout={viewMode}>
+              {filteredBookmarks.map((bookmark, index) => (
+                <motion.div
+                  key={bookmark.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: index * 0.05 }}
+                >
+                  <EnhancedContentCard
+                    type="url"
+                    title={bookmark.title}
+                    description={bookmark.description}
+                    thumbnail={bookmark.thumbnail}
+                    url={bookmark.url}
+                    metadata={{
+                      domain: (() => {
+                        try {
+                          return new URL(bookmark.url.startsWith('http') ? bookmark.url : `https://${bookmark.url}`).hostname.replace('www.', '')
+                        } catch {
+                          return 'invalid-url'
+                        }
+                      })(),
+                      tags: bookmark.tags,
+                      fileSize: bookmark.isFavorite ? '⭐ Favorite' : `Used ${bookmark.usageCount} times`,
+                      platform: bookmark.category
+                    }}
+                    onClick={() => window.open(bookmark.url, '_blank')}
+                    size={viewMode === 'list' ? 'small' : 'medium'}
+                    layout={viewMode}
+                  />
+                </motion.div>
+              ))}
+            </ContentGrid>
+          )}
+        </div>
       </div>
     </div>
   )

@@ -2,7 +2,7 @@
   "name": "Koouk - Personal Knowledge Management",
   "short_name": "Koouk",
   "description": "Store, organize, and find your information effortlessly. From notes to links, everything in one place.",
-  "start_url": "/",
+  "start_url": "/?source=pwa",
   "id": "/",
   "scope": "/",
   "display": "standalone",

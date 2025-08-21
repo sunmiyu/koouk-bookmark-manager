@@ -462,7 +462,29 @@ export default function FolderView({
       {/* 🎯 메인 컨텐츠 영역 - 타이트한 레이아웃 */}
       <div className="flex-1 overflow-auto">
         {currentView === 'grid' ? (
-          <div className="p-2">
+          <div className="px-4 sm:px-6 lg:px-8 py-4">
+            {/* 헤더 - 통일된 스타일 */}
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-base font-semibold text-gray-900">
+                  {folders.length} {folders.length === 1 ? 'folder' : 'folders'}
+                </h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  My Folders
+                </p>
+              </div>
+              
+              <button
+                onClick={() => setShowCreateFolderModal(true)}
+                className="w-10 h-10 bg-black text-white rounded-lg flex items-center justify-center hover:bg-gray-800 transition-colors"
+                title="Create New Folder"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
+            </div>
+
             {folders.length === 0 ? (
               <motion.div 
                 className="text-center py-8"

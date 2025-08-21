@@ -73,16 +73,21 @@ export default function ShareFolderModal({
   const stats = analyzeFolder()
 
   const categories = [
-    { value: 'tech', label: 'Technology', emoji: '💻' },
-    { value: 'lifestyle', label: 'Lifestyle', emoji: '✨' },
-    { value: 'food', label: 'Food & Recipe', emoji: '🍳' },
-    { value: 'travel', label: 'Travel', emoji: '🌍' },
-    { value: 'study', label: 'Study & Learning', emoji: '📚' },
-    { value: 'work', label: 'Work & Business', emoji: '💼' },
-    { value: 'entertainment', label: 'Entertainment', emoji: '🎬' },
-    { value: 'health', label: 'Health & Fitness', emoji: '💪' },
-    { value: 'investment', label: 'Investment', emoji: '📈' },
-    { value: 'parenting', label: 'Parenting', emoji: '👶' }
+    { value: 'business', label: 'Business', emoji: '💼' },
+    { value: 'creative', label: 'Creative', emoji: '🎨' },
+    { value: 'tech', label: 'Tech', emoji: '💻' },
+    { value: 'education', label: 'Education', emoji: '📚' },
+    { value: 'lifestyle', label: 'Lifestyle', emoji: '🏠' },
+    { value: 'entertainment', label: 'Entertainment', emoji: '🎵' },
+    { value: 'food', label: 'Food & Recipe', emoji: '🍽️' },
+    { value: 'travel', label: 'Travel', emoji: '✈️' },
+    { value: 'health', label: 'Health & Fitness', emoji: '🏃' },
+    { value: 'finance', label: 'Finance', emoji: '💰' },
+    { value: 'shopping', label: 'Shopping', emoji: '🛒' },
+    { value: 'sports', label: 'Sports', emoji: '⚽' },
+    { value: 'gaming', label: 'Gaming', emoji: '🎮' },
+    { value: 'news', label: 'News', emoji: '📰' },
+    { value: 'science', label: 'Science', emoji: '🔬' }
   ]
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,11 +129,11 @@ export default function ShareFolderModal({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
+        className="bg-white rounded-lg sm:rounded-xl shadow-xl w-full max-w-lg sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
@@ -144,7 +149,7 @@ export default function ShareFolderModal({
         </div>
 
         {/* Content */}
-        <div className="p-4 overflow-y-auto max-h-[calc(90vh-120px)]">
+        <div className="p-3 sm:p-4 overflow-y-auto max-h-[calc(90vh-120px)]">
           {/* Cover Image Upload */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -205,25 +210,21 @@ export default function ShareFolderModal({
           {/* Folder Content Analysis */}
           <div className="mb-4">
             <h3 className="text-sm font-medium text-gray-700 mb-2">Folder Contents</h3>
-            <div className="grid grid-cols-4 gap-2">
-              <div className="bg-gray-50 rounded-lg p-2 text-center">
-                <LinkIcon className="w-4 h-4 text-blue-600 mx-auto mb-1" />
-                <div className="text-sm font-semibold text-gray-900">{stats.urls}</div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center">
+                <div className="text-base sm:text-lg font-semibold text-gray-900">{stats.urls}</div>
                 <div className="text-xs text-gray-600">URLs</div>
               </div>
-              <div className="bg-gray-50 rounded-lg p-2 text-center">
-                <Video className="w-4 h-4 text-red-600 mx-auto mb-1" />
-                <div className="text-sm font-semibold text-gray-900">{stats.videos}</div>
+              <div className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center">
+                <div className="text-base sm:text-lg font-semibold text-gray-900">{stats.videos}</div>
                 <div className="text-xs text-gray-600">Videos</div>
               </div>
-              <div className="bg-gray-50 rounded-lg p-2 text-center">
-                <FileText className="w-4 h-4 text-green-600 mx-auto mb-1" />
-                <div className="text-sm font-semibold text-gray-900">{stats.documents}</div>
+              <div className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center">
+                <div className="text-base sm:text-lg font-semibold text-gray-900">{stats.documents}</div>
                 <div className="text-xs text-gray-600">Documents</div>
               </div>
-              <div className="bg-gray-50 rounded-lg p-2 text-center">
-                <ImageIcon className="w-4 h-4 text-purple-600 mx-auto mb-1" />
-                <div className="text-sm font-semibold text-gray-900">{stats.images}</div>
+              <div className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center">
+                <div className="text-base sm:text-lg font-semibold text-gray-900">{stats.images}</div>
                 <div className="text-xs text-gray-600">Images</div>
               </div>
             </div>
@@ -239,19 +240,19 @@ export default function ShareFolderModal({
             <label className="block text-sm font-medium text-gray-700 mb-3">
               Category *
             </label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {categories.map((cat) => (
                 <button
                   key={cat.value}
                   onClick={() => setCategory(cat.value as ShareCategory)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-1.5 px-3 py-2.5 rounded-lg text-xs sm:text-xs font-medium transition-colors ${
                     category === cat.value
                       ? 'bg-black text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  <span>{cat.emoji}</span>
-                  <span>{cat.label}</span>
+                  <span className="text-sm">{cat.emoji}</span>
+                  <span className="truncate">{cat.label}</span>
                 </button>
               ))}
             </div>
@@ -290,16 +291,16 @@ export default function ShareFolderModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 p-4 border-t border-gray-200">
+        <div className="flex items-center justify-end gap-2 sm:gap-3 p-3 sm:p-4 border-t border-gray-200">
           <button
             onClick={onClose}
-            className="px-6 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+            className="px-4 sm:px-6 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors text-sm sm:text-base"
           >
             Cancel
           </button>
           <button
             onClick={handleShare}
-            className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
+            className="px-4 sm:px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium text-sm sm:text-base"
           >
             Commit to Market Place
           </button>

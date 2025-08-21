@@ -410,6 +410,7 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
                       platform: bookmark.category
                     }}
                     onClick={() => window.open(bookmark.url, '_blank')}
+                    onDelete={() => handleDeleteBookmark(bookmark.id)}
                     size={viewMode === 'list' ? 'small' : 'medium'}
                     layout={viewMode}
                   />

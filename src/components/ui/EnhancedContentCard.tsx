@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import { ExternalLink, FileText, Image as ImageIcon, Video, Edit, Link } from 'lucide-react'
+import { ExternalLink, FileText, Image as ImageIcon, Video, Edit, Link, Trash2 } from 'lucide-react'
 
 interface ContentCardProps {
   type: 'url' | 'image' | 'video' | 'document' | 'memo' | 'folder'
@@ -27,6 +27,7 @@ interface ContentCardProps {
     isShared?: boolean // 공유 상태
   }
   onClick?: () => void
+  onDelete?: () => void // Add delete functionality
   size?: 'small' | 'medium' | 'large'
   layout?: 'grid' | 'list'
 }
@@ -40,6 +41,7 @@ export default function EnhancedContentCard({
   url,
   metadata,
   onClick,
+  onDelete,
   size = 'medium',
   layout = 'grid'
 }: ContentCardProps) {
@@ -499,6 +501,18 @@ export default function EnhancedContentCard({
             <span className="text-xs text-green-600" title="This folder is shared">
               🌐
             </span>
+          )}
+          {onDelete && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onDelete()
+              }}
+              className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded transition-all"
+              title="Delete bookmark"
+            >
+              <Trash2 className="w-3 h-3 text-red-500" />
+            </button>
           )}
         </div>
       </div>

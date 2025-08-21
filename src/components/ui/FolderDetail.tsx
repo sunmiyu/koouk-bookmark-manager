@@ -196,7 +196,8 @@ export default function FolderDetail({
                     })() : undefined,
                     fileSize: item.type,
                     tags: item.tags,
-                    // Add full metadata for better thumbnail extraction
+                    // Add full metadata for better title and thumbnail extraction
+                    title: (item.metadata as ItemMetadata)?.title, // 🎯 YouTube 제목 확보
                     ...(item.metadata as ItemMetadata || {})
                   }}
                   onClick={() => handleItemClick(item)}

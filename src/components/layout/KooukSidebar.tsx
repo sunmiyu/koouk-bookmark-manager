@@ -298,57 +298,55 @@ export default function KooukSidebar({
           <div className="flex flex-col h-full p-4 space-y-3">
             {/* 검색 */}
             <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input 
                 type="text"
                 placeholder="Search bookmarks..."
-                className="w-full px-4 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-colors placeholder-gray-400"
+                className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-colors placeholder-gray-400"
               />
             </div>
             
-            {/* 즐겨찾기 */}
-            <button className="w-full flex items-center gap-3 p-3 text-sm text-gray-700 hover:bg-white hover:shadow-sm rounded-lg transition-all duration-200">
-              <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center font-bold text-gray-800">
-                F
+            {/* New Bookmark 버튼 - My Folder의 New Folder와 동일한 스타일 */}
+            <button className="w-full group flex items-center gap-3 p-3 rounded-xl bg-white hover:bg-gray-50 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+              <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform text-white font-bold text-sm">
+                +
               </div>
-              <span className="flex-1 text-left font-medium">Favorites</span>
-              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">12</span>
+              <div className="text-left">
+                <div className="text-xs font-medium text-gray-900">New Bookmark</div>
+                <div className="text-xs text-gray-600">Save your link</div>
+              </div>
             </button>
 
-            {/* 카테고리 */}
-            <div className="flex-1 overflow-y-auto space-y-1">
-              <div className="px-2 py-2">
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Categories</h3>
-              </div>
-              
+            {/* 북마크 리스트 */}
+            <div className="flex-1 overflow-y-auto space-y-2">
               {[
-                { emoji: '💼', label: 'Work', count: 24 },
-                { emoji: '🎨', label: 'Design', count: 18 },
-                { emoji: '💻', label: 'Development', count: 32 },
-                { emoji: '📚', label: 'Learning', count: 15 },
-                { emoji: '🎵', label: 'Entertainment', count: 8 }
-              ].map(category => (
-                <button 
-                  key={category.label}
-                  className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-white hover:shadow-sm rounded-lg transition-all duration-200"
+                { id: '1', title: 'GitHub Repository', url: 'github.com', category: 'Development' },
+                { id: '2', title: 'Design Inspiration', url: 'dribbble.com', category: 'Design' },
+                { id: '3', title: 'React Documentation', url: 'react.dev', category: 'Learning' },
+                { id: '4', title: 'Figma Community', url: 'figma.com', category: 'Design' },
+                { id: '5', title: 'Stack Overflow', url: 'stackoverflow.com', category: 'Development' }
+              ].map((bookmark) => (
+                <button
+                  key={bookmark.id}
+                  className="w-full group flex items-center gap-3 p-3 rounded-xl transition-all duration-200 cursor-pointer bg-white hover:bg-gray-50 hover:shadow-md text-gray-700 hover:text-gray-900"
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="text-base">{category.emoji}</span>
-                    <span className="font-medium">{category.label}</span>
+                  {/* 북마크 아이콘 */}
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center font-bold text-sm bg-gray-100 text-gray-800">
+                    🔖
                   </div>
-                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                    {category.count}
-                  </span>
+                  
+                  {/* 북마크 정보 */}
+                  <div className="flex-1 min-w-0 text-left">
+                    <div className="font-medium text-xs truncate">
+                      {bookmark.title}
+                    </div>
+                    <div className="text-xs opacity-75 text-gray-500">
+                      {bookmark.url}
+                    </div>
+                  </div>
                 </button>
               ))}
             </div>
-
-            {/* 빠른 추가 */}
-            <button className="w-full flex items-center gap-3 p-3 text-sm text-gray-600 hover:text-gray-900 hover:bg-white hover:shadow-sm rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-400 transition-all duration-200">
-              <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Plus className="w-4 h-4 text-gray-600" />
-              </div>
-              <span className="font-medium">Add Bookmark</span>
-            </button>
           </div>
         )}
 
@@ -367,10 +365,16 @@ export default function KooukSidebar({
 
             {/* 탭 선택 */}
             <div className="flex rounded-xl bg-gray-100 p-1">
-              <button className="flex-1 text-xs py-2 rounded-lg bg-white text-gray-900 shadow-sm font-medium">
+              <button 
+                onClick={() => {/* TODO: Add marketplace tab change handler */}}
+                className="flex-1 text-xs py-2 rounded-lg bg-white text-gray-900 shadow-sm font-medium"
+              >
                 Browse
               </button>
-              <button className="flex-1 text-xs py-2 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
+              <button 
+                onClick={() => {/* TODO: Add marketplace tab change handler */}}
+                className="flex-1 text-xs py-2 rounded-lg text-gray-600 hover:text-gray-900 transition-colors"
+              >
                 My Shared
               </button>
             </div>
@@ -387,7 +391,16 @@ export default function KooukSidebar({
                 { emoji: '💻', label: 'Tech', count: 201 },
                 { emoji: '📚', label: 'Education', count: 67 },
                 { emoji: '🏠', label: 'Lifestyle', count: 134 },
-                { emoji: '🎵', label: 'Entertainment', count: 78 }
+                { emoji: '🎵', label: 'Entertainment', count: 78 },
+                { emoji: '🍽️', label: 'Food & Recipe', count: 156 },
+                { emoji: '✈️', label: 'Travel', count: 92 },
+                { emoji: '🏃', label: 'Health & Fitness', count: 73 },
+                { emoji: '💰', label: 'Finance', count: 84 },
+                { emoji: '🛒', label: 'Shopping', count: 118 },
+                { emoji: '⚽', label: 'Sports', count: 65 },
+                { emoji: '🎮', label: 'Gaming', count: 127 },
+                { emoji: '📰', label: 'News', count: 95 },
+                { emoji: '🔬', label: 'Science', count: 58 }
               ].map(category => (
                 <button 
                   key={category.label}

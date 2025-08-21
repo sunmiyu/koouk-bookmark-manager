@@ -494,6 +494,48 @@ export default function App() {
               <div className="absolute top-full left-4 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[200px]">
                 <div className="p-2">
                   <div className="flex flex-col gap-1">
+                    <button
+                      onClick={() => {
+                        setActiveTab('my-folder')
+                        setShowMobileDropdown(false)
+                      }}
+                      className={`w-full px-3 py-2 text-left rounded-lg transition-colors ${
+                        activeTab === 'my-folder' 
+                          ? 'bg-gray-900 text-white' 
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      📁 My Folder
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveTab('marketplace')
+                        setShowMobileDropdown(false)
+                      }}
+                      className={`w-full px-3 py-2 text-left rounded-lg transition-colors ${
+                        activeTab === 'marketplace' 
+                          ? 'bg-gray-900 text-white' 
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      🛍️ Market Place
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveTab('bookmarks')
+                        setShowMobileDropdown(false)
+                      }}
+                      className={`w-full px-3 py-2 text-left rounded-lg transition-colors ${
+                        activeTab === 'bookmarks' 
+                          ? 'bg-gray-900 text-white' 
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      🔖 Bookmarks
+                    </button>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
 

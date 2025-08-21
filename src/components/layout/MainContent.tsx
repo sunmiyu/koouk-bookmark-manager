@@ -12,9 +12,12 @@ interface MainContentProps {
   folders?: FolderItem[]
   selectedFolderId?: string
   currentView?: 'grid' | 'detail'
+  isLoading?: boolean
   onAddItem?: (item: StorageItem, folderId: string) => void
+  onItemDelete?: (itemId: string, folderId: string) => void
   onShareFolder?: (folder: FolderItem) => void
   onImportFolder?: (sharedFolder: any) => void
+  onBatchImport?: (sharedFolders: any[]) => void
   onLoginRequired?: () => boolean
   user?: any
   marketplaceView?: 'marketplace' | 'my-shared'
@@ -70,7 +73,7 @@ export default function MainContent({
     }
     
     if (activeTab === 'bookmarks') {
-      return <Bookmarks />
+      return <Bookmarks selectedFolderId={selectedFolderId} />
     }
     
     return null

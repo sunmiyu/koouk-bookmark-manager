@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Settings, Plus, Search, LogOut } from 'lucide-react'
+import { Settings, Plus, Search, LogOut, MoreVertical, Edit, Trash2 } from 'lucide-react'
 import { FolderItem } from '@/types/folder'
 import { useAuth } from '@/components/auth/AuthProvider'
 
@@ -14,6 +14,8 @@ interface KooukSidebarProps {
   onFolderSelect?: (folderId: string) => void
   onCreateFolder?: () => void
   onReorderFolders?: (reorderedFolders: FolderItem[]) => void
+  onEditFolder?: (folderId: string, newName: string) => void
+  onDeleteFolder?: (folderId: string) => void
   sharedFolderIds?: Set<string>
   onAccountClick?: () => void
 }
@@ -26,12 +28,17 @@ export default function KooukSidebar({
   onFolderSelect,
   onCreateFolder,
   onReorderFolders,
+  onEditFolder,
+  onDeleteFolder,
   sharedFolderIds = new Set(),
   onAccountClick
 }: KooukSidebarProps) {
   const { user, signOut } = useAuth()
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
+  const [showDropdownId, setShowDropdownId] = useState<string | null>(null)
+  const [editingFolderId, setEditingFolderId] = useState<string | null>(null)
+  const [editingName, setEditingName] = useState<string>('')
 
   // 🎨 PERFECTION FIX: Add proper icons for visual clarity
   const getTabIcon = (tab: string) => {
@@ -99,6 +106,42 @@ export default function KooukSidebar({
     setDraggedIndex(null)
     setDragOverIndex(null)
   }
+
+  // 폴더 편집/삭제 핸들러
+  const handleEditStart = (folder: FolderItem) => {
+    setEditingFolderId(folder.id)
+    setEditingName(folder.name)
+    setShowDropdownId(null)
+  }
+
+  const handleEditSave = () => {
+    if (editingFolderId && editingName.trim()) {
+      onEditFolder?.(editingFolderId, editingName.trim())
+      setEditingFolderId(null)
+      setEditingName('')
+    }
+  }
+
+  const handleEditCancel = () => {
+    setEditingFolderId(null)
+    setEditingName('')
+  }
+
+  const handleDelete = (folderId: string) => {
+    if (confirm('Are you sure you want to delete this folder?')) {
+      onDeleteFolder?.(folderId)
+    }
+    setShowDropdownId(null)
+  }
+
+  // 외부 클릭시 드롭다운 닫기
+  useEffect(() => {
+    const handleClickOutside = () => setShowDropdownId(null)
+    if (showDropdownId) {
+      document.addEventListener('click', handleClickOutside)
+      return () => document.removeEventListener('click', handleClickOutside)
+    }
+  }, [showDropdownId])
 
   return (
     <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col h-screen">
@@ -250,14 +293,31 @@ export default function KooukSidebar({
                     
                     {/* 폴더 정보 */}
                     <div className="flex-1 min-w-0 text-left">
-                      <div className="font-medium text-xs truncate flex items-center gap-1">
-                        {folder.name}
-                        {isShared && (
-                          <span className="text-blue-600 text-xs">
-                            📤
-                          </span>
-                        )}
-                      </div>
+                      {editingFolderId === folder.id ? (
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="text"
+                            value={editingName}
+                            onChange={(e) => setEditingName(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') handleEditSave()
+                              if (e.key === 'Escape') handleEditCancel()
+                            }}
+                            onBlur={handleEditSave}
+                            className="flex-1 text-xs font-medium bg-white border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            autoFocus
+                          />
+                        </div>
+                      ) : (
+                        <div className="font-medium text-xs truncate flex items-center gap-1">
+                          {folder.name}
+                          {isShared && (
+                            <span className="text-blue-600 text-xs">
+                              📤
+                            </span>
+                          )}
+                        </div>
+                      )}
                       <div className={`text-xs opacity-75 ${
                         selectedFolderId === folder.id 
                           ? 'text-white' 
@@ -272,6 +332,44 @@ export default function KooukSidebar({
                           </span>
                         )}
                       </div>
+                    </div>
+
+                    {/* 드롭다운 메뉴 */}
+                    <div className="relative">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setShowDropdownId(showDropdownId === folder.id ? null : folder.id)
+                        }}
+                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 rounded transition-all"
+                      >
+                        <MoreVertical className="w-3 h-3" />
+                      </button>
+                      
+                      {showDropdownId === folder.id && (
+                        <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-32">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleEditStart(folder)
+                            }}
+                            className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center gap-2 text-gray-700"
+                          >
+                            <Edit className="w-3 h-3" />
+                            Rename
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleDelete(folder.id)
+                            }}
+                            className="w-full text-left px-3 py-2 text-xs hover:bg-red-50 flex items-center gap-2 text-red-600"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            Delete
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     {/* 상태 표시 */}
@@ -293,7 +391,7 @@ export default function KooukSidebar({
           </div>
         )}
 
-        {/* Bookmarks 서랍 */}
+        {/* Bookmarks 서랍 - My Folder와 동일한 폴더 구조 */}
         {activeTab === 'bookmarks' && (
           <div className="flex flex-col h-full p-4 space-y-3">
             {/* 검색 */}
@@ -301,51 +399,75 @@ export default function KooukSidebar({
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input 
                 type="text"
-                placeholder="Search bookmarks..."
+                placeholder="Search bookmark folders..."
                 className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-colors placeholder-gray-400"
               />
             </div>
             
-            {/* New Bookmark 버튼 - My Folder의 New Folder와 완전히 동일한 스타일 */}
+            {/* New Bookmark Folder 버튼 - My Folder의 New Folder와 완전히 동일한 스타일 */}
             <button className="group w-full flex items-center gap-3 p-4 bg-white hover:bg-gray-50 border-2 border-dashed border-gray-300 hover:border-gray-400 rounded-lg transition-all duration-200">
               <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform text-white font-bold text-sm">
                 +
               </div>
               <div className="text-left">
-                <div className="text-xs font-medium text-gray-900">New Bookmark</div>
-                <div className="text-xs text-gray-600">Save your link</div>
+                <div className="text-xs font-medium text-gray-900">New Bookmark Folder</div>
+                <div className="text-xs text-gray-600">Create collection</div>
               </div>
             </button>
 
-            {/* 북마크 리스트 */}
+            {/* 북마크 폴더 리스트 - My Folder와 동일한 스타일 */}
             <div className="flex-1 overflow-y-auto space-y-2">
               {[
-                { id: '1', title: 'GitHub Repository', url: 'github.com', category: 'Development' },
-                { id: '2', title: 'Design Inspiration', url: 'dribbble.com', category: 'Design' },
-                { id: '3', title: 'React Documentation', url: 'react.dev', category: 'Learning' },
-                { id: '4', title: 'Figma Community', url: 'figma.com', category: 'Design' },
-                { id: '5', title: 'Stack Overflow', url: 'stackoverflow.com', category: 'Development' }
-              ].map((bookmark) => (
-                <button
-                  key={bookmark.id}
-                  className="w-full group flex items-center gap-3 p-3 rounded-xl transition-all duration-200 cursor-pointer bg-white hover:bg-gray-50 hover:shadow-md text-gray-700 hover:text-gray-900"
+                { id: '1', name: 'Development', count: 8, icon: '💻', color: '#3B82F6' },
+                { id: '2', name: 'Design Resources', count: 12, icon: '🎨', color: '#EF4444' },
+                { id: '3', name: 'Learning', count: 5, icon: '📚', color: '#10B981' },
+                { id: '4', name: 'Tools & Utilities', count: 15, icon: '🛠️', color: '#F59E0B' },
+                { id: '5', name: 'Entertainment', count: 6, icon: '🎬', color: '#8B5CF6' }
+              ].map((bookmarkFolder) => (
+                <motion.button
+                  key={bookmarkFolder.id}
+                  className={`group w-full flex items-center gap-3 p-4 bg-white hover:bg-gray-50 border-2 rounded-lg transition-all duration-200 text-left ${
+                    selectedFolderId === bookmarkFolder.id
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-transparent hover:border-gray-200 hover:shadow-md'
+                  }`}
+                  onClick={() => onFolderSelect?.(bookmarkFolder.id)}
+                  whileHover={{ y: -1 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  {/* 북마크 아이콘 - My Folder와 동일한 스타일 */}
-                  <div className="w-12 h-12 rounded-lg flex items-center justify-center font-bold text-sm bg-gray-100 text-gray-800">
-                    🔖
+                  {/* 폴더 아이콘 - My Folder와 동일한 스타일 */}
+                  <div 
+                    className="w-12 h-12 rounded-lg flex items-center justify-center font-bold text-sm text-white"
+                    style={{ backgroundColor: bookmarkFolder.color }}
+                  >
+                    {bookmarkFolder.icon}
                   </div>
                   
-                  {/* 북마크 정보 - My Folder와 동일한 레이아웃 */}
-                  <div className="flex-1 min-w-0 text-left">
-                    <div className="font-medium text-xs truncate">
-                      {bookmark.title}
+                  {/* 폴더 정보 - My Folder와 동일한 레이아웃 */}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-xs truncate text-gray-900">
+                      {bookmarkFolder.name}
                     </div>
-                    <div className="text-xs opacity-75 text-gray-500">
-                      {bookmark.url}
+                    <div className="text-xs text-gray-500">
+                      {bookmarkFolder.count} {bookmarkFolder.count === 1 ? 'bookmark' : 'bookmarks'}
                     </div>
                   </div>
-                </button>
+
+                  {/* 공유 아이콘 표시 (있는 경우) */}
+                  {sharedFolderIds.has(bookmarkFolder.id) && (
+                    <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs">✓</span>
+                    </div>
+                  )}
+                </motion.button>
               ))}
+              
+              {/* 빈 상태 메시지 */}
+              <div className="text-center py-8 text-gray-500">
+                <div className="text-sm mb-2 font-medium text-gray-400">Empty</div>
+                <div className="text-xs">No bookmark folders yet</div>
+                <div className="text-xs">Create your first collection</div>
+              </div>
             </div>
           </div>
         )}

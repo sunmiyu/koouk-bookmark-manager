@@ -68,7 +68,7 @@ export default function SharedFolderCard({
             {!isOwnFolder && (
               <button
                 onClick={() => onImportFolder?.(sharedFolder)}
-                className="px-1.5 py-0.5 bg-black text-white text-xs rounded hover:bg-gray-800 transition-colors"
+                className="px-1.5 py-0.5 bg-gray-900 text-white text-xs rounded hover:bg-gray-800 transition-colors"
               >
                 Add
               </button>
@@ -78,7 +78,7 @@ export default function SharedFolderCard({
           {!isOwnFolder && (
             <button
               onClick={() => onImportFolder?.(sharedFolder)}
-              className="sm:hidden px-1.5 py-0.5 bg-black text-white text-xs rounded hover:bg-gray-800 transition-colors"
+              className="sm:hidden px-1.5 py-0.5 bg-gray-900 text-white text-xs rounded hover:bg-gray-800 transition-colors"
             >
               Add
             </button>

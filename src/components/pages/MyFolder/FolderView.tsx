@@ -20,7 +20,7 @@ import type { Database } from '@/types/database'
 import { analytics } from '@/lib/analytics'
 import EnhancedContentCard, { ContentGrid } from '@/components/ui/EnhancedContentCard'
 // SearchHeader and FilterPills removed
-import NotepadEdgeTab from '@/components/ui/NotepadEdgeTab'
+import NotepadEdgeTab from '@/components/ui-pc/NotepadEdgeTab'
 import { motion } from 'framer-motion'
 
 type Json = Database['public']['Tables']['storage_items']['Row']['metadata']
@@ -461,78 +461,7 @@ export default function FolderView({
     <div className="flex flex-col h-full">
       {/* 🎯 메인 컨텐츠 영역 - 타이트한 레이아웃 */}
       <div className="flex-1 overflow-auto">
-        {currentView === 'grid' ? (
-          <div className="px-4 sm:px-6 lg:px-8 py-4">
-            {/* 헤더 - 통일된 스타일 */}
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-base font-semibold text-gray-900">
-                  {folders.length} {folders.length === 1 ? 'folder' : 'folders'}
-                </h2>
-                <p className="text-sm text-gray-500 mt-1">
-                  My Folders
-                </p>
-              </div>
-              
-              <button
-                onClick={() => setShowCreateFolderModal(true)}
-                className="w-10 h-10 bg-black text-white rounded-lg flex items-center justify-center hover:bg-gray-800 transition-colors"
-                title="Create New Folder"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-              </button>
-            </div>
-
-            {folders.length === 0 ? (
-              <motion.div 
-                className="text-center py-8"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <div className="text-xl mb-3">📁</div>
-                <h3 className="text-sm font-medium text-gray-900 mb-2">
-                  No folders yet
-                </h3>
-                <button
-                  onClick={() => setShowCreateFolderModal(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                >
-                  <span>📁</span>
-                  <span>Create First Folder</span>
-                </button>
-              </motion.div>
-            ) : (
-              /* 🎯 바로 콘텐츠 카드들만 표시 - 중복 제목 제거 */
-              <ContentGrid layout={viewMode}>
-                {folders.map((folder, index) => (
-                  <motion.div
-                    key={folder.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2, delay: index * 0.05 }}
-                  >
-                    <EnhancedContentCard
-                      type="folder"
-                      title={folder.name}
-                      description={folder.description || `${folder.children.length} items`}
-                      metadata={{
-                        tags: folder.tags,
-                        fileSize: sharedFolderIds.has(folder.id) ? 'Shared' : 'Private',
-                        children: folder.children,
-                        isShared: sharedFolderIds.has(folder.id)
-                      }}
-                      onClick={() => handleFolderSelect(folder.id)}
-                      size={viewMode === 'list' ? 'small' : 'medium'}
-                      layout={viewMode}
-                    />
-                  </motion.div>
-                ))}
-              </ContentGrid>
-            )}
-          </div>
-        ) : selectedFolder ? (
+        {selectedFolder ? (
           <FolderDetail
             folder={selectedFolder}
             onBack={handleBack}
@@ -586,7 +515,24 @@ export default function FolderView({
               }
             }}
           />
-        ) : null}
+        ) : (
+          <div className="px-4 sm:px-6 lg:px-8 py-4">
+            {/* 빈 상태 - 폴더를 선택하라는 메시지 */}
+            <motion.div 
+              className="text-center py-16"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <div className="text-2xl mb-4">📁</div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Select a folder to view contents
+              </h3>
+              <p className="text-sm text-gray-500">
+                Choose a folder from the sidebar to see your stored items
+              </p>
+            </motion.div>
+          </div>
+        )}
       </div>
 
       {/* 🎯 메인 컨텐츠 영역 하단 입력바 - fixed 제거 */}
@@ -641,7 +587,7 @@ export default function FolderView({
                 </button>
                 <button
                   onClick={handleConfirmCreateFolder}
-                  className="flex-1 py-2.5 px-4 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+                  className="flex-1 py-2.5 px-4 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
                 >
                   Create
                 </button>

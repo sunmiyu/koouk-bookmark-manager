@@ -7,7 +7,13 @@ import { DatabaseService } from '@/lib/database'
 import { Trash2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 
-export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }) {
+export default function Bookmarks({ 
+  searchQuery = '',
+  selectedFolderId 
+}: { 
+  searchQuery?: string
+  selectedFolderId?: string
+}) {
   const { user, signIn } = useAuth()
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([])
@@ -21,6 +27,18 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
   const [newBookmarkUrl, setNewBookmarkUrl] = useState('')
   const [newBookmarkTitle, setNewBookmarkTitle] = useState('')
   const [newBookmarkCategory, setNewBookmarkCategory] = useState('work')
+  
+  // 임시 북마크 폴더 데이터 (나중에 실제 데이터로 대체)
+  const bookmarkFolders = [
+    { id: '1', name: 'Development', count: 8, icon: '💻', color: '#3B82F6' },
+    { id: '2', name: 'Design Resources', count: 12, icon: '🎨', color: '#EF4444' },
+    { id: '3', name: 'Learning', count: 5, icon: '📚', color: '#10B981' },
+    { id: '4', name: 'Tools & Utilities', count: 15, icon: '🛠️', color: '#F59E0B' },
+    { id: '5', name: 'Entertainment', count: 6, icon: '🎬', color: '#8B5CF6' }
+  ]
+  
+  const selectedFolder = bookmarkFolders.find(f => f.id === selectedFolderId)
+  
   const categories = [
     { id: 'all', label: 'All Bookmarks', count: bookmarks.length },
     { id: 'most-used', label: 'Most Used', count: bookmarks.filter(b => b.category === 'most-used').length },
@@ -139,13 +157,29 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
   useEffect(() => {
     let filtered = bookmarks
 
-    // 카테고리 필터
-    if (selectedCategory === 'most-used') {
-      filtered = filtered
-        .sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0))
-        .slice(0, 10)
-    } else if (selectedCategory !== 'all') {
-      filtered = filtered.filter(bookmark => bookmark.category === selectedCategory)
+    // 폴더 필터 (선택된 폴더가 있으면 해당 폴더의 북마크만 표시)
+    if (selectedFolderId) {
+      // 임시로 폴더 ID에 따라 북마크 필터링 (실제로는 DB에서 폴더별로 가져와야 함)
+      const folderCategoryMap: { [key: string]: string } = {
+        '1': 'tech',           // Development
+        '2': 'personal',       // Design Resources  
+        '3': 'education',      // Learning
+        '4': 'work',           // Tools & Utilities
+        '5': 'entertainment'   // Entertainment
+      }
+      const folderCategory = folderCategoryMap[selectedFolderId]
+      if (folderCategory) {
+        filtered = filtered.filter(bookmark => bookmark.category === folderCategory)
+      }
+    } else {
+      // 폴더가 선택되지 않았으면 기본 카테고리 필터 적용
+      if (selectedCategory === 'most-used') {
+        filtered = filtered
+          .sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0))
+          .slice(0, 10)
+      } else if (selectedCategory !== 'all') {
+        filtered = filtered.filter(bookmark => bookmark.category === selectedCategory)
+      }
     }
 
     // 검색 필터 (props searchQuery 또는 localSearchQuery 사용)
@@ -161,7 +195,7 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
     }
 
     setFilteredBookmarks(filtered)
-  }, [bookmarks, selectedCategory, searchQuery, localSearchQuery])
+  }, [bookmarks, selectedCategory, selectedFolderId, searchQuery, localSearchQuery])
 
   const handleOpenBookmark = (bookmark: Bookmark) => {
     // 사용 횟수 증가
@@ -357,7 +391,7 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
               {filteredBookmarks.length} {filteredBookmarks.length === 1 ? 'bookmark' : 'bookmarks'}
             </h1>
             <p className="text-xs text-gray-500">
-              My Bookmarks
+              {selectedFolder ? selectedFolder.name : 'My Bookmarks'}
             </p>
           </div>
           
@@ -369,7 +403,7 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
                 WebkitTapHighlightColor: 'transparent',
                 touchAction: 'manipulation'
               }}
-              title="Add New Bookmark"
+              title={selectedFolder ? `Add bookmark to ${selectedFolder.name}` : "Add New Bookmark"}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -381,6 +415,42 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
 
       <div className="flex-1 overflow-auto">
         <div className="px-4 sm:px-6 lg:px-8 py-4">
+          {/* 필터 및 검색 영역 */}
+          {!selectedFolder && (
+            <div className="mb-6 space-y-4">
+              {/* 검색바 */}
+              <div className="relative max-w-sm">
+                <input
+                  type="text"
+                  value={localSearchQuery}
+                  onChange={(e) => setLocalSearchQuery(e.target.value)}
+                  placeholder="Search bookmarks..."
+                  className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+
+              {/* 카테고리 필터 */}
+              <div className="flex flex-wrap gap-2">
+                {categories.map(category => (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedCategory(category.id)}
+                    className={`px-3 py-1.5 text-xs rounded-full transition-colors ${
+                      selectedCategory === category.id
+                        ? 'bg-gray-900 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {category.label} ({category.count})
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
           {/* 북마크 그리드 */}
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
@@ -392,11 +462,13 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <div className="text-xl mb-3">🔖</div>
+              <div className="text-xl mb-3">{selectedFolder ? selectedFolder.icon : '🔖'}</div>
               <h3 className="text-sm font-medium text-gray-900 mb-2">
-                No bookmarks yet
+                {selectedFolder ? `No bookmarks in ${selectedFolder.name}` : 'No bookmarks yet'}
               </h3>
-              <p className="text-xs text-gray-500 mb-4">Save your favorite websites and organize them</p>
+              <p className="text-xs text-gray-500 mb-4">
+                {selectedFolder ? `Add your first bookmark to ${selectedFolder.name}` : 'Save your favorite websites and organize them'}
+              </p>
             </motion.div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
@@ -561,7 +633,7 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
                 </button>
                 <button
                   onClick={handleAddBookmark}
-                  className="flex-1 py-2 px-4 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+                  className="flex-1 py-2 px-4 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
                 >
                   Add Bookmark
                 </button>

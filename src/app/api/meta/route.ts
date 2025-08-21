@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     const hostname = validUrl.hostname.toLowerCase()
     if (hostname === 'youtube.com' || hostname === 'www.youtube.com' || hostname === 'youtu.be') {
       try {
-        const youtubeResponse = await fetch(`${request.nextUrl.origin}/api/youtube?url=${encodeURIComponent(url)}`)
+        const youtubeResponse = await fetch(`${request.nextUrl.origin}/api/external/youtube?url=${encodeURIComponent(url)}`)
         if (youtubeResponse.ok) {
           const youtubeData = await youtubeResponse.json()
           return NextResponse.json({

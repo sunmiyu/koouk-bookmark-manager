@@ -505,20 +505,7 @@ export default function App() {
                           : 'text-gray-700 hover:bg-gray-100'
                       }`}
                     >
-                      📁 My Folder
-                    </button>
-                    <button
-                      onClick={() => {
-                        setActiveTab('marketplace')
-                        setShowMobileDropdown(false)
-                      }}
-                      className={`w-full px-3 py-2 text-left rounded-lg transition-colors ${
-                        activeTab === 'marketplace' 
-                          ? 'bg-gray-900 text-white' 
-                          : 'text-gray-700 hover:bg-gray-100'
-                      }`}
-                    >
-                      🛍️ Market Place
+                      My Folder
                     </button>
                     <button
                       onClick={() => {
@@ -531,7 +518,20 @@ export default function App() {
                           : 'text-gray-700 hover:bg-gray-100'
                       }`}
                     >
-                      🔖 Bookmarks
+                      Bookmarks
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveTab('marketplace')
+                        setShowMobileDropdown(false)
+                      }}
+                      className={`w-full px-3 py-2 text-left rounded-lg transition-colors ${
+                        activeTab === 'marketplace' 
+                          ? 'bg-gray-900 text-white' 
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      Market Place
                     </button>
                   </div>
                 </div>
@@ -583,7 +583,7 @@ export default function App() {
                     }}
                     className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg transition-colors"
                   >
-                    피드백 보내기
+                    Send Feedback
                   </button>
                   
                   <button
@@ -593,7 +593,7 @@ export default function App() {
                     }}
                     className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg transition-colors"
                   >
-                    개인정보 정책
+                    Privacy Policy
                   </button>
                   
                   <button
@@ -781,7 +781,7 @@ export default function App() {
                   }}
                   className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg transition-colors"
                 >
-                  피드백 보내기
+                  Send Feedback
                 </button>
                 
                 <button
@@ -791,7 +791,7 @@ export default function App() {
                   }}
                   className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg transition-colors"
                 >
-                  개인정보 정책
+                  Privacy Policy
                 </button>
                 
                 <button

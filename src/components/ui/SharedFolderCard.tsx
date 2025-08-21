@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { Heart, Edit3 } from 'lucide-react'
 import { SharedFolder } from '@/types/share'
 
@@ -26,11 +25,10 @@ export default function SharedFolderCard({
       {/* 커버 이미지 - 더 컴팩트하게 */}
       <div className="relative aspect-[3/2] overflow-hidden rounded-t-xl bg-gradient-to-br from-gray-50 to-gray-100">
         {sharedFolder.coverImage ? (
-          <Image
+          <img
             src={sharedFolder.coverImage}
             alt={sharedFolder.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">

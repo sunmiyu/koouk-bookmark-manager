@@ -90,7 +90,7 @@ export async function getValidYouTubeThumbnail(url: string): Promise<string | nu
  */
 export async function fetchYouTubeTitle(url: string): Promise<string | null> {
   try {
-    const response = await fetch(`/api/youtube?url=${encodeURIComponent(url)}`)
+    const response = await fetch(`/api/external/youtube?url=${encodeURIComponent(url)}`)
     if (!response.ok) return null
     
     const data = await response.json()
@@ -108,7 +108,7 @@ export async function getYouTubeMetadata(url: string) {
   if (!videoId) return null
 
   try {
-    const response = await fetch(`/api/youtube?url=${encodeURIComponent(url)}`)
+    const response = await fetch(`/api/external/youtube?url=${encodeURIComponent(url)}`)
     if (!response.ok) {
       // API 실패 시 폴백 데이터 반환
       return {

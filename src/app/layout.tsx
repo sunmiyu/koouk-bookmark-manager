@@ -51,20 +51,13 @@ export const metadata: Metadata = {
     title: 'KOOUK - Personal Lifestyle Management Platform',
     description: 'Organize, bookmark, and discover amazing content with your personal digital life manager.',
     siteName: 'KOOUK',
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'KOOUK - Personal Lifestyle Management Platform'
-      }
-    ]
+    images: []
   },
   twitter: {
     card: 'summary_large_image',
     title: 'KOOUK - Personal Lifestyle Management Platform',
     description: 'Organize, bookmark, and discover amazing content with your personal digital life manager.',
-    images: ['/og-image.png'],
+    images: [],
     creator: '@koouk_official'
   },
   robots: {
@@ -94,37 +87,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'KOOUK',
-    startupImage: [
-      {
-        url: '/apple-splash-2048-2732.png',
-        media: '(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)'
-      },
-      {
-        url: '/apple-splash-1668-2224.png', 
-        media: '(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)'
-      },
-      {
-        url: '/apple-splash-1536-2048.png',
-        media: '(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)'
-      },
-      {
-        url: '/apple-splash-1125-2436.png',
-        media: '(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)'
-      },
-      {
-        url: '/apple-splash-1242-2208.png',
-        media: '(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)'
-      },
-      {
-        url: '/apple-splash-750-1334.png',
-        media: '(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)'
-      },
-      {
-        url: '/apple-splash-640-1136.png',
-        media: '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)'
-      }
-    ]
+    title: 'KOOUK'
   }
 }
 

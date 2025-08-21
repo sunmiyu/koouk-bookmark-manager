@@ -87,69 +87,11 @@ export default function FolderDetail({
       {/* 헤더 */}
       <div className="bg-white border-b border-gray-200 p-2 sm:p-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={onBack}
-              className="p-1 hover:bg-gray-100 rounded-md transition-all duration-150 active:scale-95 select-none"
-              style={{
-                WebkitTapHighlightColor: 'transparent',
-                touchAction: 'manipulation'
-              }}
-            >
-              <ArrowLeft size={16} />
-            </button>
-            
-            <div>
-              <h1 className="text-sm sm:text-base font-semibold text-gray-900">{folder.name}</h1>
-              <p className="text-xs text-gray-500">
-                {filteredItems.length} {filteredItems.length === 1 ? 'item' : 'items'}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1">
-            {/* 뷰 모드 토글 */}
-            <div className="flex items-center bg-gray-100 rounded-md p-0.5">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-1 rounded transition-all duration-150 active:scale-95 select-none ${
-                  viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
-                }`}
-                style={{
-                  WebkitTapHighlightColor: 'transparent',
-                  touchAction: 'manipulation'
-                }}
-              >
-                <Grid size={14} />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-1 rounded transition-all duration-150 active:scale-95 select-none ${
-                  viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
-                }`}
-                style={{
-                  WebkitTapHighlightColor: 'transparent',
-                  touchAction: 'manipulation'
-                }}
-              >
-                <List size={14} />
-              </button>
-            </div>
-
-            {/* 폴더 공유 버튼 */}
-            {onShareFolder && (
-              <button
-                onClick={() => setShareModalOpen(true)}
-                className="p-1 hover:bg-gray-100 rounded-md transition-all duration-150 active:scale-95 select-none"
-                title="Share to Market Place"
-                style={{
-                  WebkitTapHighlightColor: 'transparent',
-                  touchAction: 'manipulation'
-                }}
-              >
-                <Share2 size={14} />
-              </button>
-            )}
+          <div>
+            <h1 className="text-sm sm:text-base font-semibold text-gray-900">{folder.name}</h1>
+            <p className="text-xs text-gray-500">
+              {filteredItems.length} {filteredItems.length === 1 ? 'item' : 'items'}
+            </p>
           </div>
         </div>
       </div>
@@ -201,6 +143,7 @@ export default function FolderDetail({
                     ...(item.metadata as ItemMetadata || {})
                   }}
                   onClick={() => handleItemClick(item)}
+                  onDelete={() => handleDeleteItem(item.id)}
                   size="medium"
                   layout={viewMode}
                 />

@@ -306,8 +306,8 @@ export default function KooukSidebar({
               />
             </div>
             
-            {/* New Bookmark 버튼 - My Folder의 New Folder와 동일한 스타일 */}
-            <button className="w-full group flex items-center gap-3 p-3 rounded-xl bg-white hover:bg-gray-50 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+            {/* New Bookmark 버튼 - My Folder의 New Folder와 완전히 동일한 스타일 */}
+            <button className="group w-full flex items-center gap-3 p-4 bg-white hover:bg-gray-50 border-2 border-dashed border-gray-300 hover:border-gray-400 rounded-lg transition-all duration-200">
               <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform text-white font-bold text-sm">
                 +
               </div>
@@ -330,12 +330,12 @@ export default function KooukSidebar({
                   key={bookmark.id}
                   className="w-full group flex items-center gap-3 p-3 rounded-xl transition-all duration-200 cursor-pointer bg-white hover:bg-gray-50 hover:shadow-md text-gray-700 hover:text-gray-900"
                 >
-                  {/* 북마크 아이콘 */}
+                  {/* 북마크 아이콘 - My Folder와 동일한 스타일 */}
                   <div className="w-12 h-12 rounded-lg flex items-center justify-center font-bold text-sm bg-gray-100 text-gray-800">
                     🔖
                   </div>
                   
-                  {/* 북마크 정보 */}
+                  {/* 북마크 정보 - My Folder와 동일한 레이아웃 */}
                   <div className="flex-1 min-w-0 text-left">
                     <div className="font-medium text-xs truncate">
                       {bookmark.title}
@@ -417,14 +417,7 @@ export default function KooukSidebar({
               ))}
             </div>
 
-            {/* 정렬 옵션 */}
-            <div className="border-t border-gray-100 pt-3">
-              <select className="w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-colors">
-                <option>Most Popular</option>
-                <option>Most Recent</option>
-                <option>Most Helpful</option>
-              </select>
-            </div>
+
           </div>
         )}
       </div>

@@ -537,32 +537,25 @@ export default function MarketPlace({
   }
 
   return (
-    <div className="flex flex-col min-h-screen pb-4">
-      {/* 🎯 모바일 전용 헤더 */}
-      <div className="md:hidden bg-white border-b border-gray-200 px-3 py-2 flex-shrink-0">
+    <div className="flex flex-col h-full">
+      {/* 헤더 - My Folder와 동일한 패턴 */}
+      <div className="bg-white border-b border-gray-200 p-2 sm:p-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            {/* 🎯 카테고리 드롭다운 - 모바일 전용 */}
-            <select 
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="flex-1 text-sm font-medium bg-transparent border-none focus:outline-none text-gray-900 min-w-0"
-            >
-              {categories.map(category => (
-                <option key={category.id} value={category.id}>
-                  {category.label} ({category.count})
-                </option>
-              ))}
-            </select>
+          <div>
+            <h1 className="text-sm sm:text-base font-semibold text-gray-900">
+              {filteredFolders.length} {filteredFolders.length === 1 ? 'collection' : 'collections'}
+            </h1>
+            <p className="text-xs text-gray-500">
+              Market Place
+            </p>
           </div>
           
-          {/* 🎯 액션 버튼들 - 더 compact */}
-          <div className="flex items-center gap-1 flex-shrink-0">
+          <div className="flex items-center gap-1">
             {/* 정렬 드롭다운 */}
             <select
               value={sortOrder}
               onChange={(e) => setSortOrder(e.target.value as 'popular' | 'recent' | 'helpful')}
-              className="text-xs text-gray-600 bg-transparent border-none focus:outline-none"
+              className="text-xs text-gray-600 bg-transparent border-none focus:outline-none p-1 hover:bg-gray-100 rounded-md transition-all duration-150"
               title="Sort by"
             >
               {sortOptions.map(option => (
@@ -571,53 +564,13 @@ export default function MarketPlace({
                 </option>
               ))}
             </select>
-            
-            {/* 검색 버튼 */}
-            <button
-              onClick={() => setShowMobileSearch(!showMobileSearch)}
-              className="p-1.5 text-gray-600 hover:text-gray-900 transition-colors"
-              title="Search"
-            >
-              🔍
-            </button>
           </div>
         </div>
-        
-        {/* 🎯 검색바 (토글) */}
-        {showMobileSearch && (
-          <div className="mt-2">
-            <div className="relative">
-              <input
-                type="text"
-                value={localSearchQuery}
-                onChange={(e) => setLocalSearchQuery(e.target.value)}
-                placeholder="Search collections..."
-                className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                autoFocus
-              />
-              <button
-                onClick={() => {
-                  setLocalSearchQuery('')
-                  setShowMobileSearch(false)
-                }}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-0.5 text-gray-400 hover:text-gray-600"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        )}
       </div>
-      
-      {/* 🎯 메인 컨텐츠 영역 - 타이트한 레이아웃 */}
+
       <div className="flex-1 overflow-auto">
-        <div className="p-2">
-          {/* 🎯 바로 콘텐츠 카드들만 표시 - 중복 제목/설명 제거 */}
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          </div>
-        ) : filteredFolders.length === 0 ? (
+        <div className="px-4 sm:px-6 lg:px-8 py-4">
+          {filteredFolders.length === 0 ? (
           <motion.div 
             className="text-center py-12"
             initial={{ opacity: 0, y: 20 }}

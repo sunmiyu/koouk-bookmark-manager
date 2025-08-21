@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Bookmark } from '@/components/ui/BookmarkCard'
 import { useAuth } from '@/components/auth/AuthProvider'
 import { DatabaseService } from '@/lib/database'
-import EnhancedContentCard, { ContentGrid } from '@/components/ui/EnhancedContentCard'
+import { Trash2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }) {
@@ -186,9 +186,17 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
     ))
   }
 
-  const handleDeleteBookmark = (bookmarkId: string) => {
+  const handleDeleteBookmark = async (bookmarkId: string) => {
     if (confirm('Are you sure you want to delete this bookmark?')) {
-      setBookmarks(prev => prev.filter(bookmark => bookmark.id !== bookmarkId))
+      try {
+        if (user) {
+          await DatabaseService.deleteBookmark(bookmarkId)
+        }
+        setBookmarks(prev => prev.filter(bookmark => bookmark.id !== bookmarkId))
+      } catch (error) {
+        console.error('Failed to delete bookmark:', error)
+        alert('Failed to delete bookmark')
+      }
     }
   }
 
@@ -341,30 +349,38 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-auto">
-        <div className="px-4 sm:px-6 lg:px-8 py-4">
-          {/* 헤더 - My Folder 스타일 */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-base font-semibold text-gray-900">
-                {filteredBookmarks.length} {filteredBookmarks.length === 1 ? 'bookmark' : 'bookmarks'}
-              </h2>
-              <p className="text-sm text-gray-500 mt-1">
-                My Bookmarks
-              </p>
-            </div>
-            
+      {/* 헤더 - My Folder와 동일한 패턴 */}
+      <div className="bg-white border-b border-gray-200 p-2 sm:p-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-sm sm:text-base font-semibold text-gray-900">
+              {filteredBookmarks.length} {filteredBookmarks.length === 1 ? 'bookmark' : 'bookmarks'}
+            </h1>
+            <p className="text-xs text-gray-500">
+              My Bookmarks
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-1">
             <button
               onClick={() => setShowAddModal(true)}
-              className="w-10 h-10 bg-black text-white rounded-lg flex items-center justify-center hover:bg-gray-800 transition-colors"
+              className="p-1 hover:bg-gray-100 rounded-md transition-all duration-150 active:scale-95 select-none"
+              style={{
+                WebkitTapHighlightColor: 'transparent',
+                touchAction: 'manipulation'
+              }}
               title="Add New Bookmark"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
             </button>
           </div>
+        </div>
+      </div>
 
+      <div className="flex-1 overflow-auto">
+        <div className="px-4 sm:px-6 lg:px-8 py-4">
           {/* 북마크 그리드 */}
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
@@ -383,40 +399,98 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
               <p className="text-xs text-gray-500 mb-4">Save your favorite websites and organize them</p>
             </motion.div>
           ) : (
-            <ContentGrid layout={viewMode}>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               {filteredBookmarks.map((bookmark, index) => (
                 <motion.div
                   key={bookmark.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.2, delay: index * 0.05 }}
+                  className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-all duration-200 group"
                 >
-                  <EnhancedContentCard
-                    type="url"
-                    title={bookmark.title}
-                    description={bookmark.description}
-                    thumbnail={bookmark.thumbnail}
-                    url={bookmark.url}
-                    metadata={{
-                      domain: (() => {
-                        try {
-                          return new URL(bookmark.url.startsWith('http') ? bookmark.url : `https://${bookmark.url}`).hostname.replace('www.', '')
-                        } catch {
-                          return 'invalid-url'
-                        }
-                      })(),
-                      tags: bookmark.tags,
-                      fileSize: bookmark.isFavorite ? '⭐ Favorite' : `Used ${bookmark.usageCount} times`,
-                      platform: bookmark.category
-                    }}
-                    onClick={() => window.open(bookmark.url, '_blank')}
-                    onDelete={() => handleDeleteBookmark(bookmark.id)}
-                    size={viewMode === 'list' ? 'small' : 'medium'}
-                    layout={viewMode}
-                  />
+                  <div className="flex items-center gap-3">
+                    {/* 썸네일/파비콘 */}
+                    <div className="w-12 h-12 flex-shrink-0 bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">
+                      {bookmark.favicon ? (
+                        <img 
+                          src={bookmark.favicon} 
+                          alt=""
+                          className="w-6 h-6"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent) {
+                              parent.innerHTML = '<span class="text-sm">🔗</span>';
+                            }
+                          }}
+                        />
+                      ) : (
+                        <span className="text-sm">🔗</span>
+                      )}
+                    </div>
+                    
+                    {/* 콘텐츠 영역 */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <h3 
+                            className="font-medium text-gray-900 text-sm line-clamp-1 cursor-pointer hover:text-blue-600 transition-colors"
+                            onClick={() => handleOpenBookmark(bookmark)}
+                          >
+                            {bookmark.title}
+                          </h3>
+                          <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">
+                            {(() => {
+                              try {
+                                return new URL(bookmark.url.startsWith('http') ? bookmark.url : `https://${bookmark.url}`).hostname.replace('www.', '')
+                              } catch {
+                                return bookmark.url
+                              }
+                            })()}
+                          </p>
+                          {bookmark.description && (
+                            <p className="text-xs text-gray-400 line-clamp-1 mt-1">
+                              {bookmark.description}
+                            </p>
+                          )}
+                        </div>
+                        
+                        {/* 액션 버튼들 */}
+                        <div className="flex items-center gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => handleToggleFavorite(bookmark.id)}
+                            className="p-1 hover:bg-gray-100 rounded transition-colors"
+                            title={bookmark.isFavorite ? "Remove from favorites" : "Add to favorites"}
+                          >
+                            <span className={`text-xs ${bookmark.isFavorite ? 'text-yellow-500' : 'text-gray-400'}`}>
+                              ⭐
+                            </span>
+                          </button>
+                          <button
+                            onClick={() => handleDeleteBookmark(bookmark.id)}
+                            className="p-1 hover:bg-red-50 hover:text-red-600 rounded transition-colors"
+                            title="Delete bookmark"
+                          >
+                            <Trash2 className="w-3 h-3 text-gray-400" />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {/* 메타데이터 */}
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">
+                          {bookmark.category}
+                        </span>
+                        {bookmark.isFavorite && (
+                          <span className="text-xs text-yellow-600">⭐ Favorite</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </motion.div>
               ))}
-            </ContentGrid>
+            </div>
           )}
         </div>
       </div>

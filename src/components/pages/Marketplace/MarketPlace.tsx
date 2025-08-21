@@ -7,17 +7,11 @@ import { useToast } from '@/hooks/useToast'
 import { useAuth } from '@/components/auth/AuthProvider'
 import { DatabaseService } from '@/lib/database'
 import Toast from '@/components/ui/Toast'
-import CategoryFilter from '@/components/ui/CategoryFilter'
-import SortOptions from '@/components/ui/SortOptions'
 import SharedFolderCard from '@/components/ui/SharedFolderCard'
 import EditSharedFolderModal from '@/components/ui/EditSharedFolderModal'
-// 🎨 PERFECTION: Import new components
-import EnhancedContentCard, { ContentGrid } from '@/components/ui/EnhancedContentCard'
-// 📱 MOBILE-FIRST: Import mobile components
 import BottomSheet from '@/components/ui/BottomSheet'
 import FolderImportPreview from '@/components/ui/FolderImportPreview'
 import SuccessOverlay from '@/components/ui/SuccessOverlay'
-// FilterPills removed
 import { motion } from 'framer-motion'
 
 interface MarketPlaceProps {
@@ -36,47 +30,43 @@ export default function MarketPlace({
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [sortOrder, setSortOrder] = useState<'popular' | 'recent' | 'helpful'>('popular')
   const [isLoading, setIsLoading] = useState(true)
-  // Browse 모드로 고정
   const currentView = 'marketplace'
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [editingFolder, setEditingFolder] = useState<SharedFolder | null>(null)
   const [showImportModal, setShowImportModal] = useState(false)
   const [selectedFolderForImport, setSelectedFolderForImport] = useState<SharedFolder | null>(null)
-  // 📱 MOBILE-FIRST: Enhanced success feedback
   const [showSuccessOverlay, setShowSuccessOverlay] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
-
-  // 🎨 PERFECTION: Enhanced categories with proper icons and counts
   const categories = [
     { id: 'all', label: 'All Categories', count: sharedFolders.length },
-    { id: 'tech', label: 'Technology', count: sharedFolders.filter(f => f.category === 'tech').length },
+    { id: 'business', label: 'Business', count: sharedFolders.filter(f => f.category === 'business').length },
+    { id: 'creative', label: 'Creative', count: sharedFolders.filter(f => f.category === 'creative').length },
+    { id: 'tech', label: 'Tech', count: sharedFolders.filter(f => f.category === 'tech').length },
+    { id: 'education', label: 'Education', count: sharedFolders.filter(f => f.category === 'education').length },
     { id: 'lifestyle', label: 'Lifestyle', count: sharedFolders.filter(f => f.category === 'lifestyle').length },
+    { id: 'entertainment', label: 'Entertainment', count: sharedFolders.filter(f => f.category === 'entertainment').length },
     { id: 'food', label: 'Food & Recipe', count: sharedFolders.filter(f => f.category === 'food').length },
     { id: 'travel', label: 'Travel', count: sharedFolders.filter(f => f.category === 'travel').length },
-    { id: 'study', label: 'Study & Learning', count: sharedFolders.filter(f => f.category === 'study').length },
-    { id: 'work', label: 'Work & Business', count: sharedFolders.filter(f => f.category === 'work').length },
-    { id: 'entertainment', label: 'Entertainment', count: sharedFolders.filter(f => f.category === 'entertainment').length },
     { id: 'health', label: 'Health & Fitness', count: sharedFolders.filter(f => f.category === 'health').length },
-    { id: 'investment', label: 'Investment', count: sharedFolders.filter(f => f.category === 'investment').length },
-    { id: 'parenting', label: 'Parenting', count: sharedFolders.filter(f => f.category === 'parenting').length }
+    { id: 'finance', label: 'Finance', count: sharedFolders.filter(f => f.category === 'finance').length },
+    { id: 'shopping', label: 'Shopping', count: sharedFolders.filter(f => f.category === 'shopping').length },
+    { id: 'sports', label: 'Sports', count: sharedFolders.filter(f => f.category === 'sports').length },
+    { id: 'gaming', label: 'Gaming', count: sharedFolders.filter(f => f.category === 'gaming').length },
+    { id: 'news', label: 'News', count: sharedFolders.filter(f => f.category === 'news').length },
+    { id: 'science', label: 'Science', count: sharedFolders.filter(f => f.category === 'science').length }
   ]
   
-  // 🎨 PERFECTION: Enhanced state
-  // 📱 Mobile vs PC 감지 및 뷰 모드 설정
   const [isMobile, setIsMobile] = useState(false)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [localSearchQuery, setLocalSearchQuery] = useState('')
   const [showMobileSearch, setShowMobileSearch] = useState(false)
   
-  // 📱 Pagination state for PC
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 12 // PC에서 한 페이지당 표시할 카드 수
-  
-  // 🖥️ Mobile/PC 감지
+  const itemsPerPage = 12
   useEffect(() => {
     const checkDevice = () => {
       const width = window.innerWidth
-      const mobile = width < 768 // md breakpoint
+      const mobile = width < 768
       setIsMobile(mobile)
       setViewMode(mobile ? 'list' : 'grid')
     }
@@ -233,7 +223,6 @@ export default function MarketPlace({
         let userSharedFolders: SharedFolder[] = []
 
         try {
-          // ✅ 퍼블릭 데이터 로드 (인증 불필요)
           console.log('Loading public shared folders...')
           const dbSharedFolders = await DatabaseService.getPublicSharedFolders()
           
@@ -278,10 +267,7 @@ export default function MarketPlace({
           console.log('✅ Public folders loaded:', convertedFolders.length)
         } catch (publicError) {
           console.error('❌ Failed to load public folders:', publicError)
-          // 퍼블릭 데이터 로드 실패해도 계속 진행
         }
-
-        // 🔒 사용자별 데이터는 인증된 경우에만 로드
         if (user?.id) {
           try {
             console.log('👤 Loading user shared folders for:', user.email)
@@ -317,13 +303,11 @@ export default function MarketPlace({
           } catch (userError) {
             console.error('❌ Failed to load user folders:', userError)
             
-            // 🚨 토큰 에러 구체적 처리
             if ((userError as Error)?.message?.includes('No authorization token') || 
                 (userError as Error)?.message?.includes('JWT') || 
                 (userError as Error)?.message?.includes('authorization')) {
               console.error('🚨 Authorization token missing for user folders')
             }
-            // 사용자 폴더 로드 실패해도 퍼블릭 데이터는 표시
           }
         } else {
           console.log('👤 No user authenticated, skipping user folders')
@@ -388,7 +372,6 @@ export default function MarketPlace({
     setCurrentPage(1)
   }, [sharedFolders, selectedCategory, searchQuery, localSearchQuery, sortOrder, currentView, user])
   
-  // 📱 Pagination logic for PC
   const totalPages = Math.ceil(filteredFolders.length / itemsPerPage)
   const currentItems = isMobile ? filteredFolders : filteredFolders.slice(
     (currentPage - 1) * itemsPerPage,
@@ -397,11 +380,8 @@ export default function MarketPlace({
   
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
-    // 페이지 변경 시 스크롤을 맨 위로
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-
-  // 🎯 상대적 시간 표시 함수
   const getRelativeTime = (dateString: string) => {
     const now = new Date()
     const date = new Date(dateString)
@@ -485,7 +465,6 @@ export default function MarketPlace({
     }
   }
 
-  // 🔒 데이터 로딩 상태 처리
   if (isLoading) {
     return (
       <div className="flex flex-col min-h-screen pb-4">
@@ -559,11 +538,11 @@ export default function MarketPlace({
 
   return (
     <div className="flex flex-col min-h-screen pb-4">
-      {/* 🎯 모바일 최적화 헤더 */}
-      <div className="bg-white border-b border-gray-200 px-3 py-2 flex-shrink-0">
+      {/* 🎯 모바일 전용 헤더 */}
+      <div className="md:hidden bg-white border-b border-gray-200 px-3 py-2 flex-shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            {/* 🎯 카테고리 드롭다운 */}
+            {/* 🎯 카테고리 드롭다운 - 모바일 전용 */}
             <select 
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
@@ -667,50 +646,116 @@ export default function MarketPlace({
                     className="flex-shrink-0"
                   >
                     <div className="w-[280px] h-auto"> {/* Fixed card width for 1750px screen */}
-                      <EnhancedContentCard
-                        type="folder"
-                        title={sharedFolder.title}
-                        description={sharedFolder.description}
-                        thumbnail={sharedFolder.coverImage}
-                        metadata={{
-                          domain: `by ${sharedFolder.author.name}`,
-                          tags: [sharedFolder.category],
-                          fileSize: `${sharedFolder.stats.likes} ♥ ${sharedFolder.stats.downloads} ⬇ • Updated ${getRelativeTime(sharedFolder.updatedAt)}`,
-                          platform: sharedFolder.category
-                        }}
-                        onClick={() => handleCardClick(sharedFolder)}
-                        size="medium"
-                        layout="grid"
+                      <SharedFolderCard
+                        sharedFolder={sharedFolder}
+                        onImportFolder={onImportFolder}
+                        onEditFolder={handleEditFolder}
+                        categories={categories.map(cat => ({ 
+                          value: cat.id, 
+                          label: cat.label,
+                          emoji: cat.id === 'business' ? '💼' : 
+                                cat.id === 'creative' ? '🎨' : 
+                                cat.id === 'tech' ? '💻' : 
+                                cat.id === 'education' ? '📚' : 
+                                cat.id === 'lifestyle' ? '🏠' : 
+                                cat.id === 'entertainment' ? '🎵' : 
+                                cat.id === 'food' ? '🍽️' : 
+                                cat.id === 'travel' ? '✈️' : 
+                                cat.id === 'health' ? '🏃' : 
+                                cat.id === 'finance' ? '💰' : 
+                                cat.id === 'shopping' ? '🛒' : 
+                                cat.id === 'sports' ? '⚽' : 
+                                cat.id === 'gaming' ? '🎮' : 
+                                cat.id === 'news' ? '📰' : 
+                                cat.id === 'science' ? '🔬' : '📁'
+                        }))}
+                        isOwnFolder={sharedFolder.author.id === user?.id}
                       />
                     </div>
                   </motion.div>
                 ))}
               </div>
             ) : (
-              /* 📱 Mobile List Layout */
-              <div className="space-y-2">
+              /* 📱 Mobile Grid Layout - 2 columns */
+              <div className="grid grid-cols-2 gap-3">
                 {currentItems.map((sharedFolder, index) => (
                   <motion.div
                     key={sharedFolder.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                   >
-                    <EnhancedContentCard
-                      type="folder"
-                      title={sharedFolder.title}
-                      description={sharedFolder.description}
-                      thumbnail={sharedFolder.coverImage}
-                      metadata={{
-                        domain: `by ${sharedFolder.author.name}`,
-                        tags: [sharedFolder.category],
-                        fileSize: `${sharedFolder.stats.likes} ♥ ${sharedFolder.stats.downloads} ⬇ • Updated ${getRelativeTime(sharedFolder.updatedAt)}`,
-                        platform: sharedFolder.category
-                      }}
+                    {/* Mobile-optimized card */}
+                    <div 
                       onClick={() => handleCardClick(sharedFolder)}
-                      size="small"
-                      layout="list"
-                    />
+                      className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer active:scale-95 transition-transform"
+                    >
+                      {/* Cover Image */}
+                      <div className="relative aspect-[4/3] bg-gradient-to-br from-gray-50 to-gray-100">
+                        {sharedFolder.coverImage ? (
+                          <img
+                            src={sharedFolder.coverImage}
+                            alt={sharedFolder.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-2xl">
+                              {sharedFolder.category === 'business' ? '💼' : 
+                               sharedFolder.category === 'creative' ? '🎨' : 
+                               sharedFolder.category === 'tech' ? '💻' : 
+                               sharedFolder.category === 'education' ? '📚' : 
+                               sharedFolder.category === 'lifestyle' ? '🏠' : 
+                               sharedFolder.category === 'entertainment' ? '🎵' : 
+                               sharedFolder.category === 'food' ? '🍽️' : 
+                               sharedFolder.category === 'travel' ? '✈️' : 
+                               sharedFolder.category === 'health' ? '🏃' : 
+                               sharedFolder.category === 'finance' ? '💰' : 
+                               sharedFolder.category === 'shopping' ? '🛒' : 
+                               sharedFolder.category === 'sports' ? '⚽' : 
+                               sharedFolder.category === 'gaming' ? '🎮' : 
+                               sharedFolder.category === 'news' ? '📰' : 
+                               sharedFolder.category === 'science' ? '🔬' : '📁'}
+                            </span>
+                          </div>
+                        )}
+                        
+                        {/* Stats overlay */}
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                          <div className="flex items-center justify-between text-white text-xs">
+                            <span className="flex items-center gap-1">
+                              ❤️ {sharedFolder.stats.likes}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              📥 {sharedFolder.stats.downloads}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="p-3">
+                        {/* Title */}
+                        <h3 className="font-medium text-sm text-gray-900 mb-1 line-clamp-2 leading-tight">
+                          {sharedFolder.title}
+                        </h3>
+                        
+                        {/* Author & Category */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-gray-600">{sharedFolder.author.name}</span>
+                            {sharedFolder.author.verified && (
+                              <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
+                                <span className="text-white text-[8px]">✓</span>
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-xs text-gray-500">
+                            {getRelativeTime(sharedFolder.createdAt)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </motion.div>
                 ))}
               </div>

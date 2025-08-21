@@ -15,6 +15,7 @@ interface KooukSidebarProps {
   onCreateFolder?: () => void
   onReorderFolders?: (reorderedFolders: FolderItem[]) => void
   sharedFolderIds?: Set<string>
+  onAccountClick?: () => void
 }
 
 export default function KooukSidebar({
@@ -25,10 +26,10 @@ export default function KooukSidebar({
   onFolderSelect,
   onCreateFolder,
   onReorderFolders,
-  sharedFolderIds = new Set()
+  sharedFolderIds = new Set(),
+  onAccountClick
 }: KooukSidebarProps) {
   const { user, signOut } = useAuth()
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
 
@@ -100,7 +101,7 @@ export default function KooukSidebar({
   }
 
   return (
-    <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col">
+    <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col h-screen">
       
       {/* 상단 브랜드 헤더 */}
       <div className="px-6 py-5 border-b border-gray-200 bg-white">
@@ -418,11 +419,14 @@ export default function KooukSidebar({
       {/* 🧑‍💼 하단 사용자 프로필 */}
       <div className="flex-shrink-0 p-4 border-t border-gray-200 bg-white">
         {user ? (
-          <div className="flex items-center gap-3">
+          <button 
+            onClick={onAccountClick}
+            className="flex items-center gap-3 w-full hover:bg-gray-50 p-2 rounded-lg transition-colors"
+          >
             <div className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center text-white font-semibold text-sm">
-              {user.email?.charAt(0).toUpperCase()}
+              T
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 text-left">
               <div className="text-sm font-semibold text-gray-900 truncate">
                 {user.user_metadata?.name || user.email?.split('@')[0]}
               </div>
@@ -430,16 +434,12 @@ export default function KooukSidebar({
                 Personal Library
               </div>
             </div>
-            <div className="flex items-center gap-1">
-              <button 
-                onClick={() => setShowLogoutConfirm(true)}
-                className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                title="Sign out"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
+            <div className="flex items-center">
+              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </div>
-          </div>
+          </button>
         ) : (
           <div className="text-center text-gray-500">
             <div className="text-sm">Please sign in</div>
@@ -448,40 +448,6 @@ export default function KooukSidebar({
         )}
       </div>
 
-      {/* Logout Confirmation Modal */}
-      {showLogoutConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-80 mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Sign out?
-            </h3>
-            <p className="text-sm text-gray-600 mb-6">
-              You'll need to sign in again to access your folders.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowLogoutConfirm(false)}
-                className="flex-1 py-2.5 px-4 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async () => {
-                  try {
-                    await signOut()
-                    setShowLogoutConfirm(false)
-                  } catch (error) {
-                    console.error('Sign out failed:', error)
-                  }
-                }}
-                className="flex-1 py-2.5 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                Sign out
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

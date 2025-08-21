@@ -33,9 +33,9 @@ export default function BottomSheet({
   }, [isOpen])
 
   const heightClasses = {
-    auto: 'max-h-[90vh]',
+    auto: 'max-h-[70vh]',
     half: 'h-[50vh]',
-    full: 'h-[90vh]'
+    full: 'h-[80vh]'
   }
 
   return (

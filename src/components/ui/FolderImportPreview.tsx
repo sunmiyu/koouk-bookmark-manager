@@ -42,11 +42,11 @@ export default function FolderImportPreview({
   ]
 
   return (
-    <div className="p-6">
+    <div className="p-4">
       {/* Folder Header */}
-      <div className="mb-6">
+      <div className="mb-4">
         {/* Cover Image */}
-        <div className="relative h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl mb-4 overflow-hidden">
+        <div className="relative h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-3 overflow-hidden">
           {folder.coverImage ? (
             <img 
               src={folder.coverImage} 
@@ -68,15 +68,15 @@ export default function FolderImportPreview({
         </div>
 
         {/* Title and Description */}
-        <h2 className="text-xl font-bold text-gray-900 mb-2">
+        <h2 className="text-lg font-bold text-gray-900 mb-2">
           {folder.title}
         </h2>
-        <p className="text-gray-600 text-sm leading-relaxed mb-4">
+        <p className="text-gray-600 text-sm leading-relaxed mb-3">
           {folder.description}
         </p>
 
         {/* Author */}
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2 mb-3">
           <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
             <span className="text-sm">👤</span>
           </div>
@@ -112,25 +112,25 @@ export default function FolderImportPreview({
       </div>
 
       {/* Content Preview */}
-      <div className="mb-6">
-        <h3 className="text-base font-semibold text-gray-900 mb-3">
+      <div className="mb-4">
+        <h3 className="text-sm font-semibold text-gray-900 mb-2">
           What's Inside ({previewItems.length} items)
         </h3>
-        <div className="space-y-2">
+        <div className="space-y-1">
           {previewItems.slice(0, 5).map((item, index) => (
             <motion.div
               key={index}
-              className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+              className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <span className="text-lg">{item.icon}</span>
+              <span className="text-sm">{item.icon}</span>
               <div className="flex-1">
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-xs font-medium text-gray-900">
                   {item.name}
                 </span>
-                <span className="ml-2 text-xs text-gray-500 capitalize">
+                <span className="ml-1 text-xs text-gray-500 capitalize">
                   {item.type}
                 </span>
               </div>

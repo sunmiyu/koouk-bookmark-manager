@@ -8,6 +8,7 @@ import KooukSidebar from '../layout/KooukSidebar'
 import MainContent from '../layout/MainContent'
 import LoginModal from '../auth/LoginModal'
 import FeedbackModal from '../modals/FeedbackModal'
+import SignoutModal from '../ui/SignoutModal'
 import { useDevice } from '@/hooks/useDevice'
 import { useToast } from '@/hooks/useToast'
 import Toast from '../ui/Toast'
@@ -39,6 +40,8 @@ export default function App() {
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [marketplaceView, setMarketplaceView] = useState<'marketplace' | 'my-shared'>('marketplace')
   const [sharedFolderIds, setSharedFolderIds] = useState<Set<string>>(new Set())
+  const [showAccountMenu, setShowAccountMenu] = useState(false)
+  const [showSignoutModal, setShowSignoutModal] = useState(false)
 
   const selectedFolder = folders.find(f => f.id === selectedFolderId)
 
@@ -436,7 +439,7 @@ export default function App() {
               onClick={() => setShowFeedbackModal(true)}
               className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
             >
-              💬
+              T
             </button>
           </div>
 
@@ -478,63 +481,19 @@ export default function App() {
               </svg>
             </button>
             
-            {/* 오른쪽 피드백 버튼 */}
-            <button 
-              onClick={() => setShowFeedbackModal(true)}
-              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+            {/* 오른쪽 계정 아이콘 */}
+            <button
+              onClick={() => setShowAccountMenu(true)}
+              className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center text-white font-bold text-sm hover:bg-gray-800 transition-colors"
             >
-              💬
+              T
             </button>
 
             {/* 드롭다운 메뉴 - 3개 탭 */}
             {showMobileDropdown && (
-              <div className="absolute top-full left-4 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[280px]">
-                <div className="p-3">
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() => {
-                        setActiveTab('my-folder')
-                        setShowMobileDropdown(false)
-                      }}
-                      className={`flex-1 px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-                        activeTab === 'my-folder' 
-                          ? 'bg-gray-900 text-white' 
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      My ...
-                    </button>
-                    
-                    <button
-                      onClick={() => {
-                        setActiveTab('bookmarks')
-                        setShowMobileDropdown(false)
-                      }}
-                      className={`flex-1 px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-                        activeTab === 'bookmarks' 
-                          ? 'bg-gray-900 text-white' 
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      Bookm...
-                    </button>
-                    
-                    <button
-                      onClick={() => {
-                        setActiveTab('marketplace')
-                        setShowMobileDropdown(false)
-                      }}
-                      className={`flex-1 px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
-                        activeTab === 'marketplace' 
-                          ? 'bg-gray-900 text-white' 
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      Market...
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <div className="absolute top-full left-4 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[200px]">
+                <div className="p-2">
+                  <div className="flex flex-col gap-1">
             )}
           </div>
 
@@ -563,6 +522,60 @@ export default function App() {
             className="fixed inset-0 z-40" 
             onClick={() => setShowMobileDropdown(false)}
           />
+        )}
+
+        {/* 계정 메뉴 모달 */}
+        {showAccountMenu && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-sm">
+              <div className="p-6">
+                <h3 className="text-base font-semibold text-gray-900 mb-4">
+                  Account
+                </h3>
+                
+                <div className="space-y-2">
+                  <button
+                    onClick={() => {
+                      setShowAccountMenu(false)
+                      setShowFeedbackModal(true)
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg transition-colors"
+                  >
+                    피드백 보내기
+                  </button>
+                  
+                  <button
+                    onClick={() => {
+                      setShowAccountMenu(false)
+                      window.open('/privacy', '_blank')
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg transition-colors"
+                  >
+                    개인정보 정책
+                  </button>
+                  
+                  <button
+                    onClick={() => {
+                      setShowAccountMenu(false)
+                      setShowSignoutModal(true)
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg transition-colors text-red-600"
+                  >
+                    Logout
+                  </button>
+                </div>
+                
+                <div className="mt-6">
+                  <button
+                    onClick={() => setShowAccountMenu(false)}
+                    className="w-full py-2.5 px-4 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     )
@@ -619,6 +632,7 @@ export default function App() {
           onCreateFolder={() => setShowCreateFolderModal(true)}
           onReorderFolders={handleReorderFolders}
           sharedFolderIds={sharedFolderIds}
+          onAccountClick={() => setShowAccountMenu(true)}
         />
       </div>
 
@@ -706,6 +720,70 @@ export default function App() {
         message={toast.message}
         type={toast.type}
         onClose={hideToast}
+      />
+
+      {/* 계정 메뉴 모달 */}
+      {showAccountMenu && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm">
+            <div className="p-6">
+              <h3 className="text-base font-semibold text-gray-900 mb-4">
+                Account
+              </h3>
+              
+              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    setShowAccountMenu(false)
+                    setShowFeedbackModal(true)
+                  }}
+                  className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  피드백 보내기
+                </button>
+                
+                <button
+                  onClick={() => {
+                    setShowAccountMenu(false)
+                    window.open('/privacy', '_blank')
+                  }}
+                  className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  개인정보 정책
+                </button>
+                
+                <button
+                  onClick={() => {
+                    setShowAccountMenu(false)
+                    setShowSignoutModal(true)
+                  }}
+                  className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg transition-colors text-red-600"
+                >
+                  Logout
+                </button>
+              </div>
+              
+              <div className="mt-6">
+                <button
+                  onClick={() => setShowAccountMenu(false)}
+                  className="w-full py-2.5 px-4 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 로그아웃 모달 */}
+      <SignoutModal
+        isOpen={showSignoutModal}
+        onClose={() => setShowSignoutModal(false)}
+        onConfirm={() => {
+          setShowSignoutModal(false)
+          signOut()
+        }}
       />
     </div>
   )

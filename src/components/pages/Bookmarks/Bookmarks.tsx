@@ -414,7 +414,7 @@ export default function Bookmarks({
       </div>
 
       <div className="flex-1 overflow-auto">
-        <div className="px-4 sm:px-6 lg:px-8 py-4">
+        <div className="px-4 py-2">
           {/* 필터 및 검색 영역 */}
           {!selectedFolder && (
             <div className="mb-6 space-y-4">
@@ -471,14 +471,14 @@ export default function Bookmarks({
               </p>
             </motion.div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <div className="space-y-2">
               {filteredBookmarks.map((bookmark, index) => (
                 <motion.div
                   key={bookmark.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.2, delay: index * 0.05 }}
-                  className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-all duration-200 group"
+                  className="bg-white border border-gray-200 rounded-lg p-2.5 hover:shadow-sm transition-all duration-200 group"
                 >
                   <div className="flex items-center gap-3">
                     {/* 썸네일/파비콘 */}

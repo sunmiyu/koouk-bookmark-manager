@@ -436,13 +436,13 @@ export default function FolderView({
 
   if (isLoading) {
     return (
-      <div className="flex-1 p-4">
+      <div className="flex-1 px-4 py-3">
         <div className="flex items-center justify-between mb-6">
           <div className="h-6 bg-gray-200 rounded w-32 animate-pulse" />
           <div className="w-8 h-8 bg-gray-200 rounded animate-pulse" />
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
+        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2">
           {Array.from({ length: 8 }, (_, i) => (
             <div key={i} className="bg-white rounded-xl p-3 sm:p-4 border border-gray-100">
               <div className="aspect-square bg-gray-200 rounded-lg animate-pulse mb-3" />

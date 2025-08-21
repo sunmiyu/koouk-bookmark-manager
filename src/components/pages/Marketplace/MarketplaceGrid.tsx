@@ -55,10 +55,10 @@ export function MarketplaceGrid({ onImportFolder }: { onImportFolder?: (folder: 
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="max-w-7xl mx-auto px-4 py-4">
       {/* 그리드 뷰 */}
       {viewMode === 'grid' && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2">
           {filteredFolders.map((folder, index) => (
             <motion.div
               key={folder.id}

@@ -97,7 +97,7 @@ export default function FolderDetail({
       </div>
 
       {/* 콘텐츠 영역 */}
-      <div className="flex-1 overflow-auto p-4">
+      <div className="flex-1 overflow-auto px-4 py-2">
         {filteredItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center mb-4">

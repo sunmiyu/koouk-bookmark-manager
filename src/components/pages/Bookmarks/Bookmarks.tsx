@@ -11,7 +11,7 @@ import EnhancedContentCard, { ContentGrid } from '@/components/ui/EnhancedConten
 import { motion } from 'framer-motion'
 
 export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }) {
-  const { user } = useAuth() // loading 의존성 제거
+  const { user, signIn } = useAuth() // 로그인 기능 추가
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('most-used')
@@ -235,10 +235,17 @@ export default function Bookmarks({ searchQuery = '' }: { searchQuery?: string }
           ) : (
             <div className="text-gray-500">
               <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-2xl">&nbsp;</span>
+                <span className="text-lg">🔖</span>
               </div>
-              <h3 className="text-sm font-medium text-gray-900 mb-1">Please sign in</h3>
-              <p className="text-xs text-gray-500">Sign in to access your bookmarks</p>
+              <h3 className="text-sm font-medium text-gray-900 mb-1">Sign in to save bookmarks</h3>
+              <p className="text-xs text-gray-500 mb-4">Organize and access your saved websites from anywhere</p>
+              <button
+                onClick={signIn}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-xs font-medium"
+              >
+                <span>🚀</span>
+                <span>Sign in</span>
+              </button>
             </div>
           )}
         </div>

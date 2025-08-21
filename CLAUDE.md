@@ -500,6 +500,27 @@ git checkout -b feature/koouk-v2-clean
 - 레이아웃 완전 재구성
 - 기존 패턴 과감히 변경
 
+### 🗂️ **File Management Guidelines**
+
+#### **CRITICAL: Avoid Duplicate Files**
+1. **기존 파일 먼저 확인**: 새로운 컴포넌트 생성 전 반드시 기존 파일 검토
+   ```bash
+   # 검색 예시
+   grep -r "Dashboard\|Home\|Welcome" src/components/
+   find src -name "*Dashboard*" -o -name "*Home*"
+   ```
+
+2. **기존 파일 활용 우선**: 있으면 업데이트, 없으면 생성
+   - ✅ **기존 파일 수정**: `src/components/pages/Dashboard/DashboardPage.tsx` 활용
+   - ❌ **새 파일 생성**: `src/components/HomePage.tsx` 중복 생성 금지
+
+3. **Import 경로 정리**: 새로운 컴포넌트 사용시 import 경로 확인 및 정리
+
+#### **Tool Usage Guidelines**
+- **Serena 최소 사용**: 꼭 필요할 때만 사용 (심플한 grep, find 우선)
+- **기본 도구 활용**: Grep, Read, LS 등 기본 도구로 충분한 경우 serena 사용 금지
+- **효율성 우선**: 빠른 확인은 기본 도구, 복잡한 분석만 serena 활용
+
 ---
 
 ## 🎯 **최종 비전**

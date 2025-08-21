@@ -4,15 +4,16 @@ import { useState, useEffect, Suspense } from 'react'
 import { useAuth } from '@/components/auth/AuthProvider'
 import { FolderItem, StorageItem } from '@/types/folder'
 import { DatabaseService } from '@/lib/database'
-import Sidebar from '../layout/Sidebar'
+import KooukSidebar from '../layout/KooukSidebar'
 import MainContent from '../layout/MainContent'
 import LoginModal from '../auth/LoginModal'
 import FeedbackModal from '../modals/FeedbackModal'
 import { useDevice } from '@/hooks/useDevice'
 import { useToast } from '@/hooks/useToast'
 import Toast from '../ui/Toast'
+import DashboardPage from '../pages/Dashboard/DashboardPage'
 
-type TabType = 'storage' | 'bookmarks' | 'marketplace'
+type TabType = 'my-folder' | 'bookmarks' | 'marketplace'
 
 export default function App() {
   const device = useDevice()
@@ -20,27 +21,31 @@ export default function App() {
   const status = loading ? 'loading' : (user ? 'authenticated' : 'idle')
   const { toast, showSuccess, showError, hideToast } = useToast()
   
-  const [activeTab, setActiveTab] = useState<TabType>('storage')
+  const [activeTab, setActiveTab] = useState<TabType>('my-folder')
+  
+  // 🎯 디버깅: activeTab 변경 감지
+  useEffect(() => {
+    console.log('🎯 App activeTab changed to:', activeTab)
+  }, [activeTab])
   const [folders, setFolders] = useState<FolderItem[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string>()
   const [currentView, setCurrentView] = useState<'grid' | 'detail'>('grid')
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [showMobileDropdown, setShowMobileDropdown] = useState(false)
   const [showCreateFolderModal, setShowCreateFolderModal] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [marketplaceView, setMarketplaceView] = useState<'marketplace' | 'my-shared'>('marketplace')
+  const [sharedFolderIds, setSharedFolderIds] = useState<Set<string>>(new Set())
 
   const selectedFolder = folders.find(f => f.id === selectedFolderId)
 
   // 🎯 사이드바 폴더 선택 핸들러 - 뷰 전환 포함
   const handleFolderSelect = (folderId: string) => {
     setSelectedFolderId(folderId)
-    // My Folder 탭에서만 detail 뷰로 전환
-    if (activeTab === 'storage') {
-      setCurrentView('detail')
-    }
+    setCurrentView('detail')
   }
 
   // 🎯 뷰 변경 핸들러
@@ -51,12 +56,20 @@ export default function App() {
     }
   }
 
+  // 🎯 폴더 순서 변경 핸들러
+  const handleReorderFolders = (reorderedFolders: FolderItem[]) => {
+    setFolders(reorderedFolders)
+    // TODO: Implement database update for folder ordering
+  }
+
   useEffect(() => {
     if (!user) {
       setIsLoading(false)
       return
     }
 
+    // 로그인 후 My Folder 탭으로
+    setActiveTab('my-folder')
     loadUserData()
   }, [user])
 
@@ -403,50 +416,129 @@ export default function App() {
     return false
   }
 
-  if (device.width < 768) {
+  // 로그인 전 모바일: Dashboard만 표시
+  if (device.width < 768 && !user) {
     return (
       <div className="min-h-screen bg-gray-50">
-        {isMobileMenuOpen && (
-          <div className="fixed inset-0 z-50">
-            <div className="fixed inset-0 bg-black bg-opacity-25" onClick={() => setIsMobileMenuOpen(false)} />
-            <div className="fixed left-0 top-0 bottom-0 w-80 bg-white shadow-xl">
-              <Sidebar
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-                folders={folders}
-                selectedFolderId={selectedFolderId}
-                onFolderSelect={handleFolderSelect}
-                onCreateFolder={() => setShowCreateFolderModal(true)}
-                marketplaceView={marketplaceView}
-                onMarketplaceViewChange={setMarketplaceView}
-              />
-            </div>
-          </div>
-        )}
-
         <div className="flex flex-col h-screen">
-          {/* 🎯 모바일 헤더 - 독립적인 영역 */}
+          {/* 🎯 모바일 헤더 - 로그인 전 */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white flex-shrink-0">
-            <button 
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="p-2 text-gray-600 hover:text-gray-900"
-            >
-              ☰
-            </button>
-            
-            <h1 className="font-bold text-gray-900">
-              KOOUK
-            </h1>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-gray-900 rounded-md flex items-center justify-center text-white font-bold text-xs">
+                K
+              </div>
+              <h1 className="font-bold text-gray-900 text-sm">
+                KOOUK
+              </h1>
+            </div>
             
             <button 
               onClick={() => setShowFeedbackModal(true)}
-              className="p-2 text-gray-600 hover:text-gray-900"
+              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
             >
               💬
             </button>
           </div>
 
-          {/* 🎯 모바일 메인 컨텐츠 - 입력바 포함 */}
+          {/* Dashboard */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <DashboardPage 
+              onNavigate={(tab: string) => {
+                // 로그인 유도 메시지 표시
+                showError('Please sign in to access ' + (tab === 'my-folder' ? 'My Folder' : tab === 'bookmarks' ? 'Bookmarks' : 'Marketplace'))
+                setShowLoginModal(true)
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // 로그인 후 모바일: 3개 탭 드롭다운
+  if (device.width < 768) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="flex flex-col h-screen">
+          {/* 🎯 모바일 헤더 - KOOUK 로고 왼쪽 + 드롭다운 */}
+          <div className="relative flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white flex-shrink-0">
+            {/* KOOUK 로고 (왼쪽) */}
+            <button 
+              onClick={() => setShowMobileDropdown(!showMobileDropdown)}
+              className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg transition-colors"
+            >
+              <div className="w-6 h-6 bg-gray-900 rounded-md flex items-center justify-center text-white font-bold text-xs">
+                K
+              </div>
+              <h1 className="font-bold text-gray-900 text-sm">
+                KOOUK
+              </h1>
+              <svg className={`w-4 h-4 text-gray-600 transition-transform ${showMobileDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            
+            {/* 오른쪽 피드백 버튼 */}
+            <button 
+              onClick={() => setShowFeedbackModal(true)}
+              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+            >
+              💬
+            </button>
+
+            {/* 드롭다운 메뉴 - 3개 탭 */}
+            {showMobileDropdown && (
+              <div className="absolute top-full left-4 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[280px]">
+                <div className="p-3">
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => {
+                        setActiveTab('my-folder')
+                        setShowMobileDropdown(false)
+                      }}
+                      className={`flex-1 px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                        activeTab === 'my-folder' 
+                          ? 'bg-gray-900 text-white' 
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      My ...
+                    </button>
+                    
+                    <button
+                      onClick={() => {
+                        setActiveTab('bookmarks')
+                        setShowMobileDropdown(false)
+                      }}
+                      className={`flex-1 px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                        activeTab === 'bookmarks' 
+                          ? 'bg-gray-900 text-white' 
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      Bookm...
+                    </button>
+                    
+                    <button
+                      onClick={() => {
+                        setActiveTab('marketplace')
+                        setShowMobileDropdown(false)
+                      }}
+                      className={`flex-1 px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                        activeTab === 'marketplace' 
+                          ? 'bg-gray-900 text-white' 
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      Market...
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 🎯 모바일 메인 컨텐츠 */}
           <div className="flex-1 flex flex-col overflow-hidden">
             <MainContent
               activeTab={activeTab}
@@ -459,47 +551,74 @@ export default function App() {
               marketplaceView={marketplaceView}
               onMarketplaceViewChange={setMarketplaceView}
               onFolderSelect={handleFolderSelect}
+              onTabChange={setActiveTab}
               onViewChange={handleViewChange}
             />
           </div>
-
-          {/* 🎯 모바일 하단 탭 네비게이션 */}
-          <div className="flex bg-white border-t border-gray-200 flex-shrink-0">
-            {(['storage', 'bookmarks', 'marketplace'] as TabType[]).map(tab => (
-              <button 
-                key={tab} 
-                onClick={() => setActiveTab(tab)}
-                className={`flex-1 flex flex-col items-center py-3 ${
-                  activeTab === tab ? 'text-blue-600' : 'text-gray-600'
-                }`}
-              >
-                <span className="text-lg mb-1">
-                  {tab === 'storage' && ''}
-                  {tab === 'bookmarks' && ''}
-                  {tab === 'marketplace' && ''}
-                </span>
-                <span className="text-xs capitalize">{tab}</span>
-              </button>
-            ))}
-          </div>
         </div>
+
+        {/* 드롭다운이 열려있을 때 배경 클릭으로 닫기 */}
+        {showMobileDropdown && (
+          <div 
+            className="fixed inset-0 z-40" 
+            onClick={() => setShowMobileDropdown(false)}
+          />
+        )}
       </div>
     )
   }
 
+  // 데스크톱 로그인 전: Dashboard만 표시 + 로그인 유도
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <DashboardPage 
+          onNavigate={(tab: string) => {
+            // 로그인 유도 메시지 표시
+            showError('Please sign in to access ' + (tab === 'my-folder' ? 'My Folder' : tab === 'bookmarks' ? 'Bookmarks' : 'Marketplace'))
+            setShowLoginModal(true)
+          }}
+        />
+        
+        {/* 로그인 모달 */}
+        <LoginModal 
+          isOpen={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+        />
+        
+        {/* 피드백 모달 */}
+        {showFeedbackModal && (
+          <FeedbackModal 
+            isOpen={showFeedbackModal}
+            onClose={() => setShowFeedbackModal(false)} 
+          />
+        )}
+        
+        {/* 토스트 */}
+        <Toast
+          show={toast.show}
+          message={toast.message}
+          type={toast.type}
+          onClose={hideToast}
+        />
+      </div>
+    )
+  }
+
+  // 데스크톱 로그인 후: 사이드바 + 탭
   return (
     <div className="flex h-screen bg-gray-50">
       {/* 🎯 완전 분리된 사이드바 - 독립적인 영역 */}
       <div className="w-80 flex-shrink-0">
-        <Sidebar
+        <KooukSidebar
           activeTab={activeTab}
           onTabChange={setActiveTab}
           folders={folders}
           selectedFolderId={selectedFolderId}
           onFolderSelect={handleFolderSelect}
           onCreateFolder={() => setShowCreateFolderModal(true)}
-          marketplaceView={marketplaceView}
-          onMarketplaceViewChange={setMarketplaceView}
+          onReorderFolders={handleReorderFolders}
+          sharedFolderIds={sharedFolderIds}
         />
       </div>
 
@@ -528,6 +647,7 @@ export default function App() {
             onLoginRequired={handleLoginRequired}
             user={user}
             marketplaceView={marketplaceView}
+            onTabChange={setActiveTab}
             onMarketplaceViewChange={setMarketplaceView}
             onFolderSelect={handleFolderSelect}
             onViewChange={handleViewChange}

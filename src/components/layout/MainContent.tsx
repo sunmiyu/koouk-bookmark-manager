@@ -4,9 +4,10 @@ import { FolderItem, StorageItem } from '@/types/folder'
 import FolderView from '@/components/pages/MyFolder/FolderView'
 import MarketPlace from '@/components/pages/Marketplace/MarketPlace'
 import Bookmarks from '@/components/pages/Bookmarks/Bookmarks'
+import DashboardPage from '@/components/pages/Dashboard/DashboardPage'
 
 interface MainContentProps {
-  activeTab: 'storage' | 'bookmarks' | 'marketplace'
+  activeTab: 'my-folder' | 'bookmarks' | 'marketplace'
   selectedFolder?: FolderItem
   folders?: FolderItem[]
   selectedFolderId?: string
@@ -20,6 +21,7 @@ interface MainContentProps {
   onMarketplaceViewChange?: (view: 'marketplace' | 'my-shared') => void
   onFolderSelect?: (folderId: string) => void
   onViewChange?: (view: 'grid' | 'detail') => void
+  onTabChange?: (tab: 'my-folder' | 'bookmarks' | 'marketplace') => void
 }
 
 export default function MainContent({
@@ -36,12 +38,15 @@ export default function MainContent({
   marketplaceView,
   onMarketplaceViewChange,
   onFolderSelect,
-  onViewChange
+  onViewChange,
+  onTabChange
 }: MainContentProps) {
 
   // Handle tab content with login checks  
   const renderTabContent = () => {
-    if (activeTab === 'storage') {
+    console.log('🎯 MainContent activeTab:', activeTab) // 디버깅용
+    
+    if (activeTab === 'my-folder') {
       return (
         <FolderView 
           searchQuery=""
@@ -54,6 +59,7 @@ export default function MainContent({
         />
       )
     }
+    
     
     if (activeTab === 'marketplace') {
       return (

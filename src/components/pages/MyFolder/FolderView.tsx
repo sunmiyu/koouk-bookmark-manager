@@ -46,7 +46,7 @@ export default function FolderView({
   onFolderSelect: propOnFolderSelect,
   onViewChange: propOnViewChange
 }: FolderViewProps) {
-  const { user, loading: authLoading } = useAuth()
+  const { user, loading: authLoading, signIn } = useAuth()
   const { settings: userSettings, updateSettings: updateUserSettings } = useUserSettings(user?.id)
   
   // State 그룹화 - prop이 있으면 prop 사용, 없으면 내부 state 사용
@@ -418,10 +418,17 @@ export default function FolderView({
       <div className="h-96 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-            <span className="text-lg md:text-xl">👤</span>
+            <span className="text-lg md:text-xl">📁</span>
           </div>
-          <h3 className="text-sm font-medium text-gray-900 mb-1">Please sign in</h3>
-          <p className="text-xs text-gray-500">Sign in to access your folders</p>
+          <h3 className="text-sm font-medium text-gray-900 mb-1">Sign in to manage folders</h3>
+          <p className="text-xs text-gray-500 mb-4">Create, organize, and manage your personal content collections</p>
+          <button
+            onClick={signIn}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-xs font-medium"
+          >
+            <span>🚀</span>
+            <span>Sign in</span>
+          </button>
         </div>
       </div>
     )
